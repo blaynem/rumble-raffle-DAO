@@ -99,6 +99,11 @@ class Rumble {
 
     return this.setPlayers();
   }
+  /**
+   * Remove a player from the rumble.
+   * @param playerId - playerID to remove
+   * @returns - the remaining players
+   */
   removePlayer(playerId: string): PlayerType[] {
     if (this.gameStarted) {
       console.log('----GAME ALREADY STARTED----')
@@ -114,12 +119,19 @@ class Rumble {
 
     return this.setPlayers();
   }
+  /**
+   * Sets the total amount of players and calls setPrize values.
+   * @returns All the players
+   */
   setPlayers(): PlayerType[] {
     this.totalPlayers = this.allPlayerIds.length;
     this.setPrizeValues()
 
     return getPlayersFromIds(this.allPlayerIds, this.allPlayers)
   }
+  /**
+   * Sets the prize values based on the predetermined prize split.
+   */
   setPrizeValues() {
     const totalPrize = this.totalPlayers * this.entryPrice;
     const prizes = getPrizeSplit(totalPrize);
@@ -127,9 +139,53 @@ class Rumble {
     this.prizes = prizes;
     this.totalPrize = totalPrize;
   }
+  /**
+   * Getter for the prize information.
+   * @returns all prizes
+   */
   getPrizes(): PrizeValuesType {
     return this.prizes;
   }
+  
+  /**
+   * Starts the rumble.
+   * Will not fire if the game has already started.
+   */
+  startGame() {
+    if (this.gameStarted) {
+      console.log('----GAME ALREADY STARTED----')
+      return;
+    }
+    this.activityLogs = [];
+    this.playersRemainingIds = [...this.allPlayerIds]
+    this.playersSlainIds = [];
+    this.gameStarted = true;
+
+    // First round fired
+    this.createRound();
+  }
+  /**
+   * Will continue to the next round.
+   * If the game hasn't started yet, will do nothing.
+   */
+  nextRound() {
+    if (!this.gameStarted) {
+      console.log('----GAME HAS NOT STARTED YET----')
+      return;
+    }
+    // Creates and does the next round.
+    this.createRound();
+  }
+  /**
+   * Clears all the activity logs and restarts the game.
+   */
+  clearGame() {
+    this.activityLogs = [];
+    this.playersRemainingIds = []
+    this.playersSlainIds = [];
+    this.gameStarted = false;
+  };
+
   /**
    * Creates a round of activites that will happen.
    * 
@@ -144,28 +200,6 @@ class Rumble {
    * - Add all local deadPlayers to the main deadPlayers list
    * - Check chanceOfRevive and revive one player from the main deadPlayers list
    */
-  startGame() {
-    this.activityLogs = [];
-    this.playersRemainingIds = [...this.allPlayerIds]
-    this.playersSlainIds = [];
-    this.gameStarted = true;
-
-    // First round fired
-    this.createRound();
-  }
-  nextRound() {
-    // Does the next round.
-    this.createRound();
-    if (this.playersRemainingIds.length === 1) {
-      console.log('---GAME ENDED----');
-    }
-  }
-  clearGame() {
-    this.activityLogs = [];
-    this.playersRemainingIds = []
-    this.playersSlainIds = [];
-    this.gameStarted = false;
-  };
   createRound() {
     if (this.playersRemainingIds.length === 1) {
       // Don't do anything because theres no one left.
@@ -179,7 +213,6 @@ class Rumble {
     
     // Will only revive if there are any dead players.
     const playerRevives = doesEventOccur(this.chanceOfRevive) && deadPlayerIds.length > 0;
-    console.log('---test-1', {availablePlayerIds, deadPlayerIds, playerRevives});
     
     // TODO: Determine how long this should run for.
     // Will need to do a loop to create multiple events. Will also need to check and make sure there are enough people to do the next event.
@@ -190,22 +223,18 @@ class Rumble {
        * - No players will revive - `playerRevives` is false
        */      
       if ((this.playersRemainingIds.length === 1 || availablePlayerIds.length === 1) && !playerRevives) {
-        console.log('----GAME SHOULD END----', {playerRevives, availablePlayerIds, deadPlayerIds, ...this});
         break;
       }
       // Picks pve or pvp round, will always be pve round if there is only one person currently alive.
       // This only happens if someone will also revive this turn.
       const pveRound = this.playersRemainingIds.length === 1|| doesEventOccur(this.chanceOfPve)
-      console.log(`---forloop---start---${i}`, {availablePlayerIds, deadPlayerIds, roundActivityLog, playerRevives});
       const chosenActivity = pickActivity(pveRound ? PVE_ACTIVITIES : PVP_ACTIVITIES, availablePlayerIds.length);
-      console.log(`----forloop---chosenActivity`, chosenActivity)
       // Chooses random players
       // TODO: DONT ALLOW PLAYERS TO PLAY MORE THAN TWICE A ROUND timesPlayedThisRound.
       const chosenPlayerIds: string[] = getAmtRandomItemsFromArr(availablePlayerIds, chosenActivity.amountOfPlayers);
 
       // Do the activity here
       const activity: RoundActivityLogType = doActivity(chosenActivity, chosenPlayerIds);
-      console.log(`----forloop---doActivity`, activity)
       // push the activity to the log
       roundActivityLog.push(activity)
       if (activity.losers !== null) {
@@ -218,10 +247,8 @@ class Rumble {
         // If the id is present in the object, then we increase it by one. If it's not, we set it to 1.
         timesPlayedThisRound[id] ? timesPlayedThisRound[id]++ : timesPlayedThisRound[id] = 1;
       })
-      console.log(`---forloop---end---${i}`, {availablePlayerIds, deadPlayerIds, roundActivityLog});
     }
 
-    console.log('---test-2', { availablePlayerIds, deadPlayerIds, timesPlayedThisRound, roundActivityLog, playerRevives });
     if (playerRevives) {
       // Gets the player id we are going to revive.
       const playerToReviveId: string = getAmtRandomItemsFromArr(deadPlayerIds, 1)[0];
@@ -232,19 +259,12 @@ class Rumble {
       const chosenActivity = pickActivity(REVIVE_ACTIVITIES, availablePlayerIds.length);
       const activity: RoundActivityLogType = doActivity(chosenActivity, [playerToReviveId]);
       roundActivityLog.push(activity);
-      console.log('----playerRevives-----', chosenActivity, playerToReviveId);
-    }
-
-    // If there's only one player alive they are the winner. We don
-    if (availablePlayerIds.length === 1) {
-      console.log('---THIS IS THE END-- ', { availablePlayerIds, deadPlayerIds, timesPlayedThisRound, roundActivityLog, playerRevives, thisPlayersRemainingId: this.playersRemainingIds, });
     }
 
     // ROUND ENDS, NOW WE DO MORE THINGS.
     this.activityLogs = [...this.activityLogs, roundActivityLog]
     this.playersRemainingIds = [...availablePlayerIds]
     this.playersSlainIds = [...deadPlayerIds];
-    console.log('---test-3', { availablePlayerIds, deadPlayerIds, timesPlayedThisRound, roundActivityLog, playerRevives, thisPlayersRemainingId: this.playersRemainingIds, });
   }
   // Get's all the values just for debugging.
   debug() {
