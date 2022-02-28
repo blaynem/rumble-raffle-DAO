@@ -1,4 +1,4 @@
-import {ActivityEnvironment, ActivityTypes} from './activity'
+import {ActivityEnvironment, ActivityTypes} from '../types/activity'
 
 const PVE_ACTIVITIES: ActivityTypes[] = [{
   id: "1",

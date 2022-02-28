@@ -52,14 +52,14 @@ function App() {
   }
 
   const addPlayer = () => {
-    const { players } = Rumble.addPlayer(fakePlayerToAdd())
-    setEntrants(players)
+    const allPlayers = Rumble.addPlayer(fakePlayerToAdd())
+    setEntrants(allPlayers)
     getPrizes();
   }
 
   const removePlayer = (id: any) => {
-    const { players } = Rumble.removePlayer(id)
-    setEntrants(players)
+    const allPlayers = Rumble.removePlayer(id)
+    setEntrants(allPlayers)
     getPrizes();
   }
 

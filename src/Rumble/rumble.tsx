@@ -1,5 +1,6 @@
-import type {PlayerType, PrizeValuesType} from './types';
-import {ActivityTypes, PVE_ACTIVITIES, PVP_ACTIVITIES} from './activities';
+import type { PlayerType, PrizeValuesType, ActivityTypes, allPlayersObj } from './types';
+import { PVE_ACTIVITIES, PVP_ACTIVITIES } from './activities';
+import {doActivity, pickActivity, getRandomItemsFromArr, getAllPlayersAsArr} from './common';
 
 /**
  * TODO:
@@ -44,12 +45,20 @@ class Rumble {
   entryPrice: number;
   // Prize values that will be given
   prizes: PrizeValuesType;
-  // All players in the game
-  players: PlayerType[]
   // Total prize to be split
   totalPrize: number;
+
+  // All players of the given game as an object.
+  allPlayers: allPlayersObj;
+  // All player ids of the given game as an array.
+  allPlayerIds: string[];
   // Total amount of players
   totalPlayers: number;
+
+  // All players still in the game
+  playersRemainingIds: string[];
+  // Players who have been slain.
+  playersSlainIds: string[];
 
   constructor() {
     this.activities = []
@@ -57,31 +66,51 @@ class Rumble {
     this.chanceOfRevive = 5;
     this.entryPrice = 10;
     this.prizes = getPrizeSplit(0);
-    this.players = []
     this.totalPrize = 0;
+
+    // Used before starting
+    this.allPlayers = {};
+    this.allPlayerIds = [];
     this.totalPlayers = 0;
+
+    // Used during play
+    this.playersRemainingIds = [];
+    this.playersSlainIds = [];
   }
-  addPlayer(newPlayer: PlayerType): {players: PlayerType[]} {
-    // todo: Find if player is already joined, if so don't do anything
-    const newPlayerList = [...this.players, newPlayer];
-    return this.setPlayers(newPlayerList);
+  /**
+   * On add player we want to:
+   * - Add the player ID to playersRemainingIds arr
+   * - Add player to allPlayers object
+   * - Call setPlayers method
+   * @param newPlayer 
+   * @returns 
+   */
+  addPlayer(newPlayer: PlayerType): PlayerType[] {
+    this.allPlayerIds = [...this.allPlayerIds, newPlayer.id];
+    this.allPlayers = {...this.allPlayers, [newPlayer.id]: newPlayer};
+
+    return this.setPlayers();
   }
-  removePlayer(playerId: string): {players: PlayerType[]} {
-    const newPlayerList = [...this.players].filter((player) => player.id !== playerId)
-    return this.setPlayers(newPlayerList);
+  removePlayer(playerId: string): PlayerType[] {
+    const newAllPlayersObj = {...this.allPlayers};
+    delete newAllPlayersObj[playerId];
+    const newAllPlayersIds = [...this.playersRemainingIds].filter((id) => id !== playerId)
+
+    this.allPlayers = newAllPlayersObj
+    this.playersRemainingIds = newAllPlayersIds;
+
+    return this.setPlayers();
   }
-  setPlayers(players: PlayerType[]): {players: PlayerType[]} {
-    this.players = players
-    this.totalPlayers = players.length;
+  setPlayers(): PlayerType[] {
+    this.totalPlayers = this.allPlayerIds.length;
     this.setPrizeValues()
-    return {
-      players
-    }
+
+    return getAllPlayersAsArr(this.allPlayerIds, this.allPlayers)
   }
   setPrizeValues() {
     const totalPrize = this.totalPlayers * this.entryPrice;
     const prizes = getPrizeSplit(totalPrize);
-    
+
     this.prizes = prizes;
     this.totalPrize = totalPrize;
   }
@@ -104,16 +133,18 @@ class Rumble {
    */
   createRound() {
     const timesPlayedThisRound = {};
-    const availablePlayers = [];
+    const availablePlayers: any[] = [...this.playersRemainingIds];
     const deadPlayers = [];
+
     const pveRound = doesEventOccur(this.chanceOfPve)
     const playerRevives = doesEventOccur(this.chanceOfRevive);
-    console.log(pveRound, playerRevives);
-    if (pveRound) {
-      // picks the pve round and does a thing
-    } else {
-      // picks the pvp round and does a thing
-    }
+
+    // Picks pve or pvp round
+    const chosenActivity = pickActivity(pveRound ? PVE_ACTIVITIES : PVP_ACTIVITIES);
+    const chosenPlayersForActivity: PlayerType[] = getRandomItemsFromArr(availablePlayers, chosenActivity.amountOfPlayers);
+    
+    
+    doActivity(chosenActivity, chosenPlayersForActivity);
   }
   // Get's all the values just for debugging.
   debug() {
