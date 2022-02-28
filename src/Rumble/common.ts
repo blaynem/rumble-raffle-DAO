@@ -33,9 +33,8 @@ export const getAmtRandomItemsFromArr = (arr: any[], n: number): any[] => {
  */
 export const pickActivity = (options: ActivityTypes[], minimumPlayerAmount: number): ActivityTypes => {
   // We only want to give options where there are enough players.
-  const filteredOptions = options.filter(({amountOfPlayers}: ActivityTypes) => amountOfPlayers <= minimumPlayerAmount )
+  const filteredOptions = options.filter(({amountOfPlayers}: ActivityTypes) => amountOfPlayers <= minimumPlayerAmount)
   // getAmtRandomItemsFromArr returns an array, so we get the first item.
-  console.log('--options--', options);
   return getAmtRandomItemsFromArr(filteredOptions, 1)[0];
 }
 

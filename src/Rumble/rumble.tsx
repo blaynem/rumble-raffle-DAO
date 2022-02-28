@@ -61,6 +61,12 @@ class Rumble {
 
   // Storing the activity logs for each round played.
   activityLogs: RoundActivityLogType[][];
+  /**
+   * The maximum amount of activities a user should be able to participate in each round.
+   * Excluding revives.
+   * Default is 2.
+   */
+  maxActivitiesPerRound: number;
   // Has game already been started.
   gameStarted: boolean;
   // All players still in the game
@@ -71,7 +77,7 @@ class Rumble {
   constructor() {
     this.activities = []
     this.chanceOfPve = 30;
-    this.chanceOfRevive = 95;
+    this.chanceOfRevive = 5;
     this.entryPrice = 10;
     this.prizes = getPrizeSplit(0);
     this.totalPrize = 0;
@@ -84,6 +90,7 @@ class Rumble {
     // Used during play
     this.activityLogs = [];
     this.gameStarted = false;
+    this.maxActivitiesPerRound = 2;
     this.playersRemainingIds = [];
     this.playersSlainIds = [];
   }
@@ -223,26 +230,27 @@ class Rumble {
     // TODO: Determine how long this should run for.
     // Will need to do a loop to create multiple events. Will also need to check and make sure there are enough people to do the next event.
     for (let i = 0; i < 2; i++) {
-      /**
-       * We want to skip pve / pvp potential deaths of the last survivor if:
-       * - This is the last person alive &&
-       * - No players will revive - `playerRevives` is false
-       */      
-      if ((this.playersRemainingIds.length === 1 || availablePlayerIds.length === 1) && !playerRevives) {
+      // Filtering out players that have already played more than the maxActivitiesPerRound allowed.
+      const filterRepeatPlayers = availablePlayerIds.filter(id => {
+        return !timesPlayedThisRound[id] || timesPlayedThisRound[id] >= this.maxActivitiesPerRound
+      });
+
+      // We don't want to do anymore activities if players have hit maxActivitiesPerRound
+      if (filterRepeatPlayers.length < 1) {
         break;
       }
       // Picks pve or pvp round, will always be pve round if there is only one person currently alive.
       // This only happens if someone will also revive this turn.
-      const pveRound = this.playersRemainingIds.length === 1|| doesEventOccur(this.chanceOfPve)
-      const chosenActivity = pickActivity(pveRound ? PVE_ACTIVITIES : PVP_ACTIVITIES, availablePlayerIds.length);
+      const pveRound = filterRepeatPlayers.length === 1|| doesEventOccur(this.chanceOfPve)
+      const chosenActivity = pickActivity(pveRound ? PVE_ACTIVITIES : PVP_ACTIVITIES, filterRepeatPlayers.length);
       // Chooses random players
-      // TODO: DONT ALLOW PLAYERS TO PLAY MORE THAN TWICE A ROUND timesPlayedThisRound.
-      const chosenPlayerIds: string[] = getAmtRandomItemsFromArr(availablePlayerIds, chosenActivity.amountOfPlayers);
+      const chosenPlayerIds: string[] = getAmtRandomItemsFromArr(filterRepeatPlayers, chosenActivity.amountOfPlayers);
 
       // Do the activity here
       const activity: RoundActivityLogType = doActivity(chosenActivity, chosenPlayerIds);
       // push the activity to the log
       roundActivityLog.push(activity)
+
       if (activity.losers !== null) {
         // We filter any of the losers
         availablePlayerIds = availablePlayerIds.filter(id => activity.losers!.indexOf(id) < 0)
