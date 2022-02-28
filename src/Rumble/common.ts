@@ -33,6 +33,12 @@ export const doActivity = (activity: ActivityTypes, players: PlayerType[]) => {
   console.log(activity, players);
 }
 
-export const getAllPlayersAsArr = (ids: string[], obj: allPlayersObj): PlayerType[] => {
+/**
+ * Gets all selected players based on given ids.
+ * @param ids - array of all player ids
+ * @param obj - obj holding all players
+ * @returns an array of players
+ */
+export const getPlayersFromIds = (ids: string[], obj: allPlayersObj): PlayerType[] => {
   return ids.map(id => obj[id]);
 }

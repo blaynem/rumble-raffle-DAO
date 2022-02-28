@@ -57,7 +57,7 @@ function App() {
     getPrizes();
   }
 
-  const removePlayer = (id: any) => {
+  const removePlayer = (id: string) => {
     const allPlayers = Rumble.removePlayer(id)
     setEntrants(allPlayers)
     getPrizes();

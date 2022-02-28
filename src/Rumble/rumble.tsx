@@ -1,6 +1,6 @@
 import type { PlayerType, PrizeValuesType, ActivityTypes, allPlayersObj } from './types';
 import { PVE_ACTIVITIES, PVP_ACTIVITIES } from './activities';
-import {doActivity, pickActivity, getRandomItemsFromArr, getAllPlayersAsArr} from './common';
+import {doActivity, pickActivity, getRandomItemsFromArr, getPlayersFromIds} from './common';
 
 /**
  * TODO:
@@ -94,10 +94,11 @@ class Rumble {
   removePlayer(playerId: string): PlayerType[] {
     const newAllPlayersObj = {...this.allPlayers};
     delete newAllPlayersObj[playerId];
-    const newAllPlayersIds = [...this.playersRemainingIds].filter((id) => id !== playerId)
+
+    const newAllPlayersIds = [...this.allPlayerIds].filter((id) => id !== playerId)
 
     this.allPlayers = newAllPlayersObj
-    this.playersRemainingIds = newAllPlayersIds;
+    this.allPlayerIds = newAllPlayersIds;
 
     return this.setPlayers();
   }
@@ -105,7 +106,7 @@ class Rumble {
     this.totalPlayers = this.allPlayerIds.length;
     this.setPrizeValues()
 
-    return getAllPlayersAsArr(this.allPlayerIds, this.allPlayers)
+    return getPlayersFromIds(this.allPlayerIds, this.allPlayers)
   }
   setPrizeValues() {
     const totalPrize = this.totalPlayers * this.entryPrice;
