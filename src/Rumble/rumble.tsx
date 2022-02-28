@@ -6,7 +6,13 @@ import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, 
  * TODO:
  * 
  * Keep track of all kills
+ * Hook up the activity log to display
+ * Figure out prize split correctly for kills?
+ * Make this go through a timer somehow?
  * 
+ * Next Huge Steps:
+ * - Getting this program to run in the cloud and update all players at the same time. Websockts? idk
+ * - Hooking up wallets / collecting prizes
  * 
  */
 
