@@ -33,3 +33,5 @@ export interface ActivityTypes {
    */
   activityLoser: number | number[] | null;
 }
+
+export type RoundActivityLogType = { participants: string[], winners: string[] | null, losers: string[] | null, content: string }

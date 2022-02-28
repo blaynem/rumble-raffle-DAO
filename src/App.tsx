@@ -63,8 +63,16 @@ function App() {
     getPrizes();
   }
 
-  const createRound = () => {
-    Rumble.createRound();
+  const startGame = () => {
+    Rumble.startGame();
+  }
+
+  const clearGame = () => {
+    Rumble.clearGame();
+  }
+
+  const nextRound = () => {
+    Rumble.nextRound();
   }
 
   return (
@@ -72,7 +80,9 @@ function App() {
       <div>
         <button onClick={debugRumble}>DEBUG</button>
         <button onClick={addPlayer}>Add Player</button>
-        <button onClick={createRound}>Create a Round</button>
+        <button onClick={startGame}>Start Game</button>
+        <button onClick={nextRound}>Next Round</button>
+        <button onClick={clearGame}>Clear Game</button>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
         <div style={{ width: 500 }}>

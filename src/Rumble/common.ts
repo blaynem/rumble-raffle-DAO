@@ -1,36 +1,87 @@
-import { ActivityTypes, PlayerType, allPlayersObj } from './types';
+import { ActivityTypes, PlayerType, RoundActivityLogType, allPlayersObj } from './types';
 /**
  * Functions needed:
  * - Helper function that picks an activity and returns the amount of players required.
  * - Helper function that creates the activity information based on players that are joining.
  */
 
-// Gets a random amount of items from the select array.
-export const getRandomItemsFromArr = (arr: any[], n: number): any => {
+/**
+ * Get's number of random items from the given array.
+ * Will not repeat items.
+ * @param arr - items to choose from
+ * @param n - number of items to get
+ * @returns an array of items
+ */
+export const getAmtRandomItemsFromArr = (arr: any[], n: number): any[] => {
   var result = new Array(n),
-      len = arr.length,
-      taken = new Array(len);
+    len = arr.length,
+    taken = new Array(len);
   if (n > len)
-      throw new RangeError("getRandom: more elements taken than available");
+    throw new RangeError("getRandom: more elements taken than available");
   while (n--) {
-      var x = Math.floor(Math.random() * len);
-      result[n] = arr[x in taken ? taken[x] : x];
-      taken[x] = --len in taken ? taken[len] : len;
+    var x = Math.floor(Math.random() * len);
+    result[n] = arr[x in taken ? taken[x] : x];
+    taken[x] = --len in taken ? taken[len] : len;
   }
   return result;
 }
 
 /**
- * Picks an activity from all available activities.
+ * Picks an activity from all available activities based on how many players there are left.
  * @param options - list of available activities
  * @returns 
  */
-export const pickActivity = (options: ActivityTypes[]): ActivityTypes => {
-  return getRandomItemsFromArr(options, 1)[0];
+export const pickActivity = (options: ActivityTypes[], minimumPlayerAmount: number): ActivityTypes => {
+  // We only want to give options where there are enough players.
+  const filteredOptions = options.filter(({amountOfPlayers}: ActivityTypes) => amountOfPlayers <= minimumPlayerAmount )
+  // getAmtRandomItemsFromArr returns an array, so we get the first item.
+  console.log('--options--', options);
+  return getAmtRandomItemsFromArr(filteredOptions, 1)[0];
 }
 
-export const doActivity = (activity: ActivityTypes, players: PlayerType[]) => {
-  console.log(activity, players);
+/**
+ * Creates an array of player ids selected from the given indexes.
+ * @param indexes - index of player in the player ID list
+ * @param playerIds - array of player ids
+ * @returns array of player ids
+ */
+const getPlayersFromIndex = (
+  indexes: number | number[] | null,
+  playerIds: string[]
+): string[] | null => {
+  let players;
+
+  if (indexes === null) {
+    players = null;
+  } else if (Array.isArray(indexes)) {
+    players = indexes.map(index => playerIds[index])
+  } else {
+    players = [playerIds[indexes]];
+  }
+  return players;
+}
+
+
+/**
+ * Gets the winners, losers, and description of the activity for the given selected activity.
+ * @param activity
+ * @param playerIds 
+ * @returns 
+ */
+export const doActivity = (
+  { activityLoser, activityWinner, description, ...rest }: ActivityTypes, playerIds: string[]
+): RoundActivityLogType => {
+
+  let winners = getPlayersFromIndex(activityWinner, playerIds);
+  let losers = getPlayersFromIndex(activityLoser, playerIds);
+
+  // TODO: add in kill counts
+  return {
+    participants: playerIds,
+    winners,
+    losers,
+    content: description
+  }
 }
 
 /**
@@ -41,4 +92,16 @@ export const doActivity = (activity: ActivityTypes, players: PlayerType[]) => {
  */
 export const getPlayersFromIds = (ids: string[], obj: allPlayersObj): PlayerType[] => {
   return ids.map(id => obj[id]);
+}
+
+/**
+ * Determines if an event occurs based on the number passed into it.
+ * ex: chance of event is 30, will get a random number and if the number is less than 30, returns true or false.
+ * @param chanceEventOccurs - chance event occurs out of 100
+ * @returns 
+ */
+export const doesEventOccur = (chanceEventOccurs: number): boolean => {
+  return chanceEventOccurs >= Math.floor(
+    Math.random() * (101)
+  )
 }
