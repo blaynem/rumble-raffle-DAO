@@ -19,3 +19,21 @@ export interface PrizeValuesType {
   // Total prize value
   totalPrize: number;
 }
+
+export type PrizePayouts = {
+  // Prize payout for all other individuals that had kills.
+  otherPayouts: {[playerId: string]: number};
+  // Prize payout for the winner.
+  winner: number;
+  // Prize payout for second place.
+  secondPlace: number;
+  // Prize payout for third place.
+  thirdPlace: number;
+  /**
+   * The split of the prize for alternative cause.
+   * Ex: Stakers 
+   */
+  altSplit: number;
+  // Total prize paid out
+  total: number;
+}

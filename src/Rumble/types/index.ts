@@ -1,3 +1,3 @@
-export {PrizeValuesType} from './prizeSplit';
+export {PrizeValuesType, PrizePayouts} from './prizeSplit';
 export {PlayerType, allPlayersObj} from './player';
 export * from './activity';

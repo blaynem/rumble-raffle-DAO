@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { PlayerType, PrizeValuesType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType, WinnerLogType, GameEndType } from './types';
+import type { PlayerType, PrizeValuesType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType, WinnerLogType, GameEndType, PrizePayouts } from './types';
 import { PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES } from './activities';
 import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, doesEventOccur } from './common';
 
@@ -7,7 +7,6 @@ import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, 
  * TODO:
  * 
  * Figure out how to determine how many loops each round should run through.
- * Figure out prize split correctly for kills?
  * 
  * Next Huge Steps:
  * - Getting this program to run in the cloud and update all players at the same time. Websockts? idk
@@ -15,7 +14,7 @@ import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, 
  * 
  */
 
-const getPrizeSplit = (totalPrize: number): PrizeValuesType => {
+const getPrizeSplit = (totalPrize: number, totalPlayers: number): PrizeValuesType => {
   // 20% - for kills
   // 5% - 3rd place
   // 15% - 2nd place
@@ -23,7 +22,7 @@ const getPrizeSplit = (totalPrize: number): PrizeValuesType => {
   // 10% - to stakers
   // TODO: Check the math on the killTotal, not sure if that's correct.
   return {
-    kills: totalPrize * .2,
+    kills: (totalPrize * .2) / totalPlayers,
     thirdPlace: totalPrize * .05,
     secondPlace: totalPrize * .15,
     firstPlace: totalPrize * .50,
@@ -54,7 +53,7 @@ class Rumble {
    * Default is 2.
    */
   maxActivitiesPerRound: number;
-  
+
   // All players of the given game as an object.
   allPlayers: allPlayersObj;
   // All player ids of the given game as an array.
@@ -67,9 +66,11 @@ class Rumble {
   // Storing the activity logs for each round played.
   activityLogs: (ActivityLogType | WinnerLogType)[];
   // Total kills in the game
-  gameKills: {[playerId: string]: number};
+  gameKills: { [playerId: string]: number };
+  // Payouts for the game;
+  gamePayouts: PrizePayouts;
   // The game runner ups (2nd / 3rd).
-  gameRunnerUps: PlayerType[] | null;
+  gameRunnerUps: PlayerType[];
   // Has game already been started.
   gameStarted: boolean;
   // The game winner.
@@ -89,8 +90,8 @@ class Rumble {
     this.chanceOfRevive = 5;
     this.entryPrice = 10;
     this.maxActivitiesPerRound = 2;
-    this.prizes = getPrizeSplit(0);
-    
+    this.prizes = getPrizeSplit(0, 0);
+
     // Used before starting
     this.allPlayers = {};
     this.allPlayerIds = [];
@@ -100,7 +101,15 @@ class Rumble {
     // Used during play
     this.activityLogs = [];
     this.gameKills = {};
-    this.gameRunnerUps = null;
+    this.gamePayouts = {
+      altSplit: 0,
+      winner: 0,
+      secondPlace: 0,
+      thirdPlace: 0,
+      otherPayouts: {},
+      total: 0,
+    };
+    this.gameRunnerUps = [];
     this.gameStarted = false;
     this.gameWinner = null;
     this.playersRemainingIds = [];
@@ -160,7 +169,7 @@ class Rumble {
    */
   private setPrizeValues() {
     const totalPrize = this.totalPlayers * this.entryPrice;
-    const prizes = getPrizeSplit(totalPrize);
+    const prizes = getPrizeSplit(totalPrize, this.totalPlayers);
 
     this.prizes = prizes;
     this.totalPrize = totalPrize;
@@ -189,18 +198,19 @@ class Rumble {
     // If game hasn't started for some reason, we don't go to nextRound.
     // Game won't start if there are not enough players.
     if (this.gameStarted) {
-      while(this.gameWinner === null) {
+      while (this.gameWinner === null) {
         this.nextRound();
       }
     }
     return this.gameFinished();
   }
 
-  private gameFinished() {
+  private gameFinished(): Promise<GameEndType> {
     return new Promise<GameEndType>(resolve => {
       resolve({
         activityLogs: this.activityLogs,
         gameKills: this.gameKills,
+        gamePayouts: this.gamePayouts,
         gameRunnerUps: this.gameRunnerUps,
         gameWinner: this.gameWinner,
         roundCounter: this.roundCounter,
@@ -215,7 +225,7 @@ class Rumble {
   private startGame() {
     // Do nothing if game has started or there are not enough players.
     if (this.gameStarted || this.allPlayerIds.length < 2) {
-      console.log('----start game stopped----', {gameStarted: this.gameStarted, playerIds: this.allPlayerIds})
+      console.log('----start game stopped----', { gameStarted: this.gameStarted, playerIds: this.allPlayerIds })
       return;
     }
     // Reset game state.
@@ -243,7 +253,15 @@ class Rumble {
   clearGame() {
     this.activityLogs = [];
     this.gameKills = {};
-    this.gameRunnerUps = null;
+    this.gamePayouts = {
+      altSplit: 0,
+      winner: 0,
+      secondPlace: 0,
+      thirdPlace: 0,
+      otherPayouts: {},
+      total: 0,
+    };
+    this.gameRunnerUps = [];
     this.gameStarted = false;
     this.gameWinner = null;
     this.playersRemainingIds = []
@@ -254,8 +272,7 @@ class Rumble {
   /**
    * Creates a round of activites that will happen.
    * 
-   * Select an activity to do: PVE / PVP + Amount of players needed
-   * - Determined by chanceOfPve
+   * Select an activity to do: PVE / PVP
    * Picks random players to do activity, excluding those with "timesPlayedThisRound" >= 2
    * After activity happens we will:
    * - increase any players "timesPlayedThisRound" by 1, max of 2.
@@ -357,12 +374,10 @@ class Rumble {
 
     const winner = this.allPlayers[id];
 
-    let runnerUpIds = this.playersSlainIds.length > 2 ? this.playersSlainIds.slice(-2) : this.playersRemainingIds;
+    let runnerUpIds = this.playersSlainIds.length > 2 ? this.playersSlainIds.slice(-2) : this.playersSlainIds;
     // Added to playersSlain in order of death, so we reverse to get correct 2nd/3rd place
     runnerUpIds = [...runnerUpIds].reverse();
     let runnerUps = runnerUpIds.map(id => this.allPlayers[id]);
-
-    const killCount = this.calculateTotalKillCounts();
 
     const roundLog: WinnerLogType = {
       id: uuidv4(),
@@ -371,15 +386,22 @@ class Rumble {
       winnerId: id,
       runnerUps,
       runnerUpIds,
-      killCount
     }
 
     this.activityLogs.push(roundLog);
     this.gameWinner = winner;
     this.gameRunnerUps = runnerUps;
-    this.gameKills = killCount;
+
+    // Set this.gameKills
+    this.calculateTotalKillCounts();
+    // Set this.gamePayouts
+    this.calculatePayouts();
   }
-  private calculateTotalKillCounts(): { [playerId: string]: number }{
+
+  /**
+   * Calculates the total amount of kills that happened during the game.
+   */
+  private calculateTotalKillCounts() {
     const totalKillCount: { [playerId: string]: number } = {};
     // Loop through activity logs to get the round
     this.activityLogs.forEach((round: (ActivityLogType | WinnerLogType)) => {
@@ -392,12 +414,77 @@ class Rumble {
           if (totalKillCount[playerId]) {
             totalKillCount[playerId] += activity.killCount[playerId]
           } else {
-            totalKillCount[playerId] = activity.killCount[playerId];
+            activity.killCount[playerId] > 0 && (totalKillCount[playerId] = activity.killCount[playerId]);
           }
         })
       })
     })
-    return totalKillCount;
+
+    this.gameKills = totalKillCount;
+  }
+
+  /**
+   * Calculates the payouts for kills, placements, etc.
+   */
+  private calculatePayouts() {
+    /**
+     * Since people can die in a pve round, there will be leftover prize money.
+     * Remaining prize money will be given out to the altSplit.
+     */
+    let prizeRemainder = this.prizes.totalPrize;
+    const payouts: PrizePayouts = {
+      altSplit: 0,
+      winner: 0,
+      secondPlace: 0,
+      thirdPlace: 0,
+      otherPayouts: {},
+      total: 0,
+    };
+
+    // First place prize
+    payouts.winner = this.prizes.firstPlace
+    prizeRemainder -= this.prizes.firstPlace
+    
+    // Second place prize
+    payouts.secondPlace = this.prizes.secondPlace
+    prizeRemainder -= this.prizes.secondPlace
+    
+    // Third place prize
+    payouts.thirdPlace = this.prizes.thirdPlace
+    prizeRemainder -= this.prizes.thirdPlace
+    
+    // Loop through all the kills
+    Object.keys(this.gameKills).forEach(playerId => {
+      // if winner, add win
+      if (playerId === this.gameWinner?.id) {
+        const killPay = (this.prizes.kills * this.gameKills[playerId])
+        payouts.winner += killPay;
+        prizeRemainder -= killPay;
+        return;
+      }
+      // if 2nd place 
+      if (playerId === this.gameRunnerUps[0]?.id) {
+        const killPay = (this.prizes.kills * this.gameKills[playerId])
+        payouts.secondPlace += killPay;
+        prizeRemainder -= killPay;
+        return;
+      }
+      // if 3rd place
+      if (playerId === this.gameRunnerUps[1]?.id) {
+        const killPay = (this.prizes.kills * this.gameKills[playerId])
+        payouts.thirdPlace += killPay;
+        prizeRemainder -= killPay;
+        return;
+      }
+      const killPay = (this.prizes.kills * this.gameKills[playerId])
+      // only add them if payout is greater than 0
+      killPay > 0 && (payouts.otherPayouts[playerId] = killPay)
+      prizeRemainder -= killPay;
+    })
+
+    payouts.altSplit = prizeRemainder;
+    // double check that the total is correct
+    this.gamePayouts = payouts;
   }
   /**
    * Getter for the game winner and runner ups.

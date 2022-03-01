@@ -1,4 +1,4 @@
-import { PlayerType } from "."
+import { PlayerType, PrizePayouts } from "."
 
 export interface ActivityTypes {
   // Id of the activity
@@ -67,7 +67,6 @@ export type WinnerLogType = {
   winnerId: string;
   runnerUps: PlayerType[];
   runnerUpIds: string[];
-  killCount: { [playerId: string]: number };
 }
 
 export type GameEndType = {
@@ -75,6 +74,8 @@ export type GameEndType = {
   activityLogs: (ActivityLogType | WinnerLogType)[];
   // Total kills in the game
   gameKills: {[playerId: string]: number};
+  // Payouts for the game;
+  gamePayouts: PrizePayouts;
   // The game runner ups (2nd / 3rd).
   gameRunnerUps: PlayerType[] | null;
   // The game winner.
