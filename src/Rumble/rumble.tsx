@@ -1,4 +1,4 @@
-import type { PlayerType, PrizeValuesType, ActivityTypes, allPlayersObj, RoundActivityLogType } from './types';
+import type { PlayerType, PrizeValuesType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType } from './types';
 import { PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES } from './activities';
 import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, doesEventOccur } from './common';
 
@@ -60,7 +60,7 @@ class Rumble {
   totalPlayers: number;
 
   // Storing the activity logs for each round played.
-  activityLogs: RoundActivityLogType[][];
+  activityLogs: ActivityLogType[];
   /**
    * The maximum amount of activities a user should be able to participate in each round.
    * Excluding revives.
@@ -73,6 +73,8 @@ class Rumble {
   playersRemainingIds: string[];
   // Players who have been slain.
   playersSlainIds: string[];
+  // What round we are on.
+  roundCounter: number;
 
   constructor() {
     this.activities = []
@@ -93,6 +95,7 @@ class Rumble {
     this.maxActivitiesPerRound = 2;
     this.playersRemainingIds = [];
     this.playersSlainIds = [];
+    this.roundCounter = 0;
   }
   /**
    * On add player we want to:
@@ -197,6 +200,7 @@ class Rumble {
     this.playersRemainingIds = []
     this.playersSlainIds = [];
     this.gameStarted = false;
+    this.roundCounter = 0;
   };
 
   /**
@@ -219,6 +223,7 @@ class Rumble {
       console.log('--createRound--AINT DOIN SHIT NO ONE LEFT');
       return;
     }
+    this.roundCounter = this.roundCounter += 1;
     const timesPlayedThisRound: { [id: string]: number } = {};
     let availablePlayerIds: string[] = [...this.playersRemainingIds];
     let deadPlayerIds: string[] = [...this.playersSlainIds];
@@ -276,7 +281,13 @@ class Rumble {
     }
 
     // ROUND ENDS, NOW WE DO MORE THINGS.
-    this.activityLogs = [...this.activityLogs, roundActivityLog]
+    const roundLog: ActivityLogType = {
+      roundActivityLog,
+      roundCounter: this.roundCounter,
+      playersRemainingIds: availablePlayerIds,
+      playersSlainIds: deadPlayerIds,
+    }
+    this.activityLogs.push(roundLog);
     this.playersRemainingIds = [...availablePlayerIds]
     this.playersSlainIds = [...deadPlayerIds];
   }
