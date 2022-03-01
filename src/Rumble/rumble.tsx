@@ -262,13 +262,14 @@ class Rumble {
         return !timesPlayedThisRound[id] || timesPlayedThisRound[id] >= this.maxActivitiesPerRound
       });
 
-      // We don't want to do anymore activities if players have hit maxActivitiesPerRound
-      if (filterRepeatPlayers.length < 1) {
+      // If there is only one player left, we don't want to do anymore activities.
+      if (filterRepeatPlayers.length <= 1) {
         break;
       }
       // Picks pve or pvp round, will always be pve round if there is only one person currently alive.
       // This only happens if someone will also revive this turn.
       const pveRound = filterRepeatPlayers.length === 1|| doesEventOccur(this.chanceOfPve)
+      // We want to set the maximum deaths to the potential players -1. There always needs to be one player left.
       const chosenActivity = pickActivity(pveRound ? PVE_ACTIVITIES : PVP_ACTIVITIES, filterRepeatPlayers.length, filterRepeatPlayers.length - 1);
       // Chooses random players
       const chosenPlayerIds: string[] = getAmtRandomItemsFromArr(filterRepeatPlayers, chosenActivity.amountOfPlayers);

@@ -38,7 +38,7 @@ export const pickActivity = (options: ActivityTypes[], minimumPlayerAmount: numb
   if (maxDeaths) {
     filteredOptions = [...filteredOptions].filter(({activityLoser}) => {
       if (activityLoser === null) return true;
-      return activityLoser.length < maxDeaths
+      return activityLoser.length <= maxDeaths
     })
   }
   return getAmtRandomItemsFromArr(filteredOptions, 1)[0];
