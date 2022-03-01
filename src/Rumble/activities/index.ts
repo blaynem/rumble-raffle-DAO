@@ -1,6 +1,7 @@
-import PVE_ACTIVITIES from './pve';
-import PVP_ACTIVITIES from './pvp';
-import REVIVE_ACTIVITIES from './revive'
+import {ActivityTypes} from '../types';
+const PVE_ACTIVITIES: ActivityTypes[] = require('./pve.json');
+const PVP_ACTIVITIES: ActivityTypes[] = require('./pvp.json');
+const REVIVE_ACTIVITIES: ActivityTypes[] = require('./revive.json');
 
 export {
   PVE_ACTIVITIES,

@@ -1,15 +1,10 @@
 import { PlayerType } from "."
 
-export const enum ActivityEnvironment {
-  PVE = 'PVE',
-  PVP = 'PVP'
-}
-
 export interface ActivityTypes {
   // Id of the activity
   id: string;
   // The environment of activity will be either PVE or PVP.
-  environment: ActivityEnvironment;
+  environment: ('PVP' | 'PVE');
   /**
    * Description of event.
    * Ex: "PLAYER0 killed PLAYER1 with a knife.""
