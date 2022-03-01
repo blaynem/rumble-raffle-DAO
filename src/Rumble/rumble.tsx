@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import type { PlayerType, PrizeValuesType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType } from './types';
 import { PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES } from './activities';
 import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, doesEventOccur } from './common';
@@ -162,6 +163,13 @@ class Rumble {
   getPrizes(): PrizeValuesType {
     return this.prizes;
   }
+  /**
+   * Getter for the activity logs.
+   * @returns activity logs
+   */
+  getActivityLog(): ActivityLogType[] {
+    return this.activityLogs;
+  }
   
   /**
    * Starts the rumble.
@@ -191,6 +199,7 @@ class Rumble {
     }
     // Creates and does the next round.
     this.createRound();
+    // todo: Save the round somewhere?
   }
   /**
    * Clears all the activity logs and restarts the game.
@@ -252,7 +261,7 @@ class Rumble {
       const chosenPlayerIds: string[] = getAmtRandomItemsFromArr(filterRepeatPlayers, chosenActivity.amountOfPlayers);
 
       // Do the activity here
-      const activity: RoundActivityLogType = doActivity(chosenActivity, chosenPlayerIds);
+      const activity: RoundActivityLogType = doActivity(chosenActivity, chosenPlayerIds, this.replaceActivityDescPlaceholders);
       // push the activity to the log
       roundActivityLog.push(activity)
 
@@ -274,18 +283,20 @@ class Rumble {
       // Add player back into pool.
       availablePlayerIds = [...availablePlayerIds, playerToReviveId];
       deadPlayerIds = deadPlayerIds.filter(id => id !== playerToReviveId);
+      // Pick which revive activity it will be.
+      const chosenActivity = pickActivity(REVIVE_ACTIVITIES, 1);
       // Push the activity log for the revive
-      const chosenActivity = pickActivity(REVIVE_ACTIVITIES, availablePlayerIds.length);
-      const activity: RoundActivityLogType = doActivity(chosenActivity, [playerToReviveId]);
+      const activity: RoundActivityLogType = doActivity(chosenActivity, [playerToReviveId], this.replaceActivityDescPlaceholders);
       roundActivityLog.push(activity);
     }
 
     // ROUND ENDS, NOW WE DO MORE THINGS.
     const roundLog: ActivityLogType = {
-      roundActivityLog,
-      roundCounter: this.roundCounter,
+      id: uuidv4(),
       playersRemainingIds: availablePlayerIds,
       playersSlainIds: deadPlayerIds,
+      roundActivityLog,
+      roundCounter: this.roundCounter,
     }
     this.activityLogs.push(roundLog);
     this.playersRemainingIds = [...availablePlayerIds]
@@ -296,6 +307,35 @@ class Rumble {
     return {
       ...this
     }
+  }
+  /**
+   * Helper that replaces the "PLAYER_#" placeholders in activity description with the actual players name.
+   * @param activity - given activity
+   * @param playerIds - player ids completing the activity
+   * @returns the activity description string
+   */
+  replaceActivityDescPlaceholders = (activity: ActivityTypes, playerIds: string[]): string => {
+    const matchPlayerNumber = /(PLAYER_\d+)/ // matches PLAYER_0, PLAYER_12, etc
+    const parts = activity.description.split(matchPlayerNumber);
+  
+    const replaceNames = parts.map(part => {
+      if (part.match(matchPlayerNumber)) {
+        const index = Number(part.replace('PLAYER_', ''))
+        // Gets the name of the player.
+        return this.allPlayers[playerIds[index]].name;
+      }
+      return part;
+    }).join('')
+    return replaceNames
+  }
+  /**
+   * Gets the player object by the id
+   * @param id - id of player
+   * @returns player object
+   */
+  getPlayerById(id: string): PlayerType {
+    // todo: add error if id doesn't match a player.
+    return this.allPlayers[id];
   }
 }
 

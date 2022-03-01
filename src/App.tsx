@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 import { faker } from '@faker-js/faker';
-import RumbleApp, { PlayerType, PrizeValuesType } from './Rumble';
+import RumbleApp, { ActivityLogType, PlayerType, PrizeValuesType } from './Rumble';
 
 const Rumble = new RumbleApp();
 const defaultPrizes = {
@@ -13,12 +13,13 @@ const defaultPrizes = {
   totalPrize: 0,
   totalEntrants: 0
 };
+
 const fakePlayerToAdd = (): PlayerType => ({
   id: faker.datatype.uuid(),
   name: faker.name.firstName()
 });
 
-const DisplayEntrant = ({ id, name, onClick }: {id?: any, name?: any, onClick?: any }) => (
+const DisplayEntrant = ({ id, name, onClick }: PlayerType & {onClick?: any }) => (
   <div style={{ border: '1px solid gray', padding: 8, position: 'relative' }} key={id}>
     <div>Id: {id}</div>
     <div>Name: {name}</div>
@@ -26,8 +27,7 @@ const DisplayEntrant = ({ id, name, onClick }: {id?: any, name?: any, onClick?: 
   </div>
 )
 
-// @ts-ignore
-const DisplayPrizes = ({ firstPlace, secondPlace, thirdPlace, kills, altSplit, totalPrize, totalEntrants }) => (
+const DisplayPrizes = ({ firstPlace, secondPlace, thirdPlace, kills, altSplit, totalPrize, totalEntrants }: PrizeValuesType & { totalEntrants: number }) => (
   <div style={{ border: '1px solid gray', padding: 8 }} >
     <div>Total Entrants: {totalEntrants} Bird Warriors</div>
     <div>Kills: {kills} sFNC</div>
@@ -39,9 +39,19 @@ const DisplayPrizes = ({ firstPlace, secondPlace, thirdPlace, kills, altSplit, t
   </div>
 );
 
+const DisplayActivityLog = (logs: ActivityLogType) => {
+  return (
+    <div>
+      <div>Round {logs.roundCounter}</div>
+      {logs.roundActivityLog.map((activity, index) => (<div key={`${activity.activityId}-${index}`}>{activity.content}</div>))}
+    </div>
+  )
+}
+
 function App() {
   const [entrants, setEntrants] = useState([] as PlayerType[]);
   const [prizes, setPrizes] = useState(defaultPrizes as PrizeValuesType);
+  const [activityLog, setActivityLog] = useState([] as ActivityLogType[]);
 
   const debugRumble = () => {
     console.log(Rumble.debug());
@@ -53,18 +63,19 @@ function App() {
 
   const addPlayer = () => {
     const allPlayers = Rumble.addPlayer(fakePlayerToAdd())
-    setEntrants(allPlayers)
+    setEntrants([...allPlayers])
     getPrizes();
   }
 
   const removePlayer = (id: string) => {
     const allPlayers = Rumble.removePlayer(id)
-    setEntrants(allPlayers)
+    setEntrants([...allPlayers])
     getPrizes();
   }
 
   const startGame = () => {
     Rumble.startGame();
+    updateActivityLog();
   }
 
   const clearGame = () => {
@@ -73,8 +84,14 @@ function App() {
 
   const nextRound = () => {
     Rumble.nextRound();
+    updateActivityLog();
   }
 
+  const updateActivityLog = () => {
+    const activityLogTest = Rumble.getActivityLog()
+    setActivityLog([...activityLogTest])
+  }
+  
   return (
     <div className="App">
       <div>
@@ -93,6 +110,10 @@ function App() {
           <h2>Entrants</h2>
           {entrants.map(entrant => <DisplayEntrant key={entrant.id} {...entrant} onClick={removePlayer} />)}
         </div>
+      </div>
+      <div>
+        <div>Activity Log</div>
+        {activityLog.map(entry => <DisplayActivityLog key={entry.id} {...entry} />)}
       </div>
     </div>
   );

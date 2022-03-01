@@ -68,18 +68,22 @@ const getPlayersFromIndex = (
  * @returns 
  */
 export const doActivity = (
-  { activityLoser, activityWinner, description, ...rest }: ActivityTypes, playerIds: string[]
+  activity: ActivityTypes,
+  playerIds: string[],
+  createContentCallback: (activity: ActivityTypes, playerIds: string[]) => string
 ): RoundActivityLogType => {
-
-  let winners = getPlayersFromIndex(activityWinner, playerIds);
-  let losers = getPlayersFromIndex(activityLoser, playerIds);
+  const { activityLoser, activityWinner, id } = activity;
+  const winners = getPlayersFromIndex(activityWinner, playerIds);
+  const losers = getPlayersFromIndex(activityLoser, playerIds);
 
   // TODO: add in kill counts
   return {
+    activity,
+    activityId: id,
     participants: playerIds,
     winners,
     losers,
-    content: description
+    content: createContentCallback(activity, playerIds)
   }
 }
 
