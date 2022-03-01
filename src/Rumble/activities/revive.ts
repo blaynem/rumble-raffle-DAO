@@ -5,7 +5,7 @@ const REVIVE_ACTIVITIES: ActivityTypes[] = [{
   environment: ActivityEnvironment.PVE,
   description: "The population of heave just decreased, because PLAYER_0 is back!",
   amountOfPlayers: 1,
-  activityWinner: 0,
+  activityWinner: [0],
   activityLoser: null,
 },
 {
@@ -13,8 +13,8 @@ const REVIVE_ACTIVITIES: ActivityTypes[] = [{
   environment: ActivityEnvironment.PVE,
   description: "PLAYER_0 has risen from the dead. Is that a zombie?",
   amountOfPlayers: 1,
-  activityWinner: null,
-  activityLoser: 0,
+  activityWinner: [0],
+  activityLoser: null,
 }]
 
 export default REVIVE_ACTIVITIES;

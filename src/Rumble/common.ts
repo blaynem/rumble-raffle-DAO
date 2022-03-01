@@ -31,10 +31,16 @@ export const getAmtRandomItemsFromArr = (arr: any[], n: number): any[] => {
  * @param options - list of available activities
  * @returns 
  */
-export const pickActivity = (options: ActivityTypes[], minimumPlayerAmount: number): ActivityTypes => {
+export const pickActivity = (options: ActivityTypes[], minimumPlayerAmount: number, maxDeaths?: number): ActivityTypes => {
   // We only want to give options where there are enough players.
-  const filteredOptions = options.filter(({amountOfPlayers}: ActivityTypes) => amountOfPlayers <= minimumPlayerAmount)
+  let filteredOptions = options.filter(({amountOfPlayers}) => amountOfPlayers <= minimumPlayerAmount)
   // getAmtRandomItemsFromArr returns an array, so we get the first item.
+  if (maxDeaths) {
+    filteredOptions = [...filteredOptions].filter(({activityLoser}) => {
+      if (activityLoser === null) return true;
+      return activityLoser.length < maxDeaths
+    })
+  }
   return getAmtRandomItemsFromArr(filteredOptions, 1)[0];
 }
 
@@ -45,19 +51,10 @@ export const pickActivity = (options: ActivityTypes[], minimumPlayerAmount: numb
  * @returns array of player ids
  */
 const getPlayersFromIndex = (
-  indexes: number | number[] | null,
+  indexes: number[] | null,
   playerIds: string[]
 ): string[] | null => {
-  let players;
-
-  if (indexes === null) {
-    players = null;
-  } else if (Array.isArray(indexes)) {
-    players = indexes.map(index => playerIds[index])
-  } else {
-    players = [playerIds[indexes]];
-  }
-  return players;
+  return indexes === null ? null : indexes.map(index => playerIds[index]);
 }
 
 

@@ -1,3 +1,5 @@
+import { PlayerType } from "."
+
 export const enum ActivityEnvironment {
   PVE = 'PVE',
   PVP = 'PVP'
@@ -24,14 +26,14 @@ export interface ActivityTypes {
    * 
    * Will be null if no winner in the event.
    */
-  activityWinner: number | number[] | null;
+  activityWinner: number[] | null;
   /**
    * Who the loser(s) will be of the event.
    * In the example "PLAYER0 killed PLAYER1 with a knife", PLAYER1 will be the loser. So we return the index of the loser.
    * 
    * Will be null if no loser in the event.
    */
-  activityLoser: number | number[] | null;
+  activityLoser: number[] | null;
 }
 
 export type RoundActivityLogType = {
@@ -49,4 +51,13 @@ export type ActivityLogType = {
   roundCounter: number;
   playersRemainingIds: string[];
   playersSlainIds: string[];
+}
+
+export type WinnerLogType = {
+  id: string;
+  playersSlainIds: string[];
+  winner: PlayerType;
+  winnerId: string;
+  runnerUps: PlayerType[];
+  runnerUpIds: string[];
 }

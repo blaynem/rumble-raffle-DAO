@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { PlayerType, PrizeValuesType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType } from './types';
+import type { PlayerType, PrizeValuesType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType, WinnerLogType } from './types';
 import { PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES } from './activities';
 import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, doesEventOccur } from './common';
 
@@ -63,15 +63,19 @@ class Rumble {
   totalPlayers: number;
 
   // Storing the activity logs for each round played.
-  activityLogs: ActivityLogType[];
+  activityLogs: (ActivityLogType|WinnerLogType)[];
   /**
    * The maximum amount of activities a user should be able to participate in each round.
    * Excluding revives.
    * Default is 2.
    */
   maxActivitiesPerRound: number;
+  // The game runner ups (2nd / 3rd).
+  gameRunnerUps: PlayerType[] | null;
   // Has game already been started.
   gameStarted: boolean;
+  // The game winner.
+  gameWinner: PlayerType | null;
   // All players still in the game
   playersRemainingIds: string[];
   // Players who have been slain.
@@ -94,7 +98,9 @@ class Rumble {
 
     // Used during play
     this.activityLogs = [];
+    this.gameRunnerUps = null;
     this.gameStarted = false;
+    this.gameWinner = null;
     this.maxActivitiesPerRound = 2;
     this.playersRemainingIds = [];
     this.playersSlainIds = [];
@@ -169,7 +175,7 @@ class Rumble {
    * Getter for the activity logs.
    * @returns activity logs
    */
-  getActivityLog(): ActivityLogType[] {
+  getActivityLog(): (ActivityLogType|WinnerLogType)[] {
     return this.activityLogs;
   }
   
@@ -182,9 +188,10 @@ class Rumble {
       console.log('----GAME ALREADY STARTED----')
       return;
     }
-    this.activityLogs = [];
+    // Reset game state.
+    this.clearGame();
+    // Set some variables for game start.
     this.playersRemainingIds = [...this.allPlayerIds]
-    this.playersSlainIds = [];
     this.gameStarted = true;
 
     // First round fired
@@ -208,9 +215,11 @@ class Rumble {
    */
   clearGame() {
     this.activityLogs = [];
+    this.gameRunnerUps = null;
+    this.gameStarted = false;
+    this.gameWinner = null;
     this.playersRemainingIds = []
     this.playersSlainIds = [];
-    this.gameStarted = false;
     this.roundCounter = 0;
   };
 
@@ -230,15 +239,17 @@ class Rumble {
    */
   createRound() {
     if (this.playersRemainingIds.length === 1) {
-      // Don't do anything because theres no one left.
-      console.log('--createRound--AINT DOIN SHIT NO ONE LEFT');
+      // Set the game winner and do nothing else.
+      this.setGameWinner(this.playersRemainingIds[0]);
       return;
     }
     this.roundCounter = this.roundCounter += 1;
     const timesPlayedThisRound: { [id: string]: number } = {};
+    const roundActivityLog: RoundActivityLogType[] = [];
+
+    // Variables that will be altered throughout the round
     let availablePlayerIds: string[] = [...this.playersRemainingIds];
     let deadPlayerIds: string[] = [...this.playersSlainIds];
-    const roundActivityLog: RoundActivityLogType[] = [];
     
     // Will only revive if there are any dead players.
     const playerRevives = doesEventOccur(this.chanceOfRevive) && deadPlayerIds.length > 0;
@@ -252,13 +263,15 @@ class Rumble {
       });
 
       // We don't want to do anymore activities if players have hit maxActivitiesPerRound
+      console.log({filterRepeatPlayers, availablePlayerIds});
       if (filterRepeatPlayers.length < 1) {
         break;
       }
       // Picks pve or pvp round, will always be pve round if there is only one person currently alive.
       // This only happens if someone will also revive this turn.
-      const pveRound = filterRepeatPlayers.length === 1|| doesEventOccur(this.chanceOfPve)
-      const chosenActivity = pickActivity(pveRound ? PVE_ACTIVITIES : PVP_ACTIVITIES, filterRepeatPlayers.length);
+      // const pveRound = filterRepeatPlayers.length === 1|| doesEventOccur(this.chanceOfPve)
+      const pveRound = true;
+      const chosenActivity = pickActivity(pveRound ? PVE_ACTIVITIES : PVP_ACTIVITIES, filterRepeatPlayers.length, filterRepeatPlayers.length - 1);
       // Chooses random players
       const chosenPlayerIds: string[] = getAmtRandomItemsFromArr(filterRepeatPlayers, chosenActivity.amountOfPlayers);
 
@@ -303,6 +316,40 @@ class Rumble {
     this.activityLogs.push(roundLog);
     this.playersRemainingIds = [...availablePlayerIds]
     this.playersSlainIds = [...deadPlayerIds];
+  }
+  setGameWinner(id: string) {
+    if (this.gameWinner !== null) {
+      console.log('---already a winner, clear game');
+      return;
+    }
+
+    const winner = this.allPlayers[id];
+    
+    let runnerUpIds = this.playersSlainIds.length > 2 ? this.playersSlainIds.slice(-2) : this.playersRemainingIds;
+    let runnerUps = runnerUpIds.map(id => this.allPlayers[id]);
+    
+    const roundLog: WinnerLogType = {
+      id: uuidv4(),
+      playersSlainIds: this.playersSlainIds,
+      winner,
+      winnerId: id,
+      runnerUps,
+      runnerUpIds
+    }
+
+    this.activityLogs.push(roundLog);
+    this.gameWinner = winner;
+    this.gameRunnerUps = runnerUps;
+  }
+  /**
+   * Getter for the game winner and runner ups.
+   * @returns the game winner and runner ups.
+   */
+  getGameWinner(): {winner: PlayerType | null, runnerUps: PlayerType[] | null} {
+    return {
+      runnerUps: this.gameRunnerUps,
+      winner: this.gameWinner,
+    }
   }
   // Get's all the values just for debugging.
   debug() {

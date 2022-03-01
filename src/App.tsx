@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 import { faker } from '@faker-js/faker';
-import RumbleApp, { ActivityLogType, PlayerType, PrizeValuesType } from './Rumble';
+import RumbleApp, { ActivityLogType, PlayerType, PrizeValuesType, WinnerLogType} from './Rumble';
 
 const Rumble = new RumbleApp();
 
@@ -30,10 +30,20 @@ const DisplayPrizes = ({ firstPlace, secondPlace, thirdPlace, kills, altSplit, t
   </div>
 );
 
-const DisplayActivityLog = (logs: ActivityLogType) => {
+const DisplayActivityLog = (logs: (ActivityLogType|WinnerLogType)) => {
+  // If 'winner' is in type, then it's the WinnerLogType
+  if ('winner' in logs) {
+    return (
+      <div>
+        <h3>Winner!!</h3>
+        <div>Congratulations {logs.winner.name}</div>
+      </div>
+    )
+  }
+  // If it's not, then it's a normal activity round.
   return (
     <div>
-      <div>Round {logs.roundCounter}</div>
+      <h3>Round {logs.roundCounter}</h3>
       {logs.roundActivityLog.map((activity, index) => (<div key={`${activity.activityId}-${index}`}>{activity.content}</div>))}
       <div>Players Left: {logs.playersRemainingIds.length}</div>
     </div>
@@ -43,7 +53,7 @@ const DisplayActivityLog = (logs: ActivityLogType) => {
 function App() {
   const [entrants, setEntrants] = useState([] as PlayerType[]);
   const [prizes, setPrizes] = useState(Rumble.getPrizes() as PrizeValuesType);
-  const [activityLog, setActivityLog] = useState([] as ActivityLogType[]);
+  const [activityLog, setActivityLog] = useState([] as (ActivityLogType|WinnerLogType)[]);
 
   const debugRumble = () => {
     console.log(Rumble.debug());
