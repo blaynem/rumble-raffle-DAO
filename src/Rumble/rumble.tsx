@@ -52,24 +52,24 @@ class Rumble {
   entryPrice: number;
   // Prize values that will be given
   prizes: PrizeValuesType;
-  // Total prize to be split
-  totalPrize: number;
-
-  // All players of the given game as an object.
-  allPlayers: allPlayersObj;
-  // All player ids of the given game as an array.
-  allPlayerIds: string[];
-  // Total amount of players
-  totalPlayers: number;
-
-  // Storing the activity logs for each round played.
-  activityLogs: (ActivityLogType | WinnerLogType)[];
   /**
    * The maximum amount of activities a user should be able to participate in each round.
    * Excluding revives.
    * Default is 2.
    */
   maxActivitiesPerRound: number;
+  
+  // All players of the given game as an object.
+  allPlayers: allPlayersObj;
+  // All player ids of the given game as an array.
+  allPlayerIds: string[];
+  // Total amount of players
+  totalPlayers: number;
+  // Total prize to be split
+  totalPrize: number;
+
+  // Storing the activity logs for each round played.
+  activityLogs: (ActivityLogType | WinnerLogType)[];
   // Total kills in the game
   gameKills: {[playerId: string]: number};
   // The game runner ups (2nd / 3rd).
@@ -87,16 +87,19 @@ class Rumble {
 
   constructor() {
     this.activities = []
+
+    // Defining the params of the game
     this.chanceOfPve = 30;
     this.chanceOfRevive = 5;
     this.entryPrice = 10;
+    this.maxActivitiesPerRound = 2;
     this.prizes = getPrizeSplit(0);
-    this.totalPrize = 0;
-
+    
     // Used before starting
     this.allPlayers = {};
     this.allPlayerIds = [];
     this.totalPlayers = 0;
+    this.totalPrize = 0;
 
     // Used during play
     this.activityLogs = [];
@@ -104,7 +107,6 @@ class Rumble {
     this.gameRunnerUps = null;
     this.gameStarted = false;
     this.gameWinner = null;
-    this.maxActivitiesPerRound = 2;
     this.playersRemainingIds = [];
     this.playersSlainIds = [];
     this.roundCounter = 0;
@@ -151,7 +153,7 @@ class Rumble {
    * Sets the total amount of players and calls setPrize values.
    * @returns All the players
    */
-  setPlayers(): PlayerType[] {
+  private setPlayers(): PlayerType[] {
     this.totalPlayers = this.allPlayerIds.length;
     this.setPrizeValues()
 
@@ -160,7 +162,7 @@ class Rumble {
   /**
    * Sets the prize values based on the predetermined prize split.
    */
-  setPrizeValues() {
+  private setPrizeValues() {
     const totalPrize = this.totalPlayers * this.entryPrice;
     const prizes = getPrizeSplit(totalPrize);
 
@@ -218,6 +220,7 @@ class Rumble {
    */
   clearGame() {
     this.activityLogs = [];
+    this.gameKills = {};
     this.gameRunnerUps = null;
     this.gameStarted = false;
     this.gameWinner = null;
@@ -240,7 +243,7 @@ class Rumble {
    * - Add all local deadPlayers to the main deadPlayers list
    * - Check chanceOfRevive and revive one player from the main deadPlayers list
    */
-  createRound() {
+  private createRound() {
     if (this.playersRemainingIds.length === 1) {
       // Set the game winner and do nothing else.
       this.setGameWinner(this.playersRemainingIds[0]);
@@ -324,7 +327,7 @@ class Rumble {
    * @param id 
    * @returns 
    */
-  setGameWinner(id: string) {
+  private setGameWinner(id: string) {
     if (this.gameWinner !== null) {
       console.log('---already a winner, clear game');
       return;
@@ -352,7 +355,7 @@ class Rumble {
     this.gameRunnerUps = runnerUps;
     this.gameKills = killCount;
   }
-  calculateTotalKillCounts(): { [playerId: string]: number }{
+  private calculateTotalKillCounts(): { [playerId: string]: number }{
     const totalKillCount: { [playerId: string]: number } = {};
     // Loop through activity logs to get the round
     this.activityLogs.forEach((round: (ActivityLogType | WinnerLogType)) => {
