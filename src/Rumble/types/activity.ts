@@ -69,3 +69,16 @@ export type WinnerLogType = {
   runnerUpIds: string[];
   killCount: { [playerId: string]: number };
 }
+
+export type GameEndType = {
+  // Activity logs for each round played.
+  activityLogs: (ActivityLogType | WinnerLogType)[];
+  // Total kills in the game
+  gameKills: {[playerId: string]: number};
+  // The game runner ups (2nd / 3rd).
+  gameRunnerUps: PlayerType[] | null;
+  // The game winner.
+  gameWinner: PlayerType | null;
+  // What round we are on.
+  roundCounter: number;
+}

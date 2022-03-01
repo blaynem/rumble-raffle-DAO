@@ -77,18 +77,8 @@ function App() {
     getPrizes();
   }
 
-  const startGame = () => {
-    Rumble.startGame();
-    updateActivityLog();
-  }
-
   const clearGame = () => {
     Rumble.clearGame();
-    updateActivityLog();
-  }
-
-  const nextRound = () => {
-    Rumble.nextRound();
     updateActivityLog();
   }
 
@@ -97,9 +87,9 @@ function App() {
     setActivityLog([...activityLogTest])
   }
 
-  const autoGame = () => {
-    Rumble.startAutoPlayGame();
-    updateActivityLog();
+  const autoGame = async () => {
+    const res = await Rumble.startAutoPlayGame()
+    setActivityLog([...res.activityLogs])
   }
   
   return (
@@ -107,8 +97,6 @@ function App() {
       <div>
         <button onClick={debugRumble}>DEBUG</button>
         <button onClick={addPlayer}>Add Player</button>
-        <button onClick={startGame}>Start Game</button>
-        <button onClick={nextRound}>Next Round</button>
         <button onClick={clearGame}>Clear Game</button>
         <button onClick={autoGame}>Start Auto Game</button>
       </div>

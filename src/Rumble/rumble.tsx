@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { PlayerType, PrizeValuesType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType, WinnerLogType } from './types';
+import type { PlayerType, PrizeValuesType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType, WinnerLogType, GameEndType } from './types';
 import { PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES } from './activities';
 import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, doesEventOccur } from './common';
 
@@ -183,7 +183,7 @@ class Rumble {
   /**
    * Will complete the game by itself without needing to press next rounds, etc.
    */
-  startAutoPlayGame() {
+  startAutoPlayGame(): Promise<GameEndType> {
     this.startGame();
 
     // If game hasn't started for some reason, we don't go to nextRound.
@@ -193,13 +193,26 @@ class Rumble {
         this.nextRound();
       }
     }
+    return this.gameFinished();
+  }
+
+  private gameFinished() {
+    return new Promise<GameEndType>(resolve => {
+      resolve({
+        activityLogs: this.activityLogs,
+        gameKills: this.gameKills,
+        gameRunnerUps: this.gameRunnerUps,
+        gameWinner: this.gameWinner,
+        roundCounter: this.roundCounter,
+      });
+    })
   }
 
   /**
    * Starts the rumble.
    * Will not fire if the game has already started.
    */
-  startGame() {
+  private startGame() {
     // Do nothing if game has started or there are not enough players.
     if (this.gameStarted || this.allPlayerIds.length < 2) {
       console.log('----start game stopped----', {gameStarted: this.gameStarted, playerIds: this.allPlayerIds})
@@ -215,7 +228,7 @@ class Rumble {
    * Will continue to the next round.
    * If the game hasn't started yet, will do nothing.
    */
-  nextRound() {
+  private nextRound() {
     if (!this.gameStarted) {
       console.log('----GAME HAS NOT STARTED YET----')
       return;
