@@ -6,10 +6,12 @@ import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, 
 /**
  * TODO:
  * 
+ * Declare a winner when one is selected.
+ * Get the last 3 players alive too somehow.
  * Keep track of all kills
- * Hook up the activity log to display
  * Figure out prize split correctly for kills?
  * Make this go through a timer somehow?
+ * 
  * 
  * Next Huge Steps:
  * - Getting this program to run in the cloud and update all players at the same time. Websockts? idk

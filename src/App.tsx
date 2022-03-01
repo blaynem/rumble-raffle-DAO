@@ -4,15 +4,6 @@ import { faker } from '@faker-js/faker';
 import RumbleApp, { ActivityLogType, PlayerType, PrizeValuesType } from './Rumble';
 
 const Rumble = new RumbleApp();
-const defaultPrizes = {
-  firstPlace: 0,
-  secondPlace: 0,
-  thirdPlace: 0,
-  kills: 0,
-  altSplit: 0,
-  totalPrize: 0,
-  totalEntrants: 0
-};
 
 const fakePlayerToAdd = (): PlayerType => ({
   id: faker.datatype.uuid(),
@@ -44,13 +35,14 @@ const DisplayActivityLog = (logs: ActivityLogType) => {
     <div>
       <div>Round {logs.roundCounter}</div>
       {logs.roundActivityLog.map((activity, index) => (<div key={`${activity.activityId}-${index}`}>{activity.content}</div>))}
+      <div>Players Left: {logs.playersRemainingIds.length}</div>
     </div>
   )
 }
 
 function App() {
   const [entrants, setEntrants] = useState([] as PlayerType[]);
-  const [prizes, setPrizes] = useState(defaultPrizes as PrizeValuesType);
+  const [prizes, setPrizes] = useState(Rumble.getPrizes() as PrizeValuesType);
   const [activityLog, setActivityLog] = useState([] as ActivityLogType[]);
 
   const debugRumble = () => {
@@ -80,6 +72,7 @@ function App() {
 
   const clearGame = () => {
     Rumble.clearGame();
+    updateActivityLog();
   }
 
   const nextRound = () => {
