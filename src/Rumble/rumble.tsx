@@ -6,9 +6,6 @@ import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, 
 /**
  * TODO:
  * 
- * Declare a winner when one is selected.
- * Get the last 3 players alive too somehow.
- * Keep track of all kills
  * Figure out prize split correctly for kills?
  * Make this go through a timer somehow?
  * 
@@ -336,6 +333,8 @@ class Rumble {
     const winner = this.allPlayers[id];
 
     let runnerUpIds = this.playersSlainIds.length > 2 ? this.playersSlainIds.slice(-2) : this.playersRemainingIds;
+    // Added to playersSlain in order of death, so we reverse to get correct 2nd/3rd place
+    runnerUpIds = [...runnerUpIds].reverse();
     let runnerUps = runnerUpIds.map(id => this.allPlayers[id]);
 
     const killCount = this.calculateTotalKillCounts();
