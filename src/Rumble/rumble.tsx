@@ -20,7 +20,6 @@ const getPrizeSplit = (totalPrize: number, totalPlayers: number): PrizeValuesTyp
   // 15% - 2nd place
   // 50% - 1st place winner
   // 10% - to stakers
-  // TODO: Check the math on the killTotal, not sure if that's correct.
   return {
     kills: (totalPrize * .2) / totalPlayers,
     thirdPlace: totalPrize * .05,
@@ -129,6 +128,7 @@ class Rumble {
       console.log('----GAME ALREADY STARTED----')
       return this.setPlayers();
     }
+    // todo: don't let the same person enter more than 1 time.
     this.allPlayerIds = [...this.allPlayerIds, newPlayer.id];
     this.allPlayers = { ...this.allPlayers, [newPlayer.id]: newPlayer };
 
@@ -400,6 +400,7 @@ class Rumble {
 
   /**
    * Calculates the total amount of kills that happened during the game.
+   * Called by setGameWinner
    */
   private calculateTotalKillCounts() {
     const totalKillCount: { [playerId: string]: number } = {};
@@ -425,6 +426,7 @@ class Rumble {
 
   /**
    * Calculates the payouts for kills, placements, etc.
+   * Called by setGameWinner
    */
   private calculatePayouts() {
     /**
@@ -438,7 +440,7 @@ class Rumble {
       secondPlace: 0,
       thirdPlace: 0,
       otherPayouts: {},
-      total: 0,
+      total: this.prizes.totalPrize,
     };
 
     // First place prize
@@ -483,7 +485,6 @@ class Rumble {
     })
 
     payouts.altSplit = prizeRemainder;
-    // double check that the total is correct
     this.gamePayouts = payouts;
   }
   /**

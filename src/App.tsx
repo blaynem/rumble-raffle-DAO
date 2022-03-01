@@ -89,6 +89,7 @@ function App() {
 
   const autoGame = async () => {
     const res = await Rumble.startAutoPlayGame()
+    console.log('--res', res)
     setActivityLog([...res.activityLogs])
   }
 
