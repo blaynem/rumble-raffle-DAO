@@ -63,13 +63,15 @@ class Rumble {
   totalPlayers: number;
 
   // Storing the activity logs for each round played.
-  activityLogs: (ActivityLogType|WinnerLogType)[];
+  activityLogs: (ActivityLogType | WinnerLogType)[];
   /**
    * The maximum amount of activities a user should be able to participate in each round.
    * Excluding revives.
    * Default is 2.
    */
   maxActivitiesPerRound: number;
+  // Total kills in the game
+  gameKills: {[playerId: string]: number};
   // The game runner ups (2nd / 3rd).
   gameRunnerUps: PlayerType[] | null;
   // Has game already been started.
@@ -98,6 +100,7 @@ class Rumble {
 
     // Used during play
     this.activityLogs = [];
+    this.gameKills = {};
     this.gameRunnerUps = null;
     this.gameStarted = false;
     this.gameWinner = null;
@@ -175,10 +178,10 @@ class Rumble {
    * Getter for the activity logs.
    * @returns activity logs
    */
-  getActivityLog(): (ActivityLogType|WinnerLogType)[] {
+  getActivityLog(): (ActivityLogType | WinnerLogType)[] {
     return this.activityLogs;
   }
-  
+
   /**
    * Starts the rumble.
    * Will not fire if the game has already started.
@@ -250,10 +253,10 @@ class Rumble {
     // Variables that will be altered throughout the round
     let availablePlayerIds: string[] = [...this.playersRemainingIds];
     let deadPlayerIds: string[] = [...this.playersSlainIds];
-    
+
     // Will only revive if there are any dead players.
     const playerRevives = doesEventOccur(this.chanceOfRevive) && deadPlayerIds.length > 0;
-    
+
     // TODO: Determine how long this should run for.
     // Will need to do a loop to create multiple events. Will also need to check and make sure there are enough people to do the next event.
     for (let i = 0; i < 2; i++) {
@@ -268,7 +271,7 @@ class Rumble {
       }
       // Picks pve or pvp round, will always be pve round if there is only one person currently alive.
       // This only happens if someone will also revive this turn.
-      const pveRound = filterRepeatPlayers.length === 1|| doesEventOccur(this.chanceOfPve)
+      const pveRound = filterRepeatPlayers.length === 1 || doesEventOccur(this.chanceOfPve)
       // We want to set the maximum deaths to the potential players -1. There always needs to be one player left.
       const chosenActivity = pickActivity(pveRound ? PVE_ACTIVITIES : PVP_ACTIVITIES, filterRepeatPlayers.length, filterRepeatPlayers.length - 1);
       // Chooses random players
@@ -316,6 +319,11 @@ class Rumble {
     this.playersRemainingIds = [...availablePlayerIds]
     this.playersSlainIds = [...deadPlayerIds];
   }
+  /**
+   * Sets the game winner and runnerups.
+   * @param id 
+   * @returns 
+   */
   setGameWinner(id: string) {
     if (this.gameWinner !== null) {
       console.log('---already a winner, clear game');
@@ -323,28 +331,52 @@ class Rumble {
     }
 
     const winner = this.allPlayers[id];
-    
+
     let runnerUpIds = this.playersSlainIds.length > 2 ? this.playersSlainIds.slice(-2) : this.playersRemainingIds;
     let runnerUps = runnerUpIds.map(id => this.allPlayers[id]);
-    
+
+    const killCount = this.calculateTotalKillCounts();
+
     const roundLog: WinnerLogType = {
       id: uuidv4(),
       playersSlainIds: this.playersSlainIds,
       winner,
       winnerId: id,
       runnerUps,
-      runnerUpIds
+      runnerUpIds,
+      killCount
     }
 
     this.activityLogs.push(roundLog);
     this.gameWinner = winner;
     this.gameRunnerUps = runnerUps;
+    this.gameKills = killCount;
+  }
+  calculateTotalKillCounts(): { [playerId: string]: number }{
+    const totalKillCount: { [playerId: string]: number } = {};
+    // Loop through activity logs to get the round
+    this.activityLogs.forEach((round: (ActivityLogType | WinnerLogType)) => {
+      // If we're at the winner log, we ignore it.
+      if ('winner' in round) return;
+      // loop through each of the rounds activities
+      round.roundActivityLog.forEach((activity: RoundActivityLogType) => {
+        // Add up the kills in the kill count object.
+        Object.keys(activity.killCount).forEach(playerId => {
+          if (totalKillCount[playerId]) {
+            totalKillCount[playerId] += activity.killCount[playerId]
+          } else {
+            totalKillCount[playerId] = activity.killCount[playerId];
+          }
+        })
+      })
+    })
+    return totalKillCount;
   }
   /**
    * Getter for the game winner and runner ups.
    * @returns the game winner and runner ups.
    */
-  getGameWinner(): {winner: PlayerType | null, runnerUps: PlayerType[] | null} {
+  getGameWinner(): { winner: PlayerType | null, runnerUps: PlayerType[] | null } {
     return {
       runnerUps: this.gameRunnerUps,
       winner: this.gameWinner,
@@ -365,7 +397,7 @@ class Rumble {
   replaceActivityDescPlaceholders = (activity: ActivityTypes, playerIds: string[]): string => {
     const matchPlayerNumber = /(PLAYER_\d+)/ // matches PLAYER_0, PLAYER_12, etc
     const parts = activity.description.split(matchPlayerNumber);
-  
+
     const replaceNames = parts.map(part => {
       if (part.match(matchPlayerNumber)) {
         const index = Number(part.replace('PLAYER_', ''))

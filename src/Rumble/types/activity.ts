@@ -29,6 +29,17 @@ export interface ActivityTypes {
    * Will be null if no loser in the event.
    */
   activityLoser: number[] | null;
+  /**
+   * Kill counts are used to determine how much kill value is given to each participant.
+   * 
+   * KillCount total value should never be more than the amount of losers.
+   * KillCount should be null when no one did the killing.
+   * 
+   * Examples:
+   * - "PLAYER0 killed PLAYER1 with a knife" - [1,0] PLAYER_0 will be given 1 kill, while PLAYER_1 recieves none.
+   * - "PLAYER_0 and PLAYER_1 ate PLAYER_2" - [0.5, 0.5, 0] - both PLAYER_0 and PLAYER_1 participated in the kill, while PLAYER_2 is no more.
+   */
+  killCounts: number[] | null;
 }
 
 export type RoundActivityLogType = {
@@ -38,6 +49,7 @@ export type RoundActivityLogType = {
   winners: string[] | null;
   losers: string[] | null;
   content: string;
+  killCount: { [playerId: string]: number };
 }
 
 export type ActivityLogType = {
@@ -55,4 +67,5 @@ export type WinnerLogType = {
   winnerId: string;
   runnerUps: PlayerType[];
   runnerUpIds: string[];
+  killCount: { [playerId: string]: number };
 }

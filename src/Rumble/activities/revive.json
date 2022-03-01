@@ -5,7 +5,8 @@
     "description": "The population of heave just decreased, because PLAYER_0 is back!",
     "amountOfPlayers": 1,
     "activityWinner": [0],
-    "activityLoser": null
+    "activityLoser": null,
+    "killCounts": null
   },
   {
     "id": "e8394d9b-9049-4688-9eef-70f734becdcd",
@@ -13,6 +14,7 @@
     "description": "PLAYER_0 has risen from the dead. Is that a zombie?",
     "amountOfPlayers": 1,
     "activityWinner": [0],
-    "activityLoser": null
+    "activityLoser": null,
+    "killCounts": null
   }
 ]

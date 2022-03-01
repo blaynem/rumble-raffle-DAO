@@ -33,10 +33,10 @@ export const getAmtRandomItemsFromArr = (arr: any[], n: number): any[] => {
  */
 export const pickActivity = (options: ActivityTypes[], minimumPlayerAmount: number, maxDeaths?: number): ActivityTypes => {
   // We only want to give options where there are enough players.
-  let filteredOptions = options.filter(({amountOfPlayers}) => amountOfPlayers <= minimumPlayerAmount)
+  let filteredOptions = options.filter(({ amountOfPlayers }) => amountOfPlayers <= minimumPlayerAmount)
   // getAmtRandomItemsFromArr returns an array, so we get the first item.
   if (maxDeaths) {
-    filteredOptions = [...filteredOptions].filter(({activityLoser}) => {
+    filteredOptions = [...filteredOptions].filter(({ activityLoser }) => {
       if (activityLoser === null) return true;
       return activityLoser.length <= maxDeaths
     })
@@ -73,14 +73,19 @@ export const doActivity = (
   const winners = getPlayersFromIndex(activityWinner, playerIds);
   const losers = getPlayersFromIndex(activityLoser, playerIds);
 
-  // TODO: add in kill counts
+  let killCount: {[playerId: string]: number} = {};
+  if (activity.killCounts) {
+    activity.killCounts.forEach((val, index) => killCount[playerIds[index]] = val);
+  }
+
   return {
     activity,
     activityId: id,
     participants: playerIds,
     winners,
     losers,
-    content: createContentCallback(activity, playerIds)
+    content: createContentCallback(activity, playerIds),
+    killCount
   }
 }
 
