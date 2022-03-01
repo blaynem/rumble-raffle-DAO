@@ -6,9 +6,8 @@ import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, 
 /**
  * TODO:
  * 
+ * Figure out how to determine how many loops each round should run through.
  * Figure out prize split correctly for kills?
- * Make this go through a timer somehow?
- * 
  * 
  * Next Huge Steps:
  * - Getting this program to run in the cloud and update all players at the same time. Websockts? idk
@@ -182,12 +181,28 @@ class Rumble {
   }
 
   /**
+   * Will complete the game by itself without needing to press next rounds, etc.
+   */
+  startAutoPlayGame() {
+    this.startGame();
+
+    // If game hasn't started for some reason, we don't go to nextRound.
+    // Game won't start if there are not enough players.
+    if (this.gameStarted) {
+      while(this.gameWinner === null) {
+        this.nextRound();
+      }
+    }
+  }
+
+  /**
    * Starts the rumble.
    * Will not fire if the game has already started.
    */
   startGame() {
-    if (this.gameStarted) {
-      console.log('----GAME ALREADY STARTED----')
+    // Do nothing if game has started or there are not enough players.
+    if (this.gameStarted || this.allPlayerIds.length < 2) {
+      console.log('----start game stopped----', {gameStarted: this.gameStarted, playerIds: this.allPlayerIds})
       return;
     }
     // Reset game state.
@@ -195,9 +210,6 @@ class Rumble {
     // Set some variables for game start.
     this.playersRemainingIds = [...this.allPlayerIds]
     this.gameStarted = true;
-
-    // First round fired
-    this.createRound();
   }
   /**
    * Will continue to the next round.

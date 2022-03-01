@@ -37,8 +37,8 @@ const DisplayActivityLog = (logs: (ActivityLogType|WinnerLogType)) => {
       <div>
         <h3>Winner!!</h3>
         <div>Congratulations {logs.winner.name}</div>
-        <div>2nd place: {logs.runnerUps[0].name}</div>
-        <div>3rd place: {logs.runnerUps[1].name}</div>
+        <div>2nd place: {logs.runnerUps[0]?.name}</div>
+        <div>3rd place: {logs.runnerUps[1]?.name}</div>
       </div>
     )
   }
@@ -96,6 +96,11 @@ function App() {
     const activityLogTest = Rumble.getActivityLog()
     setActivityLog([...activityLogTest])
   }
+
+  const autoGame = () => {
+    Rumble.startAutoPlayGame();
+    updateActivityLog();
+  }
   
   return (
     <div className="App">
@@ -105,6 +110,7 @@ function App() {
         <button onClick={startGame}>Start Game</button>
         <button onClick={nextRound}>Next Round</button>
         <button onClick={clearGame}>Clear Game</button>
+        <button onClick={autoGame}>Start Auto Game</button>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
         <div style={{ width: 500 }}>
