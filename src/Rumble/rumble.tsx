@@ -263,14 +263,12 @@ class Rumble {
       });
 
       // We don't want to do anymore activities if players have hit maxActivitiesPerRound
-      console.log({filterRepeatPlayers, availablePlayerIds});
       if (filterRepeatPlayers.length < 1) {
         break;
       }
       // Picks pve or pvp round, will always be pve round if there is only one person currently alive.
       // This only happens if someone will also revive this turn.
-      // const pveRound = filterRepeatPlayers.length === 1|| doesEventOccur(this.chanceOfPve)
-      const pveRound = true;
+      const pveRound = filterRepeatPlayers.length === 1|| doesEventOccur(this.chanceOfPve)
       const chosenActivity = pickActivity(pveRound ? PVE_ACTIVITIES : PVP_ACTIVITIES, filterRepeatPlayers.length, filterRepeatPlayers.length - 1);
       // Chooses random players
       const chosenPlayerIds: string[] = getAmtRandomItemsFromArr(filterRepeatPlayers, chosenActivity.amountOfPlayers);
