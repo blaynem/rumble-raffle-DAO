@@ -77,8 +77,8 @@ function App() {
     getPrizes();
   }
 
-  const clearGame = () => {
-    Rumble.clearGame();
+  const restartGame = () => {
+    Rumble.restartGame();
     updateActivityLog();
   }
 
@@ -98,7 +98,7 @@ function App() {
       <div>
         <button onClick={debugRumble}>DEBUG</button>
         <button onClick={addPlayer}>Add Player</button>
-        <button onClick={clearGame}>Clear Game</button>
+        <button onClick={restartGame}>Restart Game</button>
         <button onClick={autoGame}>Start Auto Game</button>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>

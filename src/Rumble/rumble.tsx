@@ -32,7 +32,7 @@ const getPrizeSplit = (totalPrize: number, totalPlayers: number): PrizeValuesTyp
 
 class Rumble implements RumbleInterface {
   activities: ActivityTypes[]
- 
+
   // Values for setting up the rumble environment
   chanceOfPve: number;
   chanceOfRevive: number;
@@ -113,12 +113,17 @@ class Rumble implements RumbleInterface {
 
     return this.setPlayers();
   }
+  // Clears all players from game
+  clearPlayers() {
+    this.allPlayerIds = [];
+    this.allPlayers = {};
+  };
   /**
    * Remove a player from the rumble.
    * @param playerId - playerID to remove
    * @returns - the remaining players
    */
-  removePlayer(playerId: string): PlayerType[] | null{
+  removePlayer(playerId: string): PlayerType[] | null {
     if (this.gameStarted) {
       console.log('----GAME ALREADY STARTED----')
       return null;
@@ -211,7 +216,7 @@ class Rumble implements RumbleInterface {
       return;
     }
     // Reset game state.
-    this.clearGame();
+    this.restartGame();
     // Set some variables for game start.
     this.playersRemainingIds = [...this.allPlayerIds]
     this.gameStarted = true;
@@ -229,9 +234,9 @@ class Rumble implements RumbleInterface {
     this.createRound();
   }
   /**
-   * Clears all the activity logs and restarts the game.
+   * Resets activity logs and all game state.
    */
-  clearGame() {
+  restartGame() {
     this.activityLogs = [];
     this.gameKills = {};
     this.gamePayouts = {
@@ -427,15 +432,15 @@ class Rumble implements RumbleInterface {
     // First place prize
     payouts.winner = this.prizes.firstPlace
     prizeRemainder -= this.prizes.firstPlace
-    
+
     // Second place prize
     payouts.secondPlace = this.prizes.secondPlace
     prizeRemainder -= this.prizes.secondPlace
-    
+
     // Third place prize
     payouts.thirdPlace = this.prizes.thirdPlace
     prizeRemainder -= this.prizes.thirdPlace
-    
+
     // Loop through all the kills
     Object.keys(this.gameKills).forEach(playerId => {
       // if winner, add win
@@ -480,9 +485,7 @@ class Rumble implements RumbleInterface {
   }
   // Get's all the values just for debugging.
   debug() {
-    return {
-      ...this
-    }
+    return this;
   }
   /**
    * Helper that replaces the "PLAYER_#" placeholders in activity description with the actual players name.

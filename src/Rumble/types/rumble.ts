@@ -1,7 +1,9 @@
-import { ActivityTypes, PrizeValuesType, allPlayersObj, ActivityLogType, WinnerLogType, PrizePayouts, PlayerType } from ".";
+import { ActivityTypes, PrizeValuesType, allPlayersObj, ActivityLogType, WinnerLogType, PrizePayouts, PlayerType, GameEndType } from ".";
 
 export interface RumbleInterface {
   activities: ActivityTypes[]
+
+  /** ----Values for setting up the rumble environment---- */
   /**
    * Percent chance of a PVE random. Must be between 0 and 100.
    * Default is 30%
@@ -23,6 +25,8 @@ export interface RumbleInterface {
    */
   maxActivitiesPerRound: number;
 
+  /** ----Values used before game starts---- */
+
   // All players of the given game as an object.
   allPlayers: allPlayersObj;
   // All player ids of the given game as an array.
@@ -31,6 +35,8 @@ export interface RumbleInterface {
   totalPlayers: number;
   // Total prize to be split
   totalPrize: number;
+
+  /** ----Values used when game in play--- */
 
   // Storing the activity logs for each round played.
   activityLogs: (ActivityLogType | WinnerLogType)[];
@@ -50,4 +56,67 @@ export interface RumbleInterface {
   playersSlainIds: string[];
   // What round we are on.
   roundCounter: number;
+
+  /** ----FUNCTIONS--- */
+
+  /**
+   * On add player we want to:
+   * - Add the player ID to playersRemainingIds arr
+   * - Add player to allPlayers object
+   * - Call setPlayers method
+   * @param newPlayer 
+   * @returns 
+   */
+  addPlayer: (newPlayer: PlayerType) => PlayerType[] | null;
+  /**
+   * Clears all players from the game state.
+   */
+  clearPlayers: () => void;
+  /**
+   * Get's the entire class for debuggin.
+   */
+  debug: () => any;
+  /**
+   * Getter for the activity logs.
+   * @returns activity logs
+   */
+  getActivityLog: () => (ActivityLogType | WinnerLogType)[]
+  /**
+   * Getter for the game winner and runner ups.
+   * @returns the game winner and runner ups.
+   */
+  getGameWinner: () => { winner: PlayerType | null, runnerUps: PlayerType[] | null }
+  /**
+   * Getter for the prize information.
+   * @returns all prizes
+   */
+  getPrizes: () => PrizeValuesType;
+  /**
+   * Gets the player object by the id
+   * @param id - id of player
+   * @returns player object
+   */
+  getPlayerById: (id: string) => PlayerType;
+  /**
+   * Remove a player from the rumble.
+   * @param playerId - playerID to remove
+   * @returns - the remaining players
+   */
+  removePlayer: (playerId: string) => PlayerType[] | null;
+  /**
+   * Helper that replaces the "PLAYER_#" placeholders in activity description with the actual players name.
+   * @param activity - given activity
+   * @param playerIds - player ids completing the activity
+   * @returns the activity description string
+   */
+  replaceActivityDescPlaceholders: (activity: ActivityTypes, playerIds: string[]) => string
+  /**
+   * Clears all the activity logs and restarts the game.
+   * Keeps all players entered.
+   */
+  restartGame: () => void;
+  /**
+   * Will complete the game by itself without needing to press next rounds, etc.
+   */
+  startAutoPlayGame: () => Promise<GameEndType>;
 }
