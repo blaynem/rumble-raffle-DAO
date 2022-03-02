@@ -67,13 +67,13 @@ function App() {
 
   const addPlayer = () => {
     const allPlayers = Rumble.addPlayer(fakePlayerToAdd())
-    setEntrants([...allPlayers])
+    allPlayers !== null && setEntrants([...allPlayers])
     getPrizes();
   }
 
   const removePlayer = (id: string) => {
     const allPlayers = Rumble.removePlayer(id)
-    setEntrants([...allPlayers])
+    allPlayers !== null && setEntrants([...allPlayers])
     getPrizes();
   }
 

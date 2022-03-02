@@ -123,12 +123,15 @@ class Rumble {
    * @param newPlayer 
    * @returns 
    */
-  addPlayer(newPlayer: PlayerType): PlayerType[] {
+  addPlayer(newPlayer: PlayerType): PlayerType[] | null {
     if (this.gameStarted) {
       console.log('----GAME ALREADY STARTED----')
-      return this.setPlayers();
+      return null;
     }
-    // todo: don't let the same person enter more than 1 time.
+    if (this.allPlayerIds.indexOf(newPlayer.id) >= 0) {
+      console.log('--PLAYER ALREADY ADDED', newPlayer)
+      return null;
+    }
     this.allPlayerIds = [...this.allPlayerIds, newPlayer.id];
     this.allPlayers = { ...this.allPlayers, [newPlayer.id]: newPlayer };
 
@@ -139,10 +142,10 @@ class Rumble {
    * @param playerId - playerID to remove
    * @returns - the remaining players
    */
-  removePlayer(playerId: string): PlayerType[] {
+  removePlayer(playerId: string): PlayerType[] | null{
     if (this.gameStarted) {
       console.log('----GAME ALREADY STARTED----')
-      return this.setPlayers();
+      return null;
     }
     const newAllPlayersObj = { ...this.allPlayers };
     delete newAllPlayersObj[playerId];
@@ -202,6 +205,8 @@ class Rumble {
         this.nextRound();
       }
     }
+
+    // todo: Save the round somewhere?
     return this.gameFinished();
   }
 
@@ -209,6 +214,7 @@ class Rumble {
     return new Promise<GameEndType>(resolve => {
       resolve({
         activityLogs: this.activityLogs,
+        allPlayers: this.allPlayers,
         gameKills: this.gameKills,
         gamePayouts: this.gamePayouts,
         gameRunnerUps: this.gameRunnerUps,
@@ -245,7 +251,6 @@ class Rumble {
     }
     // Creates and does the next round.
     this.createRound();
-    // todo: Save the round somewhere?
   }
   /**
    * Clears all the activity logs and restarts the game.
@@ -529,7 +534,6 @@ class Rumble {
    * @returns player object
    */
   getPlayerById(id: string): PlayerType {
-    // todo: add error if id doesn't match a player.
     return this.allPlayers[id];
   }
 }
