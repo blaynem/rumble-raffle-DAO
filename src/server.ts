@@ -1,9 +1,10 @@
-// const RumbleApp = require('./Rumble');
 const express = require("express");
 const app = express();
 const http = require("http");
 const cors = require("cors");
 const { Server } = require("socket.io");
+// have to do .default because its not compiled
+const RumbleApp = require('./Rumble').default;
 app.use(cors());
 
 const server = http.createServer(app);
@@ -15,7 +16,7 @@ const io = new Server(server, {
   },
 });
 
-// const Rumble = RumbleApp();
+const Rumble = new RumbleApp();
 
 io.on("connection", (socket: any) => {
   console.log(`User Connected: ${socket.id}`);
@@ -36,7 +37,7 @@ io.on("connection", (socket: any) => {
   // ===== EXAMPLES END ======
 
   socket.on("join_room", (data: any) => {
-    console.log('--data', data)
+    console.log('--data', Rumble)
     socket.join(data);
     console.log(`User with ID: ${socket.id} joined room: ${data}`);
   });
