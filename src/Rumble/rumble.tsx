@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { PlayerType, PrizeValuesType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType, WinnerLogType, GameEndType, PrizePayouts } from './types';
+import type { PlayerType, PrizeValuesType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType, WinnerLogType, GameEndType, PrizePayouts, RumbleInterface } from './types';
 import { PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES } from './activities';
 import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, doesEventOccur } from './common';
 
@@ -30,55 +30,31 @@ const getPrizeSplit = (totalPrize: number, totalPlayers: number): PrizeValuesTyp
   }
 }
 
-class Rumble {
+class Rumble implements RumbleInterface {
   activities: ActivityTypes[]
-  /**
-   * Percent chance of a PVE random. Must be between 0 and 100.
-   * Default is 30%
-   */
+
+  // Values for setting up the rumble environment
   chanceOfPve: number;
-  /**
-   * Percent chance of someone to revive. Must be between 0 and 100.
-   * Default is 5%
-   */
   chanceOfRevive: number;
-  // Price in order to join the rumble
   entryPrice: number;
-  // Prize values that will be given
   prizes: PrizeValuesType;
-  /**
-   * The maximum amount of activities a user should be able to participate in each round.
-   * Excluding revives.
-   * Default is 2.
-   */
   maxActivitiesPerRound: number;
 
-  // All players of the given game as an object.
+  // Values used before game starts
   allPlayers: allPlayersObj;
-  // All player ids of the given game as an array.
   allPlayerIds: string[];
-  // Total amount of players
   totalPlayers: number;
-  // Total prize to be split
   totalPrize: number;
 
-  // Storing the activity logs for each round played.
+  // Values used when game in play
   activityLogs: (ActivityLogType | WinnerLogType)[];
-  // Total kills in the game
   gameKills: { [playerId: string]: number };
-  // Payouts for the game;
   gamePayouts: PrizePayouts;
-  // The game runner ups (2nd / 3rd).
   gameRunnerUps: PlayerType[];
-  // Has game already been started.
   gameStarted: boolean;
-  // The game winner.
   gameWinner: PlayerType | null;
-  // All players still in the game
   playersRemainingIds: string[];
-  // Players who have been slain.
   playersSlainIds: string[];
-  // What round we are on.
   roundCounter: number;
 
   constructor() {
@@ -123,26 +99,34 @@ class Rumble {
    * @param newPlayer 
    * @returns 
    */
-  addPlayer(newPlayer: PlayerType): PlayerType[] {
+  addPlayer(newPlayer: PlayerType): PlayerType[] | null {
     if (this.gameStarted) {
       console.log('----GAME ALREADY STARTED----')
-      return this.setPlayers();
+      return null;
     }
-    // todo: don't let the same person enter more than 1 time.
+    if (this.allPlayerIds.indexOf(newPlayer.id) >= 0) {
+      console.log('--PLAYER ALREADY ADDED', newPlayer)
+      return null;
+    }
     this.allPlayerIds = [...this.allPlayerIds, newPlayer.id];
     this.allPlayers = { ...this.allPlayers, [newPlayer.id]: newPlayer };
 
     return this.setPlayers();
   }
+  // Clears all players from game
+  clearPlayers() {
+    this.allPlayerIds = [];
+    this.allPlayers = {};
+  };
   /**
    * Remove a player from the rumble.
    * @param playerId - playerID to remove
    * @returns - the remaining players
    */
-  removePlayer(playerId: string): PlayerType[] {
+  removePlayer(playerId: string): PlayerType[] | null {
     if (this.gameStarted) {
       console.log('----GAME ALREADY STARTED----')
-      return this.setPlayers();
+      return null;
     }
     const newAllPlayersObj = { ...this.allPlayers };
     delete newAllPlayersObj[playerId];
@@ -162,6 +146,14 @@ class Rumble {
     this.totalPlayers = this.allPlayerIds.length;
     this.setPrizeValues()
 
+    return getPlayersFromIds(this.allPlayerIds, this.allPlayers)
+  }
+
+  /**
+   * Get all players in the game
+   * @returns All players
+   */
+  getAllPlayers(): PlayerType[] {
     return getPlayersFromIds(this.allPlayerIds, this.allPlayers)
   }
   /**
@@ -202,6 +194,8 @@ class Rumble {
         this.nextRound();
       }
     }
+
+    // todo: Save the round somewhere?
     return this.gameFinished();
   }
 
@@ -209,6 +203,7 @@ class Rumble {
     return new Promise<GameEndType>(resolve => {
       resolve({
         activityLogs: this.activityLogs,
+        allPlayers: this.allPlayers,
         gameKills: this.gameKills,
         gamePayouts: this.gamePayouts,
         gameRunnerUps: this.gameRunnerUps,
@@ -229,7 +224,7 @@ class Rumble {
       return;
     }
     // Reset game state.
-    this.clearGame();
+    this.restartGame();
     // Set some variables for game start.
     this.playersRemainingIds = [...this.allPlayerIds]
     this.gameStarted = true;
@@ -245,12 +240,11 @@ class Rumble {
     }
     // Creates and does the next round.
     this.createRound();
-    // todo: Save the round somewhere?
   }
   /**
-   * Clears all the activity logs and restarts the game.
+   * Resets activity logs and all game state.
    */
-  clearGame() {
+  restartGame(): Promise<GameEndType> {
     this.activityLogs = [];
     this.gameKills = {};
     this.gamePayouts = {
@@ -267,6 +261,8 @@ class Rumble {
     this.playersRemainingIds = []
     this.playersSlainIds = [];
     this.roundCounter = 0;
+
+    return this.gameFinished();
   };
 
   /**
@@ -446,15 +442,15 @@ class Rumble {
     // First place prize
     payouts.winner = this.prizes.firstPlace
     prizeRemainder -= this.prizes.firstPlace
-    
+
     // Second place prize
     payouts.secondPlace = this.prizes.secondPlace
     prizeRemainder -= this.prizes.secondPlace
-    
+
     // Third place prize
     payouts.thirdPlace = this.prizes.thirdPlace
     prizeRemainder -= this.prizes.thirdPlace
-    
+
     // Loop through all the kills
     Object.keys(this.gameKills).forEach(playerId => {
       // if winner, add win
@@ -499,9 +495,7 @@ class Rumble {
   }
   // Get's all the values just for debugging.
   debug() {
-    return {
-      ...this
-    }
+    return this;
   }
   /**
    * Helper that replaces the "PLAYER_#" placeholders in activity description with the actual players name.
@@ -529,7 +523,6 @@ class Rumble {
    * @returns player object
    */
   getPlayerById(id: string): PlayerType {
-    // todo: add error if id doesn't match a player.
     return this.allPlayers[id];
   }
 }
