@@ -148,6 +148,14 @@ class Rumble implements RumbleInterface {
 
     return getPlayersFromIds(this.allPlayerIds, this.allPlayers)
   }
+
+  /**
+   * Get all players in the game
+   * @returns All players
+   */
+  getAllPlayers(): PlayerType[] {
+    return getPlayersFromIds(this.allPlayerIds, this.allPlayers)
+  }
   /**
    * Sets the prize values based on the predetermined prize split.
    */
@@ -236,7 +244,7 @@ class Rumble implements RumbleInterface {
   /**
    * Resets activity logs and all game state.
    */
-  restartGame() {
+  restartGame(): Promise<GameEndType> {
     this.activityLogs = [];
     this.gameKills = {};
     this.gamePayouts = {
@@ -253,6 +261,8 @@ class Rumble implements RumbleInterface {
     this.playersRemainingIds = []
     this.playersSlainIds = [];
     this.roundCounter = 0;
+
+    return this.gameFinished();
   };
 
   /**

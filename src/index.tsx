@@ -7,7 +7,7 @@ import TestRumble from './TestRumble';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    {/* <App /> */}
     <TestRumble />
   </React.StrictMode>,
   document.getElementById('root')

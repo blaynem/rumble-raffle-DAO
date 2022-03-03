@@ -82,6 +82,10 @@ export interface RumbleInterface {
    */
   getActivityLog: () => (ActivityLogType | WinnerLogType)[]
   /**
+   * Get all players in the game
+   */
+  getAllPlayers: () => PlayerType[];
+  /**
    * Getter for the game winner and runner ups.
    * @returns the game winner and runner ups.
    */
@@ -114,7 +118,7 @@ export interface RumbleInterface {
    * Clears all the activity logs and restarts the game.
    * Keeps all players entered.
    */
-  restartGame: () => void;
+  restartGame: () => Promise<GameEndType>;
   /**
    * Will complete the game by itself without needing to press next rounds, etc.
    */
