@@ -1,6 +1,5 @@
-import { GameEndType, PlayerType, PrizeValuesType, PrizeSplitType, ActivitiesObjType, RumbleRaffleInterface} from "./Rumble";
+import RumbleApp, { GameEndType, PlayerType, PrizeValuesType, PrizeSplitType, ActivitiesObjType, RumbleRaffleInterface} from "@rumble-raffle-dao/rumble";
 import {PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES} from './activities';
-const RumbleApp = require('./Rumble').default as RumbleRaffleInterface;
 
 const express = require("express");
 const app = express();
@@ -34,7 +33,7 @@ const defaultPrizeSplit: PrizeSplitType = {
 }
 
 // TODO: Save rumble data state in individual roomIdsrooms.
-const Rumble = new RumbleApp({ activities: defaultGameActivities, prizeSplit: defaultPrizeSplit });
+const Rumble = new RumbleApp({ activities: defaultGameActivities, prizeSplit: defaultPrizeSplit })
 
 io.on("connection", (socket: any) => {
   console.log(`User Connected: ${socket.id}`);
