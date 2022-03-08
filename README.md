@@ -22,7 +22,7 @@ Run `yarn start` in another tab to start the app
 
 ### What needs to be done?
 
-- Split apart Rumble / Server / Web
+- ~~Split apart Rumble / Server / Web~~
   - Clean up folders of useless info
 - Server
   - Hosting place?
