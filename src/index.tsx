@@ -1,14 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-// import App from './App'; // App just tests functionality of the Rumble itself
-import TestRumble from './TestRumble'; // Test rumble has sockets
+import App from './App';
 // import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    {/* <App /> */}
-    <TestRumble />
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 );
