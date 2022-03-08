@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { PlayerType, PrizeValuesType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType, WinnerLogType, GameEndType, PrizePayouts, RumbleInterface } from './types';
+import type { PlayerType, PrizeValuesType, PrizeSplitType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType, WinnerLogType, GameEndType, PrizePayouts, RumbleInterface } from './types';
 import { PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES } from './activities';
 import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, doesEventOccur } from './common';
 
@@ -14,20 +14,35 @@ import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, 
  * 
  */
 
-const getPrizeSplit = (totalPrize: number, totalPlayers: number): PrizeValuesType => {
-  // 20% - for kills
-  // 5% - 3rd place
-  // 15% - 2nd place
-  // 50% - 1st place winner
-  // 10% - to stakers
-  return {
-    kills: (totalPrize * .2) / totalPlayers,
-    thirdPlace: totalPrize * .05,
-    secondPlace: totalPrize * .15,
-    firstPlace: totalPrize * .50,
-    altSplit: totalPrize * .1,
-    totalPrize,
-  }
+/**
+ * Numbers are percentages. 10 => 10%, etc.
+ * Percentages must be in numbers 0-100 and added together must total 100.
+ * 
+ * Defaults: 
+ * 20% - for kills
+ * 50% - 1st place winner
+ * 15% - 2nd place
+ * 5% - 3rd place
+ * 9% - to stakers
+ * 1% - to RumbleRaffleDAO
+ */
+const defaultPrizeSplit: PrizeSplitType = {
+  kills: 20,
+  thirdPlace: 5,
+  secondPlace: 15,
+  firstPlace: 50,
+  altSplit: 9,
+  creatorSplit: 1,
+}
+
+const initialGamePayouts = {
+  altSplit: 0,
+  creatorSplit: 0,
+  winner: 0,
+  secondPlace: 0,
+  thirdPlace: 0,
+  kills: {},
+  total: 0,
 }
 
 class Rumble implements RumbleInterface {
@@ -37,8 +52,9 @@ class Rumble implements RumbleInterface {
   chanceOfPve: number;
   chanceOfRevive: number;
   entryPrice: number;
-  prizes: PrizeValuesType;
   maxActivitiesPerRound: number;
+  prizes: PrizeValuesType;
+  prizeSplit: PrizeSplitType;
 
   // Values used before game starts
   allPlayers: allPlayersObj;
@@ -57,7 +73,8 @@ class Rumble implements RumbleInterface {
   playersSlainIds: string[];
   roundCounter: number;
 
-  constructor() {
+
+  constructor(setup: {prizeSplit: PrizeSplitType} = {prizeSplit: defaultPrizeSplit}) {
     this.activities = []
 
     // Defining the params of the game
@@ -65,7 +82,16 @@ class Rumble implements RumbleInterface {
     this.chanceOfRevive = 5;
     this.entryPrice = 10;
     this.maxActivitiesPerRound = 2;
-    this.prizes = getPrizeSplit(0, 0);
+    this.prizes = {
+      altSplit: 0,
+      creatorSplit: 0,
+      firstPlace: 0,
+      secondPlace: 0,
+      thirdPlace: 0,
+      kills: 0,
+      totalPrize: 0,
+    };
+    this.prizeSplit = setup.prizeSplit;
 
     // Used before starting
     this.allPlayers = {};
@@ -76,20 +102,21 @@ class Rumble implements RumbleInterface {
     // Used during play
     this.activityLogs = [];
     this.gameKills = {};
-    this.gamePayouts = {
-      altSplit: 0,
-      winner: 0,
-      secondPlace: 0,
-      thirdPlace: 0,
-      otherPayouts: {},
-      total: 0,
-    };
+    this.gamePayouts = initialGamePayouts;
     this.gameRunnerUps = [];
     this.gameStarted = false;
     this.gameWinner = null;
     this.playersRemainingIds = [];
     this.playersSlainIds = [];
     this.roundCounter = 0;
+
+    this.init();
+  }
+  /**
+   * Initiates the class
+   */
+  init() {
+    this.validatePrizeSplit();
   }
   /**
    * On add player we want to:
@@ -161,7 +188,7 @@ class Rumble implements RumbleInterface {
    */
   private setPrizeValues() {
     const totalPrize = this.totalPlayers * this.entryPrice;
-    const prizes = getPrizeSplit(totalPrize, this.totalPlayers);
+    const prizes = this.calculatePrizeSplit(totalPrize, this.totalPlayers);
 
     this.prizes = prizes;
     this.totalPrize = totalPrize;
@@ -247,14 +274,7 @@ class Rumble implements RumbleInterface {
   restartGame(): Promise<GameEndType> {
     this.activityLogs = [];
     this.gameKills = {};
-    this.gamePayouts = {
-      altSplit: 0,
-      winner: 0,
-      secondPlace: 0,
-      thirdPlace: 0,
-      otherPayouts: {},
-      total: 0,
-    };
+    this.gamePayouts = initialGamePayouts;
     this.gameRunnerUps = [];
     this.gameStarted = false;
     this.gameWinner = null;
@@ -432,12 +452,17 @@ class Rumble implements RumbleInterface {
     let prizeRemainder = this.prizes.totalPrize;
     const payouts: PrizePayouts = {
       altSplit: 0,
+      creatorSplit: 0,
       winner: 0,
       secondPlace: 0,
       thirdPlace: 0,
-      otherPayouts: {},
+      kills: {},
       total: this.prizes.totalPrize,
     };
+
+    // RumbleRaffleDAO cut
+    payouts.creatorSplit = this.prizes.creatorSplit;
+    prizeRemainder -= this.prizes.creatorSplit;
 
     // First place prize
     payouts.winner = this.prizes.firstPlace
@@ -476,10 +501,11 @@ class Rumble implements RumbleInterface {
       }
       const killPay = (this.prizes.kills * this.gameKills[playerId])
       // only add them if payout is greater than 0
-      killPay > 0 && (payouts.otherPayouts[playerId] = killPay)
+      killPay > 0 && (payouts.kills[playerId] = killPay)
       prizeRemainder -= killPay;
     })
 
+    // The entire remaining prize goes to the alternate split.
     payouts.altSplit = prizeRemainder;
     this.gamePayouts = payouts;
   }
@@ -524,6 +550,29 @@ class Rumble implements RumbleInterface {
    */
   getPlayerById(id: string): PlayerType {
     return this.allPlayers[id];
+  }
+
+  private calculatePrizeSplit(totalPrize: number, totalPlayers: number): PrizeValuesType {
+    this.validatePrizeSplit();
+    
+    return {
+      altSplit: totalPrize * (this.prizeSplit.altSplit / 100),
+      creatorSplit: (this.prizeSplit.creatorSplit / 100),
+      firstPlace: totalPrize * (this.prizeSplit.firstPlace / 100),
+      secondPlace: totalPrize * (this.prizeSplit.secondPlace / 100),
+      thirdPlace: totalPrize * (this.prizeSplit.thirdPlace / 100),
+      kills: (totalPrize * (this.prizeSplit.kills / 100)) / totalPlayers,
+      totalPrize,
+    }
+  }
+  /**
+   * Helper function to validate whether the prizeSplit totals to 100 or not.
+   */
+  private validatePrizeSplit() {
+    const total = Object.values(this.prizeSplit).reduce((acc, curr) => curr += acc, 0);
+    if (total !== 100) {
+      throw new Error("Prize split totals must equal exactly 100.");
+    }
   }
 }
 

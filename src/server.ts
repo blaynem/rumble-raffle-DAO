@@ -1,4 +1,4 @@
-import { GameEndType, PlayerType, PrizeValuesType, RumbleInterface } from "./Rumble";
+import { GameEndType, PlayerType, PrizeValuesType, RumbleInterface, PrizeSplitType} from "./Rumble";
 const RumbleApp = require('./Rumble').default;
 
 const express = require("express");
@@ -17,8 +17,17 @@ const io = new Server(server, {
   },
 });
 
+const defaultPrizeSplit: PrizeSplitType = {
+  kills: 20,
+  thirdPlace: 5,
+  secondPlace: 15,
+  firstPlace: 50,
+  altSplit: 9,
+  creatorSplit: 1,
+}
+
 // TODO: Save rumble data state in individual roomIdsrooms.
-const Rumble = new RumbleApp() as RumbleInterface;
+const Rumble = new RumbleApp({prizeSplit: defaultPrizeSplit}) as RumbleInterface;
 
 io.on("connection", (socket: any) => {
   console.log(`User Connected: ${socket.id}`);

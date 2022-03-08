@@ -3,6 +3,13 @@
 It uhh does some battle with birbs.
 
 
+## How to start
+
+Install all node_modules
+Run `yar server` to start server.
+Run `yarn start` in another tab to start the app
+
+
 ## Context
 
 [src/App.tsx](src/App.tsx) is the main test UI
@@ -12,6 +19,37 @@ It uhh does some battle with birbs.
 [Rumble/types](src/Rumble/types/) is where Typescript types can be found
 
 [Rumble/activities](src/Rumble/activities/) activities are events that can happen. These will be either PVP, PVP or a Revive activity.
+
+### What needs to be done?
+
+- Split apart Rumble / Server / Web
+  - Clean up folders of useless info
+- Server
+  - Hosting place?
+  - Saving / Fetching of all the pve / pvp / revive activity objects
+  - Returning only pieces of the activity log every 30s or whatever its set to
+    - Should this be customizeable?
+  - Smart Contracts?
+    - Taking a "buy in" payment
+    - Dispense winning payments
+- Web
+  - Routing for game ids
+  - Only let game creator start game
+    - Eventually automate it? Meh?
+  - UI to "create" a Rumble with customizeable components
+    - Set prize split (RumbleRaffleDAO always takes .5% (maybe less / more?))
+    - Set amt players
+    - Set buyin amount
+  - Once "Join" is clicked, user can not rejoin.
+  - Logging in with wallets
+  - Accepting "buy in"
+- Rumble
+  - Extract activities / implement passing activity objects through
+  - determine how many loops each round should run through
+  - Enable setting the prize split
+    - Customizeable
+  - Get more examples for pve / pvp / revive activities
+  - Testing
 
 ### Extra Monetary Ideas
 
