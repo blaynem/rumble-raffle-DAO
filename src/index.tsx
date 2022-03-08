@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App'; // App just tests functionality of the Rumble itself
+// import App from './App'; // App just tests functionality of the Rumble itself
 import TestRumble from './TestRumble'; // Test rumble has sockets
 // import reportWebVitals from './reportWebVitals';
 
