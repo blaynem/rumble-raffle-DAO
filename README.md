@@ -44,10 +44,7 @@ Run `yarn start` in another tab to start the app
   - Logging in with wallets
   - Accepting "buy in"
 - Rumble
-  - Extract activities / implement passing activity objects through
   - determine how many loops each round should run through
-  - Enable setting the prize split
-    - Customizeable
   - Get more examples for pve / pvp / revive activities
   - Testing
 

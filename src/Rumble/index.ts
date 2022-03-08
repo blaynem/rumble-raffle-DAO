@@ -1,6 +1,6 @@
 import Rumble from './rumble'
 
 export * from './types/activity';
-export type {PlayerType, PrizeValuesType, PrizeSplitType, RumbleInterface} from './types';
+export type {ActivitiesObjType, PlayerType, PrizeValuesType, PrizeSplitType, RumbleRaffleInterface} from './types';
 
 export default Rumble;

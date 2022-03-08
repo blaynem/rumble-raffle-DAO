@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { PlayerType, PrizeValuesType, PrizeSplitType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType, WinnerLogType, GameEndType, PrizePayouts, RumbleInterface } from './types';
-import { PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES } from './activities';
+import type { ActivitiesObjType, PlayerType, PrizeValuesType, PrizeSplitType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType, WinnerLogType, GameEndType, PrizePayouts, RumbleInterface } from './types';
 import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, doesEventOccur } from './common';
+import { RumbleRaffleInterface, SetupType } from './types/rumble';
 
 /**
  * TODO:
@@ -35,6 +35,12 @@ const defaultPrizeSplit: PrizeSplitType = {
   creatorSplit: 1,
 }
 
+const defaultGameActivities = {
+  PVE: [],
+  PVP: [],
+  REVIVE: []
+};
+
 const initialGamePayouts = {
   altSplit: 0,
   creatorSplit: 0,
@@ -45,8 +51,8 @@ const initialGamePayouts = {
   total: 0,
 }
 
-class Rumble implements RumbleInterface {
-  activities: ActivityTypes[]
+const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterface {
+  activities: ActivitiesObjType
 
   // Values for setting up the rumble environment
   chanceOfPve: number;
@@ -73,9 +79,11 @@ class Rumble implements RumbleInterface {
   playersSlainIds: string[];
   roundCounter: number;
 
-
-  constructor(setup: {prizeSplit: PrizeSplitType} = {prizeSplit: defaultPrizeSplit}) {
-    this.activities = []
+  constructor(setup: SetupType = {
+    activities: defaultGameActivities,
+    prizeSplit: defaultPrizeSplit
+  }) {
+    this.activities = setup.activities;
 
     // Defining the params of the game
     this.chanceOfPve = 30;
@@ -331,7 +339,7 @@ class Rumble implements RumbleInterface {
       // This only happens if someone will also revive this turn.
       const pveRound = filterRepeatPlayers.length === 1 || doesEventOccur(this.chanceOfPve)
       // We want to set the maximum deaths to the potential players -1. There always needs to be one player left.
-      const chosenActivity = pickActivity(pveRound ? PVE_ACTIVITIES : PVP_ACTIVITIES, filterRepeatPlayers.length, filterRepeatPlayers.length - 1);
+      const chosenActivity = pickActivity(pveRound ? this.activities.PVE : this.activities.PVP, filterRepeatPlayers.length, filterRepeatPlayers.length - 1);
       // Chooses random players
       const chosenPlayerIds: string[] = getAmtRandomItemsFromArr(filterRepeatPlayers, chosenActivity.amountOfPlayers);
 
@@ -359,7 +367,7 @@ class Rumble implements RumbleInterface {
       availablePlayerIds = [...availablePlayerIds, playerToReviveId];
       deadPlayerIds = deadPlayerIds.filter(id => id !== playerToReviveId);
       // Pick which revive activity it will be.
-      const chosenActivity = pickActivity(REVIVE_ACTIVITIES, 1);
+      const chosenActivity = pickActivity(this.activities.REVIVE, 1);
       // Push the activity log for the revive
       const activity: RoundActivityLogType = doActivity(chosenActivity, [playerToReviveId], this.replaceActivityDescPlaceholders);
       roundActivityLog.push(activity);
@@ -554,7 +562,7 @@ class Rumble implements RumbleInterface {
 
   private calculatePrizeSplit(totalPrize: number, totalPlayers: number): PrizeValuesType {
     this.validatePrizeSplit();
-    
+
     return {
       altSplit: totalPrize * (this.prizeSplit.altSplit / 100),
       creatorSplit: (this.prizeSplit.creatorSplit / 100),
@@ -576,6 +584,4 @@ class Rumble implements RumbleInterface {
   }
 }
 
-
-
-export default Rumble;
+export default RumbleRaffle;

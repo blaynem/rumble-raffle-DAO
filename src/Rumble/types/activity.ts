@@ -1,5 +1,14 @@
 import { allPlayersObj, PlayerType, PrizePayouts } from "."
 
+/**
+ * Typings for the activities type PVE, PVP, and REVIVE object.
+ */
+ export type ActivitiesObjType = {
+  PVE: ActivityTypes[];
+  PVP: ActivityTypes[];
+  REVIVE: ActivityTypes[];
+}
+
 export interface ActivityTypes {
   // Id of the activity
   id: string;

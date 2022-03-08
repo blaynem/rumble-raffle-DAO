@@ -1,5 +1,6 @@
-import { GameEndType, PlayerType, PrizeValuesType, RumbleInterface, PrizeSplitType} from "./Rumble";
-const RumbleApp = require('./Rumble').default;
+import { GameEndType, PlayerType, PrizeValuesType, PrizeSplitType, ActivitiesObjType, RumbleRaffleInterface} from "./Rumble";
+import {PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES} from './activities';
+const RumbleApp = require('./Rumble').default as RumbleRaffleInterface;
 
 const express = require("express");
 const app = express();
@@ -17,6 +18,12 @@ const io = new Server(server, {
   },
 });
 
+const defaultGameActivities: ActivitiesObjType = {
+  PVE: PVE_ACTIVITIES,
+  PVP: PVP_ACTIVITIES,
+  REVIVE: REVIVE_ACTIVITIES
+};
+
 const defaultPrizeSplit: PrizeSplitType = {
   kills: 20,
   thirdPlace: 5,
@@ -27,7 +34,7 @@ const defaultPrizeSplit: PrizeSplitType = {
 }
 
 // TODO: Save rumble data state in individual roomIdsrooms.
-const Rumble = new RumbleApp({prizeSplit: defaultPrizeSplit}) as RumbleInterface;
+const Rumble = new RumbleApp({ activities: defaultGameActivities, prizeSplit: defaultPrizeSplit });
 
 io.on("connection", (socket: any) => {
   console.log(`User Connected: ${socket.id}`);

@@ -1,7 +1,23 @@
-import { ActivityTypes, PrizeValuesType, allPlayersObj, ActivityLogType, WinnerLogType, PrizePayouts, PlayerType, GameEndType } from ".";
+import { ActivityTypes, PrizeValuesType, allPlayersObj, ActivityLogType, WinnerLogType, PrizePayouts, PlayerType, GameEndType, PrizeSplitType, ActivitiesObjType } from ".";
+
+/**
+ * Constructor typings
+ */
+export type SetupType = { activities: ActivitiesObjType, prizeSplit: PrizeSplitType }
+
+/**
+ * Allows the setup of constructor variable types.
+ */
+export interface RumbleRaffleInterface {
+  new(setup: SetupType): RumbleInterface;
+}
+
 
 export interface RumbleInterface {
-  activities: ActivityTypes[]
+  /**
+   * Activities available to choose from.
+   */
+  activities: ActivitiesObjType;
 
   /** ----Values for setting up the rumble environment---- */
   /**
