@@ -25,6 +25,7 @@ Run `yarn start` in another tab to start the app
 - ~~Split apart Rumble / Server / Web~~
   - Clean up folders of useless info
 - Server
+  - Send back the list of possible roomIds to set inside pages/[rumbleRoomId].
   - Hosting place?
   - Saving / Fetching of all the pve / pvp / revive activity objects
   - Returning only pieces of the activity log every 30s or whatever its set to
@@ -33,6 +34,7 @@ Run `yarn start` in another tab to start the app
     - Taking a "buy in" payment
     - Dispense winning payments
 - Web
+  - Get the list of possible roomIds to set inside pages/[rumbleRoomId].
   - Routing for game ids
   - Only let game creator start game
     - Eventually automate it? Meh?
