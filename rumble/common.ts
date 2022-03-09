@@ -110,3 +110,5 @@ export const doesEventOccur = (chanceEventOccurs: number): boolean => {
     Math.random() * (101)
   )
 }
+
+export const getRandomNumber = (max: number): number => Math.floor(Math.random() * max);

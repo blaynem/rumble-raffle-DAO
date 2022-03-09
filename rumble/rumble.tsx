@@ -1,16 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { ActivitiesObjType, PlayerType, PrizeValuesType, PrizeSplitType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType, WinnerLogType, GameEndType, PrizePayouts, RumbleInterface } from './types';
-import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, doesEventOccur } from './common';
+import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, doesEventOccur, getRandomNumber } from './common';
 import { RumbleRaffleInterface, SetupType } from './types/rumble';
 
 /**
  * TODO:
  * 
- * Figure out how to determine how many loops each round should run through.
- * 
- * Next Huge Steps:
- * - Getting this program to run in the cloud and update all players at the same time. Websockts? idk
- * - Hooking up wallets / collecting prizes
+ * (Maybe?)
+ * Characters actually store items that are gathered from pve quests. Ex:
+ * - Character makes a spear, has a chance to use a spear for the killing weapon in a later match.
+ * - Character find water, that water could have been poisoned (drinking it in another tound kills them)
  * 
  */
 
@@ -294,6 +293,24 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
   };
 
   /**
+   * Helper that determines how many activities should be possible to do in a given round.
+   * 
+   * @param amtPlayers - amount of players left in the game
+   * @returns - amount of activities should be possible in a loop
+   */
+  private getActivityLoopTimes(amtPlayers: number): number {
+    if (amtPlayers > 100) {
+      // We want a minimum of 10 times, maximum of 17. Idk why 17, we can increase this later.
+      return getRandomNumber(7) + 10
+    } else if (amtPlayers > 45) {
+      // We want a minimum of 5 times, maximum of 12 (5+7). Idk why 12, we can increase this later.
+      return getRandomNumber(7) + 5
+    }
+    // We want a minimum of 2 times, maximum of 6 (2+4). Idk why 6, we can increase this later.
+    return getRandomNumber(4) + 2
+  }
+
+  /**
    * Creates a round of activites that will happen.
    * 
    * Select an activity to do: PVE / PVP
@@ -325,7 +342,7 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
 
     // TODO: Determine how long this should run for.
     // Will need to do a loop to create multiple events. Will also need to check and make sure there are enough people to do the next event.
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < this.getActivityLoopTimes(availablePlayerIds.length); i++) {
       // Filtering out players that have already played more than the maxActivitiesPerRound allowed.
       const filterRepeatPlayers = availablePlayerIds.filter(id => {
         return !timesPlayedThisRound[id] || timesPlayedThisRound[id] >= this.maxActivitiesPerRound

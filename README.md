@@ -44,7 +44,7 @@ Run `yarn start` in another tab to start the app
   - Logging in with wallets
   - Accepting "buy in"
 - Rumble
-  - determine how many loops each round should run through
+  - ~~determine how many loops each round should run through~~
   - Get more examples for pve / pvp / revive activities
   - Testing
 
