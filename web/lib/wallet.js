@@ -2,19 +2,17 @@ import Web3 from 'web3'
 import { NONCE_MESSAGE } from './constants'
 
 let web3 = undefined
-// export const getCookie = ({ publicAddress, signature }) =>
-//   fetch(`/api/auth`, {
-//     body: JSON.stringify({ publicAddress, signature }),
-//     headers: {
-//       'Content-Type': 'application/json'
-//     },
-//     method: 'POST'
-//   }).then(response => response.json())
-// SKIPPING FETCH AUTH FOR NOW
-export const getCookie = ({ publicAddress, signature }) => ({ publicAddress, signature });
+export const getCookie = ({ publicAddress, signature }) =>
+  fetch(`/api/auth`, {
+    body: JSON.stringify({ publicAddress, signature }),
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    method: 'POST'
+  }).then(response => response.json())
 
 export const handleSignMessage = async ({ publicAddress, nonce }) => {
-  console.log('--lib/wallet.js--public addy sign message biatch', publicAddress)
+  console.log('--lib/wallet.js--public addy sign message biatch', publicAddress, nonce)
   try {
     const signature = await web3.eth.personal.sign(
       `${NONCE_MESSAGE}${nonce}`,
@@ -24,6 +22,7 @@ export const handleSignMessage = async ({ publicAddress, nonce }) => {
 
     return { publicAddress, signature }
   } catch (err) {
+    console.log('--errr', err);
     throw new Error('You need to sign the message to be able to log in.')
   }
 }

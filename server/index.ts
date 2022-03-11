@@ -1,4 +1,3 @@
-export { PrismaClient } from '@prisma/client';
 import sockets from './src/sockets/server';
 sockets();
 // const port = 3005

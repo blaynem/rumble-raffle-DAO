@@ -1,11 +1,11 @@
 import '../styles/globals.css'
-import ContainerRoot from '../containers/root'
 import React, { useState, useEffect } from 'react'
 import Router from 'next/router'
 import UserContext from '../lib/UserContext'
-import { supabase, fetchUserRoles } from '../lib/Store_ex'
+import { supabase, fetchUserRoles } from '../lib/Store_new'
+import ContainerRoot from '../containers/root'
 
-function MyApp({ Component, pageProps }) {
+export default function SupabaseSlackClone({ Component, pageProps }) {
   const [userLoaded, setUserLoaded] = useState(false)
   const [user, setUser] = useState(null)
   const [session, setSession] = useState(null)
@@ -13,7 +13,6 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     const session = supabase.auth.session()
-    console.log('--session', session);
     setSession(session)
     setUser(session?.user ?? null)
     setUserLoaded(session ? true : false)
@@ -51,6 +50,7 @@ function MyApp({ Component, pageProps }) {
     <ContainerRoot>
       <UserContext.Provider
         value={{
+
           userLoaded,
           user,
           userRoles,
@@ -63,5 +63,3 @@ function MyApp({ Component, pageProps }) {
     </ContainerRoot>
   )
 }
-
-export default MyApp
