@@ -23,7 +23,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "server": "nodemon server/server.ts",
+    "server": "nodemon server/index.ts",
     "dev": "yarn workspace @rumble-raffle-dao/web dev",
     "build": "yarn workspace @rumble-raffle-dao/web build",
     "start": "yarn workspace @rumble-raffle-dao/web start"

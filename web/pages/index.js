@@ -24,7 +24,7 @@ export default function PageIndex(props) {
 
 export const getServerSideProps = withSessionSsr(({ req }) => {
   const user = req?.session?.user
-
+  console.log('--user', user);
   return {
     props: {
       ...(user && { user })

@@ -1,8 +1,8 @@
 import { recoverPersonalSignature } from 'eth-sig-util'
 import { bufferToHex } from 'ethereumjs-util'
 // import { PrismaClient } from '@blockchainapp/prisma'
-import { withSessionRoute } from 'lib/with-session'
-import { NONCE_MESSAGE } from 'lib/constants'
+import { withSessionRoute } from '../../lib/with-session'
+import { NONCE_MESSAGE } from '../../lib/constants'
 
 // const prisma = new PrismaClient()
 

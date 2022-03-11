@@ -2,14 +2,16 @@ import Web3 from 'web3'
 import { NONCE_MESSAGE } from './constants'
 
 let web3 = undefined
-export const getCookie = ({ publicAddress, signature }) =>
-  fetch(`/api/auth`, {
-    body: JSON.stringify({ publicAddress, signature }),
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    method: 'POST'
-  }).then(response => response.json())
+// export const getCookie = ({ publicAddress, signature }) =>
+//   fetch(`/api/auth`, {
+//     body: JSON.stringify({ publicAddress, signature }),
+//     headers: {
+//       'Content-Type': 'application/json'
+//     },
+//     method: 'POST'
+//   }).then(response => response.json())
+// SKIPPING FETCH AUTH FOR NOW
+export const getCookie = ({ publicAddress, signature }) => ({ publicAddress, signature });
 
 export const handleSignMessage = async ({ publicAddress, nonce }) => {
   console.log('--lib/wallet.js--public addy sign message biatch', publicAddress)
@@ -53,6 +55,10 @@ export const authenticate = async onLoggedIn => {
     return
   }
 
+  /**
+   * TODO:
+   * - Actually make all of this go through api calls instead of not.
+   */
   const publicAddress = coinbase.toLowerCase()
   fetch(`/api/users?publicAddress=${publicAddress}`)
     .then(response => response.json())

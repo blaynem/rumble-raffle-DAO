@@ -1,5 +1,5 @@
 import RumbleApp, { GameEndType, PlayerType, PrizeValuesType, PrizeSplitType, ActivitiesObjType, RumbleRaffleInterface} from "@rumble-raffle-dao/rumble";
-import {PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES} from './activities';
+import {PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES} from '../../activities';
 
 const express = require("express");
 const app = express();

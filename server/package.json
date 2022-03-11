@@ -2,9 +2,22 @@
   "name": "@rumble-raffle-dao/server",
   "version": "0.1.0",
   "private": true,
-  "main": "server.ts",
+  "main": "index.ts",
+  "scripts": {
+    "server": "nodemon index.ts",
+    "connect:main": "pscale connect rumble-raffle-dao-test main --port 3309",
+    "connect:develop": "pscale connect rumble-raffle-dao-test develop --port 3309",
+    "generate": "npx prisma generate",
+    "push": "npx prisma db push",
+    "promote": "pscale branch promote rumble-raffle-dao-test main",
+    "branch": "pscale branch create rumble-raffle-dao-test develop",
+    "studio": "npx prisma studio",
+    "task": "npx ts-node ./tasks/tasksfile.ts"
+  },
   "dependencies": {
+    "@prisma/client": "^3.10.0",
     "@rumble-raffle-dao/rumble": "0.1.0",
+    "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "nodemon": "^2.0.15",
     "socket.io": "^4.4.1",
@@ -12,9 +25,6 @@
     "ts-node": "^10.6.0",
     "typescript": "^4.5.5",
     "uuid": "^8.3.2"
-  },
-  "scripts": {
-    "server": "nodemon server.ts"
   },
   "eslintConfig": {
     "extends": [
@@ -24,6 +34,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^6.0.0-alpha.7",
-    "@types/uuid": "^8.3.4"
+    "@types/uuid": "^8.3.4",
+    "yargs": "^17.3.1"
   }
 }
