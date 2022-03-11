@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Router from 'next/router'
 import UserContext from '../lib/UserContext'
 import { supabase, fetchUserRoles } from '../lib/Store_ex'
+import Nav from '../components/nav'
 
 function MyApp({ Component, pageProps }) {
   const [userLoaded, setUserLoaded] = useState(false)
@@ -58,6 +59,7 @@ function MyApp({ Component, pageProps }) {
           signOut,
         }}
       >
+        <Nav />
         <Component {...pageProps} />
       </UserContext.Provider>
     </ContainerRoot>
