@@ -1,5 +1,7 @@
 export { PrismaClient } from '@prisma/client';
-export * from './src/sockets/server';
+import sockets from './src/sockets/server';
+sockets();
+// const port = 3005
 // const express = require('express');
 // const bodyParser = require('body-parser');
 // const app = express();
