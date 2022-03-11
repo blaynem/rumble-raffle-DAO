@@ -54,10 +54,6 @@ export const authenticate = async onLoggedIn => {
     return
   }
 
-  /**
-   * TODO:
-   * - Actually make all of this go through api calls instead of not.
-   */
   const publicAddress = coinbase.toLowerCase()
   fetch(`/api/users?publicAddress=${publicAddress}`)
     .then(response => response.json())
