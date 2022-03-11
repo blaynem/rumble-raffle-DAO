@@ -16,7 +16,7 @@ async function auth(req, res) {
   }
 
   // get user from the database where publicAddress
-  const {error, data} = await supabase.from('users').select(`publicAddress, nonce`).eq('publicAddress', publicAddress)
+  const {error, data} = await supabase.from('users').select(`publicAddress, nonce, name`).eq('publicAddress', publicAddress)
   // supabase returns array
   const user = data[0];
 
