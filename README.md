@@ -20,12 +20,35 @@ Run `yarn start` in another tab to start the app
 
 [Rumble/activities](src/Rumble/activities/) activities are events that can happen. These will be either PVP, PVP or a Revive activity.
 
+### Flow of creating game
+
+1. Admin goes to create room page
+    - created room will have options needed to fill out
+    - pve chances, revive chance, prize split, cost of entry, coin type, etc
+    - slug will be random for now
+    - Future unlocks:
+      - Select slug to generate
+      - Allows params of users that can join (only nft holders, only with certain amount of x coin, etc)
+2. After submission a room will be created in the `/rooms` db table with its params.
+    - A link will be generated to send to players
+3. Users will sign in with their wallets, and click "join game"
+    - Users will be prompted with the "approve spend" tx, we wait for tx to clear then set approve
+    - after approval "user" is now converted to a "Player"
+    - "player" data will be added to the `players` db table with userid / roomid / walletid
+4. Once `player` joins, everyone in the room is sent a socket update to show active players
+    - This will also prompt the update of total prize pool to be shown to all "users"
+5. On game start Rumble package will calculate all data and then store it in the `tbd` db table
+    - Stored data: players, activityLog, winners, room params. (is this stored better not in a db, like an s3 bucket or something for logs?)
+6. Game activity data will then be slowly trickled out to players every x amount of seconds via sockets.
+7. After winner is announced, payments will be disbursed.
+
+
 ### What needs to be done?
 
 - ~~Split apart Rumble / Server / Web~~
   - Clean up folders of useless info
 - Server
-  - Send back the list of possible roomIds to set inside pages/[rumbleRoomId].
+  - Send back the list of possible roomIds to set inside pages/room/[roomId].
   - Hosting place?
   - Saving / Fetching of all the pve / pvp / revive activity objects
   - Returning only pieces of the activity log every 30s or whatever its set to
@@ -34,7 +57,7 @@ Run `yarn start` in another tab to start the app
     - Taking a "buy in" payment
     - Dispense winning payments
 - Web
-  - Get the list of possible roomIds to set inside pages/[rumbleRoomId].
+  - Get the list of possible roomIds to set inside pages/rooms/[roomId].
   - Routing for game ids
   - Only let game creator start game
     - Eventually automate it? Meh?
@@ -47,6 +70,7 @@ Run `yarn start` in another tab to start the app
   - Accepting "buy in"
 - Rumble
   - ~~determine how many loops each round should run through~~
+  - Add param options for entry price, chance of pve, chance of revive, etc
   - Get more examples for pve / pvp / revive activities
   - Testing
 
