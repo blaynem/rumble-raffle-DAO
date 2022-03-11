@@ -1,25 +1,24 @@
 import { recoverPersonalSignature } from 'eth-sig-util'
 import { bufferToHex } from 'ethereumjs-util'
-// import { PrismaClient } from '@blockchainapp/prisma'
-import { withSessionRoute } from 'lib/with-session'
-import { NONCE_MESSAGE } from 'lib/constants'
+import { withSessionRoute } from '../../lib/with-session'
+import { NONCE_MESSAGE } from '../../lib/constants'
+import { createClient } from '@supabase/supabase-js'
 
-// const prisma = new PrismaClient()
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_KEY
+)
 
 async function auth(req, res) {
   const { signature, publicAddress } = req.body
   if (!signature || !publicAddress) {
-    return res.status(400).json({ error: '----api/auth.js---Request should have signature and publicAddress' })
+    return res.status(400).json({ error: 'Request should have signature and publicAddress' })
   }
 
-  //get user from the database where publicAddress
-  // const user = await prisma.user.findUnique({
-  //   where: {
-  //     publicAddress
-  //   }
-  // })
-
-  console.log('----api/auth.js---user', user)
+  // get user from the database where publicAddress
+  const {error, data} = await supabase.from('users').select(`publicAddress, nonce, name`).eq('publicAddress', publicAddress)
+  // supabase returns array
+  const user = data[0];
 
   if (!user) {
     res.status(404).json({ error: 'Not found' })
@@ -44,7 +43,7 @@ async function auth(req, res) {
     res.status(200).json(user)
   } else {
     res.status(401).json({
-      error: '----api/auth.js---Signature verification failed'
+      error: 'Signature verification failed'
     })
 
     return null
