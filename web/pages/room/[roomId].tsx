@@ -43,19 +43,22 @@ const DisplayActivityLog = (logs: (ActivityLogType | WinnerLogType)) => {
   )
 }
 
-export const getServerSideProps = withSessionSsr(({ req, query, ...rest }) => {
-  console.log('------getServerSideProps', query);
+export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }) => {
+  const roomData = await fetch(`http://localhost:3000/api/rooms/${query.roomId}`).then(res => res.json())
+  // TODO: Show them a specific screen if room is not live.
+  const isRoomLive = roomData.length >= 1;
   const user = req?.session?.user
   return {
     props: {
+      isRoomLive,
       roomId: query.roomId,
       ...(user && { user })
     }
   }
 })
 
-const TestRumble = ({ roomId, user }: { roomId: string, user: any }) => {
-  console.log('---testrumble PROPS---', user, roomId);
+const TestRumble = ({ roomId, user, ...rest }: { roomId: string, user: any }) => {
+  console.log('---testrumble PROPS---', user, roomId, rest);
   const [entrants, setEntrants] = useState([] as PlayerType[]);
   const [prizes, setPrizes] = useState({} as PrizeValuesType);
   const [activityLog, setActivityLog] = useState([] as (ActivityLogType | WinnerLogType)[]);

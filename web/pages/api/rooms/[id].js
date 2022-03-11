@@ -6,7 +6,7 @@ export const supabase = createClient(
 )
 
 export default async function fetchRooms(req, res) {
-  // Fetch array of available rooms
-  const {data, error} = await supabase.from('rooms').select()
+  const { id } = req.query
+  const {data, error} = await supabase.from('rooms').select().eq('slug', id)
   res.status(200).json(data)
 }
