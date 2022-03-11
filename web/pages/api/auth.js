@@ -1,10 +1,10 @@
 import { recoverPersonalSignature } from 'eth-sig-util'
 import { bufferToHex } from 'ethereumjs-util'
-// import { PrismaClient } from '@blockchainapp/prisma'
+import { PrismaClient } from '@rumble-raffle-dao/server'
 import { withSessionRoute } from '../../lib/with-session'
 import { NONCE_MESSAGE } from '../../lib/constants'
 
-// const prisma = new PrismaClient()
+const prisma = new PrismaClient()
 
 async function auth(req, res) {
   const { signature, publicAddress } = req.body
@@ -12,12 +12,12 @@ async function auth(req, res) {
     return res.status(400).json({ error: '----api/auth.js---Request should have signature and publicAddress' })
   }
 
-  //get user from the database where publicAddress
-  // const user = await prisma.user.findUnique({
-  //   where: {
-  //     publicAddress
-  //   }
-  // })
+  // get user from the database where publicAddress
+  const user = await prisma.user.findUnique({
+    where: {
+      publicAddress
+    }
+  })
 
   console.log('----api/auth.js---user', user)
 
