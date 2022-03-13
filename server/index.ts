@@ -12,10 +12,17 @@ import client from './src/client';
 export type SupabaseRoomType = {
   slug: string;
   params: {
-    prizeSplit: PrizeSplitType
+    prizeSplit: PrizeSplitType;
+  }
+  id: string;
+}
+export type RoomRumbleDataType = {
+  [slug: string]: {
+    rumble: RumbleInterface,
+    id: string,
+    slug: string
   }
 }
-export type RoomRumbleDataType = {[slug: string]: RumbleInterface}
 
 const app = express();
 const jsonParser = bodyParser.json()
@@ -27,13 +34,13 @@ const server = http.createServer(app);
 const roomRumbleData: RoomRumbleDataType = {};
 
 app.get('/', (req: any, res: any) => {
-  res.json({'message': 'ok'});
+  res.json({ 'message': 'ok' });
 })
 
 // TODO: Implement create
 app.post('/create', jsonParser, (req: any, res: any) => {
   console.log('---create called', req.body);
-  res.status(res.statusCode).send({thing: 'do thing'})
+  res.status(res.statusCode).send({ thing: 'do thing' })
 })
 
 /**
@@ -51,8 +58,8 @@ app.get('/rooms/:slug', (req: any, res: any) => {
 app.use((err: any, req: any, res: any, next: any) => {
   const statusCode = err.statusCode || 500;
   console.error(err.message, err.stack);
-  res.status(statusCode).json({'message': err.message});
-  
+  res.status(statusCode).json({ 'message': err.message });
+
   return;
 });
 
@@ -65,7 +72,7 @@ const io = new Server(server, {
 
 server.listen(port, () => {
   console.log("SERVER RUNNING");
-  
+
   initServer();
 });
 
@@ -82,7 +89,6 @@ io.sockets.on("connection", (socket: any) => {
  * 
  * Create Game URL
  * - /create - if that's called when data is returned we get the slug and add it to roomRumbleData.
- * - Ex: roomRumbleData[slug] = new Rumble({...params})
  */
 
 
@@ -94,10 +100,18 @@ const defaultGameActivities: ActivitiesObjType = {
 
 // todo: fetch all rooms from db and create the games inside roomRumbleData.
 const initServer = async () => {
-  const {data, error} = await client.from<SupabaseRoomType>('rooms').select('slug, params')
+  const { data, error } = await client.from<SupabaseRoomType>('rooms').select('id, slug, params')
   if (error) {
     console.log('---error', error);
     return;
   }
-  data.forEach(room => roomRumbleData[room.slug] = new RumbleApp({activities: defaultGameActivities, prizeSplit: room.params.prizeSplit}))
+  data.forEach(room => {
+    const slug = room.slug;
+    const roomData = {
+      rumble: new RumbleApp({ activities: defaultGameActivities, prizeSplit: room.params.prizeSplit }),
+      id: room.id,
+      slug
+    }
+    roomRumbleData[slug] = roomData;
+  })
 }
