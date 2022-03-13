@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
 import { ActivityLogType, PlayerType, PrizeValuesType, WinnerLogType } from "@rumble-raffle-dao/rumble";
+import io from "socket.io-client";
+
+const socket = io('http://localhost:3001').connect()
 
 const DisplayEntrant = ({ id, name }: PlayerType) => (
   <div style={{ border: '1px solid gray', padding: 8, position: 'relative' }} key={id}>
@@ -44,41 +47,44 @@ const DisplayActivityLog = (logs: (ActivityLogType | WinnerLogType)) => {
 }
 
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }) => {
-  const roomData = await fetch(`http://localhost:3000/api/rooms/${query.roomId}`).then(res => res.json())
-  // TODO: Show them a specific screen if room is not live.
-  const isRoomLive = roomData.length >= 1;
+  const {activeRoom} = await fetch(`http://localhost:3000/api/rooms/${query.roomId}`).then(res => res.json())
   const user = req?.session?.user
   return {
     props: {
-      isRoomLive,
+      activeRoom,
       roomId: query.roomId,
       ...(user && { user })
     }
   }
 })
 
-const TestRumble = ({ roomId, user, ...rest }: { roomId: string, user: any }) => {
-  console.log('---testrumble PROPS---', user, roomId, rest);
+const RumbleRoom = ({ roomId, user, activeRoom, ...rest }: { roomId: string, user: any, activeRoom: boolean }) => {
+  // console.log('---RumbleRoom PROPS---', {user, roomId, activeRoom});
+  // TODO: Redirect them to home if there is no room shown?
+  if (!activeRoom) {
+    return <>Please check room number.</>
+  }
   const [entrants, setEntrants] = useState([] as PlayerType[]);
   const [prizes, setPrizes] = useState({} as PrizeValuesType);
   const [activityLog, setActivityLog] = useState([] as (ActivityLogType | WinnerLogType)[]);
 
   useEffect(() => {
-    // Setting fake player for now
-    // setPlayer(fakePlayerToAdd());
     // Join a room
-    // socket.emit("join_room", rumbleRoomId);
+    socket.emit("join_room", roomId);
 
-    //@ts-ignore
-    // socket.on("update_player_list", (data: { allPlayers: PlayerType[]; prizeSplit: PrizeValuesType }) => {
-    //   //@ts-ignore
-    //   data.allPlayers !== null && setEntrants([...data.allPlayers])
-    //   data.prizeSplit !== null && setPrizes(data.prizeSplit)
-    // });
+    /**
+     * update_player_list called:
+     * - On initial join of room
+     * - Any time a "user"" is converted to a "player"
+     */
+    socket.on("update_player_list", (data: { allPlayers: PlayerType[]; prizeSplit: PrizeValuesType }) => {
+      data.allPlayers !== null && setEntrants([...data.allPlayers])
+      data.prizeSplit !== null && setPrizes(data.prizeSplit)
+    });
 
-    // socket.on("update_activity_log", (activityLog: (ActivityLogType | WinnerLogType)[]) => {
-    //   setActivityLog(activityLog);
-    // })
+    socket.on("update_activity_log", (activityLog: (ActivityLogType | WinnerLogType)[]) => {
+      setActivityLog(activityLog);
+    })
 
     // Return function here is used to cleanup the sockets
     return function cleanup() {
@@ -87,21 +93,22 @@ const TestRumble = ({ roomId, user, ...rest }: { roomId: string, user: any }) =>
   }, [roomId]);
 
   const onJoinClick = () => {
+    console.log(user);
     if (user) {
-      // socket.emit("join_room", rumbleRoomId);
-      // socket.emit("join_game", { playerData: player, rumbleRoomId });
+      socket.emit("join_game", { playerData: user, roomId });
       // todo: remove join game click
     }
   }
 
+  // TODO: Only allow admins to press play
   const autoGame = () => {
     console.log('--start game pressed: test-rumble--');
-    // socket.emit("start_game", { playerData, rumbleRoomId })
+    socket.emit("start_game", { playerData: user, roomId })
   }
 
   const clearGame = () => {
     console.log('--clear game pressed: test-rumble--');
-    // socket.emit("clear_game", { playerData, rumbleRoomId })
+    socket.emit("clear_game", { playerData: user, roomId })
   }
 
   return (
@@ -121,7 +128,7 @@ const TestRumble = ({ roomId, user, ...rest }: { roomId: string, user: any }) =>
           </div>
         </div>
         <div style={{ width: 500 }}>
-          <h2>{user.name}</h2>
+          <h2>{user?.name}</h2>
           <h2>Entrants</h2>
           {entrants.map(entrant => <DisplayEntrant key={entrant.id} {...entrant} />)}
         </div>
@@ -130,4 +137,4 @@ const TestRumble = ({ roomId, user, ...rest }: { roomId: string, user: any }) =>
   )
 }
 
-export default TestRumble;
+export default RumbleRoom;

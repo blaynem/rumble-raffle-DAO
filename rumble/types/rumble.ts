@@ -13,6 +13,9 @@ export interface RumbleRaffleInterface {
 }
 
 
+/**
+ * Interface of the instantiated Rumble.
+ */
 export interface RumbleInterface {
   /**
    * Activities available to choose from.
