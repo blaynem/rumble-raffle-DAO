@@ -2,12 +2,7 @@ import { recoverPersonalSignature } from 'eth-sig-util'
 import { bufferToHex } from 'ethereumjs-util'
 import { withSessionRoute } from '../../lib/with-session'
 import { NONCE_MESSAGE } from '../../lib/constants'
-import { createClient } from '@supabase/supabase-js'
-
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_KEY
-)
+import supabase from '../../client';
 
 async function auth(req, res) {
   const { signature, publicAddress } = req.body

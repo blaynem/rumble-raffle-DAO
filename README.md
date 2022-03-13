@@ -74,6 +74,11 @@ Run `yarn start` in another tab to start the app
   - Get more examples for pve / pvp / revive activities
   - Testing
 
+### Known bugs
+
+- Web
+  - Logging in on `room/:id` page doesn't update what your user name is
+
 ### Extra Monetary Ideas
 
 - NFT Ideas
