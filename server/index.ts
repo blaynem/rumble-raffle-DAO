@@ -8,21 +8,8 @@ import { initRoom } from './src/sockets/server';
 import { PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES } from './activities';
 import RumbleApp, { GameEndType, PlayerType, PrizeValuesType, PrizeSplitType, ActivitiesObjType, RumbleInterface } from "@rumble-raffle-dao/rumble";
 import client from './src/client';
-
-export type SupabaseRoomType = {
-  slug: string;
-  params: {
-    prizeSplit: PrizeSplitType;
-  }
-  id: string;
-}
-export type RoomRumbleDataType = {
-  [slug: string]: {
-    rumble: RumbleInterface,
-    id: string,
-    slug: string
-  }
-}
+import { RoomRumbleDataType } from "./types/server";
+import { SupabaseRoomExtendPlayers, SupabaseRoomType } from "./types/supabase";
 
 const app = express();
 const jsonParser = bodyParser.json()
@@ -76,7 +63,7 @@ server.listen(port, () => {
   initServer();
 });
 
-io.sockets.on("connection", (socket: any) => {
+io.sockets.on("connection", (socket) => {
   initRoom(io, socket, roomRumbleData);
 })
 
@@ -100,7 +87,12 @@ const defaultGameActivities: ActivitiesObjType = {
 
 // todo: fetch all rooms from db and create the games inside roomRumbleData.
 const initServer = async () => {
-  const { data, error } = await client.from<SupabaseRoomType>('rooms').select('id, slug, params')
+  const { data, error } = await client.from<SupabaseRoomExtendPlayers>('rooms').select(`
+    id,
+    slug,
+    params,
+    players:users(id, publicAddress, name)
+  `)
   if (error) {
     console.log('---error', error);
     return;
@@ -108,10 +100,15 @@ const initServer = async () => {
   data.forEach(room => {
     const slug = room.slug;
     const roomData = {
-      rumble: new RumbleApp({ activities: defaultGameActivities, prizeSplit: room.params.prizeSplit }),
+      rumble: new RumbleApp({
+        activities: defaultGameActivities,
+        prizeSplit: room.params.prizeSplit,
+        initialPlayers: room.players
+      }),
       id: room.id,
       slug
     }
     roomRumbleData[slug] = roomData;
+    console.log(roomData);
   })
 }

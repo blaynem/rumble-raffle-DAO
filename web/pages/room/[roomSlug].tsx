@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
 import { ActivityLogType, PlayerType, PrizeValuesType, WinnerLogType } from "@rumble-raffle-dao/rumble";
 import io from "socket.io-client";
+import { SupabaseUserType } from "../api/auth";
 
 const socket = io('http://localhost:3001').connect()
 
@@ -47,19 +48,19 @@ const DisplayActivityLog = (logs: (ActivityLogType | WinnerLogType)) => {
 }
 
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }) => {
-  const {activeRoom} = await fetch(`http://localhost:3000/api/rooms/${query.roomId}`).then(res => res.json())
+  const {activeRoom} = await fetch(`http://localhost:3000/api/rooms/${query.roomSlug}`).then(res => res.json())
   const user = req?.session?.user
   return {
     props: {
       activeRoom,
-      roomId: query.roomId,
+      roomSlug: query.roomSlug,
       ...(user && { user })
     }
   }
 })
 
-const RumbleRoom = ({ roomId, user, activeRoom, ...rest }: { roomId: string, user: any, activeRoom: boolean }) => {
-  // console.log('---RumbleRoom PROPS---', {user, roomId, activeRoom});
+const RumbleRoom = ({ roomSlug, user, activeRoom, ...rest }: { roomSlug: string, user: SupabaseUserType, activeRoom: boolean }) => {
+  // console.log('---RumbleRoom PROPS---', {user, roomSlug, activeRoom});
   // TODO: Redirect them to home if there is no room shown?
   if (!activeRoom) {
     return <>Please check room number.</>
@@ -70,7 +71,7 @@ const RumbleRoom = ({ roomId, user, activeRoom, ...rest }: { roomId: string, use
 
   useEffect(() => {
     // Join a room
-    socket.emit("join_room", roomId);
+    socket.emit("join_room", roomSlug);
 
     /**
      * update_player_list called:
@@ -78,6 +79,7 @@ const RumbleRoom = ({ roomId, user, activeRoom, ...rest }: { roomId: string, use
      * - Any time a "user"" is converted to a "player"
      */
     socket.on("update_player_list", (data: { allPlayers: PlayerType[]; prizeSplit: PrizeValuesType }) => {
+      console.log('---data', data);
       data.allPlayers !== null && setEntrants([...data.allPlayers])
       data.prizeSplit !== null && setPrizes(data.prizeSplit)
     });
@@ -90,12 +92,12 @@ const RumbleRoom = ({ roomId, user, activeRoom, ...rest }: { roomId: string, use
     return function cleanup() {
       // clean up sockets
     }
-  }, [roomId]);
+  }, [roomSlug]);
 
   const onJoinClick = () => {
     console.log(user);
     if (user) {
-      socket.emit("join_game", { playerData: user, roomId });
+      socket.emit("join_game", { playerData: user, roomSlug });
       // todo: remove join game click
     }
   }
@@ -103,12 +105,12 @@ const RumbleRoom = ({ roomId, user, activeRoom, ...rest }: { roomId: string, use
   // TODO: Only allow admins to press play
   const autoGame = () => {
     console.log('--start game pressed: test-rumble--');
-    socket.emit("start_game", { playerData: user, roomId })
+    socket.emit("start_game", { playerData: user, roomSlug })
   }
 
   const clearGame = () => {
     console.log('--clear game pressed: test-rumble--');
-    socket.emit("clear_game", { playerData: user, roomId })
+    socket.emit("clear_game", { playerData: user, roomSlug })
   }
 
   return (
