@@ -46,9 +46,9 @@ Run `yarn start` in another tab to start the app
 ### What needs to be done?
 
 - ~~Split apart Rumble / Server / Web~~
-  - Clean up folders of useless info
+  - ~~Clean up folders of useless info~~
 - Server
-  - Send back the list of possible roomIds to set inside pages/room/[roomId].
+  - ~~Send back the list of possible roomIds to set inside pages/room/[roomId].~~
   - Hosting place?
   - Saving / Fetching of all the pve / pvp / revive activity objects
   - Returning only pieces of the activity log every 30s or whatever its set to
@@ -57,8 +57,8 @@ Run `yarn start` in another tab to start the app
     - Taking a "buy in" payment
     - Dispense winning payments
 - Web
-  - Get the list of possible roomIds to set inside pages/rooms/[roomId].
-  - Routing for game ids
+  - ~~Get the list of possible roomIds to set inside pages/rooms/[roomId].~~
+  - ~~Routing for game ids~~
   - Only let game creator start game
     - Eventually automate it? Meh?
   - UI to "create" a Rumble with customizeable components
@@ -66,7 +66,7 @@ Run `yarn start` in another tab to start the app
     - Set amt players
     - Set buyin amount
   - Once "Join" is clicked, user can not rejoin.
-  - Logging in with wallets
+  - ~~Logging in with wallets~~
   - Accepting "buy in"
 - Rumble
   - ~~determine how many loops each round should run through~~
@@ -78,6 +78,10 @@ Run `yarn start` in another tab to start the app
 
 - Web
   - Logging in on `room/:id` page doesn't update what your user name is
+- Rumble
+  - Probably need to change activity log `content` to pass through id / walletId instead of just the names.
+- DB
+  - Change player id to be publicAddress rather than the id.
 
 ### Extra Monetary Ideas
 

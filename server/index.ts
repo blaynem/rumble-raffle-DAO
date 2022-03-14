@@ -6,10 +6,10 @@ import { Server } from "socket.io";
 
 import { initRoom } from './src/sockets/server';
 import { PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES } from './activities';
-import RumbleApp, { GameEndType, PlayerType, PrizeValuesType, PrizeSplitType, ActivitiesObjType, RumbleInterface } from "@rumble-raffle-dao/rumble";
+import RumbleApp, { ActivitiesObjType } from "@rumble-raffle-dao/rumble";
 import client from './src/client';
 import { RoomRumbleDataType } from "./types/server";
-import { SupabaseRoomExtendPlayers, SupabaseRoomType } from "./types/supabase";
+import { SupabaseRoomExtendPlayers } from "./types/supabase";
 
 const app = express();
 const jsonParser = bodyParser.json()
@@ -109,6 +109,5 @@ const initServer = async () => {
       slug
     }
     roomRumbleData[slug] = roomData;
-    console.log(roomData);
   })
 }

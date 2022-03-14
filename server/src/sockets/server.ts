@@ -41,12 +41,7 @@ function joinRoom(roomSlug: string) {
 
 /**
  * On Join Game we want to:
- * - Add player to game
- * - ??
- * - Return all players and prize list
- * TODO:
- * - Make api call and add player to "players" db for given room?
- * - Tie someones wallet id with the `this.id` so can't join multiple browsers.
+ * - Do things
  */
 async function joinGame(data: { playerData: SupabaseUserType; roomSlug: string }) {
   // Will error if the player is already added to the game.
@@ -116,7 +111,6 @@ const getPlayersAndPrizeSplit = (roomSlug: string): { allPlayers: PlayerType[]; 
   }
   const allPlayers = room.rumble.getAllPlayers();
   const prizeSplit = room.rumble.getPrizes();
-  console.log('----getPlayersAndPrizeSplit', JSON.stringify(allPlayers));
   return {
     allPlayers,
     prizeSplit
