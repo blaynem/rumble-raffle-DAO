@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Tab } from '@headlessui/react';
 import { withSessionSsr } from '../../lib/with-session';
 import { ActivityLogType, PlayerType, PrizeValuesType, WinnerLogType } from "@rumble-raffle-dao/rumble";
 import io from "socket.io-client";
@@ -6,22 +7,28 @@ import { SupabaseUserType } from "../api/auth";
 
 const socket = io('http://localhost:3001').connect()
 
+const buttonClass = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
+const buttonDisabled = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md focus:outline-none focus:ring-0 transition duration-150 ease-in-out pointer-events-none opacity-60"
+
 const DisplayEntrant = ({ id, name }: PlayerType) => (
-  <div style={{ border: '1px solid gray', padding: 8, position: 'relative' }} key={id}>
+  <li className="px-6 py-2 border-b border-gray-200 w-full rounded-t-lg" key={id}>
     <div>Id: {id}</div>
     <div>Name: {name}</div>
-  </div>
+  </li>
 )
 
 const DisplayPrizes = ({ firstPlace, secondPlace, thirdPlace, kills, altSplit, totalPrize, totalEntrants }: PrizeValuesType & { totalEntrants: number }) => (
-  <div style={{ border: '1px solid gray', padding: 8 }} >
-    <div>Total Entrants: {totalEntrants} Bird Warriors</div>
-    <div>Kills: {kills} sFNC</div>
-    <div>1st: {firstPlace} sFNC</div>
-    <div>2nd: {secondPlace} sFNC</div>
-    <div>3rd: {thirdPlace} sFNC</div>
-    <div>Stakers: {altSplit} sFNC</div>
-    <div>Total: {totalPrize} sFNC</div>
+  <div className="border-2 border-slate-100 rounded">
+    <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Prize Split</h3>
+    <ul className="bg-white rounded-lg w-96 text-gray-900">
+      <li className="px-6 py-2 border-b border-gray-200 w-full rounded-t-lg">Total Entrants: {totalEntrants} Bird Warriors</li>
+      <li className="px-6 py-2 border-b border-gray-200 w-full">Kills: {kills} sFNC</li>
+      <li className="px-6 py-2 border-b border-gray-200 w-full">1st: {firstPlace} sFNC</li>
+      <li className="px-6 py-2 border-b border-gray-200 w-full">2nd: {secondPlace} sFNC</li>
+      <li className="px-6 py-2 border-b border-gray-200 w-full">3rd: {thirdPlace} sFNC</li>
+      <li className="px-6 py-2 border-b border-gray-200 w-full">Stakers: {altSplit} sFNC</li>
+      <li className="px-6 py-2 w-full rounded-b-lg">Total: {totalPrize} sFNC</li>
+    </ul>
   </div>
 );
 
@@ -31,9 +38,11 @@ const DisplayActivityLog = (logs: (ActivityLogType | WinnerLogType)) => {
     return (
       <div>
         <h3>Winner!!</h3>
-        <div>Congratulations {logs.winner.name}</div>
-        <div>2nd place: {logs.runnerUps[0]?.name}</div>
-        <div>3rd place: {logs.runnerUps[1]?.name}</div>
+        <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
+          <li className="px-6 py-2 border-b border-gray-200 w-full" >Congratulations {logs.winner.name}</li>
+          <li className="px-6 py-2 border-b border-gray-200 w-full" >2nd place: {logs.runnerUps[0]?.name}</li>
+          <li className="px-6 py-2 w-full rounded-b-lg" >3rd place: {logs.runnerUps[1]?.name}</li>
+        </ul>
       </div>
     )
   }
@@ -41,14 +50,18 @@ const DisplayActivityLog = (logs: (ActivityLogType | WinnerLogType)) => {
   return (
     <div>
       <h3>Round {logs.roundCounter}</h3>
-      {logs.roundActivityLog.map((activity, index) => (<div key={`${activity.activityId}-${index}`}>{activity.content}</div>))}
-      <div>Players Left: {logs.playersRemainingIds.length}</div>
+      <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
+        {logs.roundActivityLog.map((activity, index) => (
+          <li className="px-6 py-2 border-b border-gray-200 w-full" key={`${activity.activityId}-${index}`}>{activity.content}</li>
+        ))}
+        <li className="px-6 py-2 w-full rounded-b-lg">Players Left: {logs.playersRemainingIds.length}</li>
+      </ul>
     </div>
   )
 }
 
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }) => {
-  const {activeRoom} = await fetch(`http://localhost:3000/api/rooms/${query.roomSlug}`).then(res => res.json())
+  const { activeRoom } = await fetch(`http://localhost:3000/api/rooms/${query.roomSlug}`).then(res => res.json())
   const user = req?.session?.user
   return {
     props: {
@@ -113,26 +126,29 @@ const RumbleRoom = ({ roomSlug, user, activeRoom, ...rest }: { roomSlug: string,
     socket.emit("clear_game", { playerData: user, roomSlug })
   }
 
+  const alreadyJoined = entrants.findIndex(entrant => entrant.id === user.id) >= 0;
+
   return (
     <div className="App">
-      <div>
-        <button onClick={onJoinClick}>Join Game</button>
-        <button onClick={autoGame}>Start Auto Game</button>
-        <button onClick={clearGame}>Clear Game State</button>
+      <div className="flex items-center justify-center p-4">
+        <button className={alreadyJoined ? buttonDisabled : buttonClass} onClick={onJoinClick}>Join Game</button>
+        <button className={buttonClass} onClick={autoGame}>Start Auto Game</button>
+        <button className={buttonClass} onClick={clearGame}>Clear Game State</button>
       </div>
+      <h2 className="text-center">Player: <span className="font-bold">{user?.name}</span></h2>
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-        <div style={{ width: 500 }}>
-          <h2>Prize Splits</h2>
-          <DisplayPrizes {...prizes} totalEntrants={entrants.length} />
-          <div>
-            <div>Activity Log</div>
-            {activityLog.map(entry => <DisplayActivityLog key={entry.id} {...entry} />)}
-          </div>
+        <DisplayPrizes {...prizes} totalEntrants={entrants.length} />
+        <div>
+          <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Entrants</h3>
+          <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
+            {entrants.map(entrant => <DisplayEntrant key={entrant.id} {...entrant} />)}
+          </ul>
         </div>
-        <div style={{ width: 500 }}>
-          <h2>{user?.name}</h2>
-          <h2>Entrants</h2>
-          {entrants.map(entrant => <DisplayEntrant key={entrant.id} {...entrant} />)}
+      </div>
+      <div>
+        <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Activity Log</h3>
+        <div className="flex flex-col items-center">
+          {activityLog.map(entry => <DisplayActivityLog key={entry.id} {...entry} />)}
         </div>
       </div>
     </div>
