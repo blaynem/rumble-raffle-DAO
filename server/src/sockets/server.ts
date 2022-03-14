@@ -1,120 +1,142 @@
-import RumbleApp, { GameEndType, PlayerType, PrizeValuesType, PrizeSplitType, ActivitiesObjType, RumbleRaffleInterface } from "@rumble-raffle-dao/rumble";
-import { PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES } from '../../activities';
+import { GameEndType, PlayerType, PrizeValuesType, PrizeSplitType } from "@rumble-raffle-dao/rumble";
+import { Server, Socket } from "socket.io";
+import { RoomRumbleDataType } from "../../types/server";
+import { PostgrestError, SupabasePlayersType, SupabaseUserType } from "../../types/supabase";
+import client from '../client';
 
-const express = require("express");
-const app = express();
-const http = require("http");
-const cors = require("cors");
-const { Server } = require("socket.io");
+let io: Server;
+let roomSocket: Socket;
+let roomData: RoomRumbleDataType;
 
-const defaultGameActivities: ActivitiesObjType = {
-  PVE: PVE_ACTIVITIES,
-  PVP: PVP_ACTIVITIES,
-  REVIVE: REVIVE_ACTIVITIES
-};
+export const initRoom = (sio: Server, socket: Socket, roomRumbleData: RoomRumbleDataType) => {
+  io = sio;
+  roomSocket = socket;
+  roomData = roomRumbleData;
 
-const defaultPrizeSplit: PrizeSplitType = {
-  kills: 20,
-  thirdPlace: 5,
-  secondPlace: 15,
-  firstPlace: 50,
-  altSplit: 9,
-  creatorSplit: 1,
+  console.log(`User Connected: ${roomSocket.id}`);
+
+  // join_room only enters a socket room. It doesn't enter the user into a game.
+  roomSocket.on("join_room", joinRoom);
+  // join_game will enter a player into a game.
+  roomSocket.on("join_game", joinGame);
+  roomSocket.on("start_game", startGame)
+  roomSocket.on("clear_game", clearGame)
 }
 
-
-async function main() {
-  app.use(cors());
-
-  const server = http.createServer(app);
-
-  const io = new Server(server, {
-    cors: {
-      origin: "http://localhost:3000",
-      methods: ["GET", "POST"],
-    },
-  });
-  // TODO: Save rumble data state in individual roomIdsrooms.
-  const Rumble = new RumbleApp({ activities: defaultGameActivities, prizeSplit: defaultPrizeSplit })
-
-  io.on("connection", (socket: any) => {
-    console.log(`User Connected: ${socket.id}`);
-
-    /**
-     * On joining room we want to:
-     * - ??
-     * - Return all players and the prize list
-     */
-    socket.on("join_room", (roomId: string) => {
-      socket.join(roomId);
-      console.log(`User with ID: ${socket.id} joined room: ${roomId}`);
-      const playersAndPrizeSplit = getPlayersAndPrizeSplit();
-      io.to(socket.id).emit("update_player_list", playersAndPrizeSplit);
-    });
-
-    /**
-     * On Join Game we want to:
-     * - Add player to game
-     * - ??
-     * - Return all players and prize list
-     */
-    socket.on("join_game", (data: { playerData: any; roomId: string }) => {
-      socket.join(data.playerData);
-      addPlayer(data.playerData);
-      const playersAndPrizeSplit = getPlayersAndPrizeSplit();
-      console.log(`User with ID: ${socket.id} joined room: ${JSON.stringify(data)}`);
-      io.in(data.roomId).emit("update_player_list", playersAndPrizeSplit);
-    });
-
-    /**
-     * On Start of game:
-     * - Assure only the game master can start the game
-     * - Send activity log data
-     * - ??
-     * - ??
-     * - TODO: Add timer so round info gets sent every 30s or so
-     */
-    socket.on("start_game", async (data: any) => {
-      console.log('--start game', data);
-      // TODO: Only let game master start the game
-      const gameData = await startAutoPlayGame();
-      io.in(data.roomId).emit("update_activity_log", gameData.activityLogs)
-      // TODO: Only release one part of the activity log at a time over time.
-      // TODO: Display all players who earned a prize on a screen somewhere.
-    })
-
-    socket.on("clear_game", async (data: any) => {
-      console.log('--clear game', data);
-      // TODO: Only let game master clear the game
-      const gameData = await clearGame();
-      io.in(data.roomId).emit("update_activity_log", gameData.activityLogs)
-    })
-  });
-
-  server.listen(3001, () => {
-    console.log("SERVER RUNNING");
-  });
-  const addPlayer = (playerData: PlayerType) => {
-    return Rumble.addPlayer(playerData);
+/**
+ * On joining room we want to:
+ * - ??
+ * - Return all players and the prize list
+ */
+function joinRoom(roomSlug: string) {
+  const room = roomData[roomSlug];
+  if (!room) {
+    return;
   }
-  
-  const getPlayersAndPrizeSplit = (): { allPlayers: PlayerType[]; prizeSplit: PrizeValuesType } => {
-    const allPlayers = Rumble.getAllPlayers();
-    const prizeSplit = Rumble.getPrizes();
-    console.log(JSON.stringify(allPlayers));
-    return {
-      allPlayers,
-      prizeSplit
-    }
+  this.join(roomSlug);
+  console.log(`User with ID: ${this.id} joined room: ${roomSlug}`);
+  const playersAndPrizeSplit = getPlayersAndPrizeSplit(roomSlug);
+  io.to(this.id).emit("update_player_list", playersAndPrizeSplit);
+}
+
+/**
+ * On Join Game we want to:
+ * - Add player to game
+ * - ??
+ * - Return all players and prize list
+ * TODO:
+ * - Make api call and add player to "players" db for given room?
+ * - Tie someones wallet id with the `this.id` so can't join multiple browsers.
+ */
+async function joinGame(data: { playerData: SupabaseUserType; roomSlug: string }) {
+  // Will error if the player is already added to the game.
+  const {error} = await addPlayer(data.roomSlug, data.playerData);
+  if (error) {
+    return;
   }
-  
-  const startAutoPlayGame = async (): Promise<GameEndType> => {
-    return await Rumble.startAutoPlayGame();
+  const playersAndPrizeSplit = getPlayersAndPrizeSplit(data.roomSlug);
+  io.in(data.roomSlug).emit("update_player_list", playersAndPrizeSplit);
+}
+
+/**
+ * On Start of game:
+ * - Assure only the game master can start the game
+ * - Send activity log data
+ * - ??
+ * - ??
+ * - TODO: Add timer so round info gets sent every 30s or so
+ */
+async function startGame(data: { playerData: SupabaseUserType; roomSlug: string }) {
+  console.log('--start game', data);
+  // TODO: Only let game master start the game
+  const gameData = await startAutoPlayGame(data.roomSlug);
+  io.in(data.roomSlug).emit("update_activity_log", gameData.activityLogs)
+  // TODO: Only release one part of the activity log at a time over time.
+  // TODO: Display all players who earned a prize on a screen somewhere.
+}
+
+async function clearGame(data: { playerData: SupabaseUserType; roomSlug: string }) {
+  console.log('--clear game', data);
+  // TODO: Only let game master clear the game
+  const gameData = await clearRumble(data.roomSlug);
+  io.in(data.roomSlug).emit("update_activity_log", gameData.activityLogs)
+}
+
+/**
+ * Add player should:
+ * - check if playerId is already in `players` db. If so, return "already added" or something
+ * - If not present in db, we make need to start a crypto tx to charge them to join game.
+ * - After success, we insert playerId + roomId to `players` db
+ * - Then we return success / fail?
+ * 
+ * @param roomSlug
+ * @param playerData 
+ * @returns 
+ */
+const addPlayer = async (roomSlug: string, playerData: SupabaseUserType): Promise<{ data?: SupabasePlayersType[]; error?: PostgrestError }> => {
+  const room = roomData[roomSlug];
+  if (!room) {
+    return;
   }
-  
-  const clearGame = (): Promise<GameEndType> => {
-    return Rumble.restartGame();
+  const { data, error } = await client.from<SupabasePlayersType>('players').insert({ room_id: room.id, player_id: playerData.id })
+  if (error) {
+    // If error, we return the error.
+    return { error };
+  }
+  // Otherwise add the player to the rumble locally.
+  room.rumble.addPlayer(playerData);
+  return { data }
+}
+
+const getPlayersAndPrizeSplit = (roomSlug: string): { allPlayers: PlayerType[]; prizeSplit: PrizeValuesType } => {
+  const room = roomData[roomSlug];
+  if (!room) {
+    console.log('---getPlayersAndPrizeSplit--ERROR', roomSlug);
+    return;
+  }
+  const allPlayers = room.rumble.getAllPlayers();
+  const prizeSplit = room.rumble.getPrizes();
+  console.log('----getPlayersAndPrizeSplit', JSON.stringify(allPlayers));
+  return {
+    allPlayers,
+    prizeSplit
   }
 }
 
-export default main;
+const startAutoPlayGame = async (roomSlug: string): Promise<GameEndType> => {
+  const room = roomData[roomSlug];
+  if (!room) {
+    console.log('---startAutoPlayGame--ERROR', roomSlug);
+    return;
+  }
+  return await room.rumble.startAutoPlayGame();
+}
+
+const clearRumble = (roomSlug: string): Promise<GameEndType> => {
+  const room = roomData[roomSlug];
+  if (!room) {
+    console.log('---clearRumble--ERROR', roomSlug);
+    return;
+  }
+  return room.rumble.restartGame();
+}

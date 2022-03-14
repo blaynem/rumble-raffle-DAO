@@ -8,6 +8,8 @@
   },
   "dependencies": {
     "@rumble-raffle-dao/rumble": "0.1.0",
+    "@supabase/supabase-js": "^1.31.1",
+    "body-parser": "^1.19.2",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "socket.io": "^4.4.1",
@@ -24,6 +26,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^6.0.0-alpha.7",
+    "@types/express": "^4.17.13",
     "@types/uuid": "^8.3.4",
     "ts-node": "^10.6.0",
     "yargs": "^17.3.1"

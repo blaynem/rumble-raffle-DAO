@@ -2,12 +2,14 @@ import { recoverPersonalSignature } from 'eth-sig-util'
 import { bufferToHex } from 'ethereumjs-util'
 import { withSessionRoute } from '../../lib/with-session'
 import { NONCE_MESSAGE } from '../../lib/constants'
-import { createClient } from '@supabase/supabase-js'
+import supabase from '../../client';
 
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_KEY
-)
+export type SupabaseUserType = {
+  id: string;
+  publicAddress: string;
+  nonce: string;
+  name: string;
+}
 
 async function auth(req, res) {
   const { signature, publicAddress } = req.body
@@ -16,7 +18,7 @@ async function auth(req, res) {
   }
 
   // get user from the database where publicAddress
-  const {error, data} = await supabase.from('users').select(`publicAddress, nonce, name`).eq('publicAddress', publicAddress)
+  const {error, data} = await supabase.from<SupabaseUserType>('users').select(`publicAddress, nonce, name, id`).eq('publicAddress', publicAddress)
   // supabase returns array
   const user = data[0];
 

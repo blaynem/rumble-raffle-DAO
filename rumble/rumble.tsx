@@ -80,7 +80,8 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
 
   constructor(setup: SetupType = {
     activities: defaultGameActivities,
-    prizeSplit: defaultPrizeSplit
+    initialPlayers: [],
+    prizeSplit: defaultPrizeSplit,
   }) {
     this.activities = setup.activities;
 
@@ -117,13 +118,31 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
     this.playersSlainIds = [];
     this.roundCounter = 0;
 
-    this.init();
+    this.init(setup);
   }
   /**
    * Initiates the class
    */
-  init() {
+  init(setup: SetupType) {
     this.validatePrizeSplit();
+    this.addInitialPlayers(setup.initialPlayers);
+  }
+  /**
+   * Allows games to be initialized with initial players
+   * @param initialPlayers 
+   */
+  private addInitialPlayers(initialPlayers: PlayerType[]): PlayerType[] | null {
+    const allPlayerIds: string[] = [];
+    const allPlayers: allPlayersObj = {};
+    initialPlayers.forEach(player => {
+      allPlayerIds.push(player.id);
+      allPlayers[player.id] = player;
+    })
+    this.allPlayerIds = allPlayerIds;
+    this.allPlayers = allPlayers;
+
+    // Update all the prize values.
+    return this.setPlayers();
   }
   /**
    * On add player we want to:
