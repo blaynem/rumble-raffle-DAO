@@ -6,17 +6,6 @@ import { useWallet } from '../containers/wallet'
 import Logo from './logo'
 import WalletAddress from './wallet-address'
 
-const user = {
-  name: 'Chelsea Hagon',
-  handle: 'chelseahagon',
-  email: 'chelseahagon@example.com',
-  role: 'Human Resources Manager',
-  imageId: '1550525811-e5869dd03032',
-  publicAddress: 'askjfkls;adfsajkfsdkl',
-  imageUrl:
-    'https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-}
-
 const userNavigation = [
   { name: 'Your Profile', href: '#' },
   { name: 'Settings', href: '#' },

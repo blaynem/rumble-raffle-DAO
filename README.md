@@ -49,6 +49,8 @@ Run `yarn start` in another tab to start the app
   - ~~Clean up folders of useless info~~
 - Server
   - ~~Send back the list of possible roomIds to set inside pages/room/[roomId].~~
+  - Start / Clear game socket
+    - Only allow users with admin permissions
   - Hosting place?
   - Saving / Fetching of all the pve / pvp / revive activity objects
   - Returning only pieces of the activity log every 30s or whatever its set to
@@ -57,6 +59,7 @@ Run `yarn start` in another tab to start the app
     - Taking a "buy in" payment
     - Dispense winning payments
 - Web
+  - Admin view panel on top for starting game, etc
   - ~~Get the list of possible roomIds to set inside pages/rooms/[roomId].~~
   - ~~Routing for game ids~~
   - Only let game creator start game

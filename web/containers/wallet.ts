@@ -2,13 +2,14 @@ import { useState } from 'react'
 import { createContainer } from 'unstated-next'
 import { authenticate } from '../lib/wallet'
 import { useLocalStorage } from '../lib/localstorage'
+import { SupabaseUserType } from '../pages/api/auth'
 
 const useContainer = initialState => {
   const [localUser, setLocalUser] = useLocalStorage('user', initialState)
-  const [user, setUser] = useState(localUser)
+  const [user, setUser] = useState(localUser as SupabaseUserType)
 
   const doAuth = () => {
-    authenticate(authResponse => {
+    authenticate((authResponse: SupabaseUserType) => {
       console.log('frontend user?', authResponse)
       setLocalUser(authResponse)
       setUser(authResponse)

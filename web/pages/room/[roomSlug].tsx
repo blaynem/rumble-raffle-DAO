@@ -1,78 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { Tab } from '@headlessui/react';
 import { withSessionSsr } from '../../lib/with-session';
 import { ActivityLogType, PlayerType, PrizeValuesType, WinnerLogType } from "@rumble-raffle-dao/rumble";
 import io from "socket.io-client";
-import { SupabaseUserType } from "../api/auth";
+import AdminRoomPanel from "../../components/room/adminRoomPanel";
+import DisplayPrizes from "../../components/room/prizes";
+import DisplayActivityLog from "../../components/room/activityLog";
+import DisplayEntrant from "../../components/room/entrants";
+import { useWallet } from '../../containers/wallet'
 
 const socket = io('http://localhost:3001').connect()
 
 const buttonClass = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
 const buttonDisabled = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md focus:outline-none focus:ring-0 transition duration-150 ease-in-out pointer-events-none opacity-60"
 
-const DisplayEntrant = ({ id, name }: PlayerType) => (
-  <li className="px-6 py-2 border-b border-gray-200 w-full rounded-t-lg" key={id}>
-    <div>Id: {id}</div>
-    <div>Name: {name}</div>
-  </li>
-)
-
-const DisplayPrizes = ({ firstPlace, secondPlace, thirdPlace, kills, altSplit, totalPrize, totalEntrants }: PrizeValuesType & { totalEntrants: number }) => (
-  <div>
-    <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Prize Split</h3>
-    <ul className="border-2 border-slate-100 roundedbg-white rounded-lg w-96 text-gray-900">
-      <li className="px-6 py-2 border-b border-gray-200 w-full rounded-t-lg">Total Entrants: {totalEntrants} Bird Warriors</li>
-      <li className="px-6 py-2 border-b border-gray-200 w-full">Kills: {kills} sFNC</li>
-      <li className="px-6 py-2 border-b border-gray-200 w-full">1st: {firstPlace} sFNC</li>
-      <li className="px-6 py-2 border-b border-gray-200 w-full">2nd: {secondPlace} sFNC</li>
-      <li className="px-6 py-2 border-b border-gray-200 w-full">3rd: {thirdPlace} sFNC</li>
-      <li className="px-6 py-2 border-b border-gray-200 w-full">Stakers: {altSplit} sFNC</li>
-      <li className="px-6 py-2 w-full rounded-b-lg">Total: {totalPrize} sFNC</li>
-    </ul>
-  </div>
-);
-
-const DisplayActivityLog = (logs: (ActivityLogType | WinnerLogType)) => {
-  // If 'winner' is in type, then it's the WinnerLogType
-  if ('winner' in logs) {
-    return (
-      <div>
-        <h3>Winner!!</h3>
-        <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
-          <li className="px-6 py-2 border-b border-gray-200 w-full" >Congratulations {logs.winner.name}</li>
-          <li className="px-6 py-2 border-b border-gray-200 w-full" >2nd place: {logs.runnerUps[0]?.name}</li>
-          <li className="px-6 py-2 w-full rounded-b-lg" >3rd place: {logs.runnerUps[1]?.name}</li>
-        </ul>
-      </div>
-    )
-  }
-  // If it's not, then it's a normal activity round.
-  return (
-    <div>
-      <h3>Round {logs.roundCounter}</h3>
-      <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
-        {logs.roundActivityLog.map((activity, index) => (
-          <li className="px-6 py-2 border-b border-gray-200 w-full" key={`${activity.activityId}-${index}`}>{activity.content}</li>
-        ))}
-        <li className="px-6 py-2 w-full rounded-b-lg">Players Left: {logs.playersRemainingIds.length}</li>
-      </ul>
-    </div>
-  )
-}
-
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }) => {
   const { activeRoom } = await fetch(`http://localhost:3000/api/rooms/${query.roomSlug}`).then(res => res.json())
-  const user = req?.session?.user
   return {
     props: {
       activeRoom,
       roomSlug: query.roomSlug,
-      ...(user && { user })
     }
   }
 })
 
-const RumbleRoom = ({ roomSlug, user, activeRoom, ...rest }: { roomSlug: string, user: SupabaseUserType, activeRoom: boolean }) => {
+const RumbleRoom = ({ roomSlug, activeRoom, ...rest }: { roomSlug: string, activeRoom: boolean }) => {
+  const { user } = useWallet()
   // console.log('---RumbleRoom PROPS---', {user, roomSlug, activeRoom});
   // TODO: Redirect them to home if there is no room shown?
   if (!activeRoom) {
@@ -115,27 +67,15 @@ const RumbleRoom = ({ roomSlug, user, activeRoom, ...rest }: { roomSlug: string,
     }
   }
 
-  // TODO: Only allow admins to press play
-  const autoGame = () => {
-    console.log('--start game pressed: test-rumble--');
-    socket.emit("start_game", { playerData: user, roomSlug })
-  }
-
-  const clearGame = () => {
-    console.log('--clear game pressed: test-rumble--');
-    socket.emit("clear_game", { playerData: user, roomSlug })
-  }
-
-  const alreadyJoined = entrants.findIndex(entrant => entrant.id === user.id) >= 0;
+  const alreadyJoined = entrants.findIndex(entrant => entrant.id === user?.id) >= 0;
 
   return (
-    <div className="App">
-      <div className="flex items-center justify-center p-4">
+    <div>
+      <AdminRoomPanel {...{socket, roomSlug}} />
+      <h2 className="p-2 text-center">Player: <span className="font-bold">{user?.name}</span></h2>
+      <div className="flex items-center justify-center p-2">
         <button className={alreadyJoined ? buttonDisabled : buttonClass} onClick={onJoinClick}>Join Game</button>
-        <button className={buttonClass} onClick={autoGame}>Start Auto Game</button>
-        <button className={buttonClass} onClick={clearGame}>Clear Game State</button>
       </div>
-      <h2 className="text-center">Player: <span className="font-bold">{user?.name}</span></h2>
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
         <DisplayPrizes {...prizes} totalEntrants={entrants.length} />
         <div>
