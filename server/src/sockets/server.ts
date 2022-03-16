@@ -1,17 +1,15 @@
 import { GameEndType, PlayerType, PrizeValuesType, PrizeSplitType } from "@rumble-raffle-dao/rumble";
 import { Server, Socket } from "socket.io";
-import { RoomRumbleDataType } from "../../types/server";
 import { PostgrestError, SupabasePlayersType, SupabaseUserType } from "../../types/supabase";
 import client from '../client';
+import roomRumbleData from '../roomRumbleData';
 
 let io: Server;
 let roomSocket: Socket;
-let roomData: RoomRumbleDataType;
 
-export const initRoom = (sio: Server, socket: Socket, roomRumbleData: RoomRumbleDataType) => {
+export const initRoom = (sio: Server, socket: Socket) => {
   io = sio;
   roomSocket = socket;
-  roomData = roomRumbleData;
 
   console.log(`User Connected: ${roomSocket.id}`);
 
@@ -29,7 +27,7 @@ export const initRoom = (sio: Server, socket: Socket, roomRumbleData: RoomRumble
  * - Return all players and the prize list
  */
 function joinRoom(roomSlug: string) {
-  const room = roomData[roomSlug];
+  const room = roomRumbleData[roomSlug];
   if (!room) {
     return;
   }
@@ -89,7 +87,7 @@ async function clearGame(data: { playerData: SupabaseUserType; roomSlug: string 
  * @returns 
  */
 const addPlayer = async (roomSlug: string, playerData: SupabaseUserType): Promise<{ data?: SupabasePlayersType[]; error?: PostgrestError }> => {
-  const room = roomData[roomSlug];
+  const room = roomRumbleData[roomSlug];
   if (!room) {
     return;
   }
@@ -104,7 +102,7 @@ const addPlayer = async (roomSlug: string, playerData: SupabaseUserType): Promis
 }
 
 const getPlayersAndPrizeSplit = (roomSlug: string): { allPlayers: PlayerType[]; prizeSplit: PrizeValuesType } => {
-  const room = roomData[roomSlug];
+  const room = roomRumbleData[roomSlug];
   if (!room) {
     console.log('---getPlayersAndPrizeSplit--ERROR', roomSlug);
     return;
@@ -118,7 +116,7 @@ const getPlayersAndPrizeSplit = (roomSlug: string): { allPlayers: PlayerType[]; 
 }
 
 const startAutoPlayGame = async (roomSlug: string): Promise<GameEndType> => {
-  const room = roomData[roomSlug];
+  const room = roomRumbleData[roomSlug];
   if (!room) {
     console.log('---startAutoPlayGame--ERROR', roomSlug);
     return;
@@ -127,7 +125,7 @@ const startAutoPlayGame = async (roomSlug: string): Promise<GameEndType> => {
 }
 
 const clearRumble = (roomSlug: string): Promise<GameEndType> => {
-  const room = roomData[roomSlug];
+  const room = roomRumbleData[roomSlug];
   if (!room) {
     console.log('---clearRumble--ERROR', roomSlug);
     return;

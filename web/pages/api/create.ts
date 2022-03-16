@@ -1,6 +1,4 @@
-import supabase from '../../client';
 import createRoomSchema from '../../lib/schemaValidations/createRoom';
-
 
 // TODO: Finish implementing create
 export default async function createRumble(req, res) {
@@ -15,7 +13,6 @@ export default async function createRumble(req, res) {
       },
       method: 'POST'
     }).then(res => res.json())
-    // supabase upsert returns array
     res.status(200).json(data)
   } catch (err) {
     res.status(400).json(err)
