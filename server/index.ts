@@ -43,7 +43,7 @@ server.listen(port, () => {
 });
 
 io.sockets.on("connection", (socket) => {
-  initRoom(io, socket, roomRumbleData);
+  initRoom(io, socket);
 })
 
 /**
