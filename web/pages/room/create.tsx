@@ -52,17 +52,17 @@ const PleaseLoginMessage = () => {
 
 const tempBody = {
   params: {
-    pveChance: 30,
-    reviveChance: 5,
+    pveChance: "30",
+    reviveChance: "5",
     prizeSplit: {
-      kills: 20,
-      altSplit: 9,
-      firstPlace: 50,
-      secondPlace: 10,
-      thirdPlace: 10,
-      creatorSplit: 1
+      kills: "20",
+      altSplit: '9',
+      firstPlace: '50',
+      secondPlace: '10',
+      thirdPlace: '10',
+      creatorSplit: '1'
     },
-    entryFee: 100,
+    entryFee: '100',
     coinNetwork: "coinNetwork",
     coinContract: "coinContract",
   },
@@ -102,8 +102,12 @@ const Create = () => {
     const test = await fetch('/api/create', {
       method: 'POST',
       body: JSON.stringify({
-        ...tempBody
-        // slug, pveChance, reviveChance, prizeSplit, entryFee, coinNetwork, coinContract, user
+        // ...tempBody
+        params: {
+          pveChance, reviveChance, prizeSplit, entryFee, coinNetwork, coinContract,
+        },
+        slug,
+        user
       })
     }).then(res => res.json())
     console.log('---submit', test);
