@@ -1,7 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import roomRumbleData from '../../roomRumbleData';
-import { SupabaseRoomExtendPlayers } from '../../../types';
+import { definitions } from '../../../types';
 import client from '../../client';
 
 const router = express.Router();
@@ -20,7 +19,7 @@ router.post('/create', jsonParser, (req: any, res: any) => {
  */
 router.get('/:slug', async (req: any, res: any) => {
   const slug = req.params.slug;
-  const { data, error } = await client.from<SupabaseRoomExtendPlayers>('rooms').select('*').eq('slug', slug)
+  const { data, error } = await client.from<definitions['rooms']>('rooms').select('*').eq('slug', slug)
   res.json(data);
 })
 

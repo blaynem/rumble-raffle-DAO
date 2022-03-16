@@ -1,6 +1,6 @@
 import RumbleApp, { ActivitiesObjType } from "@rumble-raffle-dao/rumble";
 import { PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES } from "../activities";
-import { SupabaseRoomExtendPlayers } from "../types";
+import { definitions } from "../types";
 import client from "./client";
 import roomRumbleData from "./roomRumbleData";
 
@@ -10,9 +10,14 @@ const defaultGameActivities: ActivitiesObjType = {
   REVIVE: REVIVE_ACTIVITIES
 };
 
+type RoomUsersUnionType = {
+  players?: definitions["users"][]
+  params: any;
+} & definitions["rooms"]
+
 // todo: fetch all rooms from db and create the games inside roomRumbleData.
 const InitializeServer = async () => {
-  const { data, error } = await client.from<SupabaseRoomExtendPlayers>('rooms').select(`
+  const { data, error } = await client.from<RoomUsersUnionType>('rooms').select(`
     id,
     slug,
     params,

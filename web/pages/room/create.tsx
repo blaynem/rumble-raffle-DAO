@@ -42,14 +42,25 @@ const coinContracts = {
   }
 }
 
+const PleaseLoginMessage = () => {
+  return (
+    <div className='p-8 text-center'>
+      <h2 className="text-lg leading-6 font-medium text-gray-900">You must login before creating a room.</h2>
+    </div>
+  )
+}
+
 /**
  * TODO:
  * - Check that a slug isn't taken.
- * - Check for errors in submission
+ * - On submit, check for errors and show them on the given fields.
  * - When a contract is selected, we should fetch that info to double check it's the things
  */
 const Create = () => {
   const { user } = useWallet()
+  if (!user || !user.publicAddress) {
+    return <PleaseLoginMessage />
+  }
   const [slug, setSlug] = useState("");
   const [pveChance, setPveChance] = useState("");
   const [reviveChance, setReviveChance] = useState("");

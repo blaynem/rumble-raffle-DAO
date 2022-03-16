@@ -1,6 +1,7 @@
 import { GameEndType, PlayerType, PrizeValuesType, PrizeSplitType } from "@rumble-raffle-dao/rumble";
+import { PostgrestError } from "@supabase/supabase-js";
 import { Server, Socket } from "socket.io";
-import { PostgrestError, SupabasePlayersType, SupabaseUserType } from "../../types/supabase";
+import { definitions } from "../../types/supabase";
 import client from '../client';
 import roomRumbleData from '../roomRumbleData';
 
@@ -41,7 +42,7 @@ function joinRoom(roomSlug: string) {
  * On Join Game we want to:
  * - Do things
  */
-async function joinGame(data: { playerData: SupabaseUserType; roomSlug: string }) {
+async function joinGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   // Will error if the player is already added to the game.
   const {error} = await addPlayer(data.roomSlug, data.playerData);
   if (error) {
@@ -59,7 +60,7 @@ async function joinGame(data: { playerData: SupabaseUserType; roomSlug: string }
  * - ??
  * - TODO: Add timer so round info gets sent every 30s or so
  */
-async function startGame(data: { playerData: SupabaseUserType; roomSlug: string }) {
+async function startGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   console.log('--start game', data);
   // TODO: Only let game master start the game
   const gameData = await startAutoPlayGame(data.roomSlug);
@@ -68,7 +69,7 @@ async function startGame(data: { playerData: SupabaseUserType; roomSlug: string 
   // TODO: Display all players who earned a prize on a screen somewhere.
 }
 
-async function clearGame(data: { playerData: SupabaseUserType; roomSlug: string }) {
+async function clearGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   console.log('--clear game', data);
   // TODO: Only let game master clear the game
   const gameData = await clearRumble(data.roomSlug);
@@ -86,12 +87,12 @@ async function clearGame(data: { playerData: SupabaseUserType; roomSlug: string 
  * @param playerData 
  * @returns 
  */
-const addPlayer = async (roomSlug: string, playerData: SupabaseUserType): Promise<{ data?: SupabasePlayersType[]; error?: PostgrestError }> => {
+const addPlayer = async (roomSlug: string, playerData: definitions["users"]): Promise<{ data?: definitions["players"][]; error?: PostgrestError }> => {
   const room = roomRumbleData[roomSlug];
   if (!room) {
     return;
   }
-  const { data, error } = await client.from<SupabasePlayersType>('players').insert({ room_id: room.id, player_id: playerData.id })
+  const { data, error } = await client.from<definitions["players"]>('players').insert({ room_id: room.id, player_id: playerData.id })
   if (error) {
     // If error, we return the error.
     return { error };
