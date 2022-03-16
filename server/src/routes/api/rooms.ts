@@ -2,14 +2,31 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { definitions } from '../../../types';
 import client from '../../client';
+import { addNewRoomToMemory } from '../../initServer';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
 
-// TODO: Implement create
-router.post('/create', jsonParser, (req: any, res: any) => {
-  console.log('---create called', req.body);
-  res.status(res.statusCode).send({ thing: 'test' })
+router.post('/create', jsonParser, async (req: any, res: any) => {
+  const { data, error } = await client.from<definitions['rooms']>('rooms').insert({
+    id: req.body.id,
+    // TODO: Add a check here for the params
+    params: req.body.params,
+    slug: req.body.slug,
+    created_by: req.body.user.id
+  })
+  if (error) {
+    res.status(res.statusCode).json({ error });
+    return;
+  }
+  // If room is created, we add it to memory.
+  const roomData = {
+    ...data[0],
+    players: [],
+    params: data[0].params
+  };
+  addNewRoomToMemory(roomData);
+  res.json({ data });
 })
 
 /**
@@ -20,7 +37,11 @@ router.post('/create', jsonParser, (req: any, res: any) => {
 router.get('/:slug', async (req: any, res: any) => {
   const slug = req.params.slug;
   const { data, error } = await client.from<definitions['rooms']>('rooms').select('*').eq('slug', slug)
-  res.json(data);
+  if (error) {
+    res.status(res.statusCode).json({ error });
+    return;
+  }
+  res.json({ data });
 })
 
 module.exports = router;

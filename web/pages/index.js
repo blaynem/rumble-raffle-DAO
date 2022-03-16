@@ -13,7 +13,6 @@ export default function PageIndex(props) {
       </Head>
       <WalletProvider initialState={props.user}>
         <div>Home Page</div>
-        {console.log('--props', props)}
       </WalletProvider>
     </div>
   )

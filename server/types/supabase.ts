@@ -471,7 +471,11 @@ export interface definitions {
     slug: string;
     /** Format: jsonb */
     params?: string;
-    /** Format: uuid */
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Foreign Key to `users.id`.<fk table='users' column='id'/>
+     */
     created_by?: string;
   };
   users: {

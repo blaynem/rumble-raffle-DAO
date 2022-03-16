@@ -10,7 +10,7 @@ const defaultGameActivities: ActivitiesObjType = {
   REVIVE: REVIVE_ACTIVITIES
 };
 
-type RoomUsersUnionType = {
+export type RoomUsersUnionType = {
   players?: definitions["users"][]
   params: any;
 } & definitions["rooms"]
@@ -21,25 +21,29 @@ const InitializeServer = async () => {
     id,
     slug,
     params,
-    players:users(id, publicAddress, name)
+    players:users!players(id, publicAddress, name)
   `)
   if (error) {
     console.log('---error', error);
     return;
   }
   data.forEach(room => {
-    const slug = room.slug;
-    const roomData = {
-      rumble: new RumbleApp({
-        activities: defaultGameActivities,
-        prizeSplit: room.params.prizeSplit,
-        initialPlayers: room.players
-      }),
-      id: room.id,
-      slug
-    }
-    roomRumbleData[slug] = roomData;
+    addNewRoomToMemory(room);
   })
+}
+
+export const addNewRoomToMemory = (room: RoomUsersUnionType) => {
+  const slug = room.slug;
+  const roomData = {
+    rumble: new RumbleApp({
+      activities: defaultGameActivities,
+      prizeSplit: room.params.prizeSplit,
+      initialPlayers: room.players
+    }),
+    id: room.id,
+    slug
+  }
+  roomRumbleData[slug] = roomData;
 }
 
 export default InitializeServer

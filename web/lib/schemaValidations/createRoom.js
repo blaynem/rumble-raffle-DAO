@@ -14,24 +14,26 @@ addMethod(object, 'assurePrizeSplitTotal', function (errorMessage) {
 })
 
 const createRoomSchema = object({
-  slug: string().required(),
-  pveChance: number().required(),
-  reviveChance: number().required(),
-  prizeSplit: object({
-    kills: number().required(),
-    altSplit: number().required(),
-    firstPlace: number().required(),
-    secondPlace: number().required(),
-    thirdPlace: number().required(),
-    creatorSplit: number().min(1, 'Minimum for creator split is 1%').required()
-  }).assurePrizeSplitTotal().required(),
-  entryFee: number().required(),
-  coinNetwork: string().required(),
-  coinContract: string().required(),
+  params: object({
+    pveChance: number().required(),
+    reviveChance: number().required(),
+    prizeSplit: object({
+      kills: number().required(),
+      altSplit: number().required(),
+      firstPlace: number().required(),
+      secondPlace: number().required(),
+      thirdPlace: number().required(),
+      creatorSplit: number().min(1, 'Minimum for creator split is 1%').required()
+    }).assurePrizeSplitTotal().required(),
+    entryFee: number().required(),
+    coinNetwork: string().required(),
+    coinContract: string().required(),
+  }).required(),
   user: object({
     publicAddress: string().required(),
     id: string().required(),
-  }).required()
+  }).required(),
+  slug: string().required(),
 })
 
 export default createRoomSchema;

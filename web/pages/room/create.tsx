@@ -50,6 +50,29 @@ const PleaseLoginMessage = () => {
   )
 }
 
+const tempBody = {
+  params: {
+    pveChance: 30,
+    reviveChance: 5,
+    prizeSplit: {
+      kills: 20,
+      altSplit: 9,
+      firstPlace: 50,
+      secondPlace: 10,
+      thirdPlace: 10,
+      creatorSplit: 1
+    },
+    entryFee: 100,
+    coinNetwork: "coinNetwork",
+    coinContract: "coinContract",
+  },
+  slug: "test-slug",
+  user: {
+    publicAddress: "pubAddy",
+    id: "77dbd231-f3ca-4c9f-a799-8ab943003129"
+  }
+}
+
 /**
  * TODO:
  * - Check that a slug isn't taken.
@@ -79,7 +102,8 @@ const Create = () => {
     const test = await fetch('/api/create', {
       method: 'POST',
       body: JSON.stringify({
-        slug, pveChance, reviveChance, prizeSplit, entryFee, coinNetwork, coinContract, user
+        ...tempBody
+        // slug, pveChance, reviveChance, prizeSplit, entryFee, coinNetwork, coinContract, user
       })
     }).then(res => res.json())
     console.log('---submit', test);
