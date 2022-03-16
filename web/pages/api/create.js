@@ -1,27 +1,23 @@
 import supabase from '../../client';
+import createRoomSchema from '../../lib/schemaValidations/createRoom';
 
-const defaultParams = {
-  
-}
 
 // TODO: Finish implementing create
 export default async function createRumble(req, res) {
-  // const { params } = req?.body
-  const params = defaultParams;
-  console.log('===params', params);
+  try {
+    // Attempt to validate the body
+    await createRoomSchema.validate(req.body, { abortEarly: false })
 
-  if (!params) {
-    res.status(401)
-    return
+    const data = await fetch(`http://localhost:3001/create`, {
+      body: req.body,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'POST'
+    }).then(res => res.json())
+    // supabase upsert returns array
+    res.status(200).json(data)
+  } catch (err) {
+    res.status(400).json(err)
   }
-
-  const data = await fetch(`http://localhost:3001/create`, {
-    body: JSON.stringify({ params }),
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    method: 'POST'
-  }).then(res => res.json())
-  // supabase upsert returns array
-  res.status(200).json(data)
 }

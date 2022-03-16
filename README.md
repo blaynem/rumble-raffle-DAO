@@ -49,6 +49,7 @@ Run `yarn start` in another tab to start the app
   - ~~Clean up folders of useless info~~
 - Server
   - ~~Send back the list of possible roomIds to set inside pages/room/[roomId].~~
+  - Add more params to the `rooms` db
   - Start / Clear game socket
     - Only allow users with admin permissions
   - Hosting place?
