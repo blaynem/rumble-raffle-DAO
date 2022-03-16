@@ -1,6 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import roomRumbleData from '../../roomRumbleData';
+import { SupabaseRoomExtendPlayers } from '../../../types';
+import client from '../../client';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
@@ -16,10 +18,10 @@ router.post('/create', jsonParser, (req: any, res: any) => {
  * 
  * Returns whether the room is active or not.
  */
-router.get('/:slug', (req: any, res: any) => {
+router.get('/:slug', async (req: any, res: any) => {
   const slug = req.params.slug;
-  const activeRoom = Boolean(roomRumbleData[slug])
-  res.json({ activeRoom });
+  const { data, error } = await client.from<SupabaseRoomExtendPlayers>('rooms').select('*').eq('slug', slug)
+  res.json(data);
 })
 
 module.exports = router;
