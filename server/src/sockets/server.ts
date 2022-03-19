@@ -106,7 +106,8 @@ const addPlayer = async (
   if (!room) {
     return;
   }
-  const { data, error } = await client.from<definitions["players"]>('players').insert({ room_id: room.id, player_id: playerData.id })
+  const { data, error } = await client.from<definitions["players"]>('players')
+    .insert({ room_id: room.id, player: playerData.publicAddress, slug: roomSlug })
   if (error) {
     // If error, we return the error.
     return { error };

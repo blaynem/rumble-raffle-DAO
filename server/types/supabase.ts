@@ -124,8 +124,10 @@ export interface paths {
     get: {
       parameters: {
         query: {
-          player_id?: parameters["rowFilter.players.player_id"];
           room_id?: parameters["rowFilter.players.room_id"];
+          slug?: parameters["rowFilter.players.slug"];
+          player?: parameters["rowFilter.players.player"];
+          time_joined?: parameters["rowFilter.players.time_joined"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -176,8 +178,10 @@ export interface paths {
     delete: {
       parameters: {
         query: {
-          player_id?: parameters["rowFilter.players.player_id"];
           room_id?: parameters["rowFilter.players.room_id"];
+          slug?: parameters["rowFilter.players.slug"];
+          player?: parameters["rowFilter.players.player"];
+          time_joined?: parameters["rowFilter.players.time_joined"];
         };
         header: {
           /** Preference */
@@ -192,8 +196,10 @@ export interface paths {
     patch: {
       parameters: {
         query: {
-          player_id?: parameters["rowFilter.players.player_id"];
           room_id?: parameters["rowFilter.players.room_id"];
+          slug?: parameters["rowFilter.players.slug"];
+          player?: parameters["rowFilter.players.player"];
+          time_joined?: parameters["rowFilter.players.time_joined"];
         };
         body: {
           /** players */
@@ -437,15 +443,8 @@ export interface definitions {
     /** Format: ARRAY */
     killCounts?: unknown[];
   };
-  /** @description Current players in a given room */
+  /** @description Players in each room. */
   players: {
-    /**
-     * Format: uuid
-     * @description Note:
-     * This is a Primary Key.<pk/>
-     * This is a Foreign Key to `users.id`.<fk table='users' column='id'/>
-     */
-    player_id: string;
     /**
      * Format: uuid
      * @description Note:
@@ -453,6 +452,20 @@ export interface definitions {
      * This is a Foreign Key to `rooms.id`.<fk table='rooms' column='id'/>
      */
     room_id: string;
+    /** Format: character varying */
+    slug: string;
+    /**
+     * Format: character varying
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     * This is a Foreign Key to `users.publicAddress`.<fk table='users' column='publicAddress'/>
+     */
+    player: string;
+    /**
+     * Format: timestamp without time zone
+     * @default (now() AT TIME ZONE 'utc'::text)
+     */
+    time_joined: string;
   };
   rooms: {
     /**
@@ -556,9 +569,13 @@ export interface parameters {
   /** @description players */
   "body.players": definitions["players"];
   /** Format: uuid */
-  "rowFilter.players.player_id": string;
-  /** Format: uuid */
   "rowFilter.players.room_id": string;
+  /** Format: character varying */
+  "rowFilter.players.slug": string;
+  /** Format: character varying */
+  "rowFilter.players.player": string;
+  /** Format: timestamp without time zone */
+  "rowFilter.players.time_joined": string;
   /** @description rooms */
   "body.rooms": definitions["rooms"];
   /** Format: uuid */
