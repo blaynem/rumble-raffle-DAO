@@ -1,9 +1,11 @@
-import { GameEndType, PlayerType, PrizeValuesType, PrizeSplitType } from "@rumble-raffle-dao/rumble";
+import { GameEndType, PrizeSplitType } from "@rumble-raffle-dao/rumble";
 import { PostgrestError } from "@supabase/supabase-js";
 import { Server, Socket } from "socket.io";
+import { PickFromPlayers } from "../../types";
 import { definitions } from "../../types/supabase";
 import client from '../client';
-import roomRumbleData from '../roomRumbleData';
+import { createGame } from "../createRumble";
+import availableRoomsData from '../roomRumbleData';
 
 let io: Server;
 let roomSocket: Socket;
@@ -28,7 +30,7 @@ export const initRoom = (sio: Server, socket: Socket) => {
  * - Return all players and the prize list
  */
 function joinRoom(roomSlug: string) {
-  const room = roomRumbleData[roomSlug];
+  const room = availableRoomsData[roomSlug];
   if (!room) {
     return;
   }
@@ -44,7 +46,7 @@ function joinRoom(roomSlug: string) {
  */
 async function joinGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   // Will error if the player is already added to the game.
-  const {error} = await addPlayer(data.roomSlug, data.playerData);
+  const { error } = await addPlayer(data.roomSlug, data.playerData);
   if (error) {
     return;
   }
@@ -62,18 +64,27 @@ async function joinGame(data: { playerData: definitions["users"]; roomSlug: stri
  */
 async function startGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   console.log('--start game', data);
+  const room = availableRoomsData[data.roomSlug];
+  if (room.gameData) {
+    // Game already started, do nothing except return what was already there.
+    io.in(data.roomSlug).emit("update_activity_log", room.gameData.activityLogs)
+    return;
+  }
   // TODO: Only let game master start the game
   const gameData = await startAutoPlayGame(data.roomSlug);
+  room.gameData = gameData;
   io.in(data.roomSlug).emit("update_activity_log", gameData.activityLogs)
   // TODO: Only release one part of the activity log at a time over time.
   // TODO: Display all players who earned a prize on a screen somewhere.
 }
 
+// TODO: REMOVE THIS. SHOULD NOT BE ABLE TO CLEAR GAME DATA.
+// ONLY USED FOR TESTING.
 async function clearGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   console.log('--clear game', data);
-  // TODO: Only let game master clear the game
-  const gameData = await clearRumble(data.roomSlug);
-  io.in(data.roomSlug).emit("update_activity_log", gameData.activityLogs)
+  const room = availableRoomsData[data.roomSlug];
+  room.gameData = undefined;
+  io.in(data.roomSlug).emit("update_activity_log", [])
 }
 
 /**
@@ -87,8 +98,11 @@ async function clearGame(data: { playerData: definitions["users"]; roomSlug: str
  * @param playerData 
  * @returns 
  */
-const addPlayer = async (roomSlug: string, playerData: definitions["users"]): Promise<{ data?: definitions["players"][]; error?: PostgrestError }> => {
-  const room = roomRumbleData[roomSlug];
+const addPlayer = async (
+  roomSlug: string,
+  playerData: definitions["users"]
+): Promise<{ data?: definitions["players"][]; error?: PostgrestError }> => {
+  const room = availableRoomsData[roomSlug];
   if (!room) {
     return;
   }
@@ -98,18 +112,18 @@ const addPlayer = async (roomSlug: string, playerData: definitions["users"]): Pr
     return { error };
   }
   // Otherwise add the player to the rumble locally.
-  room.rumble.addPlayer(playerData);
+  room.players.push(playerData);
   return { data }
 }
 
-const getPlayersAndPrizeSplit = (roomSlug: string): { allPlayers: PlayerType[]; prizeSplit: PrizeValuesType } => {
-  const room = roomRumbleData[roomSlug];
+const getPlayersAndPrizeSplit = (roomSlug: string): { allPlayers: PickFromPlayers[]; prizeSplit: PrizeSplitType } => {
+  const room = availableRoomsData[roomSlug];
   if (!room) {
     console.log('---getPlayersAndPrizeSplit--ERROR', roomSlug);
     return;
   }
-  const allPlayers = room.rumble.getAllPlayers();
-  const prizeSplit = room.rumble.getPrizes();
+  const allPlayers = room.players
+  const prizeSplit = room.params.prizeSplit
   return {
     allPlayers,
     prizeSplit
@@ -117,19 +131,12 @@ const getPlayersAndPrizeSplit = (roomSlug: string): { allPlayers: PlayerType[]; 
 }
 
 const startAutoPlayGame = async (roomSlug: string): Promise<GameEndType> => {
-  const room = roomRumbleData[roomSlug];
+  const room = availableRoomsData[roomSlug];
   if (!room) {
     console.log('---startAutoPlayGame--ERROR', roomSlug);
     return;
   }
-  return await room.rumble.startAutoPlayGame();
-}
-
-const clearRumble = (roomSlug: string): Promise<GameEndType> => {
-  const room = roomRumbleData[roomSlug];
-  if (!room) {
-    console.log('---clearRumble--ERROR', roomSlug);
-    return;
-  }
-  return room.rumble.restartGame();
+  // RumbleApp expects {id, name}
+  const players = room.players.map(player => ({ ...player, id: player.publicAddress }))
+  return await createGame(undefined, room.params.prizeSplit, players);
 }

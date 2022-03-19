@@ -1,27 +1,16 @@
-import RumbleApp, { ActivitiesObjType } from "@rumble-raffle-dao/rumble";
-import { PVE_ACTIVITIES, PVP_ACTIVITIES, REVIVE_ACTIVITIES } from "../activities";
-import { definitions } from "../types";
+import { RoomDataType, RoomUsersUnionType } from "../types";
 import client from "./client";
-import roomRumbleData from "./roomRumbleData";
+import availableRoomsData from "./roomRumbleData";
 
-const defaultGameActivities: ActivitiesObjType = {
-  PVE: PVE_ACTIVITIES,
-  PVP: PVP_ACTIVITIES,
-  REVIVE: REVIVE_ACTIVITIES
-};
-
-export type RoomUsersUnionType = {
-  players?: definitions["users"][]
-  params: any;
-} & definitions["rooms"]
 
 // todo: fetch all rooms from db and create the games inside roomRumbleData.
+// todo: check if game was already completed and has stored activity log / winner data.
 const InitializeServer = async () => {
   const { data, error } = await client.from<RoomUsersUnionType>('rooms').select(`
     id,
     slug,
     params,
-    players:users!players(id, publicAddress, name)
+    players:users!players(publicAddress, name)
   `)
   if (error) {
     console.log('---error', error);
@@ -34,16 +23,13 @@ const InitializeServer = async () => {
 
 export const addNewRoomToMemory = (room: RoomUsersUnionType) => {
   const slug = room.slug;
-  const roomData = {
-    rumble: new RumbleApp({
-      activities: defaultGameActivities,
-      prizeSplit: room.params.prizeSplit,
-      initialPlayers: room.players
-    }),
+  const roomData: RoomDataType = {
     id: room.id,
-    slug
+    params: room.params,
+    players: room.players,
+    slug: room.slug,
   }
-  roomRumbleData[slug] = roomData;
+  availableRoomsData[slug] = roomData;
 }
 
 export default InitializeServer

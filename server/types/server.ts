@@ -1,15 +1,30 @@
-import { RumbleInterface } from "@rumble-raffle-dao/rumble"
+import { PrizeSplitType, GameEndType } from "@rumble-raffle-dao/rumble"
+import { definitions } from ".";
 
-export type RoomRumbleDataType = {
-  [slug: string]: {
-    rumble: RumbleInterface,
-    id: string,
-    slug: string
+export type PickFromPlayers = Pick<definitions["users"], "publicAddress" | "name">
+export type PickFromRooms = Pick<definitions["rooms"], "id" | "slug" | "params">
+
+export type RoomUsersUnionType = {
+  players?: definitions["users"][];
+  params: any;
+} & PickFromRooms
+
+export type RoomWithParams = {
+  params: {
+    prizeSplit: PrizeSplitType;
   }
+} & PickFromRooms
+
+export type RoomDataType = {
+  players: PickFromPlayers[];
+  gameData?: GameEndType;
+} & RoomWithParams
+
+export type AllAvailableRoomsType = {
+  [slug: string] : RoomDataType;
 }
 
 /** TYPES BELOW HERE ARE UNTIL WE FIGURE OUT  */
-import { PrizeSplitType } from "@rumble-raffle-dao/rumble";
 
 // export type SupabaseUserType = {
 //   id: string;

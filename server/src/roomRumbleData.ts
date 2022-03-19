@@ -1,5 +1,5 @@
-import { RoomRumbleDataType } from "../types";
+import { AllAvailableRoomsType } from "../types";
 
-const roomRumbleData: RoomRumbleDataType = {};
+const availableRoomsData: AllAvailableRoomsType = {};
 
-export default roomRumbleData;
+export default availableRoomsData;
