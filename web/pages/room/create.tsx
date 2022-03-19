@@ -1,8 +1,9 @@
-import React from 'react';
-import { Formik, Field, Form, FormikHelpers, ErrorMessage } from 'formik';
+import React, { useState } from 'react';
+import { Formik, Field, Form, FormikHelpers, ErrorMessage, FormikTouched, useField, useFormikContext } from 'formik';
 import { useWallet } from '../../containers/wallet';
 import { SupabaseUserType } from '../api/auth';
 import createRoomSchema from '../../lib/schemaValidations/createRoom';
+import ToastMessage, { ToastTypes } from '../../components/toast';
 
 const coinNetworks = [
   {
@@ -74,21 +75,42 @@ interface Values {
   user: SupabaseUserType
 }
 
+async function checkSlugAvailable(slug: string) {
+  const { data } = await fetch(`http://localhost:3001/api/rooms/${slug}`).then(res => res.json())
+  return data;
+}
+
+const customPrizeSplitMessage = (errorMsg: string, touched: FormikTouched<Values>) => {
+  let message = null;
+  const {
+    altSplit,
+    creatorSplit,
+    firstPlace,
+    secondPlace,
+    thirdPlace,
+    kills,
+  } = touched.params.prizeSplit;
+  // if all prize fields have been touched && if the error errorMsg is a string then we show the message.
+  if (altSplit && creatorSplit && firstPlace && secondPlace && thirdPlace && kills && typeof errorMsg === "string") {
+    message = errorMsg;
+  }
+  return message ? <div className='px-4 space-y-6 sm:px-6'>{message}</div> : null;
+}
+
 /**
  * TODO:
- * - Check that a slug isn't taken.
- * - On submit, check for errors and show them on the given fields.
- * - When a contract is selected, we should fetch that info to double check it's the things
+ * - When a contract is selected, we should fetch that info to double check it's things
  */
 const Create = () => {
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toast, setToast] = useState({message: 'Submitted successfully.', type: 'SUCCESS'} as ToastTypes);
   const { user } = useWallet()
   if (!user || !user.publicAddress) {
     return <PleaseLoginMessage />
   }
 
   const handleSubmit = async (values: Values) => {
-    console.log('--pressed');
-    const test = await fetch('/api/create', {
+    return await fetch('/api/create', {
       method: 'POST',
       body: JSON.stringify({
         // ...tempBody
@@ -96,9 +118,17 @@ const Create = () => {
         ...values
       })
     }).then(res => res.json())
-    console.log('---submit', test);
   }
 
+  const handleSetToast = (options: ToastTypes | null) => {
+    if (!options) {
+      setToastOpen(false)
+      return;
+    }
+    const {message, type} = options;
+    setToastOpen(true)
+    setToast({message, type})
+  }
 
   return (
     <Formik
@@ -124,14 +154,30 @@ const Create = () => {
       }}
       onSubmit={(
         values: Values,
-        { setSubmitting }: FormikHelpers<Values>
+        { setSubmitting, setFieldError, resetForm }: FormikHelpers<Values>
       ) => {
-        console.log('--values', values);
-        handleSubmit(values);
-        // setSubmitting(false);
+        setSubmitting(true);
+        checkSlugAvailable(values.slug).then((data) => {
+          if (data.length > 0) {
+            setFieldError('slug', 'Slug already taken.');
+            setSubmitting(false)
+            return;
+          }
+          // only submit if the slug is available to use
+          handleSubmit(values).then((res) => {
+            if (res.error) {
+              setSubmitting(false);
+              handleSetToast({type: 'ERROR', message: 'There was an error creating the room.'});
+              return;
+            }
+            setSubmitting(false);
+            handleSetToast({type: 'SUCCESS', message: `Created room ${values.slug}`});
+            resetForm();
+          })
+        });
       }}
     >
-      {({ errors, touched }) => (
+      {({ isSubmitting, touched }) => (
         <Form>
           <div className='max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'>
             <div className="mt-10 sm:mt-0">
@@ -143,6 +189,7 @@ const Create = () => {
                       This information will be used to create a rumble room.
                     </p>
                   </div>
+                  {toastOpen && <ToastMessage message={toast.message} type={toast.type} onClick={() => handleSetToast(null)} />}
                 </div>
                 <div className="mt-5 md:mt-0 md:col-span-2">
                   <div className="shadow overflow-hidden sm:rounded-md">
@@ -327,7 +374,7 @@ const Create = () => {
                         </div>
                       </div>
                     </div>
-                    <ErrorMessage name="params.prizeSplit"/>
+                    <ErrorMessage render={msg => customPrizeSplitMessage(msg, touched)} name="params.prizeSplit" />
                     {/* COIN INFORMATION */}
                     <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
                       <h4 className="text-base font-medium text-gray-900">Payment Information</h4>
@@ -386,7 +433,7 @@ const Create = () => {
                         type="submit"
                         className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       >
-                        Save
+                        {isSubmitting ? 'Saving...' : 'Save'}
                       </button>
                     </div>
                   </div>
@@ -396,7 +443,7 @@ const Create = () => {
           </div>
         </Form>
       )}
-    </Formik>
+    </Formik >
   )
 }
 

@@ -14,7 +14,8 @@ const buttonClass = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium
 const buttonDisabled = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md focus:outline-none focus:ring-0 transition duration-150 ease-in-out pointer-events-none opacity-60"
 
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }) => {
-  const { activeRoom } = await fetch(`http://localhost:3000/api/rooms/${query.roomSlug}`).then(res => res.json())
+  const { data } = await fetch(`http://localhost:3000/api/rooms/${query.roomSlug}`).then(res => res.json())
+  const activeRoom = data?.length > 0;
   return {
     props: {
       activeRoom,
