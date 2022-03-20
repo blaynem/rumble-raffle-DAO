@@ -9,6 +9,7 @@ import { initRoom } from './src/sockets/server';
 /**
  * TODO:
  * - Error handling on server side so when something errors we don't need to restart the server, that's wack.
+ * - Validate the "Create a room" inputs.
  */
 
 const app = express();

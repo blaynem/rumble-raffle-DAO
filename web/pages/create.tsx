@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Formik, Field, Form, FormikHelpers, ErrorMessage, FormikTouched } from 'formik';
-import { useWallet } from '../../containers/wallet';
-import { SupabaseUserType } from '../api/auth';
-import createRoomSchema from '../../lib/schemaValidations/createRoom';
-import ToastMessage, { ToastTypes } from '../../components/toast';
+import { useWallet } from '../containers/wallet';
+import { SupabaseUserType } from './api/auth';
+import createRoomSchema from '../lib/schemaValidations/createRoom';
+import ToastMessage, { ToastTypes } from '../components/toast';
 
 const coinNetworks = [
   {
