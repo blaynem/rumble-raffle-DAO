@@ -6,6 +6,11 @@ import { Server } from "socket.io";
 import initServer from './src/initServer';
 import { initRoom } from './src/sockets/server';
 
+/**
+ * TODO:
+ * - Error handling on server side so when something errors we don't need to restart the server, that's wack.
+ */
+
 const app = express();
 const port = process.env.PORT || 3001;
 
