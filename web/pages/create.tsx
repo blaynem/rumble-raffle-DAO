@@ -115,8 +115,8 @@ const CreatePage = () => {
       return;
     }
     const { message, type } = options;
-    setToastOpen(true)
     setToast({ message, type })
+    setToastOpen(true)
   }
 
   const onSuccessSlugUrlMessage = (slug: string) => <Link href={`/room/${slug}`}><a className="inline-flex items-center">{`http://localhost:3000/room/${slug}`}</a></Link>
