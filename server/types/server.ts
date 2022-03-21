@@ -1,52 +1,26 @@
 import { PrizeSplitType, GameEndType } from "@rumble-raffle-dao/rumble"
 import { definitions } from ".";
 
+// TODO: Add a winner table and split information
+
+/**
+ * We only want to send these fields back to players.
+ */
 export type PickFromPlayers = Pick<definitions["users"], "publicAddress" | "name">
-export type PickFromRooms = Pick<definitions["rooms"], "id" | "slug" | "params">
-
-export type RoomUsersUnionType = {
-  players?: definitions["users"][];
-  params: any;
-} & PickFromRooms
-
-export type RoomWithParams = {
-  params: {
-    prizeSplit: PrizeSplitType;
-  }
-} & PickFromRooms
 
 export type RoomDataType = {
+  // Will be null until the game has been played and completed.
+  gameData: GameEndType | null;
+  // Id of the given room.
+  id: string;
+  // Players of the given room.
   players: PickFromPlayers[];
-  gameData?: GameEndType;
-} & RoomWithParams
-
-export type AllAvailableRoomsType = {
-  [slug: string] : RoomDataType;
+  // Params of the given room.
+  params: definitions['room_params'];
+  // Slug for the given room.
+  slug: string;
 }
 
-/** TYPES BELOW HERE ARE UNTIL WE FIGURE OUT  */
-
-// export type SupabaseUserType = {
-//   id: string;
-//   publicAddress: string;
-//   nonce: string;
-//   name: string;
-// }
-
-// export type SupabaseRoomType = {
-//   slug: string;
-//   params: {
-//     prizeSplit: PrizeSplitType;
-//   }
-//   id: string;
-// }
-
-// export type SupabaseRoomExtendPlayers = {
-//   players?: SupabaseUserType[]
-// } & SupabaseRoomType;
-
-// export type SupabasePlayersType = {
-//   room_id: string;
-//   player_id: string;
-// }
-
+export type AllAvailableRoomsType = {
+  [slug: string]: RoomDataType;
+}

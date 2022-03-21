@@ -8,24 +8,22 @@ import ToastMessage, { ToastTypes } from '../components/toast';
 import { GetPolyContractReturnType, getPolygonContractData } from '../lib/PolygonscanFetches';
 
 interface Values {
-  params: {
-    pveChance: string;
-    reviveChance: string;
-    prizeSplit: {
-      altSplit: string;
-      creatorSplit: string;
-      firstPlace: string;
-      secondPlace: string;
-      thirdPlace: string;
-      kills: string;
-    };
-    entryFee: string;
-    coinNetwork: string;
-    coinContract: string;
-    altSplitAddress: string;
-  },
-  slug: string,
+  alt_split_address: string;
+  entry_fee: string;
+  network: string;
+  contract_address: string;
+  pve_chance: string;
+  revive_chance: string;
+  prize_split: {
+    prize_alt_split: string;
+    prize_kills: string;
+    prize_first: string;
+    prize_second: string;
+    prize_third: string;
+    prize_creator: string;
+  }
   user: SupabaseUserType
+  slug: string,
 }
 
 const coinNetworks = [
@@ -63,14 +61,14 @@ async function checkSlugAvailable(slug: string) {
 const customPrizeSplitMessage = (errorMsg: string, touched: FormikTouched<Values>) => {
   let message = null;
   const {
-    altSplit,
-    firstPlace,
-    secondPlace,
-    thirdPlace,
-    kills,
-  } = touched.params.prizeSplit;
+    prize_alt_split,
+    prize_first,
+    prize_second,
+    prize_third,
+    prize_kills,
+  } = touched.prize_split;
   // if all prize fields have been touched && if the error errorMsg is a string then we show the message.
-  if (altSplit && firstPlace && secondPlace && thirdPlace && kills && typeof errorMsg === "string") {
+  if (prize_alt_split && prize_first && prize_second && prize_third && prize_kills && typeof errorMsg === "string") {
     message = errorMsg;
   }
   return message ? <div className='px-4 space-y-6 sm:px-6'>{message}</div> : null;
@@ -121,29 +119,27 @@ const CreatePage = () => {
 
   const onSuccessSlugUrlMessage = (slug: string) => <Link href={`/room/${slug}`}><a className="inline-flex items-center">{`http://localhost:3000/room/${slug}`}</a></Link>
   const showAltSplitAddress = (values: Values) => {
-    const { altSplit } = values.params.prizeSplit;
-    return altSplit !== '' && parseInt(altSplit) > 0;
+    const { prize_alt_split } = values.prize_split;
+    return prize_alt_split !== '' && parseInt(prize_alt_split) > 0;
   }
 
   return (
     <Formik
       validationSchema={createRoomSchema}
       initialValues={{
-        params: {
-          pveChance: '',
-          reviveChance: '',
-          prizeSplit: {
-            kills: '',
-            altSplit: '',
-            firstPlace: '',
-            secondPlace: '',
-            thirdPlace: '',
-            creatorSplit: '1'
-          },
-          entryFee: '',
-          coinNetwork: coinNetworks[0].rpc,
-          coinContract: coinContracts.sFNC.contract,
-          altSplitAddress: '',
+        alt_split_address: '',
+        contract_address: coinContracts.sFNC.contract,
+        network: coinNetworks[0].rpc,
+        pve_chance: '',
+        revive_chance: '',
+        entry_fee: '',
+        prize_split: {
+          prize_alt_split: '',
+          prize_kills: '',
+          prize_first: '',
+          prize_second: '',
+          prize_third: '',
+          prize_creator: '1',
         },
         slug: '',
         user,
@@ -223,7 +219,7 @@ const CreatePage = () => {
                           <div className="mt-1 flex rounded-md shadow-sm">
                             <Field
                               type="number"
-                              name="params.pveChance"
+                              name="pve_chance"
                               id="pve-chance"
                               className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
                               placeholder="30"
@@ -232,7 +228,7 @@ const CreatePage = () => {
                               %
                             </span>
                           </div>
-                          <ErrorMessage name="params.pveChance" >
+                          <ErrorMessage name="pve_chance" >
                             {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
@@ -244,7 +240,7 @@ const CreatePage = () => {
                           <div className="mt-1 flex rounded-md shadow-sm">
                             <Field
                               type="number"
-                              name="params.reviveChance"
+                              name="revive_chance"
                               id="revive-chance"
                               className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
                               placeholder="5"
@@ -253,7 +249,7 @@ const CreatePage = () => {
                               %
                             </span>
                           </div>
-                          <ErrorMessage name="params.reviveChance" >
+                          <ErrorMessage name="revive_chance" >
                             {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
@@ -270,7 +266,7 @@ const CreatePage = () => {
                           <div className="mt-1 flex rounded-md shadow-sm">
                             <Field
                               type="number"
-                              name="params.prizeSplit.kills"
+                              name="prize_split.prize_kills"
                               id="payout-kill"
                               className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
                               placeholder="5"
@@ -279,7 +275,7 @@ const CreatePage = () => {
                               %
                             </span>
                           </div>
-                          <ErrorMessage name="params.prizeSplit.kills" >
+                          <ErrorMessage name="prize_split.prize_kills" >
                             {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
@@ -287,14 +283,14 @@ const CreatePage = () => {
                       <div className="grid grid-cols-6 gap-6">
                         {/* FIRST PLACE SPLIT */}
                         <div className="col-span-1 xl:col-span-1 sm:col-span-2">
-                          <label htmlFor="payout-firstPlace" className="block text-sm font-medium text-gray-700">
+                          <label htmlFor="payout-prize_first" className="block text-sm font-medium text-gray-700">
                             First Place
                           </label>
                           <div className="mt-1 flex rounded-md shadow-sm">
                             <Field
                               type="number"
-                              name="params.prizeSplit.firstPlace"
-                              id="payout-firstPlace"
+                              name="prize_split.prize_first"
+                              id="payout-prize_first"
                               className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
                               placeholder="5"
                             />
@@ -302,20 +298,20 @@ const CreatePage = () => {
                               %
                             </span>
                           </div>
-                          <ErrorMessage name="params.prizeSplit.firstPlace" >
+                          <ErrorMessage name="prize_split.prize_first" >
                             {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
                         {/* SECOND PLACE SPLIT */}
                         <div className="col-span-1 xl:col-span-1 sm:col-span-2">
-                          <label htmlFor="payout-secondPlace" className="block text-sm font-medium text-gray-700">
+                          <label htmlFor="payout-prize_second" className="block text-sm font-medium text-gray-700">
                             Second Place
                           </label>
                           <div className="mt-1 flex rounded-md shadow-sm">
                             <Field
                               type="number"
-                              name="params.prizeSplit.secondPlace"
-                              id="payout-secondPlace"
+                              name="prize_split.prize_second"
+                              id="payout-prize_second"
                               className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
                               placeholder="5"
                             />
@@ -323,20 +319,20 @@ const CreatePage = () => {
                               %
                             </span>
                           </div>
-                          <ErrorMessage name="params.prizeSplit.secondPlace" >
+                          <ErrorMessage name="prize_split.prize_second" >
                             {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
                         {/* THIRD PLACE SPLIT */}
                         <div className="col-span-1 xl:col-span-1 sm:col-span-2">
-                          <label htmlFor="payout-thirdPlace" className="block text-sm font-medium text-gray-700">
+                          <label htmlFor="payout-prize_third" className="block text-sm font-medium text-gray-700">
                             Third Place
                           </label>
                           <div className="mt-1 flex rounded-md shadow-sm">
                             <Field
                               type="number"
-                              name="params.prizeSplit.thirdPlace"
-                              id="payout-thirdPlace"
+                              name="prize_split.prize_third"
+                              id="payout-prize_third"
                               className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
                               placeholder="5"
                             />
@@ -344,7 +340,7 @@ const CreatePage = () => {
                               %
                             </span>
                           </div>
-                          <ErrorMessage name="params.prizeSplit.thirdPlace" >
+                          <ErrorMessage name="prize_split.prize_third" >
                             {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
@@ -356,7 +352,7 @@ const CreatePage = () => {
                           <div className="mt-1 flex rounded-md shadow-sm">
                             <Field
                               type="number"
-                              name="params.prizeSplit.altSplit"
+                              name="prize_split.prize_alt_split"
                               id="payout-alternative"
                               className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
                               placeholder="5"
@@ -365,7 +361,7 @@ const CreatePage = () => {
                               %
                             </span>
                           </div>
-                          <ErrorMessage name="params.prizeSplit.altSplit" >
+                          <ErrorMessage name="prize_split.prize_alt_split" >
                             {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
@@ -378,7 +374,7 @@ const CreatePage = () => {
                             <Field
                               disabled
                               type="number"
-                              name="params.prizeSplit.creatorSplit"
+                              name="prize_split.prize_creator"
                               id="payout-creator"
                               className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
                               placeholder="1"
@@ -390,22 +386,22 @@ const CreatePage = () => {
                         </div>
                       </div>
                       {showAltSplitAddress(values) && <div className="col-span-6">
-                        <label htmlFor="altSplit-address" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="prize_alt_split-address" className="block text-sm font-medium text-gray-700">
                           Alternative Split Address
                         </label>
                         <Field
                           type="text"
-                          name="params.altSplitAddress"
-                          id="altSplit-address"
+                          name="alt_split_address"
+                          id="prize_alt_split-address"
                           placeholder="Wallet Address"
                           className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                         />
-                        <ErrorMessage name="params.altSplitAddress" >
+                        <ErrorMessage name="alt_split_address" >
                           {msg => customErrorColors(msg)}
                         </ErrorMessage>
                       </div>}
                     </div>
-                    <ErrorMessage render={msg => customPrizeSplitMessage(msg, touched)} name="params.prizeSplit" >
+                    <ErrorMessage render={msg => customPrizeSplitMessage(msg, touched)} name="prize_split" >
                       {msg => customErrorColors(msg)}
                     </ErrorMessage>
                     {/* COIN INFORMATION */}
@@ -420,12 +416,12 @@ const CreatePage = () => {
                           <Field
                             as="select"
                             id="contract-network"
-                            name="params.coinNetwork"
+                            name="network"
                             className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           >
                             {coinNetworks.map(net => <option key={net.rpc} value={net.rpc}>{net.name}</option>)}
                           </Field>
-                          <ErrorMessage name="params.coinNetwork" >
+                          <ErrorMessage name="network" >
                             {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
@@ -436,17 +432,17 @@ const CreatePage = () => {
                           </label>
                           <Field
                             type="text"
-                            name="params.coinContract"
+                            name="contract_address"
                             id="contract-address"
                             className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                           />
-                          <ErrorMessage name="params.coinContract" >
+                          <ErrorMessage name="contract_address" >
                             {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
                         <button
                           type="button"
-                          onClick={() => fetchContractData(values.params.coinContract)}
+                          onClick={() => fetchContractData(values.contract_address)}
                           className="sm:col-span-6 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
                           {contractDetailsLoading ? "Loading..." : "Fetch Contract Data"}
@@ -464,13 +460,13 @@ const CreatePage = () => {
                                 </span>
                                 <Field
                                   type="number"
-                                  name="params.entryFee"
+                                  name="entry_fee"
                                   id="entry-fee"
                                   className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
                                   placeholder="10"
                                 />
                               </div>
-                              <ErrorMessage name="params.entryFee" >
+                              <ErrorMessage name="entry_fee" >
                                 {msg => customErrorColors(msg)}
                               </ErrorMessage>
                             </div>
