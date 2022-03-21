@@ -120,6 +120,114 @@ export interface paths {
       };
     };
   };
+  "/activities_duplicate": {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.activities_duplicate.id"];
+          created_at?: parameters["rowFilter.activities_duplicate.created_at"];
+          environment?: parameters["rowFilter.activities_duplicate.environment"];
+          description?: parameters["rowFilter.activities_duplicate.description"];
+          amountOfPlayers?: parameters["rowFilter.activities_duplicate.amountOfPlayers"];
+          activityWinner?: parameters["rowFilter.activities_duplicate.activityWinner"];
+          activityLoser?: parameters["rowFilter.activities_duplicate.activityLoser"];
+          killCounts?: parameters["rowFilter.activities_duplicate.killCounts"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["activities_duplicate"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** activities_duplicate */
+          activities_duplicate?: definitions["activities_duplicate"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.activities_duplicate.id"];
+          created_at?: parameters["rowFilter.activities_duplicate.created_at"];
+          environment?: parameters["rowFilter.activities_duplicate.environment"];
+          description?: parameters["rowFilter.activities_duplicate.description"];
+          amountOfPlayers?: parameters["rowFilter.activities_duplicate.amountOfPlayers"];
+          activityWinner?: parameters["rowFilter.activities_duplicate.activityWinner"];
+          activityLoser?: parameters["rowFilter.activities_duplicate.activityLoser"];
+          killCounts?: parameters["rowFilter.activities_duplicate.killCounts"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.activities_duplicate.id"];
+          created_at?: parameters["rowFilter.activities_duplicate.created_at"];
+          environment?: parameters["rowFilter.activities_duplicate.environment"];
+          description?: parameters["rowFilter.activities_duplicate.description"];
+          amountOfPlayers?: parameters["rowFilter.activities_duplicate.amountOfPlayers"];
+          activityWinner?: parameters["rowFilter.activities_duplicate.activityWinner"];
+          activityLoser?: parameters["rowFilter.activities_duplicate.activityLoser"];
+          killCounts?: parameters["rowFilter.activities_duplicate.killCounts"];
+        };
+        body: {
+          /** activities_duplicate */
+          activities_duplicate?: definitions["activities_duplicate"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
   "/players": {
     get: {
       parameters: {
@@ -398,9 +506,8 @@ export interface paths {
           created_at?: parameters["rowFilter.rooms.created_at"];
           /** The room slug */
           slug?: parameters["rowFilter.rooms.slug"];
-          /** Id of the rooms creator */
-          created_by?: parameters["rowFilter.rooms.created_by"];
           params_id?: parameters["rowFilter.rooms.params_id"];
+          created_by?: parameters["rowFilter.rooms.created_by"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -455,9 +562,8 @@ export interface paths {
           created_at?: parameters["rowFilter.rooms.created_at"];
           /** The room slug */
           slug?: parameters["rowFilter.rooms.slug"];
-          /** Id of the rooms creator */
-          created_by?: parameters["rowFilter.rooms.created_by"];
           params_id?: parameters["rowFilter.rooms.params_id"];
+          created_by?: parameters["rowFilter.rooms.created_by"];
         };
         header: {
           /** Preference */
@@ -476,9 +582,8 @@ export interface paths {
           created_at?: parameters["rowFilter.rooms.created_at"];
           /** The room slug */
           slug?: parameters["rowFilter.rooms.slug"];
-          /** Id of the rooms creator */
-          created_by?: parameters["rowFilter.rooms.created_by"];
           params_id?: parameters["rowFilter.rooms.params_id"];
+          created_by?: parameters["rowFilter.rooms.created_by"];
         };
         body: {
           /** rooms */
@@ -601,6 +706,35 @@ export interface paths {
 
 export interface definitions {
   activities: {
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     * @default extensions.uuid_generate_v4()
+     */
+    id: string;
+    /**
+     * Format: timestamp with time zone
+     * @default now()
+     */
+    created_at?: string;
+    /**
+     * Format: public.environment_enum
+     * @enum {string}
+     */
+    environment: "PVP" | "PVE" | "REVIVE";
+    /** Format: text */
+    description: string;
+    /** Format: numeric */
+    amountOfPlayers: number;
+    /** Format: ARRAY */
+    activityWinner?: unknown[];
+    /** Format: ARRAY */
+    activityLoser?: unknown[];
+    /** Format: ARRAY */
+    killCounts?: unknown[];
+  };
+  activities_duplicate: {
     /**
      * Format: uuid
      * @description Note:
@@ -761,18 +895,16 @@ export interface definitions {
     slug: string;
     /**
      * Format: uuid
-     * @description Id of the rooms creator
-     *
-     * Note:
-     * This is a Foreign Key to `users.id`.<fk table='users' column='id'/>
-     */
-    created_by?: string;
-    /**
-     * Format: uuid
      * @description Note:
      * This is a Foreign Key to `room_params.id`.<fk table='room_params' column='id'/>
      */
     params_id: string;
+    /**
+     * Format: character varying
+     * @description Note:
+     * This is a Foreign Key to `users.publicAddress`.<fk table='users' column='publicAddress'/>
+     */
+    created_by: string;
   };
   /** @description Users that have logged into the app */
   users: {
@@ -843,7 +975,7 @@ export interface parameters {
   "rowFilter.activities.id": string;
   /** Format: timestamp with time zone */
   "rowFilter.activities.created_at": string;
-  /** Format: text */
+  /** Format: public.environment_enum */
   "rowFilter.activities.environment": string;
   /** Format: text */
   "rowFilter.activities.description": string;
@@ -855,6 +987,24 @@ export interface parameters {
   "rowFilter.activities.activityLoser": string;
   /** Format: ARRAY */
   "rowFilter.activities.killCounts": string;
+  /** @description activities_duplicate */
+  "body.activities_duplicate": definitions["activities_duplicate"];
+  /** Format: uuid */
+  "rowFilter.activities_duplicate.id": string;
+  /** Format: timestamp with time zone */
+  "rowFilter.activities_duplicate.created_at": string;
+  /** Format: text */
+  "rowFilter.activities_duplicate.environment": string;
+  /** Format: text */
+  "rowFilter.activities_duplicate.description": string;
+  /** Format: numeric */
+  "rowFilter.activities_duplicate.amountOfPlayers": string;
+  /** Format: ARRAY */
+  "rowFilter.activities_duplicate.activityWinner": string;
+  /** Format: ARRAY */
+  "rowFilter.activities_duplicate.activityLoser": string;
+  /** Format: ARRAY */
+  "rowFilter.activities_duplicate.killCounts": string;
   /** @description players */
   "body.players": definitions["players"];
   /** Format: uuid */
@@ -951,13 +1101,10 @@ export interface parameters {
    * @description The room slug
    */
   "rowFilter.rooms.slug": string;
-  /**
-   * Format: uuid
-   * @description Id of the rooms creator
-   */
-  "rowFilter.rooms.created_by": string;
   /** Format: uuid */
   "rowFilter.rooms.params_id": string;
+  /** Format: character varying */
+  "rowFilter.rooms.created_by": string;
   /** @description users */
   "body.users": definitions["users"];
   /** Format: character varying */

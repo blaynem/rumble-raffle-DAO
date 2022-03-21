@@ -248,7 +248,6 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
       }
     }
 
-    // todo: Save the round somewhere?
     return this.gameFinished();
   }
 
@@ -359,7 +358,6 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
     // Will only revive if there are any dead players.
     const playerRevives = doesEventOccur(this.chanceOfRevive) && deadPlayerIds.length > 0;
 
-    // TODO: Determine how long this should run for.
     // Will need to do a loop to create multiple events. Will also need to check and make sure there are enough people to do the next event.
     for (let i = 0; i < this.getActivityLoopTimes(availablePlayerIds.length); i++) {
       // Filtering out players that have already played more than the maxActivitiesPerRound allowed.

@@ -1,4 +1,4 @@
-import { AllAvailableRoomsType } from "../types";
+import { AllAvailableRoomsType } from "../../types";
 
 const availableRoomsData: AllAvailableRoomsType = {};
 

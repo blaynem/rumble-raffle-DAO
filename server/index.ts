@@ -3,7 +3,7 @@ import http from "http";
 import cors from "cors";
 import { Server } from "socket.io";
 
-import initServer from './src/initServer';
+import initServer from './src/helpers/initServer';
 import { initRoom } from './src/sockets/server';
 
 /**

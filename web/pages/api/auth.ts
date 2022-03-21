@@ -5,7 +5,6 @@ import { NONCE_MESSAGE } from '../../lib/constants'
 import supabase from '../../client';
 
 export type SupabaseUserType = {
-  id: string;
   publicAddress: string;
   nonce: string;
   name: string;
@@ -18,7 +17,7 @@ async function auth(req, res) {
   }
 
   // get user from the database where publicAddress
-  const {error, data} = await supabase.from<SupabaseUserType>('users').select(`publicAddress, nonce, name, id`).eq('publicAddress', publicAddress)
+  const {error, data} = await supabase.from<SupabaseUserType>('users').select(`publicAddress, nonce, name`).eq('publicAddress', publicAddress)
   // supabase returns array
   const user = data[0];
 

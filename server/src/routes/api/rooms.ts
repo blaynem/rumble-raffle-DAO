@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { definitions, RoomDataType } from '../../../types';
 import client from '../../client';
-import { addNewRoomToMemory } from '../../initServer';
+import { addNewRoomToMemory } from '../../helpers/addNewRoomToMemory';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()

@@ -3,6 +3,7 @@ import express from 'express';
 const router = express.Router();
 
 router.use('/rooms', require('./rooms'));
+router.use('/activities', require('./activities'));
 
 router.use(function(err, req, res, next){
   if(err.name === 'ValidationError'){

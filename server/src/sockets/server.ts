@@ -4,8 +4,9 @@ import { Server, Socket } from "socket.io";
 import { PickFromPlayers } from "../../types";
 import { definitions } from "../../types/supabase";
 import client from '../client';
-import { createGame } from "../createRumble";
-import availableRoomsData from '../roomRumbleData';
+import { createGame } from "../helpers/createRumble";
+import availableRoomsData from '../helpers/roomRumbleData';
+import { getAllActivities } from "../routes/api/activities";
 
 let io: Server;
 let roomSocket: Socket;
@@ -140,7 +141,8 @@ const startAutoPlayGame = async (roomSlug: string): Promise<GameEndType> => {
   // RumbleApp expects {id, name}
   const players = room.players.map(player => ({ ...player, id: player.publicAddress }))
   const prizeSplit = selectPrizeSplitFromParams(room.params);
-  return await createGame(undefined, prizeSplit, players);
+  const {data: allActivities} = await getAllActivities();
+  return await createGame(allActivities, prizeSplit, players);
 }
 
 const selectPrizeSplitFromParams = (params: definitions['room_params']): PrizeSplitType => ({

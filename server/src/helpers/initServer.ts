@@ -1,6 +1,6 @@
-import { RoomDataType } from "../types";
-import client from "./client";
-import availableRoomsData from "./roomRumbleData";
+import { RoomDataType } from "../../types";
+import client from "../client";
+import { addNewRoomToMemory } from "./addNewRoomToMemory";
 
 
 // todo: fetch all rooms from db and create the games inside roomRumbleData.
@@ -21,16 +21,6 @@ const InitializeServer = async () => {
   })
 }
 
-export const addNewRoomToMemory = (room: RoomDataType) => {
-  const slug = room.slug;
-  const roomData: RoomDataType = {
-    gameData: room.gameData || null,
-    id: room.id,
-    params: room.params,
-    players: room.players,
-    slug: room.slug,
-  }
-  availableRoomsData[slug] = roomData;
-}
+
 
 export default InitializeServer
