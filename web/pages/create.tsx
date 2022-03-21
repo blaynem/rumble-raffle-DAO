@@ -5,6 +5,28 @@ import { useWallet } from '../containers/wallet';
 import { SupabaseUserType } from './api/auth';
 import createRoomSchema from '../lib/schemaValidations/createRoom';
 import ToastMessage, { ToastTypes } from '../components/toast';
+import { GetPolyContractReturnType, getPolygonContractData } from '../lib/PolygonscanFetches';
+
+interface Values {
+  params: {
+    pveChance: string;
+    reviveChance: string;
+    prizeSplit: {
+      altSplit: string;
+      creatorSplit: string;
+      firstPlace: string;
+      secondPlace: string;
+      thirdPlace: string;
+      kills: string;
+    };
+    entryFee: string;
+    coinNetwork: string;
+    coinContract: string;
+    altSplitAddress: string;
+  },
+  slug: string,
+  user: SupabaseUserType
+}
 
 const coinNetworks = [
   {
@@ -33,50 +55,6 @@ const PleaseLoginMessage = () => {
   )
 }
 
-const tempBody = {
-  params: {
-    pveChance: "30",
-    reviveChance: "5",
-    prizeSplit: {
-      kills: "20",
-      altSplit: '9',
-      firstPlace: '50',
-      secondPlace: '10',
-      thirdPlace: '10',
-      creatorSplit: '1'
-    },
-    entryFee: '100',
-    coinNetwork: "coinNetwork",
-    coinContract: "coinContract",
-  },
-  slug: "test-slug",
-  user: {
-    publicAddress: "pubAddy",
-    id: "77dbd231-f3ca-4c9f-a799-8ab943003129"
-  }
-}
-
-interface Values {
-  params: {
-    pveChance: string;
-    reviveChance: string;
-    prizeSplit: {
-      altSplit: string;
-      creatorSplit: string;
-      firstPlace: string;
-      secondPlace: string;
-      thirdPlace: string;
-      kills: string;
-    };
-    entryFee: string;
-    coinNetwork: string;
-    coinContract: string;
-    altSplitAddress: string;
-  },
-  slug: string,
-  user: SupabaseUserType
-}
-
 async function checkSlugAvailable(slug: string) {
   const { data } = await fetch(`http://localhost:3001/api/rooms/${slug}`).then(res => res.json())
   return data;
@@ -98,19 +76,26 @@ const customPrizeSplitMessage = (errorMsg: string, touched: FormikTouched<Values
   return message ? <div className='px-4 space-y-6 sm:px-6'>{message}</div> : null;
 }
 
-const customErrorColors = (msg:string) => <div className='text-red-600 py-2'>{msg}</div>
+const customErrorColors = (msg: string) => <div className='text-red-600 py-2'>{msg}</div>
 
-/**
- * TODO:
- * - When a contract is selected, we should fetch that info to double check it's things
- */
-const Create = () => {
-  const [toastOpen, setToastOpen] = useState(false);
-  const [toast, setToast] = useState({ message: 'Submitted successfully.', type: 'SUCCESS' } as ToastTypes);
-  const [savedSlugMessage, setSavedSlugMessage] = useState("" as string);
+const CreatePage = () => {
   const { user } = useWallet()
   if (!user || !user.publicAddress) {
     return <PleaseLoginMessage />
+  }
+
+  // State
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toast, setToast] = useState({ message: 'Submitted successfully.', type: 'SUCCESS' } as ToastTypes);
+  const [savedSlugMessage, setSavedSlugMessage] = useState("");
+  const [contractDetailsLoading, setContractDetailsLoading] = useState(false);
+  const [selectedContract, setSelectedContract] = useState(null as GetPolyContractReturnType);
+
+  const fetchContractData = async (contractAddress) => {
+    setContractDetailsLoading(true)
+    const data = await getPolygonContractData(contractAddress);
+    setSelectedContract(data);
+    setContractDetailsLoading(false);
   }
 
   const handleSubmit = async (values: Values) => {
@@ -195,7 +180,7 @@ const Create = () => {
           <div className='max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'>
             <div className="mt-10 sm:mt-0">
               <div className="md:grid md:grid-cols-3 md:gap-6">
-                <div className="md:col-span-1">
+                <div className="lg:col-span-1 md:col-span-3">
                   <div className="px-4 sm:px-0">
                     <h3 className="text-lg font-medium leading-6 text-gray-900">Create A Room</h3>
                     <p className="mt-1 text-sm text-gray-600">
@@ -204,7 +189,7 @@ const Create = () => {
                   </div>
                   {toastOpen && <ToastMessage message={toast.message} type={toast.type} onClick={() => handleSetToast(null)} />}
                 </div>
-                <div className="mt-5 md:mt-0 md:col-span-2">
+                <div className="mt-5 md:mt-0 lg:col-span-2 md:col-span-3">
                   <div className="shadow overflow-hidden sm:rounded-md">
                     <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
                       <h4 className="text-base font-medium text-gray-900">Game Details</h4>
@@ -227,7 +212,7 @@ const Create = () => {
                             />
                           </div>
                           <ErrorMessage name="slug" >
-                          {msg => customErrorColors(msg)}
+                            {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
                         {/* PVE CHANCE */}
@@ -248,7 +233,7 @@ const Create = () => {
                             </span>
                           </div>
                           <ErrorMessage name="params.pveChance" >
-                          {msg => customErrorColors(msg)}
+                            {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
                         {/* REVIVE CHANCE */}
@@ -269,7 +254,7 @@ const Create = () => {
                             </span>
                           </div>
                           <ErrorMessage name="params.reviveChance" >
-                          {msg => customErrorColors(msg)}
+                            {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
                       </div>
@@ -295,7 +280,7 @@ const Create = () => {
                             </span>
                           </div>
                           <ErrorMessage name="params.prizeSplit.kills" >
-                          {msg => customErrorColors(msg)}
+                            {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
                       </div>
@@ -318,7 +303,7 @@ const Create = () => {
                             </span>
                           </div>
                           <ErrorMessage name="params.prizeSplit.firstPlace" >
-                          {msg => customErrorColors(msg)}
+                            {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
                         {/* SECOND PLACE SPLIT */}
@@ -339,7 +324,7 @@ const Create = () => {
                             </span>
                           </div>
                           <ErrorMessage name="params.prizeSplit.secondPlace" >
-                          {msg => customErrorColors(msg)}
+                            {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
                         {/* THIRD PLACE SPLIT */}
@@ -360,7 +345,7 @@ const Create = () => {
                             </span>
                           </div>
                           <ErrorMessage name="params.prizeSplit.thirdPlace" >
-                          {msg => customErrorColors(msg)}
+                            {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
                         {/* ALT SPLIT */}
@@ -381,7 +366,7 @@ const Create = () => {
                             </span>
                           </div>
                           <ErrorMessage name="params.prizeSplit.altSplit" >
-                          {msg => customErrorColors(msg)}
+                            {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
                         {/* RUMBLE RAFFLE SPLIT */}
@@ -416,40 +401,19 @@ const Create = () => {
                           className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                         />
                         <ErrorMessage name="params.altSplitAddress" >
-                        {msg => customErrorColors(msg)}
+                          {msg => customErrorColors(msg)}
                         </ErrorMessage>
                       </div>}
                     </div>
                     <ErrorMessage render={msg => customPrizeSplitMessage(msg, touched)} name="params.prizeSplit" >
-                    {msg => customErrorColors(msg)}
+                      {msg => customErrorColors(msg)}
                     </ErrorMessage>
                     {/* COIN INFORMATION */}
                     <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
                       <h4 className="text-base font-medium text-gray-900">Payment Information</h4>
                       <div className="grid grid-cols-6 gap-6">
-                        {/* ENTRY COST */}
-                        <div className="col-span-2">
-                          <label htmlFor="entry-fee" className="block text-sm font-medium text-gray-700">
-                            Entry Fee
-                          </label>
-                          <div className="mt-1 flex rounded-md shadow-sm">
-                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                              $
-                            </span>
-                            <Field
-                              type="number"
-                              name="params.entryFee"
-                              id="entry-fee"
-                              className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
-                              placeholder="10"
-                            />
-                          </div>
-                          <ErrorMessage name="params.entryFee" >
-                          {msg => customErrorColors(msg)}
-                          </ErrorMessage>
-                        </div>
                         {/* CONTRACT NETWORK */}
-                        <div className="col-span-4 sm:col-span-4">
+                        <div className="col-span-2 sm:col-span-2">
                           <label htmlFor="contract-network" className="block text-sm font-medium text-gray-700">
                             Contract Network
                           </label>
@@ -462,11 +426,11 @@ const Create = () => {
                             {coinNetworks.map(net => <option key={net.rpc} value={net.rpc}>{net.name}</option>)}
                           </Field>
                           <ErrorMessage name="params.coinNetwork" >
-                          {msg => customErrorColors(msg)}
+                            {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
                         {/* CONTRACT ADDRESS */}
-                        <div className="col-span-6">
+                        <div className="md:col-span-4 sm:col-span-6">
                           <label htmlFor="contract-address" className="block text-sm font-medium text-gray-700">
                             Contract Address
                           </label>
@@ -477,9 +441,49 @@ const Create = () => {
                             className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                           />
                           <ErrorMessage name="params.coinContract" >
-                          {msg => customErrorColors(msg)}
+                            {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
+                        <button
+                          type="button"
+                          onClick={() => fetchContractData(values.params.coinContract)}
+                          className="sm:col-span-6 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                          {contractDetailsLoading ? "Loading..." : "Fetch Contract Data"}
+                        </button>
+                        {/* ENTRY COST */}
+                        {selectedContract &&
+                          <>
+                            <div className="col-span-2">
+                              <label htmlFor="entry-fee" className="block text-sm font-medium text-gray-700">
+                                Entry Fee
+                              </label>
+                              <div className="mt-1 flex rounded-md shadow-sm">
+                                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                  {selectedContract.symbol}
+                                </span>
+                                <Field
+                                  type="number"
+                                  name="params.entryFee"
+                                  id="entry-fee"
+                                  className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+                                  placeholder="10"
+                                />
+                              </div>
+                              <ErrorMessage name="params.entryFee" >
+                                {msg => customErrorColors(msg)}
+                              </ErrorMessage>
+                            </div>
+                            <div className="col-span-4">
+                              <p className="block text-sm font-medium text-gray-700">
+                                Token Information
+                              </p>
+                              <p className="block text-sm font-medium text-gray-700">Name: {selectedContract.name}</p>
+                              <p className="block text-sm font-medium text-gray-700">Symbol: {selectedContract.symbol}</p>
+                              <p className="block text-sm font-medium text-gray-700">Decimal: {selectedContract.decimals}</p>
+                            </div>
+                          </>
+                        }
                       </div>
                     </div>
                     <div className="px-4 py-3 bg-gray-50 text-right sm:px-6 flex justify-between">
@@ -503,4 +507,4 @@ const Create = () => {
   )
 }
 
-export default Create;
+export default CreatePage;
