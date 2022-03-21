@@ -2,6 +2,11 @@ import Head from 'next/head'
 import { withSessionSsr } from '../lib/with-session'
 import { WalletProvider } from '../containers/wallet'
 
+/**
+ * TODO:
+ * - Better error handling on client side so when errors happen we don't blow up the app.
+ */
+
 const pageTitle = `Rumble Raffle DAO`
 export default function PageIndex(props) {
   return (
@@ -13,7 +18,6 @@ export default function PageIndex(props) {
       </Head>
       <WalletProvider initialState={props.user}>
         <div>Home Page</div>
-        {console.log('--props', props)}
       </WalletProvider>
     </div>
   )

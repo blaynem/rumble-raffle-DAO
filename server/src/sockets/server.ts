@@ -1,17 +1,18 @@
-import { GameEndType, PlayerType, PrizeValuesType, PrizeSplitType } from "@rumble-raffle-dao/rumble";
+import { GameEndType, PrizeSplitType } from "@rumble-raffle-dao/rumble";
+import { PostgrestError } from "@supabase/supabase-js";
 import { Server, Socket } from "socket.io";
-import { RoomRumbleDataType } from "../../types/server";
-import { PostgrestError, SupabasePlayersType, SupabaseUserType } from "../../types/supabase";
+import { PickFromPlayers } from "../../types";
+import { definitions } from "../../types/supabase";
 import client from '../client';
+import { createGame } from "../createRumble";
+import availableRoomsData from '../roomRumbleData';
 
 let io: Server;
 let roomSocket: Socket;
-let roomData: RoomRumbleDataType;
 
-export const initRoom = (sio: Server, socket: Socket, roomRumbleData: RoomRumbleDataType) => {
+export const initRoom = (sio: Server, socket: Socket) => {
   io = sio;
   roomSocket = socket;
-  roomData = roomRumbleData;
 
   console.log(`User Connected: ${roomSocket.id}`);
 
@@ -29,7 +30,7 @@ export const initRoom = (sio: Server, socket: Socket, roomRumbleData: RoomRumble
  * - Return all players and the prize list
  */
 function joinRoom(roomSlug: string) {
-  const room = roomData[roomSlug];
+  const room = availableRoomsData[roomSlug];
   if (!room) {
     return;
   }
@@ -43,9 +44,9 @@ function joinRoom(roomSlug: string) {
  * On Join Game we want to:
  * - Do things
  */
-async function joinGame(data: { playerData: SupabaseUserType; roomSlug: string }) {
+async function joinGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   // Will error if the player is already added to the game.
-  const {error} = await addPlayer(data.roomSlug, data.playerData);
+  const { error } = await addPlayer(data.roomSlug, data.playerData);
   if (error) {
     return;
   }
@@ -61,20 +62,29 @@ async function joinGame(data: { playerData: SupabaseUserType; roomSlug: string }
  * - ??
  * - TODO: Add timer so round info gets sent every 30s or so
  */
-async function startGame(data: { playerData: SupabaseUserType; roomSlug: string }) {
+async function startGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   console.log('--start game', data);
+  const room = availableRoomsData[data.roomSlug];
+  if (room.gameData) {
+    // Game already started, do nothing except return what was already there.
+    io.in(data.roomSlug).emit("update_activity_log", room.gameData.activityLogs)
+    return;
+  }
   // TODO: Only let game master start the game
   const gameData = await startAutoPlayGame(data.roomSlug);
+  room.gameData = gameData;
   io.in(data.roomSlug).emit("update_activity_log", gameData.activityLogs)
   // TODO: Only release one part of the activity log at a time over time.
   // TODO: Display all players who earned a prize on a screen somewhere.
 }
 
-async function clearGame(data: { playerData: SupabaseUserType; roomSlug: string }) {
+// TODO: REMOVE THIS. SHOULD NOT BE ABLE TO CLEAR GAME DATA.
+// ONLY USED FOR TESTING.
+async function clearGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   console.log('--clear game', data);
-  // TODO: Only let game master clear the game
-  const gameData = await clearRumble(data.roomSlug);
-  io.in(data.roomSlug).emit("update_activity_log", gameData.activityLogs)
+  const room = availableRoomsData[data.roomSlug];
+  room.gameData = undefined;
+  io.in(data.roomSlug).emit("update_activity_log", [])
 }
 
 /**
@@ -88,29 +98,33 @@ async function clearGame(data: { playerData: SupabaseUserType; roomSlug: string 
  * @param playerData 
  * @returns 
  */
-const addPlayer = async (roomSlug: string, playerData: SupabaseUserType): Promise<{ data?: SupabasePlayersType[]; error?: PostgrestError }> => {
-  const room = roomData[roomSlug];
+const addPlayer = async (
+  roomSlug: string,
+  playerData: definitions["users"]
+): Promise<{ data?: definitions["players"][]; error?: PostgrestError }> => {
+  const room = availableRoomsData[roomSlug];
   if (!room) {
     return;
   }
-  const { data, error } = await client.from<SupabasePlayersType>('players').insert({ room_id: room.id, player_id: playerData.id })
+  const { data, error } = await client.from<definitions["players"]>('players')
+    .insert({ room_id: room.id, player: playerData.publicAddress, slug: roomSlug })
   if (error) {
     // If error, we return the error.
     return { error };
   }
   // Otherwise add the player to the rumble locally.
-  room.rumble.addPlayer(playerData);
+  room.players.push(playerData);
   return { data }
 }
 
-const getPlayersAndPrizeSplit = (roomSlug: string): { allPlayers: PlayerType[]; prizeSplit: PrizeValuesType } => {
-  const room = roomData[roomSlug];
+const getPlayersAndPrizeSplit = (roomSlug: string): { allPlayers: PickFromPlayers[]; prizeSplit: PrizeSplitType } => {
+  const room = availableRoomsData[roomSlug];
   if (!room) {
     console.log('---getPlayersAndPrizeSplit--ERROR', roomSlug);
     return;
   }
-  const allPlayers = room.rumble.getAllPlayers();
-  const prizeSplit = room.rumble.getPrizes();
+  const allPlayers = room.players
+  const prizeSplit = room.params.prizeSplit
   return {
     allPlayers,
     prizeSplit
@@ -118,19 +132,12 @@ const getPlayersAndPrizeSplit = (roomSlug: string): { allPlayers: PlayerType[]; 
 }
 
 const startAutoPlayGame = async (roomSlug: string): Promise<GameEndType> => {
-  const room = roomData[roomSlug];
+  const room = availableRoomsData[roomSlug];
   if (!room) {
     console.log('---startAutoPlayGame--ERROR', roomSlug);
     return;
   }
-  return await room.rumble.startAutoPlayGame();
-}
-
-const clearRumble = (roomSlug: string): Promise<GameEndType> => {
-  const room = roomData[roomSlug];
-  if (!room) {
-    console.log('---clearRumble--ERROR', roomSlug);
-    return;
-  }
-  return room.rumble.restartGame();
+  // RumbleApp expects {id, name}
+  const players = room.players.map(player => ({ ...player, id: player.publicAddress }))
+  return await createGame(undefined, room.params.prizeSplit, players);
 }

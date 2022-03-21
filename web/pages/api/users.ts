@@ -17,6 +17,7 @@ export default async function usersHandler(req, res) {
   console.log('--api/users.js--publicAddress', publicAddress)
   const nonce = crypto.randomBytes(16).toString('base64')
   console.log('--api/users.js--nonce', nonce)
+  // TODO: Stop overwriting the names
   const {data, error} = await supabase.from<SupabaseUserType>('users').upsert({ publicAddress, nonce, name: fakeName })
   // supabase upsert returns array
   res.status(200).json(data[0])

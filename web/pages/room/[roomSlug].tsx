@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
-import { ActivityLogType, PlayerType, PrizeValuesType, WinnerLogType } from "@rumble-raffle-dao/rumble";
+import { ActivityLogType, PrizeValuesType, WinnerLogType } from "@rumble-raffle-dao/rumble";
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/room/adminRoomPanel";
 import DisplayPrizes from "../../components/room/prizes";
@@ -14,7 +14,8 @@ const buttonClass = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium
 const buttonDisabled = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md focus:outline-none focus:ring-0 transition duration-150 ease-in-out pointer-events-none opacity-60"
 
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }) => {
-  const { activeRoom } = await fetch(`http://localhost:3000/api/rooms/${query.roomSlug}`).then(res => res.json())
+  const { data } = await fetch(`http://localhost:3000/api/rooms/${query.roomSlug}`).then(res => res.json())
+  const activeRoom = data?.length > 0;
   return {
     props: {
       activeRoom,
@@ -30,9 +31,11 @@ const RumbleRoom = ({ roomSlug, activeRoom, ...rest }: { roomSlug: string, activ
   if (!activeRoom) {
     return <>Please check room number.</>
   }
-  const [entrants, setEntrants] = useState([] as PlayerType[]);
+  const [entrants, setEntrants] = useState([] as {publicAddress: 'string'; name: 'string'}[]);
   const [prizes, setPrizes] = useState({} as PrizeValuesType);
   const [activityLog, setActivityLog] = useState([] as (ActivityLogType | WinnerLogType)[]);
+
+  console.log({entrants, prizes, activityLog});
 
   useEffect(() => {
     // Join a room
@@ -43,7 +46,7 @@ const RumbleRoom = ({ roomSlug, activeRoom, ...rest }: { roomSlug: string, activ
      * - On initial join of room
      * - Any time a "user"" is converted to a "player"
      */
-    socket.on("update_player_list", (data: { allPlayers: PlayerType[]; prizeSplit: PrizeValuesType }) => {
+    socket.on("update_player_list", (data: { allPlayers: {publicAddress: 'string'; name: 'string'}[]; prizeSplit: PrizeValuesType }) => {
       console.log('---data', data);
       data.allPlayers !== null && setEntrants([...data.allPlayers])
       data.prizeSplit !== null && setPrizes(data.prizeSplit)
@@ -67,7 +70,7 @@ const RumbleRoom = ({ roomSlug, activeRoom, ...rest }: { roomSlug: string, activ
     }
   }
 
-  const alreadyJoined = entrants.findIndex(entrant => entrant.id === user?.id) >= 0;
+  const alreadyJoined = entrants.findIndex(entrant => entrant.publicAddress === user?.publicAddress) >= 0;
 
   return (
     <div>
@@ -80,8 +83,8 @@ const RumbleRoom = ({ roomSlug, activeRoom, ...rest }: { roomSlug: string, activ
         <DisplayPrizes {...prizes} totalEntrants={entrants.length} />
         <div>
           <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Entrants</h3>
-          <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
-            {entrants.map(entrant => <DisplayEntrant key={entrant.id} {...entrant} />)}
+          <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900 min-w-[440px]">
+            {entrants.map(entrant => <DisplayEntrant key={entrant.publicAddress} {...entrant} />)}
           </ul>
         </div>
       </div>

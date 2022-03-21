@@ -8,5 +8,13 @@ module.exports = {
   variants: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/forms')
+  ],
+  safelist: [
+    'whitelisted',
+    {
+      pattern: /bg-(red|green|blue)-(400|500|600)/,
+    },
+  ]
 }
