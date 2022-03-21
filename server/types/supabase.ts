@@ -216,15 +216,191 @@ export interface paths {
       };
     };
   };
+  "/room_params": {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.room_params.id"];
+          /** Public Address of creator */
+          created_by?: parameters["rowFilter.room_params.created_by"];
+          slug?: parameters["rowFilter.room_params.slug"];
+          /** Network rpc where contract lives */
+          network?: parameters["rowFilter.room_params.network"];
+          /** Address where the alt split rewards should be sent. */
+          alt_split_address?: parameters["rowFilter.room_params.alt_split_address"];
+          /** Contract address of the payment token */
+          contract_address?: parameters["rowFilter.room_params.contract_address"];
+          /** Token cost in order to enter the game */
+          entry_fee?: parameters["rowFilter.room_params.entry_fee"];
+          /** Chance that a PvE event will occur */
+          pve_chance?: parameters["rowFilter.room_params.pve_chance"];
+          /** Chance that a revive event will occur */
+          revive_chance?: parameters["rowFilter.room_params.revive_chance"];
+          /** Total prize split for kills in the game */
+          prize_kills?: parameters["rowFilter.room_params.prize_kills"];
+          /** Total prize split designated to go to the alternate address. */
+          prize_alt_split?: parameters["rowFilter.room_params.prize_alt_split"];
+          /** Total prize split for the game winner */
+          prize_first?: parameters["rowFilter.room_params.prize_first"];
+          /** Total prize split for 2nd place */
+          prize_second?: parameters["rowFilter.room_params.prize_second"];
+          /** Total prize split for third place */
+          prize_third?: parameters["rowFilter.room_params.prize_third"];
+          /** Total prize split designated for the developers of Rumble Raffle */
+          prize_creator?: parameters["rowFilter.room_params.prize_creator"];
+          created_at?: parameters["rowFilter.room_params.created_at"];
+          updated_at?: parameters["rowFilter.room_params.updated_at"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["room_params"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** room_params */
+          room_params?: definitions["room_params"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.room_params.id"];
+          /** Public Address of creator */
+          created_by?: parameters["rowFilter.room_params.created_by"];
+          slug?: parameters["rowFilter.room_params.slug"];
+          /** Network rpc where contract lives */
+          network?: parameters["rowFilter.room_params.network"];
+          /** Address where the alt split rewards should be sent. */
+          alt_split_address?: parameters["rowFilter.room_params.alt_split_address"];
+          /** Contract address of the payment token */
+          contract_address?: parameters["rowFilter.room_params.contract_address"];
+          /** Token cost in order to enter the game */
+          entry_fee?: parameters["rowFilter.room_params.entry_fee"];
+          /** Chance that a PvE event will occur */
+          pve_chance?: parameters["rowFilter.room_params.pve_chance"];
+          /** Chance that a revive event will occur */
+          revive_chance?: parameters["rowFilter.room_params.revive_chance"];
+          /** Total prize split for kills in the game */
+          prize_kills?: parameters["rowFilter.room_params.prize_kills"];
+          /** Total prize split designated to go to the alternate address. */
+          prize_alt_split?: parameters["rowFilter.room_params.prize_alt_split"];
+          /** Total prize split for the game winner */
+          prize_first?: parameters["rowFilter.room_params.prize_first"];
+          /** Total prize split for 2nd place */
+          prize_second?: parameters["rowFilter.room_params.prize_second"];
+          /** Total prize split for third place */
+          prize_third?: parameters["rowFilter.room_params.prize_third"];
+          /** Total prize split designated for the developers of Rumble Raffle */
+          prize_creator?: parameters["rowFilter.room_params.prize_creator"];
+          created_at?: parameters["rowFilter.room_params.created_at"];
+          updated_at?: parameters["rowFilter.room_params.updated_at"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.room_params.id"];
+          /** Public Address of creator */
+          created_by?: parameters["rowFilter.room_params.created_by"];
+          slug?: parameters["rowFilter.room_params.slug"];
+          /** Network rpc where contract lives */
+          network?: parameters["rowFilter.room_params.network"];
+          /** Address where the alt split rewards should be sent. */
+          alt_split_address?: parameters["rowFilter.room_params.alt_split_address"];
+          /** Contract address of the payment token */
+          contract_address?: parameters["rowFilter.room_params.contract_address"];
+          /** Token cost in order to enter the game */
+          entry_fee?: parameters["rowFilter.room_params.entry_fee"];
+          /** Chance that a PvE event will occur */
+          pve_chance?: parameters["rowFilter.room_params.pve_chance"];
+          /** Chance that a revive event will occur */
+          revive_chance?: parameters["rowFilter.room_params.revive_chance"];
+          /** Total prize split for kills in the game */
+          prize_kills?: parameters["rowFilter.room_params.prize_kills"];
+          /** Total prize split designated to go to the alternate address. */
+          prize_alt_split?: parameters["rowFilter.room_params.prize_alt_split"];
+          /** Total prize split for the game winner */
+          prize_first?: parameters["rowFilter.room_params.prize_first"];
+          /** Total prize split for 2nd place */
+          prize_second?: parameters["rowFilter.room_params.prize_second"];
+          /** Total prize split for third place */
+          prize_third?: parameters["rowFilter.room_params.prize_third"];
+          /** Total prize split designated for the developers of Rumble Raffle */
+          prize_creator?: parameters["rowFilter.room_params.prize_creator"];
+          created_at?: parameters["rowFilter.room_params.created_at"];
+          updated_at?: parameters["rowFilter.room_params.updated_at"];
+        };
+        body: {
+          /** room_params */
+          room_params?: definitions["room_params"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
   "/rooms": {
     get: {
       parameters: {
         query: {
           id?: parameters["rowFilter.rooms.id"];
           created_at?: parameters["rowFilter.rooms.created_at"];
+          /** The room slug */
           slug?: parameters["rowFilter.rooms.slug"];
-          params?: parameters["rowFilter.rooms.params"];
+          /** Id of the rooms creator */
           created_by?: parameters["rowFilter.rooms.created_by"];
+          params_id?: parameters["rowFilter.rooms.params_id"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -277,9 +453,11 @@ export interface paths {
         query: {
           id?: parameters["rowFilter.rooms.id"];
           created_at?: parameters["rowFilter.rooms.created_at"];
+          /** The room slug */
           slug?: parameters["rowFilter.rooms.slug"];
-          params?: parameters["rowFilter.rooms.params"];
+          /** Id of the rooms creator */
           created_by?: parameters["rowFilter.rooms.created_by"];
+          params_id?: parameters["rowFilter.rooms.params_id"];
         };
         header: {
           /** Preference */
@@ -296,9 +474,11 @@ export interface paths {
         query: {
           id?: parameters["rowFilter.rooms.id"];
           created_at?: parameters["rowFilter.rooms.created_at"];
+          /** The room slug */
           slug?: parameters["rowFilter.rooms.slug"];
-          params?: parameters["rowFilter.rooms.params"];
+          /** Id of the rooms creator */
           created_by?: parameters["rowFilter.rooms.created_by"];
+          params_id?: parameters["rowFilter.rooms.params_id"];
         };
         body: {
           /** rooms */
@@ -324,6 +504,7 @@ export interface paths {
           nonce?: parameters["rowFilter.users.nonce"];
           id?: parameters["rowFilter.users.id"];
           name?: parameters["rowFilter.users.name"];
+          updated_at?: parameters["rowFilter.users.updated_at"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -379,6 +560,7 @@ export interface paths {
           nonce?: parameters["rowFilter.users.nonce"];
           id?: parameters["rowFilter.users.id"];
           name?: parameters["rowFilter.users.name"];
+          updated_at?: parameters["rowFilter.users.updated_at"];
         };
         header: {
           /** Preference */
@@ -398,6 +580,7 @@ export interface paths {
           nonce?: parameters["rowFilter.users.nonce"];
           id?: parameters["rowFilter.users.id"];
           name?: parameters["rowFilter.users.name"];
+          updated_at?: parameters["rowFilter.users.updated_at"];
         };
         body: {
           /** users */
@@ -467,6 +650,97 @@ export interface definitions {
      */
     time_joined: string;
   };
+  /** @description Holds all parameters of each room */
+  room_params: {
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     * @default extensions.uuid_generate_v4()
+     */
+    id: string;
+    /**
+     * Format: character varying
+     * @description Public Address of creator
+     *
+     * Note:
+     * This is a Foreign Key to `users.publicAddress`.<fk table='users' column='publicAddress'/>
+     */
+    created_by: string;
+    /** Format: character varying */
+    slug: string;
+    /**
+     * Format: character varying
+     * @description Network rpc where contract lives
+     */
+    network: string;
+    /**
+     * Format: character varying
+     * @description Address where the alt split rewards should be sent.
+     */
+    alt_split_address: string;
+    /**
+     * Format: character varying
+     * @description Contract address of the payment token
+     */
+    contract_address: string;
+    /**
+     * Format: numeric
+     * @description Token cost in order to enter the game
+     */
+    entry_fee: number;
+    /**
+     * Format: numeric
+     * @description Chance that a PvE event will occur
+     */
+    pve_chance: number;
+    /**
+     * Format: numeric
+     * @description Chance that a revive event will occur
+     */
+    revive_chance: number;
+    /**
+     * Format: numeric
+     * @description Total prize split for kills in the game
+     */
+    prize_kills: number;
+    /**
+     * Format: numeric
+     * @description Total prize split designated to go to the alternate address.
+     */
+    prize_alt_split: number;
+    /**
+     * Format: numeric
+     * @description Total prize split for the game winner
+     */
+    prize_first: number;
+    /**
+     * Format: numeric
+     * @description Total prize split for 2nd place
+     */
+    prize_second: number;
+    /**
+     * Format: numeric
+     * @description Total prize split for third place
+     */
+    prize_third: number;
+    /**
+     * Format: numeric
+     * @description Total prize split designated for the developers of Rumble Raffle
+     */
+    prize_creator: number;
+    /**
+     * Format: timestamp with time zone
+     * @default now()
+     */
+    created_at: string;
+    /**
+     * Format: timestamp with time zone
+     * @default now()
+     */
+    updated_at: string;
+  };
+  /** @description Available rooms to join. */
   rooms: {
     /**
      * Format: uuid
@@ -480,17 +754,27 @@ export interface definitions {
      * @default now()
      */
     created_at?: string;
-    /** Format: text */
+    /**
+     * Format: text
+     * @description The room slug
+     */
     slug: string;
-    /** Format: jsonb */
-    params?: string;
     /**
      * Format: uuid
-     * @description Note:
+     * @description Id of the rooms creator
+     *
+     * Note:
      * This is a Foreign Key to `users.id`.<fk table='users' column='id'/>
      */
     created_by?: string;
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Foreign Key to `room_params.id`.<fk table='room_params' column='id'/>
+     */
+    params_id: string;
   };
+  /** @description Users that have logged into the app */
   users: {
     /**
      * Format: character varying
@@ -512,6 +796,11 @@ export interface definitions {
     id: string;
     /** Format: text */
     name: string;
+    /**
+     * Format: timestamp with time zone
+     * @default now()
+     */
+    updated_at: string;
   };
 }
 
@@ -576,18 +865,99 @@ export interface parameters {
   "rowFilter.players.player": string;
   /** Format: timestamp without time zone */
   "rowFilter.players.time_joined": string;
+  /** @description room_params */
+  "body.room_params": definitions["room_params"];
+  /** Format: uuid */
+  "rowFilter.room_params.id": string;
+  /**
+   * Format: character varying
+   * @description Public Address of creator
+   */
+  "rowFilter.room_params.created_by": string;
+  /** Format: character varying */
+  "rowFilter.room_params.slug": string;
+  /**
+   * Format: character varying
+   * @description Network rpc where contract lives
+   */
+  "rowFilter.room_params.network": string;
+  /**
+   * Format: character varying
+   * @description Address where the alt split rewards should be sent.
+   */
+  "rowFilter.room_params.alt_split_address": string;
+  /**
+   * Format: character varying
+   * @description Contract address of the payment token
+   */
+  "rowFilter.room_params.contract_address": string;
+  /**
+   * Format: numeric
+   * @description Token cost in order to enter the game
+   */
+  "rowFilter.room_params.entry_fee": string;
+  /**
+   * Format: numeric
+   * @description Chance that a PvE event will occur
+   */
+  "rowFilter.room_params.pve_chance": string;
+  /**
+   * Format: numeric
+   * @description Chance that a revive event will occur
+   */
+  "rowFilter.room_params.revive_chance": string;
+  /**
+   * Format: numeric
+   * @description Total prize split for kills in the game
+   */
+  "rowFilter.room_params.prize_kills": string;
+  /**
+   * Format: numeric
+   * @description Total prize split designated to go to the alternate address.
+   */
+  "rowFilter.room_params.prize_alt_split": string;
+  /**
+   * Format: numeric
+   * @description Total prize split for the game winner
+   */
+  "rowFilter.room_params.prize_first": string;
+  /**
+   * Format: numeric
+   * @description Total prize split for 2nd place
+   */
+  "rowFilter.room_params.prize_second": string;
+  /**
+   * Format: numeric
+   * @description Total prize split for third place
+   */
+  "rowFilter.room_params.prize_third": string;
+  /**
+   * Format: numeric
+   * @description Total prize split designated for the developers of Rumble Raffle
+   */
+  "rowFilter.room_params.prize_creator": string;
+  /** Format: timestamp with time zone */
+  "rowFilter.room_params.created_at": string;
+  /** Format: timestamp with time zone */
+  "rowFilter.room_params.updated_at": string;
   /** @description rooms */
   "body.rooms": definitions["rooms"];
   /** Format: uuid */
   "rowFilter.rooms.id": string;
   /** Format: timestamp with time zone */
   "rowFilter.rooms.created_at": string;
-  /** Format: text */
+  /**
+   * Format: text
+   * @description The room slug
+   */
   "rowFilter.rooms.slug": string;
-  /** Format: jsonb */
-  "rowFilter.rooms.params": string;
-  /** Format: uuid */
+  /**
+   * Format: uuid
+   * @description Id of the rooms creator
+   */
   "rowFilter.rooms.created_by": string;
+  /** Format: uuid */
+  "rowFilter.rooms.params_id": string;
   /** @description users */
   "body.users": definitions["users"];
   /** Format: character varying */
@@ -600,6 +970,8 @@ export interface parameters {
   "rowFilter.users.id": string;
   /** Format: text */
   "rowFilter.users.name": string;
+  /** Format: timestamp with time zone */
+  "rowFilter.users.updated_at": string;
 }
 
 export interface operations {}

@@ -124,7 +124,7 @@ const getPlayersAndPrizeSplit = (roomSlug: string): { allPlayers: PickFromPlayer
     return;
   }
   const allPlayers = room.players
-  const prizeSplit = room.params.prizeSplit
+  const prizeSplit = selectPrizeSplitFromParams(room.params);
   return {
     allPlayers,
     prizeSplit
@@ -139,5 +139,15 @@ const startAutoPlayGame = async (roomSlug: string): Promise<GameEndType> => {
   }
   // RumbleApp expects {id, name}
   const players = room.players.map(player => ({ ...player, id: player.publicAddress }))
-  return await createGame(undefined, room.params.prizeSplit, players);
+  const prizeSplit = selectPrizeSplitFromParams(room.params);
+  return await createGame(undefined, prizeSplit, players);
 }
+
+const selectPrizeSplitFromParams = (params: definitions['room_params']): PrizeSplitType => ({
+  altSplit: params.prize_alt_split,
+  creatorSplit: params.prize_creator,
+  firstPlace: params.prize_first,
+  kills: params.prize_kills,
+  secondPlace: params.prize_second,
+  thirdPlace: params.prize_third,
+})

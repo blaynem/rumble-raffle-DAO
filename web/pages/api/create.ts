@@ -6,24 +6,21 @@ export default async function createRumble(req, res) {
     await createRoomSchema.validate(req.body, { abortEarly: false })
 
     // Need to convert these strings to numbers.
-    const { params, ...restParsed } = JSON.parse(req.body);
+    const { prize_split, entry_fee, pve_chance, revive_chance, ...restParsed } = JSON.parse(req.body);
     const paramsToNumbers = {
-      ...params,
-      entryFee: parseInt(params.entryFee, 10),
-      pveChance: parseInt(params.pveChance, 10),
-      reviveChance: parseInt(params.reviveChance, 10),
-      prizeSplit: {
-        kills: parseInt(params.prizeSplit.kills, 10),
-        altSplit: parseInt(params.prizeSplit.altSplit, 10),
-        firstPlace: parseInt(params.prizeSplit.firstPlace, 10),
-        thirdPlace: parseInt(params.prizeSplit.thirdPlace, 10),
-        secondPlace: parseInt(params.prizeSplit.secondPlace, 10),
-        creatorSplit: parseInt(params.prizeSplit.creatorSplit, 10),
-      },
+      ...restParsed,
+      entry_fee: parseInt(entry_fee, 10),
+      pve_chance: parseInt(pve_chance, 10),
+      revive_chance: parseInt(revive_chance, 10),
+      prize_kills: parseInt(prize_split.prize_kills, 10),
+      prize_alt_split: parseInt(prize_split.prize_alt_split, 10),
+      prize_first: parseInt(prize_split.prize_first, 10),
+      prize_second: parseInt(prize_split.prize_second, 10),
+      prize_third: parseInt(prize_split.prize_third, 10),
+      prize_creator: parseInt(prize_split.prize_creator, 10),
     }
 
-    const parsedBody = {...restParsed, params: paramsToNumbers}
-    const stringedBody = JSON.stringify(parsedBody)
+    const stringedBody = JSON.stringify(paramsToNumbers)
     // Make the fetch
     const { data, error } = await fetch(`http://localhost:3001/api/rooms/create`, {
       body: stringedBody,
@@ -33,12 +30,11 @@ export default async function createRumble(req, res) {
       method: 'POST'
     }).then(res => res.json())
     if (error) {
-      console.log('-----error--web-api', error)
       res.status(400).json({error})
       return;
     }
     res.status(200).json({data})
-  } catch (err) {
-    res.status(400).json(err)
+  } catch (error) {
+    res.status(400).json({error})
   }
 }
