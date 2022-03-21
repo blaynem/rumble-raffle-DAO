@@ -86,7 +86,7 @@ const CreatePage = () => {
 
   // State
   const [toastOpen, setToastOpen] = useState(false);
-  const [toast, setToast] = useState({ message: 'Submitted successfully.', type: 'SUCCESS' } as ToastTypes);
+  const [toast, setToast] = useState(null as ToastTypes);
   const [savedSlugMessage, setSavedSlugMessage] = useState("");
   const [contractDetailsLoading, setContractDetailsLoading] = useState(false);
   const [selectedContract, setSelectedContract] = useState(null as GetPolyContractReturnType);
