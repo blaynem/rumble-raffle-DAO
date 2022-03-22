@@ -21,19 +21,27 @@ router.get('/', async (req: any, res: any) => {
 
 export const getAllActivities = async () => {
   let error: string;
-  const { data: pveData, error: pveError } = await client.from<definitions['activities']>('activities').select(`*`).eq('environment', 'PVE')
-  const { data: pvpData, error: pvpError } = await client.from<definitions['activities']>('activities').select(`*`).eq('environment', 'PVP')
-  const { data: reviveData, error: reviveError } = await client.from<definitions['activities']>('activities').select(`*`).eq('environment', 'REVIVE')
-  if (pveError || pvpError || reviveError) {
-    error = 'Error when fetching activities tables.'
+  try {
+    const { data: pveData, error: pveError } = await client.from<definitions['activities']>('activities').select(`*`).eq('environment', 'PVE')
+    const { data: pvpData, error: pvpError } = await client.from<definitions['activities']>('activities').select(`*`).eq('environment', 'PVP')
+    const { data: reviveData, error: reviveError } = await client.from<definitions['activities']>('activities').select(`*`).eq('environment', 'REVIVE')
+    if (pveError || pvpError || reviveError) {
+      error = 'Error when fetching activities tables.'
+    }
+    // Type casting this because number[] are returning as unknown[] from definitions.
+    const data: ActivitiesObjType = {
+      PVE: pveData as ActivityTypes[],
+      PVP: pvpData as ActivityTypes[],
+      REVIVE: reviveData as ActivityTypes[]
+    }
+    return {data, error};
+  } catch (err) {
+    console.error(err, error);
+    return {error}
   }
-  // Type casting this because number[] are returning as unknown[] from definitions.
-  const data: ActivitiesObjType = {
-    PVE: pveData as ActivityTypes[],
-    PVP: pvpData as ActivityTypes[],
-    REVIVE: reviveData as ActivityTypes[]
-  }
-  return {data, error};
 }
 
-module.exports = router;
+module.exports = {
+  router,
+  getAllActivities
+};

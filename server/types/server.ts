@@ -1,8 +1,6 @@
 import { PrizeSplitType, GameEndType } from "@rumble-raffle-dao/rumble"
 import { definitions } from ".";
 
-// TODO: Add a winner table and split information
-
 /**
  * We only want to send these fields back to players.
  */
