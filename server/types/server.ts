@@ -7,6 +7,8 @@ import { definitions } from ".";
 export type PickFromPlayers = Pick<definitions["users"], "public_address" | "name">
 
 export type RoomDataType = {
+  // Contract data for the given room
+  contract: definitions['contracts']
   // Will be null until the game has been played and completed.
   gameData: GameEndType | null;
   // Id of the given room.

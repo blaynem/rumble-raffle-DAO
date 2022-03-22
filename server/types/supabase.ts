@@ -120,10 +120,122 @@ export interface paths {
       };
     };
   };
+  "/contracts": {
+    get: {
+      parameters: {
+        query: {
+          contract_address?: parameters["rowFilter.contracts.contract_address"];
+          created_at?: parameters["rowFilter.contracts.created_at"];
+          updated_at?: parameters["rowFilter.contracts.updated_at"];
+          name?: parameters["rowFilter.contracts.name"];
+          symbol?: parameters["rowFilter.contracts.symbol"];
+          decimals?: parameters["rowFilter.contracts.decimals"];
+          chain_id?: parameters["rowFilter.contracts.chain_id"];
+          network_name?: parameters["rowFilter.contracts.network_name"];
+          network_rpc?: parameters["rowFilter.contracts.network_rpc"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["contracts"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** contracts */
+          contracts?: definitions["contracts"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          contract_address?: parameters["rowFilter.contracts.contract_address"];
+          created_at?: parameters["rowFilter.contracts.created_at"];
+          updated_at?: parameters["rowFilter.contracts.updated_at"];
+          name?: parameters["rowFilter.contracts.name"];
+          symbol?: parameters["rowFilter.contracts.symbol"];
+          decimals?: parameters["rowFilter.contracts.decimals"];
+          chain_id?: parameters["rowFilter.contracts.chain_id"];
+          network_name?: parameters["rowFilter.contracts.network_name"];
+          network_rpc?: parameters["rowFilter.contracts.network_rpc"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          contract_address?: parameters["rowFilter.contracts.contract_address"];
+          created_at?: parameters["rowFilter.contracts.created_at"];
+          updated_at?: parameters["rowFilter.contracts.updated_at"];
+          name?: parameters["rowFilter.contracts.name"];
+          symbol?: parameters["rowFilter.contracts.symbol"];
+          decimals?: parameters["rowFilter.contracts.decimals"];
+          chain_id?: parameters["rowFilter.contracts.chain_id"];
+          network_name?: parameters["rowFilter.contracts.network_name"];
+          network_rpc?: parameters["rowFilter.contracts.network_rpc"];
+        };
+        body: {
+          /** contracts */
+          contracts?: definitions["contracts"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
   "/payouts": {
     get: {
       parameters: {
         query: {
+          /** Id of the payout in the payouts table. */
           id?: parameters["rowFilter.payouts.id"];
           created_at?: parameters["rowFilter.payouts.created_at"];
           public_address?: parameters["rowFilter.payouts.public_address"];
@@ -140,6 +252,14 @@ export interface paths {
           payment_reason?: parameters["rowFilter.payouts.payment_reason"];
           /** If the payment has been completed */
           payment_completed?: parameters["rowFilter.payouts.payment_completed"];
+          /** Time when payment was completed. */
+          payment_completed_at?: parameters["rowFilter.payouts.payment_completed_at"];
+          /** The transaction hash of the payment once completed. */
+          payment_transaction_hash?: parameters["rowFilter.payouts.payment_transaction_hash"];
+          /** Network name for the payment token. */
+          payment_token_network_name?: parameters["rowFilter.payouts.payment_token_network_name"];
+          /** Network RPC for the payment token. */
+          payment_token_network_rpc?: parameters["rowFilter.payouts.payment_token_network_rpc"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -190,6 +310,7 @@ export interface paths {
     delete: {
       parameters: {
         query: {
+          /** Id of the payout in the payouts table. */
           id?: parameters["rowFilter.payouts.id"];
           created_at?: parameters["rowFilter.payouts.created_at"];
           public_address?: parameters["rowFilter.payouts.public_address"];
@@ -206,6 +327,14 @@ export interface paths {
           payment_reason?: parameters["rowFilter.payouts.payment_reason"];
           /** If the payment has been completed */
           payment_completed?: parameters["rowFilter.payouts.payment_completed"];
+          /** Time when payment was completed. */
+          payment_completed_at?: parameters["rowFilter.payouts.payment_completed_at"];
+          /** The transaction hash of the payment once completed. */
+          payment_transaction_hash?: parameters["rowFilter.payouts.payment_transaction_hash"];
+          /** Network name for the payment token. */
+          payment_token_network_name?: parameters["rowFilter.payouts.payment_token_network_name"];
+          /** Network RPC for the payment token. */
+          payment_token_network_rpc?: parameters["rowFilter.payouts.payment_token_network_rpc"];
         };
         header: {
           /** Preference */
@@ -220,6 +349,7 @@ export interface paths {
     patch: {
       parameters: {
         query: {
+          /** Id of the payout in the payouts table. */
           id?: parameters["rowFilter.payouts.id"];
           created_at?: parameters["rowFilter.payouts.created_at"];
           public_address?: parameters["rowFilter.payouts.public_address"];
@@ -236,6 +366,14 @@ export interface paths {
           payment_reason?: parameters["rowFilter.payouts.payment_reason"];
           /** If the payment has been completed */
           payment_completed?: parameters["rowFilter.payouts.payment_completed"];
+          /** Time when payment was completed. */
+          payment_completed_at?: parameters["rowFilter.payouts.payment_completed_at"];
+          /** The transaction hash of the payment once completed. */
+          payment_transaction_hash?: parameters["rowFilter.payouts.payment_transaction_hash"];
+          /** Network name for the payment token. */
+          payment_token_network_name?: parameters["rowFilter.payouts.payment_token_network_name"];
+          /** Network RPC for the payment token. */
+          payment_token_network_rpc?: parameters["rowFilter.payouts.payment_token_network_rpc"];
         };
         body: {
           /** payouts */
@@ -356,12 +494,8 @@ export interface paths {
           /** Public Address of creator */
           created_by?: parameters["rowFilter.room_params.created_by"];
           slug?: parameters["rowFilter.room_params.slug"];
-          /** Network rpc where contract lives */
-          network?: parameters["rowFilter.room_params.network"];
           /** Address where the alt split rewards should be sent. */
           alt_split_address?: parameters["rowFilter.room_params.alt_split_address"];
-          /** Contract address of the payment token */
-          contract_address?: parameters["rowFilter.room_params.contract_address"];
           /** Token cost in order to enter the game */
           entry_fee?: parameters["rowFilter.room_params.entry_fee"];
           /** Chance that a PvE event will occur */
@@ -382,6 +516,7 @@ export interface paths {
           prize_creator?: parameters["rowFilter.room_params.prize_creator"];
           created_at?: parameters["rowFilter.room_params.created_at"];
           updated_at?: parameters["rowFilter.room_params.updated_at"];
+          contract_id?: parameters["rowFilter.room_params.contract_id"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -436,12 +571,8 @@ export interface paths {
           /** Public Address of creator */
           created_by?: parameters["rowFilter.room_params.created_by"];
           slug?: parameters["rowFilter.room_params.slug"];
-          /** Network rpc where contract lives */
-          network?: parameters["rowFilter.room_params.network"];
           /** Address where the alt split rewards should be sent. */
           alt_split_address?: parameters["rowFilter.room_params.alt_split_address"];
-          /** Contract address of the payment token */
-          contract_address?: parameters["rowFilter.room_params.contract_address"];
           /** Token cost in order to enter the game */
           entry_fee?: parameters["rowFilter.room_params.entry_fee"];
           /** Chance that a PvE event will occur */
@@ -462,6 +593,7 @@ export interface paths {
           prize_creator?: parameters["rowFilter.room_params.prize_creator"];
           created_at?: parameters["rowFilter.room_params.created_at"];
           updated_at?: parameters["rowFilter.room_params.updated_at"];
+          contract_id?: parameters["rowFilter.room_params.contract_id"];
         };
         header: {
           /** Preference */
@@ -480,12 +612,8 @@ export interface paths {
           /** Public Address of creator */
           created_by?: parameters["rowFilter.room_params.created_by"];
           slug?: parameters["rowFilter.room_params.slug"];
-          /** Network rpc where contract lives */
-          network?: parameters["rowFilter.room_params.network"];
           /** Address where the alt split rewards should be sent. */
           alt_split_address?: parameters["rowFilter.room_params.alt_split_address"];
-          /** Contract address of the payment token */
-          contract_address?: parameters["rowFilter.room_params.contract_address"];
           /** Token cost in order to enter the game */
           entry_fee?: parameters["rowFilter.room_params.entry_fee"];
           /** Chance that a PvE event will occur */
@@ -506,6 +634,7 @@ export interface paths {
           prize_creator?: parameters["rowFilter.room_params.prize_creator"];
           created_at?: parameters["rowFilter.room_params.created_at"];
           updated_at?: parameters["rowFilter.room_params.updated_at"];
+          contract_id?: parameters["rowFilter.room_params.contract_id"];
         };
         body: {
           /** room_params */
@@ -537,6 +666,7 @@ export interface paths {
           payout_id?: parameters["rowFilter.rooms.payout_id"];
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
+          contract_id?: parameters["rowFilter.rooms.contract_id"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -598,6 +728,7 @@ export interface paths {
           payout_id?: parameters["rowFilter.rooms.payout_id"];
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
+          contract_id?: parameters["rowFilter.rooms.contract_id"];
         };
         header: {
           /** Preference */
@@ -623,6 +754,7 @@ export interface paths {
           payout_id?: parameters["rowFilter.rooms.payout_id"];
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
+          contract_id?: parameters["rowFilter.rooms.contract_id"];
         };
         body: {
           /** rooms */
@@ -773,12 +905,46 @@ export interface definitions {
     /** Format: ARRAY */
     killCounts?: unknown[];
   };
+  /** @description Information for any contracts used. */
+  contracts: {
+    /**
+     * Format: character varying
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     */
+    contract_address: string;
+    /**
+     * Format: timestamp with time zone
+     * @default now()
+     */
+    created_at: string;
+    /**
+     * Format: timestamp with time zone
+     * @default now()
+     */
+    updated_at: string;
+    /** Format: character varying */
+    name: string;
+    /** Format: character varying */
+    symbol: string;
+    /** Format: character varying */
+    decimals: string;
+    /** Format: character varying */
+    chain_id: string;
+    /** Format: character varying */
+    network_name: string;
+    /** Format: character varying */
+    network_rpc: string;
+  };
   /** @description Payout information for all completed games */
   payouts: {
     /**
      * Format: uuid
-     * @description Note:
+     * @description Id of the payout in the payouts table.
+     *
+     * Note:
      * This is a Primary Key.<pk/>
+     * @default extensions.uuid_generate_v4()
      */
     id: string;
     /**
@@ -831,6 +997,26 @@ export interface definitions {
      * @description If the payment has been completed
      */
     payment_completed: boolean;
+    /**
+     * Format: timestamp with time zone
+     * @description Time when payment was completed.
+     */
+    payment_completed_at?: string;
+    /**
+     * Format: character varying
+     * @description The transaction hash of the payment once completed.
+     */
+    payment_transaction_hash?: string;
+    /**
+     * Format: character varying
+     * @description Network name for the payment token.
+     */
+    payment_token_network_name: string;
+    /**
+     * Format: character varying
+     * @description Network RPC for the payment token.
+     */
+    payment_token_network_rpc: string;
   };
   /** @description Players in each room. */
   players: {
@@ -877,19 +1063,9 @@ export interface definitions {
     slug: string;
     /**
      * Format: character varying
-     * @description Network rpc where contract lives
-     */
-    network: string;
-    /**
-     * Format: character varying
      * @description Address where the alt split rewards should be sent.
      */
     alt_split_address: string;
-    /**
-     * Format: character varying
-     * @description Contract address of the payment token
-     */
-    contract_address: string;
     /**
      * Format: numeric
      * @description Token cost in order to enter the game
@@ -945,6 +1121,12 @@ export interface definitions {
      * @default now()
      */
     updated_at: string;
+    /**
+     * Format: character varying
+     * @description Note:
+     * This is a Foreign Key to `contracts.contract_address`.<fk table='contracts' column='contract_address'/>
+     */
+    contract_id: string;
   };
   /** @description Available rooms to join. */
   rooms: {
@@ -989,6 +1171,12 @@ export interface definitions {
      * @description Total prize purse depending on amount of players when game starts.
      */
     total_prize_purse?: number;
+    /**
+     * Format: character varying
+     * @description Note:
+     * This is a Foreign Key to `contracts.contract_address`.<fk table='contracts' column='contract_address'/>
+     */
+    contract_id: string;
   };
   /** @description Users that have logged into the app */
   users: {
@@ -1071,9 +1259,32 @@ export interface parameters {
   "rowFilter.activities.activityLoser": string;
   /** Format: ARRAY */
   "rowFilter.activities.killCounts": string;
+  /** @description contracts */
+  "body.contracts": definitions["contracts"];
+  /** Format: character varying */
+  "rowFilter.contracts.contract_address": string;
+  /** Format: timestamp with time zone */
+  "rowFilter.contracts.created_at": string;
+  /** Format: timestamp with time zone */
+  "rowFilter.contracts.updated_at": string;
+  /** Format: character varying */
+  "rowFilter.contracts.name": string;
+  /** Format: character varying */
+  "rowFilter.contracts.symbol": string;
+  /** Format: character varying */
+  "rowFilter.contracts.decimals": string;
+  /** Format: character varying */
+  "rowFilter.contracts.chain_id": string;
+  /** Format: character varying */
+  "rowFilter.contracts.network_name": string;
+  /** Format: character varying */
+  "rowFilter.contracts.network_rpc": string;
   /** @description payouts */
   "body.payouts": definitions["payouts"];
-  /** Format: uuid */
+  /**
+   * Format: uuid
+   * @description Id of the payout in the payouts table.
+   */
   "rowFilter.payouts.id": string;
   /** Format: timestamp with time zone */
   "rowFilter.payouts.created_at": string;
@@ -1111,6 +1322,26 @@ export interface parameters {
    * @description If the payment has been completed
    */
   "rowFilter.payouts.payment_completed": string;
+  /**
+   * Format: timestamp with time zone
+   * @description Time when payment was completed.
+   */
+  "rowFilter.payouts.payment_completed_at": string;
+  /**
+   * Format: character varying
+   * @description The transaction hash of the payment once completed.
+   */
+  "rowFilter.payouts.payment_transaction_hash": string;
+  /**
+   * Format: character varying
+   * @description Network name for the payment token.
+   */
+  "rowFilter.payouts.payment_token_network_name": string;
+  /**
+   * Format: character varying
+   * @description Network RPC for the payment token.
+   */
+  "rowFilter.payouts.payment_token_network_rpc": string;
   /** @description players */
   "body.players": definitions["players"];
   /** Format: uuid */
@@ -1134,19 +1365,9 @@ export interface parameters {
   "rowFilter.room_params.slug": string;
   /**
    * Format: character varying
-   * @description Network rpc where contract lives
-   */
-  "rowFilter.room_params.network": string;
-  /**
-   * Format: character varying
    * @description Address where the alt split rewards should be sent.
    */
   "rowFilter.room_params.alt_split_address": string;
-  /**
-   * Format: character varying
-   * @description Contract address of the payment token
-   */
-  "rowFilter.room_params.contract_address": string;
   /**
    * Format: numeric
    * @description Token cost in order to enter the game
@@ -1196,6 +1417,8 @@ export interface parameters {
   "rowFilter.room_params.created_at": string;
   /** Format: timestamp with time zone */
   "rowFilter.room_params.updated_at": string;
+  /** Format: character varying */
+  "rowFilter.room_params.contract_id": string;
   /** @description rooms */
   "body.rooms": definitions["rooms"];
   /** Format: uuid */
@@ -1223,6 +1446,8 @@ export interface parameters {
    * @description Total prize purse depending on amount of players when game starts.
    */
   "rowFilter.rooms.total_prize_purse": string;
+  /** Format: character varying */
+  "rowFilter.rooms.contract_id": string;
   /** @description users */
   "body.users": definitions["users"];
   /** Format: character varying */

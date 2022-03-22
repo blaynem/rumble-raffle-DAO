@@ -60,26 +60,43 @@ export const fetchContractABI = async (contractAddress: string): Promise<FetchCo
 
 /** =====FUNCTIONS TO GET CONTRACT DATA===== */
 
+/**
+ * Contract information from the polygon net
+ */
 export type GetPolyContractReturnType = {
-  symbol: string;
-  name: string;
+  // Contract Token Chain Id
+  chain_id: string;
+  // Contract Token Address
+  contract_address: string;
+  // Contract Token Decimals
   decimals: string;
-  methods: any;
+  // Contract Token Name
+  name: string;
+  // Contract Token Symbol
+  symbol: string;
 }
 
 /**
  * Using the contractAddress, gets data of the contract.
- * @param contractAddress - contract address string
+ * @param contract_address - contract address string
  * @returns { symbol, name, decimals, methods: contract.methods }
  */
-export const getPolygonContractData = async (contractAddress: string): Promise<GetPolyContractReturnType> => {
-  const data = await fetchContractABI(contractAddress);
+export const getPolygonContractData = async (contract_address: string): Promise<GetPolyContractReturnType> => {
+  // TODO: Handle error for not being a contract better.
+  const data = await fetchContractABI(contract_address);
   const web3 = new Web3((window as any).ethereum)
 
-  const contract = new web3.eth.Contract(data.contractABI, contractAddress)
+  const contract = new web3.eth.Contract(data.contractABI, contract_address)
   const symbol = await contract.methods.symbol().call();
   const name = await contract.methods.name().call();
   const decimals = await contract.methods.decimals().call();
+  const chain_id = await contract.methods.getChainId().call();
 
-  return { symbol, name, decimals, methods: contract.methods }
+  return {
+    chain_id,
+    contract_address,
+    decimals,
+    name,
+    symbol,
+  }
 }
