@@ -127,12 +127,19 @@ export interface paths {
           id?: parameters["rowFilter.payouts.id"];
           created_at?: parameters["rowFilter.payouts.created_at"];
           public_address?: parameters["rowFilter.payouts.public_address"];
+          /** Amount to be paid out in */
           payment_amount?: parameters["rowFilter.payouts.payment_amount"];
+          /** Token symbol of the payment */
           payment_token_symbol?: parameters["rowFilter.payouts.payment_token_symbol"];
+          /** Contract address for the payment token. */
           payment_token_address?: parameters["rowFilter.payouts.payment_token_address"];
           room_id?: parameters["rowFilter.payouts.room_id"];
+          /** Any notes necessary for the payment. Ex: "winner, 2 kills" */
           notes?: parameters["rowFilter.payouts.notes"];
-          reason?: parameters["rowFilter.payouts.reason"];
+          /** Reason for the payment. Ex: 'winner' or 'kills' */
+          payment_reason?: parameters["rowFilter.payouts.payment_reason"];
+          /** If the payment has been completed */
+          payment_completed?: parameters["rowFilter.payouts.payment_completed"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -186,12 +193,19 @@ export interface paths {
           id?: parameters["rowFilter.payouts.id"];
           created_at?: parameters["rowFilter.payouts.created_at"];
           public_address?: parameters["rowFilter.payouts.public_address"];
+          /** Amount to be paid out in */
           payment_amount?: parameters["rowFilter.payouts.payment_amount"];
+          /** Token symbol of the payment */
           payment_token_symbol?: parameters["rowFilter.payouts.payment_token_symbol"];
+          /** Contract address for the payment token. */
           payment_token_address?: parameters["rowFilter.payouts.payment_token_address"];
           room_id?: parameters["rowFilter.payouts.room_id"];
+          /** Any notes necessary for the payment. Ex: "winner, 2 kills" */
           notes?: parameters["rowFilter.payouts.notes"];
-          reason?: parameters["rowFilter.payouts.reason"];
+          /** Reason for the payment. Ex: 'winner' or 'kills' */
+          payment_reason?: parameters["rowFilter.payouts.payment_reason"];
+          /** If the payment has been completed */
+          payment_completed?: parameters["rowFilter.payouts.payment_completed"];
         };
         header: {
           /** Preference */
@@ -209,12 +223,19 @@ export interface paths {
           id?: parameters["rowFilter.payouts.id"];
           created_at?: parameters["rowFilter.payouts.created_at"];
           public_address?: parameters["rowFilter.payouts.public_address"];
+          /** Amount to be paid out in */
           payment_amount?: parameters["rowFilter.payouts.payment_amount"];
+          /** Token symbol of the payment */
           payment_token_symbol?: parameters["rowFilter.payouts.payment_token_symbol"];
+          /** Contract address for the payment token. */
           payment_token_address?: parameters["rowFilter.payouts.payment_token_address"];
           room_id?: parameters["rowFilter.payouts.room_id"];
+          /** Any notes necessary for the payment. Ex: "winner, 2 kills" */
           notes?: parameters["rowFilter.payouts.notes"];
-          reason?: parameters["rowFilter.payouts.reason"];
+          /** Reason for the payment. Ex: 'winner' or 'kills' */
+          payment_reason?: parameters["rowFilter.payouts.payment_reason"];
+          /** If the payment has been completed */
+          payment_completed?: parameters["rowFilter.payouts.payment_completed"];
         };
         body: {
           /** payouts */
@@ -755,11 +776,20 @@ export interface definitions {
     created_at?: string;
     /** Format: character varying */
     public_address: string;
-    /** Format: numeric */
+    /**
+     * Format: numeric
+     * @description Amount to be paid out in
+     */
     payment_amount: number;
-    /** Format: character varying */
+    /**
+     * Format: character varying
+     * @description Token symbol of the payment
+     */
     payment_token_symbol: string;
-    /** Format: character varying */
+    /**
+     * Format: character varying
+     * @description Contract address for the payment token.
+     */
     payment_token_address: string;
     /**
      * Format: uuid
@@ -767,10 +797,28 @@ export interface definitions {
      * This is a Foreign Key to `rooms.id`.<fk table='rooms' column='id'/>
      */
     room_id: string;
-    /** Format: character varying */
+    /**
+     * Format: character varying
+     * @description Any notes necessary for the payment. Ex: "winner, 2 kills"
+     */
     notes?: string;
-    /** Format: character varying */
-    reason: string;
+    /**
+     * Format: public.payment_reason
+     * @description Reason for the payment. Ex: 'winner' or 'kills'
+     * @enum {string}
+     */
+    payment_reason:
+      | "winner"
+      | "second"
+      | "third"
+      | "kills"
+      | "alt_split"
+      | "creator_split";
+    /**
+     * Format: boolean
+     * @description If the payment has been completed
+     */
+    payment_completed: boolean;
   };
   /** @description Players in each room. */
   players: {
@@ -1009,18 +1057,38 @@ export interface parameters {
   "rowFilter.payouts.created_at": string;
   /** Format: character varying */
   "rowFilter.payouts.public_address": string;
-  /** Format: numeric */
+  /**
+   * Format: numeric
+   * @description Amount to be paid out in
+   */
   "rowFilter.payouts.payment_amount": string;
-  /** Format: character varying */
+  /**
+   * Format: character varying
+   * @description Token symbol of the payment
+   */
   "rowFilter.payouts.payment_token_symbol": string;
-  /** Format: character varying */
+  /**
+   * Format: character varying
+   * @description Contract address for the payment token.
+   */
   "rowFilter.payouts.payment_token_address": string;
   /** Format: uuid */
   "rowFilter.payouts.room_id": string;
-  /** Format: character varying */
+  /**
+   * Format: character varying
+   * @description Any notes necessary for the payment. Ex: "winner, 2 kills"
+   */
   "rowFilter.payouts.notes": string;
-  /** Format: character varying */
-  "rowFilter.payouts.reason": string;
+  /**
+   * Format: public.payment_reason
+   * @description Reason for the payment. Ex: 'winner' or 'kills'
+   */
+  "rowFilter.payouts.payment_reason": string;
+  /**
+   * Format: boolean
+   * @description If the payment has been completed
+   */
+  "rowFilter.payouts.payment_completed": string;
   /** @description players */
   "body.players": definitions["players"];
   /** Format: uuid */
