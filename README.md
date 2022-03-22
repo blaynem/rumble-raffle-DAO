@@ -87,8 +87,10 @@ Run `yarn start` in another tab to start the app
 - DB
   - Change player id to be publicAddress rather than the id.
 
-### Extra Monetary Ideas
+### Extra Ideas
 
+- END OF WEEK TOURNEY
+  - At the end of the week, all the remainder money goes into a prize pool. Anyone who has played this week will be automatically entered into this massive raffle and then paid out how we determine. (This sounds like it's easily manipulated though by entering different raffles or something. Still good for hype.)
 - NFT Ideas
   - Winners get NFT's (Gold/Silver/Bronze)
     - Can sell the NFT, but we always get a 5% cut or whatever is the norm.
