@@ -6,7 +6,7 @@ import { definitions } from ".";
 /**
  * We only want to send these fields back to players.
  */
-export type PickFromPlayers = Pick<definitions["users"], "publicAddress" | "name">
+export type PickFromPlayers = Pick<definitions["users"], "public_address" | "name">
 
 export type RoomDataType = {
   // Will be null until the game has been played and completed.

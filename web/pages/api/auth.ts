@@ -5,19 +5,19 @@ import { NONCE_MESSAGE } from '../../lib/constants'
 import supabase from '../../client';
 
 export type SupabaseUserType = {
-  publicAddress: string;
+  public_address: string;
   nonce: string;
   name: string;
 }
 
 async function auth(req, res) {
-  const { signature, publicAddress } = req.body
-  if (!signature || !publicAddress) {
-    return res.status(400).json({ error: 'Request should have signature and publicAddress' })
+  const { signature, public_address } = req.body
+  if (!signature || !public_address) {
+    return res.status(400).json({ error: 'Request should have signature and public_address' })
   }
 
-  // get user from the database where publicAddress
-  const {error, data} = await supabase.from<SupabaseUserType>('users').select(`publicAddress, nonce, name`).eq('publicAddress', publicAddress)
+  // get user from the database where public_address
+  const {error, data} = await supabase.from<SupabaseUserType>('users').select(`public_address, nonce, name`).eq('public_address', public_address)
   // supabase returns array
   const user = data[0];
 
@@ -27,7 +27,7 @@ async function auth(req, res) {
   }
   const msg = `${NONCE_MESSAGE}${user.nonce}`
 
-  // We now are in possession of msg, publicAddress and signature. We
+  // We now are in possession of msg, public_address and signature. We
   // will use a helper from eth-sig-util to extract the address from the signature
   const msgBufferHex = bufferToHex(Buffer.from(msg, 'utf8'))
   const address = recoverPersonalSignature({
@@ -36,8 +36,8 @@ async function auth(req, res) {
   })
 
   // The signature verification is successful if the address found with
-  // sigUtil.recoverPersonalSignature matches the initial publicAddress
-  if (address.toLowerCase() === publicAddress.toLowerCase()) {
+  // sigUtil.recoverPersonalSignature matches the initial public_address
+  if (address.toLowerCase() === public_address.toLowerCase()) {
     // return user
     req.session.user = user
     await req.session.save()

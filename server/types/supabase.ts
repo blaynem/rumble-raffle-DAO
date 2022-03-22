@@ -120,18 +120,19 @@ export interface paths {
       };
     };
   };
-  "/activities_duplicate": {
+  "/payouts": {
     get: {
       parameters: {
         query: {
-          id?: parameters["rowFilter.activities_duplicate.id"];
-          created_at?: parameters["rowFilter.activities_duplicate.created_at"];
-          environment?: parameters["rowFilter.activities_duplicate.environment"];
-          description?: parameters["rowFilter.activities_duplicate.description"];
-          amountOfPlayers?: parameters["rowFilter.activities_duplicate.amountOfPlayers"];
-          activityWinner?: parameters["rowFilter.activities_duplicate.activityWinner"];
-          activityLoser?: parameters["rowFilter.activities_duplicate.activityLoser"];
-          killCounts?: parameters["rowFilter.activities_duplicate.killCounts"];
+          id?: parameters["rowFilter.payouts.id"];
+          created_at?: parameters["rowFilter.payouts.created_at"];
+          public_address?: parameters["rowFilter.payouts.public_address"];
+          payment_amount?: parameters["rowFilter.payouts.payment_amount"];
+          payment_token_symbol?: parameters["rowFilter.payouts.payment_token_symbol"];
+          payment_token_address?: parameters["rowFilter.payouts.payment_token_address"];
+          room_id?: parameters["rowFilter.payouts.room_id"];
+          notes?: parameters["rowFilter.payouts.notes"];
+          reason?: parameters["rowFilter.payouts.reason"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -153,7 +154,7 @@ export interface paths {
       responses: {
         /** OK */
         200: {
-          schema: definitions["activities_duplicate"][];
+          schema: definitions["payouts"][];
         };
         /** Partial Content */
         206: unknown;
@@ -162,8 +163,8 @@ export interface paths {
     post: {
       parameters: {
         body: {
-          /** activities_duplicate */
-          activities_duplicate?: definitions["activities_duplicate"];
+          /** payouts */
+          payouts?: definitions["payouts"];
         };
         query: {
           /** Filtering Columns */
@@ -182,14 +183,15 @@ export interface paths {
     delete: {
       parameters: {
         query: {
-          id?: parameters["rowFilter.activities_duplicate.id"];
-          created_at?: parameters["rowFilter.activities_duplicate.created_at"];
-          environment?: parameters["rowFilter.activities_duplicate.environment"];
-          description?: parameters["rowFilter.activities_duplicate.description"];
-          amountOfPlayers?: parameters["rowFilter.activities_duplicate.amountOfPlayers"];
-          activityWinner?: parameters["rowFilter.activities_duplicate.activityWinner"];
-          activityLoser?: parameters["rowFilter.activities_duplicate.activityLoser"];
-          killCounts?: parameters["rowFilter.activities_duplicate.killCounts"];
+          id?: parameters["rowFilter.payouts.id"];
+          created_at?: parameters["rowFilter.payouts.created_at"];
+          public_address?: parameters["rowFilter.payouts.public_address"];
+          payment_amount?: parameters["rowFilter.payouts.payment_amount"];
+          payment_token_symbol?: parameters["rowFilter.payouts.payment_token_symbol"];
+          payment_token_address?: parameters["rowFilter.payouts.payment_token_address"];
+          room_id?: parameters["rowFilter.payouts.room_id"];
+          notes?: parameters["rowFilter.payouts.notes"];
+          reason?: parameters["rowFilter.payouts.reason"];
         };
         header: {
           /** Preference */
@@ -204,18 +206,19 @@ export interface paths {
     patch: {
       parameters: {
         query: {
-          id?: parameters["rowFilter.activities_duplicate.id"];
-          created_at?: parameters["rowFilter.activities_duplicate.created_at"];
-          environment?: parameters["rowFilter.activities_duplicate.environment"];
-          description?: parameters["rowFilter.activities_duplicate.description"];
-          amountOfPlayers?: parameters["rowFilter.activities_duplicate.amountOfPlayers"];
-          activityWinner?: parameters["rowFilter.activities_duplicate.activityWinner"];
-          activityLoser?: parameters["rowFilter.activities_duplicate.activityLoser"];
-          killCounts?: parameters["rowFilter.activities_duplicate.killCounts"];
+          id?: parameters["rowFilter.payouts.id"];
+          created_at?: parameters["rowFilter.payouts.created_at"];
+          public_address?: parameters["rowFilter.payouts.public_address"];
+          payment_amount?: parameters["rowFilter.payouts.payment_amount"];
+          payment_token_symbol?: parameters["rowFilter.payouts.payment_token_symbol"];
+          payment_token_address?: parameters["rowFilter.payouts.payment_token_address"];
+          room_id?: parameters["rowFilter.payouts.room_id"];
+          notes?: parameters["rowFilter.payouts.notes"];
+          reason?: parameters["rowFilter.payouts.reason"];
         };
         body: {
-          /** activities_duplicate */
-          activities_duplicate?: definitions["activities_duplicate"];
+          /** payouts */
+          payouts?: definitions["payouts"];
         };
         header: {
           /** Preference */
@@ -508,6 +511,7 @@ export interface paths {
           slug?: parameters["rowFilter.rooms.slug"];
           params_id?: parameters["rowFilter.rooms.params_id"];
           created_by?: parameters["rowFilter.rooms.created_by"];
+          game_started?: parameters["rowFilter.rooms.game_started"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -564,6 +568,7 @@ export interface paths {
           slug?: parameters["rowFilter.rooms.slug"];
           params_id?: parameters["rowFilter.rooms.params_id"];
           created_by?: parameters["rowFilter.rooms.created_by"];
+          game_started?: parameters["rowFilter.rooms.game_started"];
         };
         header: {
           /** Preference */
@@ -584,6 +589,7 @@ export interface paths {
           slug?: parameters["rowFilter.rooms.slug"];
           params_id?: parameters["rowFilter.rooms.params_id"];
           created_by?: parameters["rowFilter.rooms.created_by"];
+          game_started?: parameters["rowFilter.rooms.game_started"];
         };
         body: {
           /** rooms */
@@ -604,7 +610,7 @@ export interface paths {
     get: {
       parameters: {
         query: {
-          publicAddress?: parameters["rowFilter.users.publicAddress"];
+          public_address?: parameters["rowFilter.users.public_address"];
           created_at?: parameters["rowFilter.users.created_at"];
           nonce?: parameters["rowFilter.users.nonce"];
           id?: parameters["rowFilter.users.id"];
@@ -660,7 +666,7 @@ export interface paths {
     delete: {
       parameters: {
         query: {
-          publicAddress?: parameters["rowFilter.users.publicAddress"];
+          public_address?: parameters["rowFilter.users.public_address"];
           created_at?: parameters["rowFilter.users.created_at"];
           nonce?: parameters["rowFilter.users.nonce"];
           id?: parameters["rowFilter.users.id"];
@@ -680,7 +686,7 @@ export interface paths {
     patch: {
       parameters: {
         query: {
-          publicAddress?: parameters["rowFilter.users.publicAddress"];
+          public_address?: parameters["rowFilter.users.public_address"];
           created_at?: parameters["rowFilter.users.created_at"];
           nonce?: parameters["rowFilter.users.nonce"];
           id?: parameters["rowFilter.users.id"];
@@ -734,12 +740,12 @@ export interface definitions {
     /** Format: ARRAY */
     killCounts?: unknown[];
   };
-  activities_duplicate: {
+  /** @description Payout information for all completed games */
+  payouts: {
     /**
      * Format: uuid
      * @description Note:
      * This is a Primary Key.<pk/>
-     * @default extensions.uuid_generate_v4()
      */
     id: string;
     /**
@@ -747,18 +753,24 @@ export interface definitions {
      * @default now()
      */
     created_at?: string;
-    /** Format: text */
-    environment: string;
-    /** Format: text */
-    description: string;
+    /** Format: character varying */
+    public_address: string;
     /** Format: numeric */
-    amountOfPlayers: number;
-    /** Format: ARRAY */
-    activityWinner?: unknown[];
-    /** Format: ARRAY */
-    activityLoser?: unknown[];
-    /** Format: ARRAY */
-    killCounts?: unknown[];
+    payment_amount: number;
+    /** Format: character varying */
+    payment_token_symbol: string;
+    /** Format: character varying */
+    payment_token_address: string;
+    /**
+     * Format: uuid
+     * @description Note:
+     * This is a Foreign Key to `rooms.id`.<fk table='rooms' column='id'/>
+     */
+    room_id: string;
+    /** Format: character varying */
+    notes?: string;
+    /** Format: character varying */
+    reason: string;
   };
   /** @description Players in each room. */
   players: {
@@ -775,7 +787,7 @@ export interface definitions {
      * Format: character varying
      * @description Note:
      * This is a Primary Key.<pk/>
-     * This is a Foreign Key to `users.publicAddress`.<fk table='users' column='publicAddress'/>
+     * This is a Foreign Key to `users.public_address`.<fk table='users' column='public_address'/>
      */
     player: string;
     /**
@@ -798,7 +810,7 @@ export interface definitions {
      * @description Public Address of creator
      *
      * Note:
-     * This is a Foreign Key to `users.publicAddress`.<fk table='users' column='publicAddress'/>
+     * This is a Foreign Key to `users.public_address`.<fk table='users' column='public_address'/>
      */
     created_by: string;
     /** Format: character varying */
@@ -902,9 +914,11 @@ export interface definitions {
     /**
      * Format: character varying
      * @description Note:
-     * This is a Foreign Key to `users.publicAddress`.<fk table='users' column='publicAddress'/>
+     * This is a Foreign Key to `users.public_address`.<fk table='users' column='public_address'/>
      */
     created_by: string;
+    /** Format: boolean */
+    game_started: boolean;
   };
   /** @description Users that have logged into the app */
   users: {
@@ -913,7 +927,7 @@ export interface definitions {
      * @description Note:
      * This is a Primary Key.<pk/>
      */
-    publicAddress: string;
+    public_address: string;
     /**
      * Format: timestamp with time zone
      * @default now()
@@ -987,24 +1001,26 @@ export interface parameters {
   "rowFilter.activities.activityLoser": string;
   /** Format: ARRAY */
   "rowFilter.activities.killCounts": string;
-  /** @description activities_duplicate */
-  "body.activities_duplicate": definitions["activities_duplicate"];
+  /** @description payouts */
+  "body.payouts": definitions["payouts"];
   /** Format: uuid */
-  "rowFilter.activities_duplicate.id": string;
+  "rowFilter.payouts.id": string;
   /** Format: timestamp with time zone */
-  "rowFilter.activities_duplicate.created_at": string;
-  /** Format: text */
-  "rowFilter.activities_duplicate.environment": string;
-  /** Format: text */
-  "rowFilter.activities_duplicate.description": string;
+  "rowFilter.payouts.created_at": string;
+  /** Format: character varying */
+  "rowFilter.payouts.public_address": string;
   /** Format: numeric */
-  "rowFilter.activities_duplicate.amountOfPlayers": string;
-  /** Format: ARRAY */
-  "rowFilter.activities_duplicate.activityWinner": string;
-  /** Format: ARRAY */
-  "rowFilter.activities_duplicate.activityLoser": string;
-  /** Format: ARRAY */
-  "rowFilter.activities_duplicate.killCounts": string;
+  "rowFilter.payouts.payment_amount": string;
+  /** Format: character varying */
+  "rowFilter.payouts.payment_token_symbol": string;
+  /** Format: character varying */
+  "rowFilter.payouts.payment_token_address": string;
+  /** Format: uuid */
+  "rowFilter.payouts.room_id": string;
+  /** Format: character varying */
+  "rowFilter.payouts.notes": string;
+  /** Format: character varying */
+  "rowFilter.payouts.reason": string;
   /** @description players */
   "body.players": definitions["players"];
   /** Format: uuid */
@@ -1105,10 +1121,12 @@ export interface parameters {
   "rowFilter.rooms.params_id": string;
   /** Format: character varying */
   "rowFilter.rooms.created_by": string;
+  /** Format: boolean */
+  "rowFilter.rooms.game_started": string;
   /** @description users */
   "body.users": definitions["users"];
   /** Format: character varying */
-  "rowFilter.users.publicAddress": string;
+  "rowFilter.users.public_address": string;
   /** Format: timestamp with time zone */
   "rowFilter.users.created_at": string;
   /** Format: character varying */

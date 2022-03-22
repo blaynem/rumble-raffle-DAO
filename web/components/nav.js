@@ -59,7 +59,7 @@ const Nav = () => {
                       <Menu.Button className="bg-white rounded-full flex border focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         <span className="sr-only">Open user menu</span>
                         {!user && <WalletConnector />}
-                        {user && <WalletAddress address={user.publicAddress} />}
+                        {user && <WalletAddress address={user.public_address} />}
                       </Menu.Button>
                     </div>
                     <Transition
@@ -115,7 +115,7 @@ const Nav = () => {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium text-gray-800">
-                      {user && <WalletAddress address={user.publicAddress} />}
+                      {user && <WalletAddress address={user.public_address} />}
                       {!user && <WalletConnector />}
                     </div>
                   </div>

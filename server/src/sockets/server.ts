@@ -108,7 +108,7 @@ const addPlayer = async (
     return;
   }
   const { data, error } = await client.from<definitions["players"]>('players')
-    .insert({ room_id: room.id, player: playerData.publicAddress, slug: roomSlug })
+    .insert({ room_id: room.id, player: playerData.public_address, slug: roomSlug })
   if (error) {
     // If error, we return the error.
     return { error };
@@ -139,7 +139,7 @@ const startAutoPlayGame = async (roomSlug: string): Promise<GameEndType> => {
     return;
   }
   // RumbleApp expects {id, name}
-  const players = room.players.map(player => ({ ...player, id: player.publicAddress }))
+  const players = room.players.map(player => ({ ...player, id: player.public_address }))
   const prizeSplit = selectPrizeSplitFromParams(room.params);
   const {data: allActivities} = await getAllActivities();
   return await createGame(allActivities, prizeSplit, players);

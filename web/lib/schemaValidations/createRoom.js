@@ -36,8 +36,7 @@ const createRoomSchema = object({
     prize_creator: number().min(1, 'Minimum for creator split is 1%').required(basicRequireMsg),
   }).assurePrizeSplitTotal().required(),
   user: object({
-    publicAddress: string().required(),
-    id: string().required(),
+    public_address: string().required(),
   }).required(basicRequireMsg),
   slug: string().required(basicRequireMsg).matches(/^[\w-]*$/, 'Allowed characters: a-z, 0-9, "_" and "-".')
 })

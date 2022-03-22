@@ -10,7 +10,7 @@ const jsonParser = bodyParser.json()
 router.post('/create', jsonParser, async (req: any, res: any) => {
   // Insert room_param
   const {user, ...restReqBody} = req.body;
-  const created_by = user.publicAddress;
+  const created_by = user.public_address;
   const { data: roomParamsData, error: roomParamsError } = await client.from<definitions['room_params']>('room_params').insert({
     ...restReqBody,
     created_by

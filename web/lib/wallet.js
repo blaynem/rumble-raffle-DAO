@@ -2,25 +2,25 @@ import Web3 from 'web3'
 import { NONCE_MESSAGE } from './constants'
 
 let web3 = undefined
-export const getCookie = ({ publicAddress, signature }) =>
+export const getCookie = ({ public_address, signature }) =>
   fetch(`/api/auth`, {
-    body: JSON.stringify({ publicAddress, signature }),
+    body: JSON.stringify({ public_address, signature }),
     headers: {
       'Content-Type': 'application/json'
     },
     method: 'POST'
   }).then(response => response.json())
 
-export const handleSignMessage = async ({ publicAddress, nonce }) => {
-  console.log('--lib/wallet.js--public addy sign message biatch', publicAddress, nonce)
+export const handleSignMessage = async ({ public_address, nonce }) => {
+  console.log('--lib/wallet.js--public addy sign message biatch', public_address, nonce)
   try {
     const signature = await web3.eth.personal.sign(
       `${NONCE_MESSAGE}${nonce}`,
-      publicAddress,
+      public_address,
       '' // MetaMask will ignore the password argument here
     )
 
-    return { publicAddress, signature }
+    return { public_address, signature }
   } catch (err) {
     console.log('--errr', err);
     throw new Error('You need to sign the message to be able to log in.')
@@ -54,8 +54,8 @@ export const authenticate = async onLoggedIn => {
     return
   }
 
-  const publicAddress = coinbase.toLowerCase()
-  fetch(`/api/users?publicAddress=${publicAddress}`)
+  const public_address = coinbase.toLowerCase()
+  fetch(`/api/users?public_address=${public_address}`)
     .then(response => response.json())
     // Popup MetaMask confirmation modal to sign message
     .then(handleSignMessage)

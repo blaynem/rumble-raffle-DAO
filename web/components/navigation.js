@@ -10,7 +10,7 @@ function Navigation() {
       {user && (
         <div style={{ width: '100px' }}>
           <MiddleEllipsis>
-            <span>{user.publicAddress}</span>
+            <span>{user.public_address}</span>
           </MiddleEllipsis>
         </div>
       )}

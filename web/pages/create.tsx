@@ -78,16 +78,16 @@ const customErrorColors = (msg: string) => <div className='text-red-600 py-2'>{m
 
 const CreatePage = () => {
   const { user } = useWallet()
-  if (!user || !user.publicAddress) {
-    return <PleaseLoginMessage />
-  }
-
   // State
   const [toastOpen, setToastOpen] = useState(false);
   const [toast, setToast] = useState(null as ToastTypes);
   const [savedSlugMessage, setSavedSlugMessage] = useState("");
   const [contractDetailsLoading, setContractDetailsLoading] = useState(false);
   const [selectedContract, setSelectedContract] = useState(null as GetPolyContractReturnType);
+
+  if (!user || !user.public_address) {
+    return <PleaseLoginMessage />
+  }
 
   const fetchContractData = async (contractAddress) => {
     setContractDetailsLoading(true)

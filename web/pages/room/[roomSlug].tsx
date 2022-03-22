@@ -31,7 +31,7 @@ const RumbleRoom = ({ roomSlug, activeRoom, ...rest }: { roomSlug: string, activ
   if (!activeRoom) {
     return <>Please check room number.</>
   }
-  const [entrants, setEntrants] = useState([] as {publicAddress: 'string'; name: 'string'}[]);
+  const [entrants, setEntrants] = useState([] as {public_address: 'string'; name: 'string'}[]);
   const [prizes, setPrizes] = useState({} as PrizeValuesType);
   const [activityLog, setActivityLog] = useState([] as (ActivityLogType | WinnerLogType)[]);
 
@@ -46,7 +46,7 @@ const RumbleRoom = ({ roomSlug, activeRoom, ...rest }: { roomSlug: string, activ
      * - On initial join of room
      * - Any time a "user"" is converted to a "player"
      */
-    socket.on("update_player_list", (data: { allPlayers: {publicAddress: 'string'; name: 'string'}[]; prizeSplit: PrizeValuesType }) => {
+    socket.on("update_player_list", (data: { allPlayers: {public_address: 'string'; name: 'string'}[]; prizeSplit: PrizeValuesType }) => {
       console.log('---data', data);
       data.allPlayers !== null && setEntrants([...data.allPlayers])
       data.prizeSplit !== null && setPrizes(data.prizeSplit)
@@ -70,7 +70,7 @@ const RumbleRoom = ({ roomSlug, activeRoom, ...rest }: { roomSlug: string, activ
     }
   }
 
-  const alreadyJoined = entrants.findIndex(entrant => entrant.publicAddress === user?.publicAddress) >= 0;
+  const alreadyJoined = entrants.findIndex(entrant => entrant.public_address === user?.public_address) >= 0;
 
   return (
     <div>
@@ -84,7 +84,7 @@ const RumbleRoom = ({ roomSlug, activeRoom, ...rest }: { roomSlug: string, activ
         <div>
           <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Entrants</h3>
           <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900 min-w-[440px]">
-            {entrants.map(entrant => <DisplayEntrant key={entrant.publicAddress} {...entrant} />)}
+            {entrants.map(entrant => <DisplayEntrant key={entrant.public_address} {...entrant} />)}
           </ul>
         </div>
       </div>
