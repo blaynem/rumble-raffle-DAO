@@ -14,7 +14,7 @@ type PayoutTemplateType = {
   // Reason for the payment
   payment_reason: definitions['payouts']['payment_reason'];
   // Notes to help determine reason later
-  notes: string
+  notes: definitions['payouts']['notes']
 }
 
 export const selectPrizeSplitFromParams = (params: definitions['room_params']): PrizeSplitType => ({
@@ -111,6 +111,17 @@ export const selectPayoutFromGameData = (
     // Push the kill payout
     payouts.push(killPayout);
   })
+
+  const alternateSplitPayout: PayoutsOmitId = payoutTemplate({
+    public_address: room.params.alt_split_address,
+    room,
+    payment_amount: gamePayouts.altSplit,
+    payment_reason: 'alt_split',
+    notes: `Alternate split payout of ${gamePayouts.altSplit}`
+  });
+  // Push the alternate split payout
+  payouts.push(alternateSplitPayout);
+  // Payout alternate split
   return payouts;
 }
 
