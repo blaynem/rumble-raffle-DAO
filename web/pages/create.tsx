@@ -10,8 +10,6 @@ import { GetPolyContractReturnType, getPolygonContractData } from '../lib/Polygo
 type ContractType = {
   // Ex: Polygon
   network_name: string;
-  // Ex: https://polygon-rpc.com/
-  network_rpc: string;
 } & GetPolyContractReturnType;
 
 interface Values {
@@ -90,7 +88,6 @@ const customErrorColors = (msg: string) => <div className='text-red-600 py-2'>{m
  * TODO:
  * - Any time a contract is changed, we should require them to fetch again. 
  * - Should auto-fetch contracts on blur instead of requiring them to press a button.
- * - Should have a fetch from our own db to check for contract info, with the other fetch as a fallback
  */
 const CreatePage = () => {
   const { user } = useWallet()
@@ -109,15 +106,15 @@ const CreatePage = () => {
 
   const fetchContractData = async (
     setValues: (values: React.SetStateAction<Values>) => void,
-    currentValues: Values,
-    contractAddress: string
+    values: Values,
   ) => {
     setContractDetailsLoading(true)
-    const data = await getPolygonContractData(contractAddress);
+    const { data } = await fetch(`/api/contracts?contract_address=${values.contract.contract_address}&network_name=${values.contract.network_name}`)
+      .then(res => res.json())
     setValues({
-      ...currentValues,
+      ...values,
       contract: {
-        ...currentValues.contract,
+        ...values.contract,
         ...data,
       }
     });
@@ -129,7 +126,6 @@ const CreatePage = () => {
     return await fetch('/api/create', {
       method: 'POST',
       body: JSON.stringify({
-        // ...tempBody
         user,
         ...values
       })
@@ -158,12 +154,10 @@ const CreatePage = () => {
       initialValues={{
         alt_split_address: '',
         contract: {
-          chain_id: '',
           decimals: '',
           name: '',
           symbol: '',
           contract_address: coinContracts.sFNC.contract,
-          network_rpc: coinNetworks[0].rpc,
           network_name: coinNetworks[0].name,
         },
         pve_chance: '',
@@ -478,7 +472,7 @@ const CreatePage = () => {
                         </div>
                         <button
                           type="button"
-                          onClick={() => fetchContractData(setValues, values, values.contract.contract_address)}
+                          onClick={() => fetchContractData(setValues, values)}
                           className="sm:col-span-6 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
                           {contractDetailsLoading ? "Loading..." : "Fetch Contract Data"}

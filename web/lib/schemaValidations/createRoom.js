@@ -23,13 +23,11 @@ const createRoomSchema = object({
     then: string().required('Address required if Alternative Split > 0')
   }),
   contract: object({
-    chain_id: string().required(basicRequireMsg),
     contract_address: string().required(basicRequireMsg),
     decimals: string().required(basicRequireMsg),
     name: string().required(basicRequireMsg),
     symbol: string().required(basicRequireMsg),
     network_name: string().required(basicRequireMsg),
-    network_rpc: string().required(basicRequireMsg),
   }).required(),
   pve_chance: number().min(0, postiveValMsg).required(basicRequireMsg),
   revive_chance: number().min(0, postiveValMsg).max(10, 'Must be below 10%').required(basicRequireMsg),

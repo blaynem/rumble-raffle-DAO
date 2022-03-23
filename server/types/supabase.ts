@@ -130,9 +130,7 @@ export interface paths {
           name?: parameters["rowFilter.contracts.name"];
           symbol?: parameters["rowFilter.contracts.symbol"];
           decimals?: parameters["rowFilter.contracts.decimals"];
-          chain_id?: parameters["rowFilter.contracts.chain_id"];
           network_name?: parameters["rowFilter.contracts.network_name"];
-          network_rpc?: parameters["rowFilter.contracts.network_rpc"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -189,9 +187,7 @@ export interface paths {
           name?: parameters["rowFilter.contracts.name"];
           symbol?: parameters["rowFilter.contracts.symbol"];
           decimals?: parameters["rowFilter.contracts.decimals"];
-          chain_id?: parameters["rowFilter.contracts.chain_id"];
           network_name?: parameters["rowFilter.contracts.network_name"];
-          network_rpc?: parameters["rowFilter.contracts.network_rpc"];
         };
         header: {
           /** Preference */
@@ -212,9 +208,7 @@ export interface paths {
           name?: parameters["rowFilter.contracts.name"];
           symbol?: parameters["rowFilter.contracts.symbol"];
           decimals?: parameters["rowFilter.contracts.decimals"];
-          chain_id?: parameters["rowFilter.contracts.chain_id"];
           network_name?: parameters["rowFilter.contracts.network_name"];
-          network_rpc?: parameters["rowFilter.contracts.network_rpc"];
         };
         body: {
           /** contracts */
@@ -258,8 +252,6 @@ export interface paths {
           payment_transaction_hash?: parameters["rowFilter.payouts.payment_transaction_hash"];
           /** Network name for the payment token. */
           payment_token_network_name?: parameters["rowFilter.payouts.payment_token_network_name"];
-          /** Network RPC for the payment token. */
-          payment_token_network_rpc?: parameters["rowFilter.payouts.payment_token_network_rpc"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -333,8 +325,6 @@ export interface paths {
           payment_transaction_hash?: parameters["rowFilter.payouts.payment_transaction_hash"];
           /** Network name for the payment token. */
           payment_token_network_name?: parameters["rowFilter.payouts.payment_token_network_name"];
-          /** Network RPC for the payment token. */
-          payment_token_network_rpc?: parameters["rowFilter.payouts.payment_token_network_rpc"];
         };
         header: {
           /** Preference */
@@ -372,8 +362,6 @@ export interface paths {
           payment_transaction_hash?: parameters["rowFilter.payouts.payment_transaction_hash"];
           /** Network name for the payment token. */
           payment_token_network_name?: parameters["rowFilter.payouts.payment_token_network_name"];
-          /** Network RPC for the payment token. */
-          payment_token_network_rpc?: parameters["rowFilter.payouts.payment_token_network_rpc"];
         };
         body: {
           /** payouts */
@@ -930,11 +918,7 @@ export interface definitions {
     /** Format: character varying */
     decimals: string;
     /** Format: character varying */
-    chain_id: string;
-    /** Format: character varying */
     network_name: string;
-    /** Format: character varying */
-    network_rpc: string;
   };
   /** @description Payout information for all completed games */
   payouts: {
@@ -1012,11 +996,6 @@ export interface definitions {
      * @description Network name for the payment token.
      */
     payment_token_network_name: string;
-    /**
-     * Format: character varying
-     * @description Network RPC for the payment token.
-     */
-    payment_token_network_rpc: string;
   };
   /** @description Players in each room. */
   players: {
@@ -1274,11 +1253,7 @@ export interface parameters {
   /** Format: character varying */
   "rowFilter.contracts.decimals": string;
   /** Format: character varying */
-  "rowFilter.contracts.chain_id": string;
-  /** Format: character varying */
   "rowFilter.contracts.network_name": string;
-  /** Format: character varying */
-  "rowFilter.contracts.network_rpc": string;
   /** @description payouts */
   "body.payouts": definitions["payouts"];
   /**
@@ -1337,11 +1312,6 @@ export interface parameters {
    * @description Network name for the payment token.
    */
   "rowFilter.payouts.payment_token_network_name": string;
-  /**
-   * Format: character varying
-   * @description Network RPC for the payment token.
-   */
-  "rowFilter.payouts.payment_token_network_rpc": string;
   /** @description players */
   "body.players": definitions["players"];
   /** Format: uuid */
