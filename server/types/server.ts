@@ -7,10 +7,14 @@ import { definitions } from ".";
 export type PickFromPlayers = Pick<definitions["users"], "public_address" | "name">
 
 export type RoomDataType = {
+  // Who the room was created by
+  created_by: definitions['rooms']['created_by']
   // Contract data for the given room
   contract: definitions['contracts']
   // Will be null until the game has been played and completed.
-  gameData: GameEndType | null;
+  gameData?: GameEndType | null;
+  // True if the game has already been started.
+  game_started: definitions['rooms']['game_started']
   // Id of the given room.
   id: string;
   // Players of the given room.

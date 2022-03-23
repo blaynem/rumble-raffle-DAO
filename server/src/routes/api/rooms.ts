@@ -40,8 +40,10 @@ router.post('/create', jsonParser, async (req: any, res: any) => {
   }
   // If room is created, we add it to memory.
   const roomData: RoomDataType = {
+    created_by,
     contract: contract,
     gameData: null,
+    game_started: false,
     id: data[0].id,
     params: roomParamsData[0],
     players: [],
