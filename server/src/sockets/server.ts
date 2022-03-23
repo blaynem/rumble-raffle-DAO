@@ -1,3 +1,4 @@
+// import fs from 'fs';
 import { GameEndType, PrizeSplitType } from "@rumble-raffle-dao/rumble";
 import { PostgrestError } from "@supabase/supabase-js";
 import { Server, Socket } from "socket.io";
@@ -191,5 +192,12 @@ const startRumble = async (roomSlug: string): Promise<GameEndType> => {
   // Set the game started to true.
   room.game_started = true;
 
+  // const stringifyedData = JSON.stringify(finalGameData);
+  // fs.writeFile('finalGameData.json', stringifyedData, 'utf8', (err) => {
+  //   if (err) console.log('error', err);
+  // });
+
+
+  console.log(finalGameData);
   return finalGameData;
 }

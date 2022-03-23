@@ -53,6 +53,7 @@ Run `yarn start` in another tab to start the app
 - Players:
   - Allow players to change their names.
 - Rooms:
+  - If server is refreshed, users aren't logged into the same socket-room they were before, so they aren't getting updated data.
   - Fix admin view panel
   - Request payment before joining a room.
   - When refreshing the page, users should see the full list of activities that have already happened.
@@ -67,6 +68,7 @@ Run `yarn start` in another tab to start the app
   - Determine hosting
   - Better error handling
 - Rooms:
+  - On server start we should get all the data for activity logs, etc so they aren't lost.
   - Set limit of like 200 players for now?
     - Limit test amount of players
   - "Clear Game" should remove all the players from the payouts / set the room `game_started` back to false
