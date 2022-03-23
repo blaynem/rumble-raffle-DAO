@@ -86,6 +86,7 @@ const customErrorColors = (msg: string) => <div className='text-red-600 py-2'>{m
 
 /**
  * TODO:
+ * - LIMIT THIS TO ONLY ADMINS OR PEOPLE WE GIVE POWER TO FOR NOW REEEE
  * - Any time a contract is changed, we should require them to fetch again. 
  * - Should auto-fetch contracts on blur instead of requiring them to press a button.
  */
