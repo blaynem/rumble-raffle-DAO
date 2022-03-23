@@ -650,8 +650,6 @@ export interface paths {
           params_id?: parameters["rowFilter.rooms.params_id"];
           created_by?: parameters["rowFilter.rooms.created_by"];
           game_started?: parameters["rowFilter.rooms.game_started"];
-          /** The given rooms payout_id */
-          payout_id?: parameters["rowFilter.rooms.payout_id"];
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
@@ -712,8 +710,6 @@ export interface paths {
           params_id?: parameters["rowFilter.rooms.params_id"];
           created_by?: parameters["rowFilter.rooms.created_by"];
           game_started?: parameters["rowFilter.rooms.game_started"];
-          /** The given rooms payout_id */
-          payout_id?: parameters["rowFilter.rooms.payout_id"];
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
@@ -738,8 +734,6 @@ export interface paths {
           params_id?: parameters["rowFilter.rooms.params_id"];
           created_by?: parameters["rowFilter.rooms.created_by"];
           game_started?: parameters["rowFilter.rooms.game_started"];
-          /** The given rooms payout_id */
-          payout_id?: parameters["rowFilter.rooms.payout_id"];
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
@@ -1141,11 +1135,6 @@ export interface definitions {
     /** Format: boolean */
     game_started: boolean;
     /**
-     * Format: uuid
-     * @description The given rooms payout_id
-     */
-    payout_id?: string;
-    /**
      * Format: numeric
      * @description Total prize purse depending on amount of players when game starts.
      */
@@ -1406,11 +1395,6 @@ export interface parameters {
   "rowFilter.rooms.created_by": string;
   /** Format: boolean */
   "rowFilter.rooms.game_started": string;
-  /**
-   * Format: uuid
-   * @description The given rooms payout_id
-   */
-  "rowFilter.rooms.payout_id": string;
   /**
    * Format: numeric
    * @description Total prize purse depending on amount of players when game starts.
