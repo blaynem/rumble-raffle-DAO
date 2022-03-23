@@ -8,6 +8,7 @@ import { createGame } from "../helpers/createRumble";
 import availableRoomsData from '../helpers/roomRumbleData';
 import { getAllActivities } from "../routes/api/activities";
 import { selectPayoutFromGameData, selectPrizeSplitFromParams } from '../helpers/payoutHelpers';
+import { parseActivityLog } from "../helpers/parseActivityLogs";
 
 let io: Server;
 let roomSocket: Socket;
@@ -192,9 +193,10 @@ const startRumble = async (roomSlug: string): Promise<GameEndType> => {
   room.game_started = true;
 
   // TODO: Store this giant blob somewhere so we can go over the files later.
-  // TODO: Parse the activity log to return to users in a more friendly way.
+  // TODO: Store the parsed activity log in a db? maybe?
+  const parsedActivityLog = parseActivityLog(finalGameData.gameActivityLogs, room.players);
+  console.log(parsedActivityLog);
 
-
-  console.log(finalGameData);
+  // console.log(finalGameData);
   return finalGameData;
 }

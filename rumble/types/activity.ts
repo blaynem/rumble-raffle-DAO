@@ -12,6 +12,8 @@ import { allPlayersObj, PlayerType, PrizePayouts } from "."
 export interface ActivityTypes {
   // Id of the activity
   id: string;
+  // The environment of activity will be either PVE or PVP.
+  environment: ('PVE' | 'PVP' | 'REVIVE');
   /**
    * Description of event.
    * Ex: "PLAYER0 killed PLAYER1 with a knife.""
