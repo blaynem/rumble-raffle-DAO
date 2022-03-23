@@ -1,4 +1,4 @@
-import { ActivityTypes, PrizeValuesType, allPlayersObj, ActivityLogType, WinnerLogType, PrizePayouts, PlayerType, GameEndType, PrizeSplitType, ActivitiesObjType } from ".";
+import { ActivityTypes, PrizeValuesType, allPlayersObj, PrizePayouts, PlayerType, GameEndType, PrizeSplitType, ActivitiesObjType, GameActivityLogsType } from ".";
 
 /**
  * Constructor typings
@@ -62,7 +62,7 @@ export interface RumbleInterface {
   /** ----Values used when game in play--- */
 
   // Storing the activity logs for each round played.
-  activityLogs: (ActivityLogType | WinnerLogType)[];
+  gameActivityLogs: GameActivityLogsType;
   // Total kills in the game
   gameKills: { [playerId: string]: number };
   // Payouts for the game;
@@ -103,7 +103,7 @@ export interface RumbleInterface {
    * Getter for the activity logs.
    * @returns activity logs
    */
-  getActivityLog: () => (ActivityLogType | WinnerLogType)[]
+  getActivityLog: () => GameActivityLogsType
   /**
    * Get all players in the game
    */

@@ -69,6 +69,7 @@ Run `yarn start` in another tab to start the app
   - Better error handling
 - Rooms:
   - On server start we should get all the data for activity logs, etc so they aren't lost.
+    - Should parse the necessary details instead of passing the entire object down.
   - Set limit of like 200 players for now?
     - Limit test amount of players
   - "Clear Game" should remove all the players from the payouts / set the room `game_started` back to false

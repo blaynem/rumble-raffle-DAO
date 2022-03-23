@@ -1,4 +1,3 @@
-// import fs from 'fs';
 import { GameEndType, PrizeSplitType } from "@rumble-raffle-dao/rumble";
 import { PostgrestError } from "@supabase/supabase-js";
 import { Server, Socket } from "socket.io";
@@ -44,7 +43,7 @@ function joinRoom(roomSlug: string) {
   io.to(this.id).emit("update_player_list", playersAndPrizeSplit);
   if (room.game_started) {
     // TODO: Limit this to whatever current logs are being shown.
-    io.to(this.id).emit("update_activity_log", room.gameData.activityLogs);
+    io.to(this.id).emit("update_activity_log", room.gameData.gameActivityLogs);
   }
 }
 
@@ -84,7 +83,7 @@ async function startGame(data: { playerData: definitions["users"]; roomSlug: str
   }
   const gameData = await startRumble(data.roomSlug);
   room.gameData = gameData;
-  io.in(data.roomSlug).emit("update_activity_log", gameData.activityLogs)
+  io.in(data.roomSlug).emit("update_activity_log", gameData.gameActivityLogs)
   // TODO: Only release one part of the activity log at a time over time.
   // TODO: Display all players who earned a prize on a screen somewhere.
 }
@@ -192,10 +191,8 @@ const startRumble = async (roomSlug: string): Promise<GameEndType> => {
   // Set the game started to true.
   room.game_started = true;
 
-  // const stringifyedData = JSON.stringify(finalGameData);
-  // fs.writeFile('finalGameData.json', stringifyedData, 'utf8', (err) => {
-  //   if (err) console.log('error', err);
-  // });
+  // TODO: Store this giant blob somewhere so we can go over the files later.
+  // TODO: Parse the activity log to return to users in a more friendly way.
 
 
   console.log(finalGameData);

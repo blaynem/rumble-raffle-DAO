@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
-import { ActivityLogType, PrizeValuesType, WinnerLogType } from "@rumble-raffle-dao/rumble";
+import { GameActivityLogsType, PrizeValuesType } from "@rumble-raffle-dao/rumble";
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/room/adminRoomPanel";
 import DisplayPrizes from "../../components/room/prizes";
@@ -41,7 +41,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   }
   const [entrants, setEntrants] = useState([] as { public_address: 'string'; name: 'string' }[]);
   const [prizes, setPrizes] = useState({} as PrizeValuesType);
-  const [activityLog, setActivityLog] = useState([] as (ActivityLogType | WinnerLogType)[]);
+  const [activityLog, setActivityLog] = useState([] as GameActivityLogsType);
 
   console.log({ entrants, prizes, activityLog });
 
@@ -60,7 +60,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
       data.prizeSplit !== null && setPrizes(data.prizeSplit)
     });
 
-    socket.on("update_activity_log", (activityLog: (ActivityLogType | WinnerLogType)[]) => {
+    socket.on("update_activity_log", (activityLog: GameActivityLogsType) => {
       setActivityLog(activityLog);
     })
 
