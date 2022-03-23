@@ -80,6 +80,11 @@ export type PrizePayouts = {
    */
   kills: { [playerId: string]: number };
   /**
+   * Prize winnings remaining.
+   * Typically this will happen because people may die in pve round, which doesn't result in a kill bounty.
+   */
+  remainder: number;
+  /**
    * Total prize paid out
    */
   total: number;

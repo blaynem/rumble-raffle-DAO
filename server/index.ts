@@ -10,9 +10,7 @@ import { initRoom } from './src/sockets/server';
  * TODO:
  * - Error handling on server side so when something errors we don't need to restart the server, that's wack.
  * - Validate the "Create a room" inputs.
- * - Should store new smart contract data in servers so it's easier to fetch
  * - Should somehow extract all of these types into another subfolder so they can be gotten across all files.
- * - Add a winner table and split information to make sure they're paid out.
  */
 
 const app = express();

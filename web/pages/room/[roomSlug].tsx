@@ -13,29 +13,37 @@ const socket = io('http://localhost:3001').connect()
 const buttonClass = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
 const buttonDisabled = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md focus:outline-none focus:ring-0 transition duration-150 ease-in-out pointer-events-none opacity-60"
 
-export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }) => {
+type ServerSidePropsType = {
+  activeRoom: boolean;
+  roomCreator: string;
+  roomSlug: string;
+}
+
+export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }): Promise<{ props: ServerSidePropsType }> => {
   const { data } = await fetch(`http://localhost:3000/api/rooms/${query.roomSlug}`).then(res => res.json())
   const activeRoom = data?.length > 0;
+  const { created_by } = data[0];
   return {
     props: {
       activeRoom,
+      roomCreator: created_by,
       roomSlug: query.roomSlug,
     }
   }
 })
 
-const RumbleRoom = ({ roomSlug, activeRoom, ...rest }: { roomSlug: string, activeRoom: boolean }) => {
+const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePropsType) => {
   const { user } = useWallet()
   // console.log('---RumbleRoom PROPS---', {user, roomSlug, activeRoom});
   // TODO: Redirect them to home if there is no room shown?
   if (!activeRoom) {
     return <>Please check room number.</>
   }
-  const [entrants, setEntrants] = useState([] as {public_address: 'string'; name: 'string'}[]);
+  const [entrants, setEntrants] = useState([] as { public_address: 'string'; name: 'string' }[]);
   const [prizes, setPrizes] = useState({} as PrizeValuesType);
   const [activityLog, setActivityLog] = useState([] as (ActivityLogType | WinnerLogType)[]);
 
-  console.log({entrants, prizes, activityLog});
+  console.log({ entrants, prizes, activityLog });
 
   useEffect(() => {
     // Join a room
@@ -46,7 +54,7 @@ const RumbleRoom = ({ roomSlug, activeRoom, ...rest }: { roomSlug: string, activ
      * - On initial join of room
      * - Any time a "user"" is converted to a "player"
      */
-    socket.on("update_player_list", (data: { allPlayers: {public_address: 'string'; name: 'string'}[]; prizeSplit: PrizeValuesType }) => {
+    socket.on("update_player_list", (data: { allPlayers: { public_address: 'string'; name: 'string' }[]; prizeSplit: PrizeValuesType }) => {
       console.log('---data', data);
       data.allPlayers !== null && setEntrants([...data.allPlayers])
       data.prizeSplit !== null && setPrizes(data.prizeSplit)
@@ -74,12 +82,13 @@ const RumbleRoom = ({ roomSlug, activeRoom, ...rest }: { roomSlug: string, activ
 
   return (
     <div>
-      <AdminRoomPanel {...{socket, roomSlug}} />
+      <AdminRoomPanel {...{ socket, roomSlug }} />
+      {/* {roomCreator === user?.public_address && <AdminRoomPanel {...{ socket, roomSlug }} />} */}
       <h2 className="p-2 text-center">Player: <span className="font-bold">{user?.name}</span></h2>
       <div className="flex items-center justify-center p-2">
         <button className={alreadyJoined ? buttonDisabled : buttonClass} onClick={onJoinClick}>Join Game</button>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+      <div className="flex justify-around">
         <DisplayPrizes {...prizes} totalEntrants={entrants.length} />
         <div>
           <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Entrants</h3>

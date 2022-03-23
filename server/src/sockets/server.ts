@@ -7,6 +7,7 @@ import client from '../client';
 import { createGame } from "../helpers/createRumble";
 import availableRoomsData from '../helpers/roomRumbleData';
 import { getAllActivities } from "../routes/api/activities";
+import { selectPayoutFromGameData, selectPrizeSplitFromParams } from '../helpers/payoutHelpers';
 
 let io: Server;
 let roomSocket: Socket;
@@ -64,15 +65,18 @@ async function joinGame(data: { playerData: definitions["users"]; roomSlug: stri
  * - TODO: Add timer so round info gets sent every 30s or so
  */
 async function startGame(data: { playerData: definitions["users"]; roomSlug: string }) {
-  console.log('--start game', data);
   const room = availableRoomsData[data.roomSlug];
-  if (room.gameData) {
-    // Game already started, do nothing except return what was already there.
-    io.in(data.roomSlug).emit("update_activity_log", room.gameData.activityLogs)
+  // Only let the room owner start the game.
+  if (data.playerData.public_address !== room.created_by) {
+    console.warn(`${data.playerData.public_address} tried to start a game they are not the owner of.`);
     return;
   }
-  // TODO: Only let game master start the game
-  const gameData = await startAutoPlayGame(data.roomSlug);
+  // Game already started, do nothing about it.
+  if (!room || room.game_started) {
+    console.log('---startRumble--ERROR', data.roomSlug);
+    return;
+  }
+  const gameData = await startRumble(data.roomSlug);
   room.gameData = gameData;
   io.in(data.roomSlug).emit("update_activity_log", gameData.activityLogs)
   // TODO: Only release one part of the activity log at a time over time.
@@ -132,24 +136,46 @@ const getPlayersAndPrizeSplit = (roomSlug: string): { allPlayers: PickFromPlayer
   }
 }
 
-const startAutoPlayGame = async (roomSlug: string): Promise<GameEndType> => {
+/**
+ * Starting a rumble will:
+ * - Get all players, and prizeSplit from params
+ * - fetch all activities to play
+ * - create the game and play it
+ * 
+ * - After createGame finishes:
+ * - - game payouts to db
+ * - - update `rooms` in db with `total_prize_purse`, `game_started`
+ * - - dumps activity logs to supabase bucket
+ */
+const startRumble = async (roomSlug: string): Promise<GameEndType> => {
   const room = availableRoomsData[roomSlug];
-  if (!room) {
-    console.log('---startAutoPlayGame--ERROR', roomSlug);
+  if (!room || room.game_started) {
+    console.log('---startRumble--ERROR', roomSlug);
     return;
   }
-  // RumbleApp expects {id, name}
-  const players = room.players.map(player => ({ ...player, id: player.public_address }))
+  const { data: allActivities } = await getAllActivities();
   const prizeSplit = selectPrizeSplitFromParams(room.params);
-  const {data: allActivities} = await getAllActivities();
-  return await createGame(allActivities, prizeSplit, players);
-}
+  // RumbleApp expects players = {id, name}
+  const players = room.players.map(player => ({ ...player, id: player.public_address }))
 
-const selectPrizeSplitFromParams = (params: definitions['room_params']): PrizeSplitType => ({
-  altSplit: params.prize_alt_split,
-  creatorSplit: params.prize_creator,
-  firstPlace: params.prize_first,
-  kills: params.prize_kills,
-  secondPlace: params.prize_second,
-  thirdPlace: params.prize_third,
-})
+  // Autoplay the game
+  const finalGameData = await createGame(allActivities, prizeSplit, players);
+
+  // Calculate payout info
+  const payoutInfo = selectPayoutFromGameData(room, finalGameData);
+  // Submit all payouts to db
+  const payoutSubmit = await client.from<definitions['payouts']>('payouts')
+    .insert(payoutInfo);
+  if (payoutSubmit.error) {
+    console.error(payoutSubmit.error);
+  }
+  // Update the rooms
+  const updateRoomSubmit = await client.from<definitions['rooms']>('rooms')
+    .update({ game_started: true, total_prize_purse: finalGameData.gamePayouts.total })
+    .match({ id: room.id })
+  if (updateRoomSubmit.error) {
+    console.error(updateRoomSubmit.error);
+  }
+
+  return finalGameData;
+}

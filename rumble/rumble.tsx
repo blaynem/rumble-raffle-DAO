@@ -34,19 +34,20 @@ const defaultPrizeSplit: PrizeSplitType = {
   creatorSplit: 1,
 }
 
-const defaultGameActivities = {
+const defaultGameActivities: ActivitiesObjType = {
   PVE: [],
   PVP: [],
   REVIVE: []
 };
 
-const initialGamePayouts = {
+const initialGamePayouts: PrizePayouts = {
   altSplit: 0,
   creatorSplit: 0,
   winner: 0,
   secondPlace: 0,
   thirdPlace: 0,
   kills: {},
+  remainder: 0,
   total: 0,
 }
 
@@ -499,12 +500,17 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
       secondPlace: 0,
       thirdPlace: 0,
       kills: {},
+      remainder: 0,
       total: this.prizes.totalPrize,
     };
 
-    // RumbleRaffleDAO cut
+    // Rumble Raffles split
     payouts.creatorSplit = this.prizes.creatorSplit;
     prizeRemainder -= this.prizes.creatorSplit;
+
+    // Alt split
+    payouts.altSplit = this.prizes.altSplit;
+    prizeRemainder -= this.prizes.altSplit;
 
     // First place prize
     payouts.winner = this.prizes.firstPlace
@@ -520,35 +526,14 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
 
     // Loop through all the kills
     Object.keys(this.gameKills).forEach(playerId => {
-      // if winner, add win
-      if (playerId === this.gameWinner?.id) {
-        const killPay = (this.prizes.kills * this.gameKills[playerId])
-        payouts.winner += killPay;
-        prizeRemainder -= killPay;
-        return;
-      }
-      // if 2nd place 
-      if (playerId === this.gameRunnerUps[0]?.id) {
-        const killPay = (this.prizes.kills * this.gameKills[playerId])
-        payouts.secondPlace += killPay;
-        prizeRemainder -= killPay;
-        return;
-      }
-      // if 3rd place
-      if (playerId === this.gameRunnerUps[1]?.id) {
-        const killPay = (this.prizes.kills * this.gameKills[playerId])
-        payouts.thirdPlace += killPay;
-        prizeRemainder -= killPay;
-        return;
-      }
       const killPay = (this.prizes.kills * this.gameKills[playerId])
       // only add them if payout is greater than 0
       killPay > 0 && (payouts.kills[playerId] = killPay)
       prizeRemainder -= killPay;
     })
 
-    // The entire remaining prize goes to the alternate split.
-    payouts.altSplit = prizeRemainder;
+    // The leftover winnings remaining.
+    payouts.remainder = prizeRemainder;
     this.gamePayouts = payouts;
   }
   /**

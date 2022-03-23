@@ -5,13 +5,17 @@ import { useWallet } from '../containers/wallet';
 import { SupabaseUserType } from './api/auth';
 import createRoomSchema from '../lib/schemaValidations/createRoom';
 import ToastMessage, { ToastTypes } from '../components/toast';
-import { GetPolyContractReturnType, getPolygonContractData } from '../lib/PolygonscanFetches';
+import { GetPolyContractReturnType } from './api/contracts';
+
+type ContractType = {
+  // Ex: Polygon
+  network_name: string;
+} & GetPolyContractReturnType;
 
 interface Values {
   alt_split_address: string;
   entry_fee: string;
-  network: string;
-  contract_address: string;
+  contract: ContractType;
   pve_chance: string;
   revive_chance: string;
   prize_split: {
@@ -74,14 +78,25 @@ const customPrizeSplitMessage = (errorMsg: string, touched: FormikTouched<Values
   return message ? <div className='px-4 space-y-6 sm:px-6'>{message}</div> : null;
 }
 
+const customContractErrorMessage = (errorMsg) => {
+
+}
+
 const customErrorColors = (msg: string) => <div className='text-red-600 py-2'>{msg}</div>
 
+/**
+ * TODO:
+ * - LIMIT THIS TO ONLY ADMINS OR PEOPLE WE GIVE POWER TO FOR NOW REEEE
+ * - Any time a contract is changed, we should require them to fetch again. 
+ * - Should auto-fetch contracts on blur instead of requiring them to press a button.
+ */
 const CreatePage = () => {
   const { user } = useWallet()
   // State
   const [toastOpen, setToastOpen] = useState(false);
   const [toast, setToast] = useState(null as ToastTypes);
   const [savedSlugMessage, setSavedSlugMessage] = useState("");
+  // Probably dont need both these details in state and the ones in values.contract
   const [contractDetailsLoading, setContractDetailsLoading] = useState(false);
   const [selectedContract, setSelectedContract] = useState(null as GetPolyContractReturnType);
 
@@ -89,9 +104,21 @@ const CreatePage = () => {
     return <PleaseLoginMessage />
   }
 
-  const fetchContractData = async (contractAddress) => {
+
+  const fetchContractData = async (
+    setValues: (values: React.SetStateAction<Values>) => void,
+    values: Values,
+  ) => {
     setContractDetailsLoading(true)
-    const data = await getPolygonContractData(contractAddress);
+    const { data } = await fetch(`/api/contracts?contract_address=${values.contract.contract_address}&network_name=${values.contract.network_name}`)
+      .then(res => res.json())
+    setValues({
+      ...values,
+      contract: {
+        ...values.contract,
+        ...data,
+      }
+    });
     setSelectedContract(data);
     setContractDetailsLoading(false);
   }
@@ -100,7 +127,6 @@ const CreatePage = () => {
     return await fetch('/api/create', {
       method: 'POST',
       body: JSON.stringify({
-        // ...tempBody
         user,
         ...values
       })
@@ -128,8 +154,13 @@ const CreatePage = () => {
       validationSchema={createRoomSchema}
       initialValues={{
         alt_split_address: '',
-        contract_address: coinContracts.sFNC.contract,
-        network: coinNetworks[0].rpc,
+        contract: {
+          decimals: '',
+          name: '',
+          symbol: '',
+          contract_address: coinContracts.sFNC.contract,
+          network_name: coinNetworks[0].name,
+        },
         pve_chance: '',
         revive_chance: '',
         entry_fee: '',
@@ -171,7 +202,7 @@ const CreatePage = () => {
         });
       }}
     >
-      {({ isSubmitting, touched, values }) => (
+      {({ isSubmitting, touched, values, setValues }) => (
         <Form>
           <div className='max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'>
             <div className="mt-10 sm:mt-0">
@@ -416,12 +447,12 @@ const CreatePage = () => {
                           <Field
                             as="select"
                             id="contract-network"
-                            name="network"
+                            name="contract.network_name"
                             className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           >
                             {coinNetworks.map(net => <option key={net.rpc} value={net.rpc}>{net.name}</option>)}
                           </Field>
-                          <ErrorMessage name="network" >
+                          <ErrorMessage name="contract.network_name" >
                             {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
@@ -432,23 +463,25 @@ const CreatePage = () => {
                           </label>
                           <Field
                             type="text"
-                            name="contract_address"
+                            name="contract.contract_address"
                             id="contract-address"
                             className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                           />
-                          <ErrorMessage name="contract_address" >
+                          <ErrorMessage name="contract.contract_address" >
                             {msg => customErrorColors(msg)}
                           </ErrorMessage>
                         </div>
                         <button
                           type="button"
-                          onClick={() => fetchContractData(values.contract_address)}
+                          onClick={() => fetchContractData(setValues, values)}
                           className="sm:col-span-6 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
                           {contractDetailsLoading ? "Loading..." : "Fetch Contract Data"}
                         </button>
                         {/* ENTRY COST */}
-                        {selectedContract &&
+                        {!selectedContract ?
+                          <div className='sm:col-span-6'>Please click the button above to fetch contract data.</div>
+                          :
                           <>
                             <div className="col-span-2">
                               <label htmlFor="entry-fee" className="block text-sm font-medium text-gray-700">
