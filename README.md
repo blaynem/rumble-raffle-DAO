@@ -23,11 +23,10 @@ Run `yarn start` in another tab to start the app
 ### Flow of creating game
 
 1. Admin goes to create room page
-    - created room will have options needed to fill out
-    - pve chances, revive chance, prize split, cost of entry, coin type, etc
-    - slug will be random for now
+    - ~~created room will have options needed to fill out~~
+    - ~~pve chances, revive chance, prize split, cost of entry, coin type, etc~~
     - Future unlocks:
-      - Select slug to generate
+      - ~~Select slug to generate~~ 
       - Allows params of users that can join (only nft holders, only with certain amount of x coin, etc)
 2. After submission a room will be created in the `/rooms` db table with its params.
     - A link will be generated to send to players
@@ -43,40 +42,56 @@ Run `yarn start` in another tab to start the app
 7. After winner is announced, payments will be disbursed.
 
 
-### What needs to be done?
+# TODO:
 
-- ~~Split apart Rumble / Server / Web~~
-  - ~~Clean up folders of useless info~~
-- Server
-  - ~~Send back the list of possible roomIds to set inside pages/room/[roomId].~~
-  - Add more params to the `rooms` db
-  - Start / Clear game socket
-    - Only allow users with admin permissions
-  - Hosting place?
-  - Saving / Fetching of all the pve / pvp / revive activity objects
-  - Returning only pieces of the activity log every 30s or whatever its set to
-    - Should this be customizeable?
-  - Smart Contracts?
-    - Taking a "buy in" payment
-    - Dispense winning payments
-- Web
-  - Admin view panel on top for starting game, etc
-  - ~~Get the list of possible roomIds to set inside pages/rooms/[roomId].~~
-  - ~~Routing for game ids~~
-  - Only let game creator start game
-    - Eventually automate it? Meh?
-  - UI to "create" a Rumble with customizeable components
-    - Set prize split (RumbleRaffleDAO always takes .5% (maybe less / more?))
-    - Set amt players
-    - Set buyin amount
-  - Once "Join" is clicked, user can not rejoin.
-  - ~~Logging in with wallets~~
-  - Accepting "buy in"
-- Rumble
-  - ~~determine how many loops each round should run through~~
-  - Add param options for entry price, chance of pve, chance of revive, etc
-  - Get more examples for pve / pvp / revive activities
-  - Testing
+## Web
+
+- General:
+  - Determine hosting
+  - Fix the CSS bugs on the conditional rendering
+    - This seems to be tree-shaking from tailwind of some sort
+- Players:
+  - Allow players to change their names.
+- Rooms:
+  - Fix admin view panel
+  - Request payment before joining a room.
+  - When refreshing the page, users should see the full list of activities that have already happened.
+- Home Page:
+  - Add list of rooms that have are open
+  - If the user has `admin` rights, show them the `create` room button
+  - Add list of past rooms and payouts
+
+## Server
+
+- General:
+  - Determine hosting
+  - Better error handling
+- Rooms:
+  - Set limit of like 200 players for now?
+    - Limit test amount of players
+  - "Clear Game" should remove all the players from the payouts / set the room `game_started` back to false
+    - Only allow game owner to do this
+- Users:
+  - Give admin permissions so only specific address can create rooms at this time.
+  - Allow users to alter their names.
+- Players (users who have joined agame):
+  - Listen for address activity and only convert a `user` -> `player` when a payment tx goes through
+- Sockets:
+  - Send the activitiy logs back in a better way than just a big block of bleh
+
+## Rumble Package
+
+- General:
+  - TESTING. We have zero tests. Not great!
+- replaceActivityDescPlaceholders
+  - Right now it only shows the player names. We need to be able to hover a players name and show their publicAddress.
+
+## Smart Contracts
+
+- All the things
+- Accepting Payments
+- Dispensing payouts
+
 
 ### Known bugs
 
