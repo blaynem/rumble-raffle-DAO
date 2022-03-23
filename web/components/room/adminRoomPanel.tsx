@@ -18,6 +18,7 @@ const AdminRoomPanel = ({ socket, roomSlug }) => {
 
   const clearGame = () => {
     socket.emit("clear_game", { playerData: user, roomSlug })
+    setGameStarted(false);
   }
   return (
     <div className="p-4 border-2 border-slate-100 w-full text-gray-900">

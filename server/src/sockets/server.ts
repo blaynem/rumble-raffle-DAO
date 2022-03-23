@@ -33,6 +33,7 @@ export const initRoom = (sio: Server, socket: Socket) => {
  */
 function joinRoom(roomSlug: string) {
   const room = availableRoomsData[roomSlug];
+  console.log('---room', room, this.id);
   if (!room) {
     return;
   }
@@ -40,6 +41,10 @@ function joinRoom(roomSlug: string) {
   console.log(`User with ID: ${this.id} joined room: ${roomSlug}`);
   const playersAndPrizeSplit = getPlayersAndPrizeSplit(roomSlug);
   io.to(this.id).emit("update_player_list", playersAndPrizeSplit);
+  if (room.game_started) {
+    // TODO: Limit this to whatever current logs are being shown.
+    io.to(this.id).emit("update_activity_log", room.gameData.activityLogs);
+  }
 }
 
 /**
@@ -86,9 +91,16 @@ async function startGame(data: { playerData: definitions["users"]; roomSlug: str
 // TODO: REMOVE THIS. SHOULD NOT BE ABLE TO CLEAR GAME DATA.
 // ONLY USED FOR TESTING.
 async function clearGame(data: { playerData: definitions["users"]; roomSlug: string }) {
-  console.log('--clear game', data);
   const room = availableRoomsData[data.roomSlug];
-  room.gameData = undefined;
+  if (data.playerData.public_address !== room.created_by) {
+    console.warn(`${data.playerData.public_address} tried to clear a game they are not the owner of.`);
+    return;
+  }
+  const payoutsRes = await client.from<definitions["payouts"]>('payouts').delete().match({ room_id: room.id });
+  const roomsRes = await client.from<definitions["rooms"]>('rooms').update({ game_started: false }).match({ id: room.id });
+  room.gameData = null;
+  room.game_started = false;
+  console.log('---cleared', { errors: [payoutsRes.error, roomsRes.error] });
   io.in(data.roomSlug).emit("update_activity_log", [])
 }
 
@@ -176,6 +188,8 @@ const startRumble = async (roomSlug: string): Promise<GameEndType> => {
   if (updateRoomSubmit.error) {
     console.error(updateRoomSubmit.error);
   }
+  // Set the game started to true.
+  room.game_started = true;
 
   return finalGameData;
 }

@@ -93,16 +93,11 @@ Run `yarn start` in another tab to start the app
 - Dispensing payouts
 
 
-### Known bugs
+# Known bugs
 
-- Web
-  - Logging in on `room/:id` page doesn't update what your user name is
-- Rumble
-  - Probably need to change activity log `content` to pass through id / walletId instead of just the names.
-- DB
-  - Change player id to be publicAddress rather than the id.
+- There are some.. just haven't found them yet.
 
-### Extra Ideas
+# Extra Ideas
 
 - END OF WEEK TOURNEY
   - At the end of the week, all the remainder money goes into a prize pool. Anyone who has played this week will be automatically entered into this massive raffle and then paid out how we determine. (This sounds like it's easily manipulated though by entering different raffles or something. Still good for hype.)
