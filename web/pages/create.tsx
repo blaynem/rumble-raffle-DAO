@@ -5,7 +5,7 @@ import { useWallet } from '../containers/wallet';
 import { SupabaseUserType } from './api/auth';
 import createRoomSchema from '../lib/schemaValidations/createRoom';
 import ToastMessage, { ToastTypes } from '../components/toast';
-import { GetPolyContractReturnType, getPolygonContractData } from '../lib/PolygonscanFetches';
+import { GetPolyContractReturnType } from './api/contracts';
 
 type ContractType = {
   // Ex: Polygon
