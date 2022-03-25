@@ -1,7 +1,20 @@
 import { definitions } from "./supabase";
 
+// All players and prize split
+export type PlayerAndPrizeSplitType = {
+  allPlayers: PickFromPlayers[];
+  prizeSplit: PrizeSplitType
+}
+
+// Used to hold all the available rooms inside the server
+export type AllAvailableRoomsType = {
+  [slug: string]: RoomDataType;
+}
+
+// Payouts type omitting the id
 export type PayoutsOmitId = Omit<definitions["payouts"], 'id'>;
 
+// Used for creating payouts
 export type PayoutTemplateType = {
   // Room data
   room: RoomDataType;
@@ -20,6 +33,7 @@ export type PayoutTemplateType = {
  */
 export type PickFromPlayers = Pick<definitions["users"], "public_address" | "name">
 
+// Used for creating rooms
 export type RoomDataType = {
   // Who the room was created by
   created_by: definitions['rooms']['created_by']
@@ -39,16 +53,15 @@ export type RoomDataType = {
   slug: string;
 }
 
-export type AllAvailableRoomsType = {
-  [slug: string]: RoomDataType;
-}
-
+// Only get the public_address and name field from users db
 export type PickFromUsers = Pick<definitions['users'], 'public_address' | 'name'>;
 
+// Used for a single round within a game
 export type RoundsType = {
   activity: definitions['activities']
 } & definitions['game_round_logs']
 
+// Type used to initialize the server with any / all rooms available.
 export type OmegaRoomInterface = {
   players: PickFromUsers[];
   params: definitions['room_params'];
@@ -56,7 +69,7 @@ export type OmegaRoomInterface = {
   game_activities: RoundsType[];
 } & Pick<definitions['rooms'], 'id' | 'slug' | 'game_started' | 'created_by' | 'winners'>
 
-
+// All of the game_round_logs types, omitting the id
 export type GameRoundLogsOmitId = Omit<definitions['game_round_logs'], 'id'>
 
 // The entire games log.

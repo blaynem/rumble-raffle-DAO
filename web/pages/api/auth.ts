@@ -3,7 +3,7 @@ import { bufferToHex } from 'ethereumjs-util'
 import { withSessionRoute } from '../../lib/with-session'
 import { NONCE_MESSAGE } from '../../lib/constants'
 import supabase from '../../client';
-import {SupabaseUserType} from '@rumble-raffle-dao/types/web';
+import {SupabaseUserType} from '@rumble-raffle-dao/types';
 
 async function auth(req, res) {
   const { signature, public_address } = req.body

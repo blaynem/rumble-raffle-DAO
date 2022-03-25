@@ -1,5 +1,4 @@
-export const ALCHEMY_BASE_URL_POLYGON = 'https://polygon-mainnet.g.alchemy.com/v2';
-export const NETWORK_NAME_POLYGON = 'polygon';
+import { definitions } from "./supabase";
 
 export type PolygonscanResponseType = {
   status: string;
@@ -13,12 +12,6 @@ export type FetchContractReturnType = {
   result: any;
   contractABI: any;
   error?: any;
-}
-
-export type ServerSidePropsType = {
-  activeRoom: boolean;
-  roomCreator: string;
-  roomSlug: string;
 }
 
 /**
@@ -47,7 +40,8 @@ export type ContractType = {
   network_name: string;
 } & GetPolyContractReturnType;
 
-export interface Values {
+// Used for creating rooms
+export interface CreateRoomValues {
   alt_split_address: string;
   entry_fee: string;
   contract: ContractType;
@@ -65,8 +59,5 @@ export interface Values {
   slug: string,
 }
 
-export type SupabaseUserType = {
-  public_address: string;
-  nonce: string;
-  name: string;
-}
+// Used to pick the name, nonce, and public_address
+export type SupabaseUserType = Pick<definitions['users'], 'name' | 'nonce' | 'public_address'>

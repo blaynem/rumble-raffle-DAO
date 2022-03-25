@@ -1,4 +1,3 @@
-import { PrizeSplitType } from "@rumble-raffle-dao/rumble";
 import { PostgrestError } from "@supabase/supabase-js";
 import { Server, Socket } from "socket.io";
 import client from '../client';
@@ -7,8 +6,8 @@ import availableRoomsData from '../helpers/roomRumbleData';
 import { getAllActivities } from "../routes/api/activities";
 import { selectPayoutFromGameData, selectPrizeSplitFromParams } from '../helpers/payoutHelpers';
 import { parseActivityLogForClient, parseActivityLogForDbPut } from "../helpers/parseActivityLogs";
-import {PickFromPlayers, EntireGameLog} from '@rumble-raffle-dao/types/server'
-import {definitions} from '@rumble-raffle-dao/types/supabase'
+import {definitions, EntireGameLog, PlayerAndPrizeSplitType} from '@rumble-raffle-dao/types'
+import { CLEAR_GAME, JOIN_GAME, JOIN_ROOM, START_GAME, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 
 let io: Server;
 let roomSocket: Socket;
@@ -20,11 +19,11 @@ export const initRoom = (sio: Server, socket: Socket) => {
   console.log(`User Connected: ${roomSocket.id}`);
 
   // join_room only enters a socket room. It doesn't enter the user into a game.
-  roomSocket.on("join_room", joinRoom);
+  roomSocket.on(JOIN_ROOM, joinRoom);
   // join_game will enter a player into a game.
-  roomSocket.on("join_game", joinGame);
-  roomSocket.on("start_game", startGame)
-  roomSocket.on("clear_game", clearGame)
+  roomSocket.on(JOIN_GAME, joinGame);
+  roomSocket.on(START_GAME, startGame)
+  roomSocket.on(CLEAR_GAME, clearGame)
 }
 
 /**
@@ -41,10 +40,10 @@ function joinRoom(roomSlug: string) {
   this.join(roomSlug);
   console.log(`User with ID: ${this.id} joined room: ${roomSlug}`);
   const playersAndPrizeSplit = getPlayersAndPrizeSplit(roomSlug);
-  io.to(this.id).emit("update_player_list", playersAndPrizeSplit);
+  io.to(this.id).emit(UPDATE_PLAYER_LIST, playersAndPrizeSplit);
   if (room.game_started) {
     // TODO: Limit this to whatever current logs are being shown.
-    io.to(this.id).emit("update_activity_log", room.gameData);
+    io.to(this.id).emit(UPDATE_ACTIVITY_LOG, room.gameData);
   }
 }
 
@@ -59,7 +58,7 @@ async function joinGame(data: { playerData: definitions["users"]; roomSlug: stri
     return;
   }
   const playersAndPrizeSplit = getPlayersAndPrizeSplit(data.roomSlug);
-  io.in(data.roomSlug).emit("update_player_list", playersAndPrizeSplit);
+  io.in(data.roomSlug).emit(UPDATE_PLAYER_LIST, playersAndPrizeSplit);
 }
 
 /**
@@ -84,7 +83,7 @@ async function startGame(data: { playerData: definitions["users"]; roomSlug: str
   }
   const gameData = await startRumble(data.roomSlug);
   room.gameData = gameData;
-  io.in(data.roomSlug).emit("update_activity_log", gameData)
+  io.in(data.roomSlug).emit(UPDATE_ACTIVITY_LOG, gameData)
   // TODO: Only release one part of the activity log at a time over time.
   // TODO: Display all players who earned a prize on a screen somewhere.
 }
@@ -103,7 +102,7 @@ async function clearGame(data: { playerData: definitions["users"]; roomSlug: str
   room.gameData = null;
   room.game_started = false;
   console.log('---cleared', { errors: [payoutsRes.error, roomsRes.error, gameRoundLogsRes.error] });
-  io.in(data.roomSlug).emit("update_activity_log", [])
+  io.in(data.roomSlug).emit(UPDATE_ACTIVITY_LOG, [])
 }
 
 /**
@@ -136,7 +135,7 @@ const addPlayer = async (
   return { data }
 }
 
-const getPlayersAndPrizeSplit = (roomSlug: string): { allPlayers: PickFromPlayers[]; prizeSplit: PrizeSplitType } => {
+const getPlayersAndPrizeSplit = (roomSlug: string): PlayerAndPrizeSplitType => {
   const room = availableRoomsData[roomSlug];
   if (!room) {
     console.log('---getPlayersAndPrizeSplit--ERROR', roomSlug);

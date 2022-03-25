@@ -1,4 +1,4 @@
-import { AllAvailableRoomsType } from "@rumble-raffle-dao/types/server";
+import { AllAvailableRoomsType } from "@rumble-raffle-dao/types";
 
 const availableRoomsData: AllAvailableRoomsType = {};
 

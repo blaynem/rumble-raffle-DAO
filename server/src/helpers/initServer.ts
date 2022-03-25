@@ -1,6 +1,6 @@
 import availableRoomsData from "./roomRumbleData";
 import client from "../client";
-import {PickFromUsers, RoomDataType, RoundsType, OmegaRoomInterface, EntireGameLog, RoundActivityLog, SingleActivity} from '@rumble-raffle-dao/types/server';
+import {PickFromUsers, RoomDataType, RoundsType, OmegaRoomInterface, EntireGameLog, RoundActivityLog, SingleActivity} from '@rumble-raffle-dao/types';
 
 export const addNewRoomToMemory = (room: RoomDataType) => {
   const slug = room.slug;

@@ -1,5 +1,5 @@
 import { ActivitiesObjType, ActivityTypes } from '@rumble-raffle-dao/rumble';
-import { definitions } from '@rumble-raffle-dao/types/supabase';
+import { definitions } from '@rumble-raffle-dao/types';
 import express from 'express';
 import client from '../../client';
 

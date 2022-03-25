@@ -1,8 +1,6 @@
 import Web3 from 'web3'
-import {
-  GetPolyContractReturnType, FetchContractReturnType, PolygonscanResponseType,
-  ALCHEMY_BASE_URL_POLYGON, NETWORK_NAME_POLYGON
-} from '@rumble-raffle-dao/types/web'
+import { GetPolyContractReturnType, FetchContractReturnType, PolygonscanResponseType } from '@rumble-raffle-dao/types'
+import { ALCHEMY_BASE_URL_POLYGON, NETWORK_NAME_POLYGON } from '@rumble-raffle-dao/types/constants';
 
 
 /**

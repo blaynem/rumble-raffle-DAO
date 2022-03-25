@@ -1,7 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { definitions } from '@rumble-raffle-dao/types/supabase';
-import { RoomDataType } from '@rumble-raffle-dao/types/server';
+import { definitions, RoomDataType } from '@rumble-raffle-dao/types';
 import client from '../../client';
 import { addNewRoomToMemory } from '../../helpers/initServer';
 

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
 import { PrizeValuesType } from "@rumble-raffle-dao/rumble";
-import { ServerSidePropsType } from "@rumble-raffle-dao/types/web";
+import { EntireGameLog, PlayerAndPrizeSplitType } from "@rumble-raffle-dao/types";
+import { JOIN_GAME, JOIN_ROOM, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/room/adminRoomPanel";
 import DisplayPrizes from "../../components/room/prizes";
@@ -13,6 +14,12 @@ const socket = io('http://localhost:3001').connect()
 
 const buttonClass = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
 const buttonDisabled = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md focus:outline-none focus:ring-0 transition duration-150 ease-in-out pointer-events-none opacity-60"
+
+export type ServerSidePropsType = {
+  activeRoom: boolean;
+  roomCreator: string;
+  roomSlug: string;
+}
 
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }): Promise<{ props: ServerSidePropsType }> => {
   const { data } = await fetch(`http://localhost:3000/api/rooms/${query.roomSlug}`).then(res => res.json())
@@ -34,14 +41,14 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   if (!activeRoom) {
     return <>Please check room number.</>
   }
-  const [entrants, setEntrants] = useState([] as { public_address: 'string'; name: 'string' }[]);
+  const [entrants, setEntrants] = useState([] as PlayerAndPrizeSplitType['allPlayers']);
   const [prizes, setPrizes] = useState({} as PrizeValuesType);
-  const [activityLog, setActivityLog] = useState([] as any);
+  const [activityLog, setActivityLog] = useState({} as EntireGameLog);
 
   console.log('------reee', { entrants, prizes, activityLog });
 
   useEffect(() => {
-    socket.on("update_activity_log", (activityLog: any) => {
+    socket.on(UPDATE_ACTIVITY_LOG, (activityLog: EntireGameLog) => {
       console.log('---emited?', activityLog);
       setActivityLog(activityLog);
     })
@@ -49,11 +56,11 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
 
   useEffect(() => {
     /**
-     * update_player_list called:
+     * UPDATE_PLAYER_LIST called:
      * - On initial join of room
      * - Any time a "user"" is converted to a "player"
      */
-    socket.on("update_player_list", (data: { allPlayers: { public_address: 'string'; name: 'string' }[]; prizeSplit: PrizeValuesType }) => {
+    socket.on(UPDATE_PLAYER_LIST, (data: PlayerAndPrizeSplitType) => {
       console.log('---data', data);
       data.allPlayers !== null && setEntrants([...data.allPlayers])
       data.prizeSplit !== null && setPrizes(data.prizeSplit)
@@ -62,7 +69,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
 
   useEffect(() => {
     // Join a room
-    socket.emit("join_room", roomSlug);
+    socket.emit(JOIN_ROOM, roomSlug);
     // Return function here is used to cleanup the sockets
     return function cleanup() {
       // clean up sockets
@@ -73,7 +80,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   const onJoinClick = () => {
     console.log(user);
     if (user) {
-      socket.emit("join_game", { playerData: user, roomSlug });
+      socket.emit(JOIN_GAME, { playerData: user, roomSlug });
       // todo: remove join game click
     }
   }

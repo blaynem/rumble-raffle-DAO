@@ -1,6 +1,7 @@
 import React from 'react';
+import { RoundActivityLog, SingleActivity } from "@rumble-raffle-dao/types";
 
-const replaceActivityDescPlaceholders = (activity: any): string => {
+const replaceActivityDescPlaceholders = (activity: SingleActivity): string => {
   const matchPlayerNumber = /(PLAYER_\d+)/ // matches PLAYER_0, PLAYER_12, etc
   const parts = activity.description.split(matchPlayerNumber);
 
@@ -15,7 +16,7 @@ const replaceActivityDescPlaceholders = (activity: any): string => {
   return replaceNames
 }
 
-const DisplayActivityLog = (logs: any) => {
+const DisplayActivityLog = (logs: RoundActivityLog) => {
   return (
     <div>
       <h3>Round {logs.round_counter + 1}</h3>

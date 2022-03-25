@@ -1,6 +1,6 @@
 import React from 'react';
 import { XIcon, CheckCircleIcon, ExclamationIcon, XCircleIcon, InformationCircleIcon } from '@heroicons/react/outline'
-import {ToastTypes} from '@rumble-raffle-dao/types/web';
+import {ToastTypes} from '@rumble-raffle-dao/types';
 
 /**
  * NOTE: TailwindCSS will tree shake any of these background classes that are not explicitly set

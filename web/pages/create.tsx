@@ -4,7 +4,7 @@ import { Formik, Field, Form, FormikHelpers, ErrorMessage, FormikTouched } from 
 import { useWallet } from '../containers/wallet';
 import createRoomSchema from '../lib/schemaValidations/createRoom';
 import ToastMessage from '../components/toast';
-import { GetPolyContractReturnType, Values, ToastTypes } from '@rumble-raffle-dao/types/web';
+import { GetPolyContractReturnType, CreateRoomValues, ToastTypes } from '@rumble-raffle-dao/types';
 
 const coinNetworks = [
   {
@@ -38,7 +38,7 @@ async function checkSlugAvailable(slug: string) {
   return data;
 }
 
-const customPrizeSplitMessage = (errorMsg: string, touched: FormikTouched<Values>) => {
+const customPrizeSplitMessage = (errorMsg: string, touched: FormikTouched<CreateRoomValues>) => {
   let message = null;
   const {
     prize_alt_split,
@@ -82,8 +82,8 @@ const CreatePage = () => {
 
 
   const fetchContractData = async (
-    setValues: (values: React.SetStateAction<Values>) => void,
-    values: Values,
+    setValues: (values: React.SetStateAction<CreateRoomValues>) => void,
+    values: CreateRoomValues,
   ) => {
     setContractDetailsLoading(true)
     const { data } = await fetch(`/api/contracts?contract_address=${values.contract.contract_address}&network_name=${values.contract.network_name}`)
@@ -99,7 +99,7 @@ const CreatePage = () => {
     setContractDetailsLoading(false);
   }
 
-  const handleSubmit = async (values: Values) => {
+  const handleSubmit = async (values: CreateRoomValues) => {
     return await fetch('/api/create', {
       method: 'POST',
       body: JSON.stringify({
@@ -120,7 +120,7 @@ const CreatePage = () => {
   }
 
   const onSuccessSlugUrlMessage = (slug: string) => <Link href={`/room/${slug}`}><a className="inline-flex items-center">{`http://localhost:3000/room/${slug}`}</a></Link>
-  const showAltSplitAddress = (values: Values) => {
+  const showAltSplitAddress = (values: CreateRoomValues) => {
     const { prize_alt_split } = values.prize_split;
     return prize_alt_split !== '' && parseInt(prize_alt_split) > 0;
   }
@@ -152,8 +152,8 @@ const CreatePage = () => {
         user,
       }}
       onSubmit={(
-        values: Values,
-        { setSubmitting, setFieldError, resetForm }: FormikHelpers<Values>
+        values: CreateRoomValues,
+        { setSubmitting, setFieldError, resetForm }: FormikHelpers<CreateRoomValues>
       ) => {
         setSubmitting(true);
         setSavedSlugMessage(undefined);

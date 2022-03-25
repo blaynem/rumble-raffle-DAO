@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { definitions } from '@rumble-raffle-dao/types/supabase';
+import { definitions } from '@rumble-raffle-dao/types';
 import client from '../../client';
 
 const router = express.Router();

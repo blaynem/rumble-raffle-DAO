@@ -1,5 +1,5 @@
 import { GameEndType } from "@rumble-raffle-dao/rumble";
-import {GameRoundLogsOmitId, EntireGameLog, SingleActivity, RoundActivityLog, PickFromPlayers, RoomDataType} from '@rumble-raffle-dao/types/server';
+import {GameRoundLogsOmitId, EntireGameLog, SingleActivity, RoundActivityLog, PickFromPlayers, RoomDataType} from '@rumble-raffle-dao/types';
 
 /**
  * Parse the activity log that comes back from the Rumble game to a more readable view for the client.

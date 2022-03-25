@@ -1,3 +1,4 @@
+import { CLEAR_GAME, START_GAME } from "@rumble-raffle-dao/types/constants";
 import React, { useState } from "react";
 import { useWallet } from '../../containers/wallet'
 
@@ -12,12 +13,12 @@ const AdminRoomPanel = ({ socket, roomSlug }) => {
     if (gameStarted) {
       return;
     }
-    socket.emit("start_game", { playerData: user, roomSlug })
+    socket.emit(START_GAME, { playerData: user, roomSlug })
     setGameStarted(true);
   }
 
   const clearGame = () => {
-    socket.emit("clear_game", { playerData: user, roomSlug })
+    socket.emit(CLEAR_GAME, { playerData: user, roomSlug })
     setGameStarted(false);
   }
   return (
