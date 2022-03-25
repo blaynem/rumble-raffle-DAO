@@ -60,4 +60,4 @@ export interface CreateRoomValues {
 }
 
 // Used to pick the name, nonce, and public_address
-export type SupabaseUserType = Pick<definitions['users'], 'name' | 'nonce' | 'public_address'>
+export type SupabaseUserType = Pick<definitions['users'], 'name' | 'nonce' | 'public_address' | 'is_admin'>

@@ -12,9 +12,13 @@ async function auth(req, res) {
   }
 
   // get user from the database where public_address
-  const {error, data} = await supabase.from<SupabaseUserType>('users').select(`public_address, nonce, name`).eq('public_address', public_address)
+  const {error, data} = await supabase.from<SupabaseUserType>('users').select(`public_address, nonce, name, is_admin`).eq('public_address', public_address)
   // supabase returns array
   const user = data[0];
+  if (!user.is_admin) {
+    // We don't want to show this in cookies if user isn't an admin.
+    delete user.is_admin;
+  }
 
   if (!user) {
     res.status(404).json({ error: 'Not found' })

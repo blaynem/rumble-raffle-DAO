@@ -12,7 +12,6 @@ export const getCookie = ({ public_address, signature }) =>
   }).then(response => response.json())
 
 export const handleSignMessage = async ({ public_address, nonce }) => {
-  console.log('--lib/wallet.js--public addy sign message biatch', public_address, nonce)
   try {
     const signature = await web3.eth.personal.sign(
       `${NONCE_MESSAGE}${nonce}`,

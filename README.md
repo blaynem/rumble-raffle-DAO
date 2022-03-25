@@ -51,7 +51,14 @@ Run `yarn dev` in another tab to start the app
 - Players:
   - Allow players to change their names.
 - Create Room:
-  -  Allows params of users that can join (only nft holders, only with certain amount of x coin, etc)
+  - Allow setting of player limits
+  - Allow setting entry fee to 0.
+  - Allow setting an initial prize purse.
+  - Allow params of user that can join:
+    - Whitelist addresses
+    - Only x NFT holder
+    - Only with x amount of coin
+    - Etc
 - Rooms:
   - ~~Should show the users public address on hover of their name.~~
     - Should style this better
@@ -69,8 +76,15 @@ Run `yarn dev` in another tab to start the app
   - Determine hosting
   - Better error handling
 - Create Room:
-  - Allows params of users that can join (only nft holders, only with certain amount of x coin, etc)
-  - Only admins should be able to create a room.
+  - Allow setting of player limits
+  - Allow setting entry fee to 0.
+  - Allow setting an initial prize purse.
+  - Allow params of user that can join:
+    - Whitelist addresses
+    - Only x NFT holder
+    - Only with x amount of coin
+    - Etc
+  - ~~Only admins should be able to create a room.~~
 - Rooms:
   - On server start we should get all the data for activity logs, etc so they aren't lost.
     - Should parse the necessary details instead of passing the entire object down.
@@ -79,12 +93,14 @@ Run `yarn dev` in another tab to start the app
   - "Clear Game" should remove all the players from the payouts / set the room `game_started` back to false
     - Only allow game owner to do this
 - Users:
-  - Give admin permissions so only specific address can create rooms at this time.
+  - ~~Give admin permissions so only specific address can create rooms at this time.~~
   - Allow users to alter their names.
 - Players (users who have joined agame):
   - Listen for address activity and only convert a `user` -> `player` when a payment tx goes through
 - Sockets:
   - Sockets data needs to be encoded from server side somehow
+- Testing:
+  - Add function to seed db with 100+ users to simulate game playing
 
 ## Rumble Package
 

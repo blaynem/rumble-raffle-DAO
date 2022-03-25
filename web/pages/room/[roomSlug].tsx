@@ -45,7 +45,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   const [prizes, setPrizes] = useState({} as PrizeSplitType);
   const [activityLog, setActivityLog] = useState({} as EntireGameLog);
 
-  console.log('------reee', { entrants, prizes, activityLog });
+  console.log('------reee', { entrants, prizes, activityLog, user });
 
   useEffect(() => {
     socket.on(UPDATE_ACTIVITY_LOG, (activityLog: EntireGameLog) => {

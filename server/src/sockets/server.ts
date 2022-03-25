@@ -71,6 +71,12 @@ async function joinGame(data: { playerData: definitions["users"]; roomSlug: stri
  */
 async function startGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   const room = availableRoomsData[data.roomSlug];
+  // Check if they're an admin.
+  const { data: userData, error: userError } = await client.from<definitions['users']>('users').select('is_admin').eq('public_address', data.playerData?.public_address)
+  // If they aren't an admin, we do nothing.
+  if (!userData[0].is_admin) {
+    return;
+  }
   // Only let the room owner start the game.
   if (data.playerData?.public_address !== room.created_by) {
     console.warn(`${data.playerData?.public_address} tried to start a game they are not the owner of.`);
@@ -92,6 +98,12 @@ async function startGame(data: { playerData: definitions["users"]; roomSlug: str
 // ONLY USED FOR TESTING.
 async function clearGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   const room = availableRoomsData[data.roomSlug];
+  // Check if they're an admin.
+  const { data: userData, error: userError } = await client.from<definitions['users']>('users').select('is_admin').eq('public_address', data.playerData?.public_address)
+  // If they aren't an admin, we do nothing.
+  if (!userData[0].is_admin) {
+    return;
+  }
   if (data.playerData?.public_address !== room.created_by) {
     console.warn(`${data.playerData?.public_address} tried to clear a game they are not the owner of.`);
     return;

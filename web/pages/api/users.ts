@@ -1,8 +1,8 @@
 import crypto from 'crypto'
 import { faker } from "@faker-js/faker";
+import { SupabaseUserType } from '@rumble-raffle-dao/types';
 
 import supabase from '../../client';
-import { SupabaseUserType } from './auth';
 // idk fun to have a fake name instead of not.
 const fancyName = `${faker.name.jobType().toUpperCase()}-${faker.animal.type().toUpperCase()}-${faker.datatype.number(100)}`
 
