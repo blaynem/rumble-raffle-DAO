@@ -4,7 +4,7 @@ import { PrizeSplitType, PrizeValuesType } from "@rumble-raffle-dao/rumble";
 import { EntireGameLog, PlayerAndPrizeSplitType } from "@rumble-raffle-dao/types";
 import { JOIN_GAME, JOIN_ROOM, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io from "socket.io-client";
-import AdminRoomPanel from "../../components/room/adminRoomPanel";
+import AdminRoomPanel from "../../components/adminRoomPanel";
 import DisplayPrizes from "../../components/room/prizes";
 import DisplayActivityLog from "../../components/room/activityLog";
 import DisplayEntrant from "../../components/room/entrants";
@@ -68,6 +68,10 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   })
 
   useEffect(() => {
+    socket.on('disconnect', (s) => {
+      // Attempts to reconnect.
+      socket.emit(JOIN_ROOM, roomSlug);
+    })
     // Join a room
     socket.emit(JOIN_ROOM, roomSlug);
     // Return function here is used to cleanup the sockets
@@ -89,8 +93,10 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
 
   return (
     <div>
-      <AdminRoomPanel {...{ socket, roomSlug }} />
-      {/* {roomCreator === user?.public_address && <AdminRoomPanel {...{ socket, roomSlug }} />} */}
+      <div> 
+        {/* If we don't wrap this, all of the styles break for some reason. I don't even. */}
+        {roomCreator === user?.public_address && <AdminRoomPanel {...{ socket, roomSlug }} />}
+      </div>
       <h2 className="p-2 text-center">Player: <span className="font-bold">{user?.name}</span></h2>
       <div className="flex items-center justify-center p-2">
         <button className={alreadyJoined ? buttonDisabled : buttonClass} onClick={onJoinClick}>Join Game</button>
@@ -107,8 +113,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
       <div>
         <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Activity Log</h3>
         <div className="flex flex-col items-center">
-        {/* {activityLog.rounds?.map(entry => <div>{JSON.stringify(entry)}</div>)} */}
-          {activityLog.rounds?.map(entry => <DisplayActivityLog {...entry} />)}
+          {activityLog.rounds?.map(entry => <DisplayActivityLog key={entry.round_counter} {...entry} />)}
           {activityLog.winners && <div>
             <h3>Winner!!</h3>
             <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">

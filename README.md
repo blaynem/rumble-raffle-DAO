@@ -48,21 +48,20 @@ Run `yarn dev` in another tab to start the app
 
 - General:
   - Determine hosting
-  - Fix the CSS bugs on the conditional rendering
-    - This seems to be tree-shaking from tailwind of some sort
 - Players:
   - Allow players to change their names.
 - Create Room:
   -  Allows params of users that can join (only nft holders, only with certain amount of x coin, etc)
 - Rooms:
-  - If server is refreshed, users aren't logged into the same socket-room they were before, so they aren't getting updated data.
-  - Fix admin view panel
-  - Request payment before joining a room.
-  - When refreshing the page, users should see the full list of activities that have already happened.
+  - ~~Should show the users public address on hover of their name.~~
+    - Should style this better
+  - Request payment before joining a game.
 - Home Page:
   - Add list of rooms that have are open
   - If the user has `admin` rights, show them the `create` room button
   - Add list of past rooms and payouts
+- Sockets:
+  - Socket data should be encoded from client side somehow
 
 ## Server
 
@@ -71,6 +70,7 @@ Run `yarn dev` in another tab to start the app
   - Better error handling
 - Create Room:
   - Allows params of users that can join (only nft holders, only with certain amount of x coin, etc)
+  - Only admins should be able to create a room.
 - Rooms:
   - On server start we should get all the data for activity logs, etc so they aren't lost.
     - Should parse the necessary details instead of passing the entire object down.
@@ -84,7 +84,7 @@ Run `yarn dev` in another tab to start the app
 - Players (users who have joined agame):
   - Listen for address activity and only convert a `user` -> `player` when a payment tx goes through
 - Sockets:
-  - Send the activitiy logs back in a better way than just a big block of bleh
+  - Sockets data needs to be encoded from server side somehow
 
 ## Rumble Package
 

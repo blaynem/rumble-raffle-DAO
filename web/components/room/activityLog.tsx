@@ -1,7 +1,36 @@
 import React from 'react';
+import { usePopperTooltip } from 'react-popper-tooltip';
+import 'react-popper-tooltip/dist/styles.css';
 import { RoundActivityLog, SingleActivity } from "@rumble-raffle-dao/types";
 
-const replaceActivityDescPlaceholders = (activity: SingleActivity): string => {
+const Descriptions = ({name, public_address}) => {
+  const {
+    getArrowProps,
+    getTooltipProps,
+    setTooltipRef,
+    setTriggerRef,
+    visible,
+  } = usePopperTooltip();
+
+  return (
+    <>
+      <span ref={setTriggerRef}>
+        {name}
+      </span>
+      {visible && (
+        <div
+          ref={setTooltipRef}
+          {...getTooltipProps({ className: 'tooltip-container' })}
+        >
+          {public_address}
+          <div {...getArrowProps({ className: 'tooltip-arrow' })} />
+        </div>
+      )}
+    </>
+  );
+}
+
+const replaceActivityDescPlaceholders = (activity: SingleActivity): (string | JSX.Element)[] => {
   const matchPlayerNumber = /(PLAYER_\d+)/ // matches PLAYER_0, PLAYER_12, etc
   const parts = activity.description.split(matchPlayerNumber);
 
@@ -9,10 +38,11 @@ const replaceActivityDescPlaceholders = (activity: SingleActivity): string => {
     if (part.match(matchPlayerNumber)) {
       const index = Number(part.replace('PLAYER_', ''))
       // Gets the name of the player.
-      return activity.participants[index].name;
+      const player = activity.participants[index]
+      return <Descriptions name={player.name} public_address={player.public_address} />
     }
     return part;
-  }).join('')
+  })
   return replaceNames
 }
 
