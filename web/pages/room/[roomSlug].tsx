@@ -103,7 +103,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
         <button className={alreadyJoined ? buttonDisabled : buttonClass} onClick={onJoinClick}>Join Game</button>
       </div>
       <div className="flex justify-around">
-        <DisplayPrizes {...prizes} entryFee={roomInfo.params.entry_fee} entryToken={roomInfo.contract.symbol} totalEntrants={entrants.length} />
+        <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
         <div>
           <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Entrants</h3>
           <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900 min-w-[440px] max-h-80 overflow-auto">
