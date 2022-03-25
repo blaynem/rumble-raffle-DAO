@@ -41,14 +41,18 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   }
   const [entrants, setEntrants] = useState([] as { public_address: 'string'; name: 'string' }[]);
   const [prizes, setPrizes] = useState({} as PrizeValuesType);
-  const [activityLog, setActivityLog] = useState([] as GameActivityLogsType);
+  const [activityLog, setActivityLog] = useState([] as any);
 
-  console.log({ entrants, prizes, activityLog });
+  console.log('------reee', { entrants, prizes, activityLog });
 
   useEffect(() => {
-    // Join a room
-    socket.emit("join_room", roomSlug);
+    socket.on("update_activity_log", (activityLog: any) => {
+      console.log('---emited?', activityLog);
+      setActivityLog(activityLog);
+    })
+  }, [activityLog])
 
+  useEffect(() => {
     /**
      * update_player_list called:
      * - On initial join of room
@@ -59,14 +63,15 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
       data.allPlayers !== null && setEntrants([...data.allPlayers])
       data.prizeSplit !== null && setPrizes(data.prizeSplit)
     });
+  })
 
-    socket.on("update_activity_log", (activityLog: GameActivityLogsType) => {
-      setActivityLog(activityLog);
-    })
-
+  useEffect(() => {
+    // Join a room
+    socket.emit("join_room", roomSlug);
     // Return function here is used to cleanup the sockets
     return function cleanup() {
       // clean up sockets
+      socket.disconnect()
     }
   }, [roomSlug]);
 
@@ -100,7 +105,16 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
       <div>
         <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Activity Log</h3>
         <div className="flex flex-col items-center">
-          {activityLog.map(entry => <DisplayActivityLog key={entry.id} {...entry} />)}
+        {/* {activityLog.rounds?.map(entry => <div>{JSON.stringify(entry)}</div>)} */}
+          {activityLog.rounds?.map(entry => <DisplayActivityLog {...entry} />)}
+          {activityLog.winners && <div>
+            <h3>Winner!!</h3>
+            <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
+              <li className="px-6 py-2 border-b border-gray-200 w-full" >Congratulations {activityLog.winners[0].name}</li>
+              <li className="px-6 py-2 border-b border-gray-200 w-full" >2nd place: {activityLog.winners[1].name}</li>
+              <li className="px-6 py-2 w-full rounded-b-lg" >3rd place: {activityLog.winners[2].name}</li>
+            </ul>
+          </div>}
         </div>
       </div>
     </div>

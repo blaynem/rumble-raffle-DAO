@@ -1,5 +1,5 @@
-import { PrizeSplitType, GameEndType } from "@rumble-raffle-dao/rumble"
 import { definitions } from ".";
+import { EntireGameLog } from "../src/helpers/parseActivityLogs";
 
 /**
  * We only want to send these fields back to players.
@@ -12,7 +12,7 @@ export type RoomDataType = {
   // Contract data for the given room
   contract: definitions['contracts']
   // Will be null until the game has been played and completed.
-  gameData?: GameEndType | null;
+  gameData?: EntireGameLog | null;
   // True if the game has already been started.
   game_started: definitions['rooms']['game_started']
   // Id of the given room.

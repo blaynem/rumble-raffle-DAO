@@ -1,24 +1,27 @@
 import { GameEndType } from "@rumble-raffle-dao/rumble";
-import { definitions, PickFromPlayers } from "../../types";
+import { definitions, PickFromPlayers, RoomDataType } from "../../types";
+
+type GameRoundLogsOmitId = Omit<definitions['game_round_logs'], 'id'>
 
 // The entire games log.
-type EntireGameLog = {
+export type EntireGameLog = {
   rounds: RoundActivityLog[];
   winners: PickFromPlayers[];
 }
 
 // The collection of activities that happens in a given game.
-type RoundActivityLog = {
+export type RoundActivityLog = {
   // Activities that have happened in this round.
   activities: SingleActivity[];
   // What round of the acitvity log this is.
-  counter: number;
-  // Id's of all players remaining.
-  playersRemaining: string[];
+  round_counter: number;
+  // Amount of players remaining.
+  players_remaining: number;
 }
 
 // A single activity that happens in a given round.
-type SingleActivity = {
+export type SingleActivity = {
+  activity_order: number;
   // Description of the activity that happens. Ex: "PLAYER_0 drank infected water and died."
   description: definitions['activities']['description'];
   // Whether it is PVE, PVP, or REVIVE 
@@ -30,12 +33,13 @@ type SingleActivity = {
 }
 
 /**
- * Parse the activity log that comes back from the Rumble game to a more readable view.
+ * Parse the activity log that comes back from the Rumble game to a more readable view for the client.
  * @param gameActivityLogs 
  * @param gamePlayers 
- * @returns 
+ * @returns {EntireGameLog}
+ *  The collection of activities that happens in a given game, and the winners.
  */
-export const parseActivityLog = (gameActivityLogs: GameEndType['gameActivityLogs'], gamePlayers: PickFromPlayers[]): EntireGameLog => {
+export const parseActivityLogForClient = (gameActivityLogs: GameEndType['gameActivityLogs'], gamePlayers: PickFromPlayers[]): EntireGameLog => {
   let winners: EntireGameLog['winners'] = [];
   const rounds: EntireGameLog['rounds'] = gameActivityLogs.map(round => {
     // If winner is in round, that means its the WinnerLog.
@@ -44,7 +48,8 @@ export const parseActivityLog = (gameActivityLogs: GameEndType['gameActivityLogs
         .forEach(player => winners.push({ ...player, public_address: player.id }))
       return;
     };
-    const activities: SingleActivity[] = round.activityLog.map(({ activity, activityId, participants }) => ({
+    const activities: SingleActivity[] = round.activityLog.map(({ activity, activityId, participants }, index) => ({
+      activity_order: index,
       description: activity.description,
       environment: activity.environment,
       id: activityId,
@@ -52,12 +57,32 @@ export const parseActivityLog = (gameActivityLogs: GameEndType['gameActivityLogs
     }));
     const roundLog: RoundActivityLog = {
       activities,
-      counter: round.roundCounter,
-      playersRemaining: round.playersRemainingIds
+      round_counter: round.roundCounter,
+      players_remaining: round.playersRemainingIds.length
     }
     return roundLog;
   }).filter(log => log !== undefined);
   return {
     rounds, winners
   };
+}
+
+export const parseActivityLogForDbPut = (gameLog: EntireGameLog, room: RoomDataType): GameRoundLogsOmitId[] => {
+  const allActivitiesInGame: GameRoundLogsOmitId[] = [];
+
+  gameLog.rounds.forEach(round => {
+    round.activities.forEach((item, index) => {
+      const activityInRound: GameRoundLogsOmitId = {
+        room_id: room.id,
+        players: item.participants.map(player => player.public_address),
+        activity_id: item.id,
+        players_remaining: round.players_remaining,
+        round_counter: round.round_counter,
+        activity_order: index,
+      }
+      allActivitiesInGame.push(activityInRound);
+    })
+  })
+
+  return allActivitiesInGame;
 }

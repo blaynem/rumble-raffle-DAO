@@ -225,6 +225,132 @@ export interface paths {
       };
     };
   };
+  "/game_round_logs": {
+    get: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.game_round_logs.id"];
+          created_at?: parameters["rowFilter.game_round_logs.created_at"];
+          /** The room id for these logs */
+          room_id?: parameters["rowFilter.game_round_logs.room_id"];
+          /** Array of players' publicAddress who participated in this activity. */
+          players?: parameters["rowFilter.game_round_logs.players"];
+          /** Id of the activity played */
+          activity_id?: parameters["rowFilter.game_round_logs.activity_id"];
+          /** Counter for what game round this log is from. */
+          round_counter?: parameters["rowFilter.game_round_logs.round_counter"];
+          /** Amount of players remaining after the entire round is completed. */
+          players_remaining?: parameters["rowFilter.game_round_logs.players_remaining"];
+          /** The order this activity takes place in the given round */
+          activity_order?: parameters["rowFilter.game_round_logs.activity_order"];
+          /** Filtering Columns */
+          select?: parameters["select"];
+          /** Ordering */
+          order?: parameters["order"];
+          /** Limiting and Pagination */
+          offset?: parameters["offset"];
+          /** Limiting and Pagination */
+          limit?: parameters["limit"];
+        };
+        header: {
+          /** Limiting and Pagination */
+          Range?: parameters["range"];
+          /** Limiting and Pagination */
+          "Range-Unit"?: parameters["rangeUnit"];
+          /** Preference */
+          Prefer?: parameters["preferCount"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["game_round_logs"][];
+        };
+        /** Partial Content */
+        206: unknown;
+      };
+    };
+    post: {
+      parameters: {
+        body: {
+          /** game_round_logs */
+          game_round_logs?: definitions["game_round_logs"];
+        };
+        query: {
+          /** Filtering Columns */
+          select?: parameters["select"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** Created */
+        201: unknown;
+      };
+    };
+    delete: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.game_round_logs.id"];
+          created_at?: parameters["rowFilter.game_round_logs.created_at"];
+          /** The room id for these logs */
+          room_id?: parameters["rowFilter.game_round_logs.room_id"];
+          /** Array of players' publicAddress who participated in this activity. */
+          players?: parameters["rowFilter.game_round_logs.players"];
+          /** Id of the activity played */
+          activity_id?: parameters["rowFilter.game_round_logs.activity_id"];
+          /** Counter for what game round this log is from. */
+          round_counter?: parameters["rowFilter.game_round_logs.round_counter"];
+          /** Amount of players remaining after the entire round is completed. */
+          players_remaining?: parameters["rowFilter.game_round_logs.players_remaining"];
+          /** The order this activity takes place in the given round */
+          activity_order?: parameters["rowFilter.game_round_logs.activity_order"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+    patch: {
+      parameters: {
+        query: {
+          id?: parameters["rowFilter.game_round_logs.id"];
+          created_at?: parameters["rowFilter.game_round_logs.created_at"];
+          /** The room id for these logs */
+          room_id?: parameters["rowFilter.game_round_logs.room_id"];
+          /** Array of players' publicAddress who participated in this activity. */
+          players?: parameters["rowFilter.game_round_logs.players"];
+          /** Id of the activity played */
+          activity_id?: parameters["rowFilter.game_round_logs.activity_id"];
+          /** Counter for what game round this log is from. */
+          round_counter?: parameters["rowFilter.game_round_logs.round_counter"];
+          /** Amount of players remaining after the entire round is completed. */
+          players_remaining?: parameters["rowFilter.game_round_logs.players_remaining"];
+          /** The order this activity takes place in the given round */
+          activity_order?: parameters["rowFilter.game_round_logs.activity_order"];
+        };
+        body: {
+          /** game_round_logs */
+          game_round_logs?: definitions["game_round_logs"];
+        };
+        header: {
+          /** Preference */
+          Prefer?: parameters["preferReturn"];
+        };
+      };
+      responses: {
+        /** No Content */
+        204: never;
+      };
+    };
+  };
   "/payouts": {
     get: {
       parameters: {
@@ -653,6 +779,8 @@ export interface paths {
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
+          /** Array of winners by their publicAddress in users table. */
+          winners?: parameters["rowFilter.rooms.winners"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -713,6 +841,8 @@ export interface paths {
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
+          /** Array of winners by their publicAddress in users table. */
+          winners?: parameters["rowFilter.rooms.winners"];
         };
         header: {
           /** Preference */
@@ -737,6 +867,8 @@ export interface paths {
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
+          /** Array of winners by their publicAddress in users table. */
+          winners?: parameters["rowFilter.rooms.winners"];
         };
         body: {
           /** rooms */
@@ -760,9 +892,9 @@ export interface paths {
           public_address?: parameters["rowFilter.users.public_address"];
           created_at?: parameters["rowFilter.users.created_at"];
           nonce?: parameters["rowFilter.users.nonce"];
-          id?: parameters["rowFilter.users.id"];
           name?: parameters["rowFilter.users.name"];
           updated_at?: parameters["rowFilter.users.updated_at"];
+          user_id?: parameters["rowFilter.users.user_id"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -816,9 +948,9 @@ export interface paths {
           public_address?: parameters["rowFilter.users.public_address"];
           created_at?: parameters["rowFilter.users.created_at"];
           nonce?: parameters["rowFilter.users.nonce"];
-          id?: parameters["rowFilter.users.id"];
           name?: parameters["rowFilter.users.name"];
           updated_at?: parameters["rowFilter.users.updated_at"];
+          user_id?: parameters["rowFilter.users.user_id"];
         };
         header: {
           /** Preference */
@@ -836,9 +968,9 @@ export interface paths {
           public_address?: parameters["rowFilter.users.public_address"];
           created_at?: parameters["rowFilter.users.created_at"];
           nonce?: parameters["rowFilter.users.nonce"];
-          id?: parameters["rowFilter.users.id"];
           name?: parameters["rowFilter.users.name"];
           updated_at?: parameters["rowFilter.users.updated_at"];
+          user_id?: parameters["rowFilter.users.user_id"];
         };
         body: {
           /** users */
@@ -913,6 +1045,56 @@ export interface definitions {
     decimals: string;
     /** Format: character varying */
     network_name: string;
+  };
+  /** @description All activities played in a given round, per game. */
+  game_round_logs: {
+    /**
+     * Format: bigint
+     * @description Note:
+     * This is a Primary Key.<pk/>
+     */
+    id: number;
+    /**
+     * Format: timestamp with time zone
+     * @default now()
+     */
+    created_at?: string;
+    /**
+     * Format: uuid
+     * @description The room id for these logs
+     *
+     * Note:
+     * This is a Foreign Key to `rooms.id`.<fk table='rooms' column='id'/>
+     */
+    room_id: string;
+    /**
+     * Format: ARRAY
+     * @description Array of players' publicAddress who participated in this activity.
+     */
+    players: unknown[];
+    /**
+     * Format: uuid
+     * @description Id of the activity played
+     *
+     * Note:
+     * This is a Foreign Key to `activities.id`.<fk table='activities' column='id'/>
+     */
+    activity_id: string;
+    /**
+     * Format: integer
+     * @description Counter for what game round this log is from.
+     */
+    round_counter: number;
+    /**
+     * Format: integer
+     * @description Amount of players remaining after the entire round is completed.
+     */
+    players_remaining: number;
+    /**
+     * Format: integer
+     * @description The order this activity takes place in the given round
+     */
+    activity_order: number;
   };
   /** @description Payout information for all completed games */
   payouts: {
@@ -1145,6 +1327,11 @@ export interface definitions {
      * This is a Foreign Key to `contracts.contract_address`.<fk table='contracts' column='contract_address'/>
      */
     contract_id: string;
+    /**
+     * Format: ARRAY
+     * @description Array of winners by their publicAddress in users table.
+     */
+    winners?: unknown[];
   };
   /** @description Users that have logged into the app */
   users: {
@@ -1161,11 +1348,6 @@ export interface definitions {
     created_at?: string;
     /** Format: character varying */
     nonce: string;
-    /**
-     * Format: uuid
-     * @default extensions.uuid_generate_v4()
-     */
-    id: string;
     /** Format: text */
     name: string;
     /**
@@ -1173,6 +1355,8 @@ export interface definitions {
      * @default now()
      */
     updated_at: string;
+    /** Format: bigint */
+    user_id: number;
   };
 }
 
@@ -1243,6 +1427,42 @@ export interface parameters {
   "rowFilter.contracts.decimals": string;
   /** Format: character varying */
   "rowFilter.contracts.network_name": string;
+  /** @description game_round_logs */
+  "body.game_round_logs": definitions["game_round_logs"];
+  /** Format: bigint */
+  "rowFilter.game_round_logs.id": string;
+  /** Format: timestamp with time zone */
+  "rowFilter.game_round_logs.created_at": string;
+  /**
+   * Format: uuid
+   * @description The room id for these logs
+   */
+  "rowFilter.game_round_logs.room_id": string;
+  /**
+   * Format: ARRAY
+   * @description Array of players' publicAddress who participated in this activity.
+   */
+  "rowFilter.game_round_logs.players": string;
+  /**
+   * Format: uuid
+   * @description Id of the activity played
+   */
+  "rowFilter.game_round_logs.activity_id": string;
+  /**
+   * Format: integer
+   * @description Counter for what game round this log is from.
+   */
+  "rowFilter.game_round_logs.round_counter": string;
+  /**
+   * Format: integer
+   * @description Amount of players remaining after the entire round is completed.
+   */
+  "rowFilter.game_round_logs.players_remaining": string;
+  /**
+   * Format: integer
+   * @description The order this activity takes place in the given round
+   */
+  "rowFilter.game_round_logs.activity_order": string;
   /** @description payouts */
   "body.payouts": definitions["payouts"];
   /**
@@ -1402,6 +1622,11 @@ export interface parameters {
   "rowFilter.rooms.total_prize_purse": string;
   /** Format: character varying */
   "rowFilter.rooms.contract_id": string;
+  /**
+   * Format: ARRAY
+   * @description Array of winners by their publicAddress in users table.
+   */
+  "rowFilter.rooms.winners": string;
   /** @description users */
   "body.users": definitions["users"];
   /** Format: character varying */
@@ -1410,12 +1635,12 @@ export interface parameters {
   "rowFilter.users.created_at": string;
   /** Format: character varying */
   "rowFilter.users.nonce": string;
-  /** Format: uuid */
-  "rowFilter.users.id": string;
   /** Format: text */
   "rowFilter.users.name": string;
   /** Format: timestamp with time zone */
   "rowFilter.users.updated_at": string;
+  /** Format: bigint */
+  "rowFilter.users.user_id": string;
 }
 
 export interface operations {}

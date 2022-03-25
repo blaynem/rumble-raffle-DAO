@@ -8,7 +8,7 @@ import { createGame } from "../helpers/createRumble";
 import availableRoomsData from '../helpers/roomRumbleData';
 import { getAllActivities } from "../routes/api/activities";
 import { selectPayoutFromGameData, selectPrizeSplitFromParams } from '../helpers/payoutHelpers';
-import { parseActivityLog } from "../helpers/parseActivityLogs";
+import { EntireGameLog, parseActivityLogForClient, parseActivityLogForDbPut } from "../helpers/parseActivityLogs";
 
 let io: Server;
 let roomSocket: Socket;
@@ -34,7 +34,7 @@ export const initRoom = (sio: Server, socket: Socket) => {
  */
 function joinRoom(roomSlug: string) {
   const room = availableRoomsData[roomSlug];
-  console.log('---room', room, this.id);
+  // console.log('---room', room, this.id);
   if (!room) {
     return;
   }
@@ -44,7 +44,7 @@ function joinRoom(roomSlug: string) {
   io.to(this.id).emit("update_player_list", playersAndPrizeSplit);
   if (room.game_started) {
     // TODO: Limit this to whatever current logs are being shown.
-    io.to(this.id).emit("update_activity_log", room.gameData.gameActivityLogs);
+    io.to(this.id).emit("update_activity_log", room.gameData);
   }
 }
 
@@ -73,8 +73,8 @@ async function joinGame(data: { playerData: definitions["users"]; roomSlug: stri
 async function startGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   const room = availableRoomsData[data.roomSlug];
   // Only let the room owner start the game.
-  if (data.playerData.public_address !== room.created_by) {
-    console.warn(`${data.playerData.public_address} tried to start a game they are not the owner of.`);
+  if (data.playerData?.public_address !== room.created_by) {
+    console.warn(`${data.playerData?.public_address} tried to start a game they are not the owner of.`);
     return;
   }
   // Game already started, do nothing about it.
@@ -84,7 +84,7 @@ async function startGame(data: { playerData: definitions["users"]; roomSlug: str
   }
   const gameData = await startRumble(data.roomSlug);
   room.gameData = gameData;
-  io.in(data.roomSlug).emit("update_activity_log", gameData.gameActivityLogs)
+  io.in(data.roomSlug).emit("update_activity_log", gameData)
   // TODO: Only release one part of the activity log at a time over time.
   // TODO: Display all players who earned a prize on a screen somewhere.
 }
@@ -93,15 +93,16 @@ async function startGame(data: { playerData: definitions["users"]; roomSlug: str
 // ONLY USED FOR TESTING.
 async function clearGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   const room = availableRoomsData[data.roomSlug];
-  if (data.playerData.public_address !== room.created_by) {
-    console.warn(`${data.playerData.public_address} tried to clear a game they are not the owner of.`);
+  if (data.playerData?.public_address !== room.created_by) {
+    console.warn(`${data.playerData?.public_address} tried to clear a game they are not the owner of.`);
     return;
   }
   const payoutsRes = await client.from<definitions["payouts"]>('payouts').delete().match({ room_id: room.id });
-  const roomsRes = await client.from<definitions["rooms"]>('rooms').update({ game_started: false }).match({ id: room.id });
+  const gameRoundLogsRes = await client.from<definitions['game_round_logs']>('game_round_logs').delete().match({ room_id: room.id });
+  const roomsRes = await client.from<definitions["rooms"]>('rooms').update({ game_started: false, winners: null }).match({ id: room.id });
   room.gameData = null;
   room.game_started = false;
-  console.log('---cleared', { errors: [payoutsRes.error, roomsRes.error] });
+  console.log('---cleared', { errors: [payoutsRes.error, roomsRes.error, gameRoundLogsRes.error] });
   io.in(data.roomSlug).emit("update_activity_log", [])
 }
 
@@ -160,7 +161,7 @@ const getPlayersAndPrizeSplit = (roomSlug: string): { allPlayers: PickFromPlayer
  * - - update `rooms` in db with `total_prize_purse`, `game_started`
  * - - dumps activity logs to supabase bucket
  */
-const startRumble = async (roomSlug: string): Promise<GameEndType> => {
+const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
   const room = availableRoomsData[roomSlug];
   if (!room || room.game_started) {
     console.log('---startRumble--ERROR', roomSlug);
@@ -171,8 +172,20 @@ const startRumble = async (roomSlug: string): Promise<GameEndType> => {
   // RumbleApp expects players = {id, name}
   const players = room.players.map(player => ({ ...player, id: player.public_address }))
 
+  // TODO: Store this giant blob somewhere so we can go over the files later.
   // Autoplay the game
   const finalGameData = await createGame(allActivities, prizeSplit, players);
+
+  // Parse the package's activity log to a more usable format to send to client
+  const parsedActivityLog = parseActivityLogForClient(finalGameData.gameActivityLogs, room.players);
+
+  // Parse the activity log to store it to the db better
+  const activitiesInGame = parseActivityLogForDbPut(parsedActivityLog, room);
+  const activityLogSubmit = await client.from<definitions['game_round_logs']>('game_round_logs')
+    .insert(activitiesInGame)
+  if (activityLogSubmit.error) {
+    console.error(activityLogSubmit.error);
+  }
 
   // Calculate payout info
   const payoutInfo = selectPayoutFromGameData(room, finalGameData);
@@ -184,7 +197,11 @@ const startRumble = async (roomSlug: string): Promise<GameEndType> => {
   }
   // Update the rooms
   const updateRoomSubmit = await client.from<definitions['rooms']>('rooms')
-    .update({ game_started: true, total_prize_purse: finalGameData.gamePayouts.total })
+    .update({
+      game_started: true,
+      total_prize_purse: finalGameData.gamePayouts.total,
+      winners: parsedActivityLog.winners.map(winner => winner.public_address)
+    })
     .match({ id: room.id })
   if (updateRoomSubmit.error) {
     console.error(updateRoomSubmit.error);
@@ -192,11 +209,5 @@ const startRumble = async (roomSlug: string): Promise<GameEndType> => {
   // Set the game started to true.
   room.game_started = true;
 
-  // TODO: Store this giant blob somewhere so we can go over the files later.
-  // TODO: Store the parsed activity log in a db? maybe?
-  const parsedActivityLog = parseActivityLog(finalGameData.gameActivityLogs, room.players);
-  console.log(parsedActivityLog);
-
-  // console.log(finalGameData);
-  return finalGameData;
+  return parsedActivityLog;
 }
