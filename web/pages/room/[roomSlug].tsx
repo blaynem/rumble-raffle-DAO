@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
-import { GameActivityLogsType, PrizeValuesType } from "@rumble-raffle-dao/rumble";
+import { PrizeValuesType } from "@rumble-raffle-dao/rumble";
+import { ServerSidePropsType } from "@rumble-raffle-dao/types/web";
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/room/adminRoomPanel";
 import DisplayPrizes from "../../components/room/prizes";
@@ -12,12 +13,6 @@ const socket = io('http://localhost:3001').connect()
 
 const buttonClass = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
 const buttonDisabled = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md focus:outline-none focus:ring-0 transition duration-150 ease-in-out pointer-events-none opacity-60"
-
-type ServerSidePropsType = {
-  activeRoom: boolean;
-  roomCreator: string;
-  roomSlug: string;
-}
 
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }): Promise<{ props: ServerSidePropsType }> => {
   const { data } = await fetch(`http://localhost:3000/api/rooms/${query.roomSlug}`).then(res => res.json())

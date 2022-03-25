@@ -2,33 +2,9 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Formik, Field, Form, FormikHelpers, ErrorMessage, FormikTouched } from 'formik';
 import { useWallet } from '../containers/wallet';
-import { SupabaseUserType } from './api/auth';
 import createRoomSchema from '../lib/schemaValidations/createRoom';
-import ToastMessage, { ToastTypes } from '../components/toast';
-import { GetPolyContractReturnType } from './api/contracts';
-
-type ContractType = {
-  // Ex: Polygon
-  network_name: string;
-} & GetPolyContractReturnType;
-
-interface Values {
-  alt_split_address: string;
-  entry_fee: string;
-  contract: ContractType;
-  pve_chance: string;
-  revive_chance: string;
-  prize_split: {
-    prize_alt_split: string;
-    prize_kills: string;
-    prize_first: string;
-    prize_second: string;
-    prize_third: string;
-    prize_creator: string;
-  }
-  user: SupabaseUserType
-  slug: string,
-}
+import ToastMessage from '../components/toast';
+import { GetPolyContractReturnType, Values, ToastTypes } from '@rumble-raffle-dao/types/web';
 
 const coinNetworks = [
   {

@@ -1,14 +1,14 @@
-import { GameEndType, PrizeSplitType } from "@rumble-raffle-dao/rumble";
+import { PrizeSplitType } from "@rumble-raffle-dao/rumble";
 import { PostgrestError } from "@supabase/supabase-js";
 import { Server, Socket } from "socket.io";
-import { PickFromPlayers } from "../../types";
-import { definitions } from "../../types/supabase";
 import client from '../client';
 import { createGame } from "../helpers/createRumble";
 import availableRoomsData from '../helpers/roomRumbleData';
 import { getAllActivities } from "../routes/api/activities";
 import { selectPayoutFromGameData, selectPrizeSplitFromParams } from '../helpers/payoutHelpers';
-import { EntireGameLog, parseActivityLogForClient, parseActivityLogForDbPut } from "../helpers/parseActivityLogs";
+import { parseActivityLogForClient, parseActivityLogForDbPut } from "../helpers/parseActivityLogs";
+import {PickFromPlayers, EntireGameLog} from '@rumble-raffle-dao/types/server'
+import {definitions} from '@rumble-raffle-dao/types/supabase'
 
 let io: Server;
 let roomSocket: Socket;

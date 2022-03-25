@@ -1,21 +1,7 @@
 import { GameEndType, PrizeSplitType } from "@rumble-raffle-dao/rumble";
 import { PrizePayouts } from "@rumble-raffle-dao/rumble/types";
-import { RoomDataType, definitions } from "../../types";
-
-type PayoutsOmitId = Omit<definitions["payouts"], 'id'>;
-
-type PayoutTemplateType = {
-  // Room data
-  room: RoomDataType;
-  // Players public address
-  public_address: string;
-  // Payment amount 
-  payment_amount: number;
-  // Reason for the payment
-  payment_reason: definitions['payouts']['payment_reason'];
-  // Notes to help determine reason later
-  notes: definitions['payouts']['notes']
-}
+import {RoomDataType, PayoutsOmitId, PayoutTemplateType} from '@rumble-raffle-dao/types/server'
+import {definitions } from "@rumble-raffle-dao/types/supabase";
 
 export const selectPrizeSplitFromParams = (params: definitions['room_params']): PrizeSplitType => ({
   altSplit: params.prize_alt_split,

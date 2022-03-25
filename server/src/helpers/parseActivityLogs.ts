@@ -1,36 +1,5 @@
 import { GameEndType } from "@rumble-raffle-dao/rumble";
-import { definitions, PickFromPlayers, RoomDataType } from "../../types";
-
-type GameRoundLogsOmitId = Omit<definitions['game_round_logs'], 'id'>
-
-// The entire games log.
-export type EntireGameLog = {
-  rounds: RoundActivityLog[];
-  winners: PickFromPlayers[];
-}
-
-// The collection of activities that happens in a given game.
-export type RoundActivityLog = {
-  // Activities that have happened in this round.
-  activities: SingleActivity[];
-  // What round of the acitvity log this is.
-  round_counter: number;
-  // Amount of players remaining.
-  players_remaining: number;
-}
-
-// A single activity that happens in a given round.
-export type SingleActivity = {
-  activity_order: number;
-  // Description of the activity that happens. Ex: "PLAYER_0 drank infected water and died."
-  description: definitions['activities']['description'];
-  // Whether it is PVE, PVP, or REVIVE 
-  environment: definitions['activities']['environment']
-  // Id of the activity
-  id: definitions['activities']['id'];
-  // Participants of the activity
-  participants: PickFromPlayers[];
-}
+import {GameRoundLogsOmitId, EntireGameLog, SingleActivity, RoundActivityLog, PickFromPlayers, RoomDataType} from '@rumble-raffle-dao/types/server';
 
 /**
  * Parse the activity log that comes back from the Rumble game to a more readable view for the client.

@@ -27,6 +27,7 @@
   "workspaces": [
     "rumble",
     "server",
+    "types",
     "web"
   ]
 }

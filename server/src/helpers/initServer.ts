@@ -1,20 +1,6 @@
-import { definitions, RoomDataType } from "../../types";
 import availableRoomsData from "./roomRumbleData";
 import client from "../client";
-import { EntireGameLog, RoundActivityLog, SingleActivity } from "./parseActivityLogs";
-
-type PickFromUsers = Pick<definitions['users'], 'public_address' | 'name'>;
-
-type RoundsType = {
-  activity: definitions['activities']
-} & definitions['game_round_logs']
-
-type OmegaRoomInterface = {
-  players: PickFromUsers[];
-  params: definitions['room_params'];
-  contract: definitions['contracts'];
-  game_activities: RoundsType[];
-} & Pick<definitions['rooms'], 'id' | 'slug' | 'game_started' | 'created_by' | 'winners'>
+import {PickFromUsers, RoomDataType, RoundsType, OmegaRoomInterface, EntireGameLog, RoundActivityLog, SingleActivity} from '@rumble-raffle-dao/types/server';
 
 export const addNewRoomToMemory = (room: RoomDataType) => {
   const slug = room.slug;

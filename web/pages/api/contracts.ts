@@ -1,36 +1,9 @@
 import Web3 from 'web3'
+import {
+  GetPolyContractReturnType, FetchContractReturnType, PolygonscanResponseType,
+  ALCHEMY_BASE_URL_POLYGON, NETWORK_NAME_POLYGON
+} from '@rumble-raffle-dao/types/web'
 
-const ALCHEMY_BASE_URL_POLYGON = 'https://polygon-mainnet.g.alchemy.com/v2';
-const NETWORK_NAME_POLYGON = 'polygon';
-
-type PolygonscanResponseType = {
-  status: string;
-  message: string;
-  result: any;
-}
-
-type FetchContractReturnType = {
-  status: string;
-  message: string;
-  result: any;
-  contractABI: any;
-  error?: any;
-}
-
-/**
- * Contract information from the polygon net
- */
-export type GetPolyContractReturnType = {
-  // Contract Token Address
-  contract_address: string;
-  // Contract Token Decimals
-  decimals: string;
-  // Contract Token Name
-  name: string;
-  // Contract Token Symbol
-  symbol: string;
-  error?: any;
-}
 
 /**
  * Get the abi or sourceCode from a contract.

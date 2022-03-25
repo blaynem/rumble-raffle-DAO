@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@rumble-raffle-dao/rumble": "0.1.0",
+    "@rumble-raffle-dao/types": "0.1.0",
     "@supabase/supabase-js": "^1.31.1",
     "body-parser": "^1.19.2",
     "dotenv": "^16.0.0",

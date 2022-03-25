@@ -1,6 +1,6 @@
 import { ActivitiesObjType, ActivityTypes } from '@rumble-raffle-dao/rumble';
+import { definitions } from '@rumble-raffle-dao/types/supabase';
 import express from 'express';
-import { definitions } from '../../../types';
 import client from '../../client';
 
 const router = express.Router();
