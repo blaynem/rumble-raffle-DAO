@@ -5,9 +5,13 @@ It uhh does some battle with birbs.
 
 ## How to start
 
-Install all node_modules
+
+Install all node modules with `yarn`
+Update the `.env` / `.env.local` in each package (server / types / web)
+Run `yarn update-types` to get the latest types from the supabase db.
+
 Run `yar server` to start server.
-Run `yarn start` in another tab to start the app
+Run `yarn dev` in another tab to start the app
 
 
 ## Context
@@ -23,11 +27,8 @@ Run `yarn start` in another tab to start the app
 ### Flow of creating game
 
 1. Admin goes to create room page
-    - ~~created room will have options needed to fill out~~
-    - ~~pve chances, revive chance, prize split, cost of entry, coin type, etc~~
-    - Future unlocks:
-      - ~~Select slug to generate~~ 
-      - Allows params of users that can join (only nft holders, only with certain amount of x coin, etc)
+    - created room will have options needed to fill out
+    - pve chances, revive chance, prize split, cost of entry, coin type, etc
 2. After submission a room will be created in the `/rooms` db table with its params.
     - A link will be generated to send to players
 3. Users will sign in with their wallets, and click "join game"
@@ -41,7 +42,6 @@ Run `yarn start` in another tab to start the app
 6. Game activity data will then be slowly trickled out to players every x amount of seconds via sockets.
 7. After winner is announced, payments will be disbursed.
 
-
 # TODO:
 
 ## Web
@@ -52,6 +52,8 @@ Run `yarn start` in another tab to start the app
     - This seems to be tree-shaking from tailwind of some sort
 - Players:
   - Allow players to change their names.
+- Create Room:
+  -  Allows params of users that can join (only nft holders, only with certain amount of x coin, etc)
 - Rooms:
   - If server is refreshed, users aren't logged into the same socket-room they were before, so they aren't getting updated data.
   - Fix admin view panel
@@ -67,6 +69,8 @@ Run `yarn start` in another tab to start the app
 - General:
   - Determine hosting
   - Better error handling
+- Create Room:
+  - Allows params of users that can join (only nft holders, only with certain amount of x coin, etc)
 - Rooms:
   - On server start we should get all the data for activity logs, etc so they aren't lost.
     - Should parse the necessary details instead of passing the entire object down.

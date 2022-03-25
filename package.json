@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "server": "yarn workspace @rumble-raffle-dao/server server",
-    "update-types": "yarn workspace @rumble-raffle-dao/server update-types",
+    "update-types": "yarn workspace @rumble-raffle-dao/types update-types",
     "dev": "yarn workspace @rumble-raffle-dao/web dev",
     "build": "yarn workspace @rumble-raffle-dao/web build",
     "start": "yarn workspace @rumble-raffle-dao/web start"

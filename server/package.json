@@ -4,8 +4,7 @@
   "private": true,
   "main": "index.ts",
   "scripts": {
-    "server": "ts-node-dev index.ts",
-    "update-types": "dotenv -- cross-var npx openapi-typescript %NEXT_PUBLIC_SUPABASE_URL%/rest/v1/?apikey=%NEXT_PUBLIC_SUPABASE_KEY% --output types/supabase.ts"
+    "server": "ts-node-dev index.ts"
   },
   "dependencies": {
     "@rumble-raffle-dao/rumble": "0.1.0",
