@@ -318,7 +318,13 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
    * @returns - amount of activities should be possible in a loop
    */
   private getActivityLoopTimes(amtPlayers: number): number {
-    if (amtPlayers > 100) {
+    if (amtPlayers > 500) {
+      // We want a minimum of 20 times, maximum of 30.
+      return getRandomNumber(10) + 20
+    } else if (amtPlayers > 200) {
+      // We want a minimum of 15 times, maximum of 25.
+      return getRandomNumber(10) + 15
+    } else if (amtPlayers > 100) {
       // We want a minimum of 10 times, maximum of 17. Idk why 17, we can increase this later.
       return getRandomNumber(7) + 10
     } else if (amtPlayers > 45) {

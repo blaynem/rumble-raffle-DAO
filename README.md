@@ -106,6 +106,8 @@ Run `yarn dev` in another tab to start the app
 
 - General:
   - TESTING. We have zero tests. Not great!
+- Revives:
+  - We should increase the amount of revives based on how many players are left. Right now it's only 1 per round.
 - replaceActivityDescPlaceholders
   - Right now it only shows the player names. We need to be able to hover a players name and show their publicAddress.
 

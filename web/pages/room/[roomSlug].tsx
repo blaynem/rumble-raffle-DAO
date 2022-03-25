@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
-import { PrizeSplitType, PrizeValuesType } from "@rumble-raffle-dao/rumble";
 import { EntireGameLog, PlayerAndPrizeSplitType } from "@rumble-raffle-dao/types";
 import { JOIN_GAME, JOIN_ROOM, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io from "socket.io-client";
@@ -42,10 +41,11 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
     return <>Please check room number.</>
   }
   const [entrants, setEntrants] = useState([] as PlayerAndPrizeSplitType['allPlayers']);
-  const [prizes, setPrizes] = useState({} as PrizeSplitType);
+  const [prizes, setPrizes] = useState({} as PlayerAndPrizeSplitType['prizeSplit']);
+  const [roomInfo, setRoomInfo] = useState({} as PlayerAndPrizeSplitType['roomInfo']);
   const [activityLog, setActivityLog] = useState({} as EntireGameLog);
 
-  console.log('------reee', { entrants, prizes, activityLog, user });
+  console.log('------reee', { entrants, prizes, activityLog, user, roomInfo });
 
   useEffect(() => {
     socket.on(UPDATE_ACTIVITY_LOG, (activityLog: EntireGameLog) => {
@@ -62,8 +62,9 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
      */
     socket.on(UPDATE_PLAYER_LIST, (data: PlayerAndPrizeSplitType) => {
       console.log('---data', data);
-      data.allPlayers !== null && setEntrants([...data.allPlayers])
-      data.prizeSplit !== null && setPrizes(data.prizeSplit)
+      data.allPlayers !== null && setEntrants([...data.allPlayers]);
+      data.prizeSplit !== null && setPrizes(data.prizeSplit);
+      data.roomInfo !== null && setRoomInfo(data.roomInfo);
     });
   })
 
@@ -102,18 +103,18 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
         <button className={alreadyJoined ? buttonDisabled : buttonClass} onClick={onJoinClick}>Join Game</button>
       </div>
       <div className="flex justify-around">
-        <DisplayPrizes {...prizes} totalEntrants={entrants.length} />
+        <DisplayPrizes {...prizes} entryFee={roomInfo.params.entry_fee} entryToken={roomInfo.contract.symbol} totalEntrants={entrants.length} />
         <div>
           <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Entrants</h3>
-          <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900 min-w-[440px]">
+          <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900 min-w-[440px] max-h-80 overflow-auto">
             {entrants.map(entrant => <DisplayEntrant key={entrant.public_address} {...entrant} />)}
           </ul>
         </div>
       </div>
       <div>
         <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Activity Log</h3>
-        <div className="flex flex-col items-center">
-          {activityLog.rounds?.map(entry => <DisplayActivityLog key={entry.round_counter} {...entry} />)}
+        <div className="flex flex-col items-center max-h-96 overflow-auto">
+          {activityLog.rounds?.map((entry, i) => <DisplayActivityLog key={`${entry.round_counter}-${i}`} {...entry} />)}
           {activityLog.winners && <div>
             <h3>Winner!!</h3>
             <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
