@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
-import { PrizeValuesType } from "@rumble-raffle-dao/rumble";
+import { PrizeSplitType, PrizeValuesType } from "@rumble-raffle-dao/rumble";
 import { EntireGameLog, PlayerAndPrizeSplitType } from "@rumble-raffle-dao/types";
 import { JOIN_GAME, JOIN_ROOM, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io from "socket.io-client";
@@ -42,7 +42,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
     return <>Please check room number.</>
   }
   const [entrants, setEntrants] = useState([] as PlayerAndPrizeSplitType['allPlayers']);
-  const [prizes, setPrizes] = useState({} as PrizeValuesType);
+  const [prizes, setPrizes] = useState({} as PrizeSplitType);
   const [activityLog, setActivityLog] = useState({} as EntireGameLog);
 
   console.log('------reee', { entrants, prizes, activityLog });

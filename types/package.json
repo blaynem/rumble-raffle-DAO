@@ -8,6 +8,7 @@
     "update-types": "dotenv -- cross-var npx openapi-typescript %NEXT_PUBLIC_SUPABASE_URL%/rest/v1/?apikey=%NEXT_PUBLIC_SUPABASE_KEY% --output types/supabase.ts"
   },
   "dependencies": {
+    "@rumble-raffle-dao/rumble": "0.1.0",
     "cross-var": "^1.1.0",
     "dotenv": "^16.0.0"
   }

@@ -1,4 +1,5 @@
 import { definitions } from "./supabase";
+import {PrizeSplitType} from "@rumble-raffle-dao/rumble";
 
 // All players and prize split
 export type PlayerAndPrizeSplitType = {
