@@ -12,6 +12,8 @@ import { allPlayersObj, PlayerType, PrizePayouts } from "."
 export interface ActivityTypes {
   // Id of the activity
   id: string;
+  // The environment of activity will be either PVE or PVP.
+  environment: ('PVE' | 'PVP' | 'REVIVE');
   /**
    * Description of event.
    * Ex: "PLAYER0 killed PLAYER1 with a knife.""
@@ -49,7 +51,7 @@ export interface ActivityTypes {
   killCounts: number[] | null;
 }
 
-export type RoundActivityLogType = {
+export type ActivityLogType = {
   activity: ActivityTypes;
   activityId: string;
   participants: string[];
@@ -59,9 +61,9 @@ export type RoundActivityLogType = {
   killCount: { [playerId: string]: number };
 }
 
-export type ActivityLogType = {
+export type RoundActivityLogType = {
   id: string;
-  roundActivityLog: RoundActivityLogType[];
+  activityLog: ActivityLogType[];
   roundCounter: number;
   playersRemainingIds: string[];
   playersSlainIds: string[];
@@ -76,9 +78,14 @@ export type WinnerLogType = {
   runnerUpIds: string[];
 }
 
+/**
+ * Entire activity log of the played game.
+ */
+export type GameActivityLogsType = (RoundActivityLogType | WinnerLogType)[];
+
 export type GameEndType = {
   // Activity logs for each round played.
-  activityLogs: (ActivityLogType | WinnerLogType)[];
+  gameActivityLogs: GameActivityLogsType;
   // All players that participated in the game
   allPlayers: allPlayersObj
   // Total kills in the game

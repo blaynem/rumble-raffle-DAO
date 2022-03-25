@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { ActivitiesObjType, PlayerType, PrizeValuesType, PrizeSplitType, ActivityTypes, allPlayersObj, RoundActivityLogType, ActivityLogType, WinnerLogType, GameEndType, PrizePayouts, RumbleInterface } from './types';
+import type { ActivitiesObjType, PlayerType, PrizeValuesType, PrizeSplitType, ActivityTypes, allPlayersObj, ActivityLogType, RoundActivityLogType, WinnerLogType, GameEndType, PrizePayouts, RumbleInterface, GameActivityLogsType } from './types';
 import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, doesEventOccur, getRandomNumber } from './common';
 import { RumbleRaffleInterface, SetupType } from './types/rumble';
 
@@ -69,7 +69,7 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
   totalPrize: number;
 
   // Values used when game in play
-  activityLogs: (ActivityLogType | WinnerLogType)[];
+  gameActivityLogs: GameActivityLogsType;
   gameKills: { [playerId: string]: number };
   gamePayouts: PrizePayouts;
   gameRunnerUps: PlayerType[];
@@ -109,7 +109,7 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
     this.totalPrize = 0;
 
     // Used during play
-    this.activityLogs = [];
+    this.gameActivityLogs = [];
     this.gameKills = {};
     this.gamePayouts = initialGamePayouts;
     this.gameRunnerUps = [];
@@ -231,8 +231,8 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
    * Getter for the activity logs.
    * @returns activity logs
    */
-  getActivityLog(): (ActivityLogType | WinnerLogType)[] {
-    return this.activityLogs;
+  getActivityLog(): GameActivityLogsType {
+    return this.gameActivityLogs;
   }
 
   /**
@@ -255,7 +255,7 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
   private gameFinished(): Promise<GameEndType> {
     return new Promise<GameEndType>(resolve => {
       resolve({
-        activityLogs: this.activityLogs,
+        gameActivityLogs: this.gameActivityLogs,
         allPlayers: this.allPlayers,
         gameKills: this.gameKills,
         gamePayouts: this.gamePayouts,
@@ -298,7 +298,7 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
    * Resets activity logs and all game state.
    */
   restartGame(): Promise<GameEndType> {
-    this.activityLogs = [];
+    this.gameActivityLogs = [];
     this.gameKills = {};
     this.gamePayouts = initialGamePayouts;
     this.gameRunnerUps = [];
@@ -348,9 +348,8 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
       this.setGameWinner(this.playersRemainingIds[0]);
       return;
     }
-    this.roundCounter = this.roundCounter += 1;
     const timesPlayedThisRound: { [id: string]: number } = {};
-    const roundActivityLog: RoundActivityLogType[] = [];
+    const activityLog: ActivityLogType[] = [];
 
     // Variables that will be altered throughout the round
     let availablePlayerIds: string[] = [...this.playersRemainingIds];
@@ -379,9 +378,9 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
       const chosenPlayerIds: string[] = getAmtRandomItemsFromArr(filterRepeatPlayers, chosenActivity.amountOfPlayers);
 
       // Do the activity here
-      const activity: RoundActivityLogType = doActivity(chosenActivity, chosenPlayerIds, this.replaceActivityDescPlaceholders);
+      const activity: ActivityLogType = doActivity(chosenActivity, chosenPlayerIds, this.replaceActivityDescPlaceholders);
       // push the activity to the log
-      roundActivityLog.push(activity)
+      activityLog.push(activity)
 
       if (activity.losers !== null) {
         // We filter any of the losers
@@ -404,21 +403,22 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
       // Pick which revive activity it will be.
       const chosenActivity = pickActivity(this.activities.REVIVE, 1);
       // Push the activity log for the revive
-      const activity: RoundActivityLogType = doActivity(chosenActivity, [playerToReviveId], this.replaceActivityDescPlaceholders);
-      roundActivityLog.push(activity);
+      const activity: ActivityLogType = doActivity(chosenActivity, [playerToReviveId], this.replaceActivityDescPlaceholders);
+      activityLog.push(activity);
     }
 
     // ROUND ENDS, NOW WE DO MORE THINGS.
-    const roundLog: ActivityLogType = {
+    const roundLog: RoundActivityLogType = {
       id: uuidv4(),
       playersRemainingIds: availablePlayerIds,
       playersSlainIds: deadPlayerIds,
-      roundActivityLog,
+      activityLog,
       roundCounter: this.roundCounter,
     }
-    this.activityLogs.push(roundLog);
+    this.gameActivityLogs.push(roundLog);
     this.playersRemainingIds = [...availablePlayerIds]
     this.playersSlainIds = [...deadPlayerIds];
+    this.roundCounter = this.roundCounter += 1;
   }
   /**
    * Sets the game winner and runnerups.
@@ -447,7 +447,7 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
       runnerUpIds,
     }
 
-    this.activityLogs.push(roundLog);
+    this.gameActivityLogs.push(roundLog);
     this.gameWinner = winner;
     this.gameRunnerUps = runnerUps;
 
@@ -464,11 +464,11 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
   private calculateTotalKillCounts() {
     const totalKillCount: { [playerId: string]: number } = {};
     // Loop through activity logs to get the round
-    this.activityLogs.forEach((round: (ActivityLogType | WinnerLogType)) => {
+    this.gameActivityLogs.forEach((round: (RoundActivityLogType | WinnerLogType)) => {
       // If we're at the winner log, we ignore it.
       if ('winner' in round) return;
       // loop through each of the rounds activities
-      round.roundActivityLog.forEach((activity: RoundActivityLogType) => {
+      round.activityLog.forEach((activity: ActivityLogType) => {
         // Add up the kills in the kill count object.
         Object.keys(activity.killCount).forEach(playerId => {
           if (totalKillCount[playerId]) {

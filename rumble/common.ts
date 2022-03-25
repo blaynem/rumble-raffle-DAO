@@ -1,4 +1,4 @@
-import { ActivityTypes, PlayerType, RoundActivityLogType, allPlayersObj } from './types';
+import { ActivityTypes, PlayerType, ActivityLogType, allPlayersObj } from './types';
 /**
  * Functions needed:
  * - Helper function that picks an activity and returns the amount of players required.
@@ -68,7 +68,7 @@ export const doActivity = (
   activity: ActivityTypes,
   playerIds: string[],
   createContentCallback: (activity: ActivityTypes, playerIds: string[]) => string
-): RoundActivityLogType => {
+): ActivityLogType => {
   const { activityLoser, activityWinner, id } = activity;
   const winners = getPlayersFromIndex(activityWinner, playerIds);
   const losers = getPlayersFromIndex(activityLoser, playerIds);

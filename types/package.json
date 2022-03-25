@@ -1,0 +1,15 @@
+{
+  "name": "@rumble-raffle-dao/types",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Types and constants for Rumble Raffle DAO",
+  "main": "index.ts",
+  "scripts": {
+    "update-types": "dotenv -- cross-var npx openapi-typescript %NEXT_PUBLIC_SUPABASE_URL%/rest/v1/?apikey=%NEXT_PUBLIC_SUPABASE_KEY% --output supabase.d.ts"
+  },
+  "dependencies": {
+    "@rumble-raffle-dao/rumble": "0.1.0",
+    "cross-var": "^1.1.0",
+    "dotenv": "^16.0.0"
+  }
+}
