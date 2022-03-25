@@ -84,7 +84,7 @@ async function startGame(data: { playerData: definitions["users"]; roomSlug: str
     return;
   }
   // Game already started, do nothing about it.
-  if (!room || room.game_started) {
+  if (!room || room.game_started || room.players.length < 1) {
     console.log('---startRumble--ERROR', data.roomSlug);
     return;
   }

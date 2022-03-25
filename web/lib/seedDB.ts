@@ -8,7 +8,7 @@ const testingRoomSlug = 'testing-room';
 const testingRoomId = '21d8cbd9-2f1b-4802-8516-84c9fd5e0611';
 const testingNonce = 'testing-nonce'
 export const bulkAddPlayer = async () => {
-  const amtUsers = 20;
+  const amtUsers = 800;
   const usersArr: SupabaseUserType[] = [];
   for(let i = 0; i < amtUsers; i++) {
     const tempUser: SupabaseUserType = {
