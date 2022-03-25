@@ -348,7 +348,6 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
       this.setGameWinner(this.playersRemainingIds[0]);
       return;
     }
-    this.roundCounter = this.roundCounter += 1;
     const timesPlayedThisRound: { [id: string]: number } = {};
     const activityLog: ActivityLogType[] = [];
 
@@ -419,6 +418,7 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
     this.gameActivityLogs.push(roundLog);
     this.playersRemainingIds = [...availablePlayerIds]
     this.playersSlainIds = [...deadPlayerIds];
+    this.roundCounter = this.roundCounter += 1;
   }
   /**
    * Sets the game winner and runnerups.
