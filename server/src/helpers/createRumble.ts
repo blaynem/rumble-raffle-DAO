@@ -1,14 +1,6 @@
-import RumbleApp, { ActivitiesObjType, GameEndType, PlayerType, PrizeSplitType } from "@rumble-raffle-dao/rumble";
+import RumbleApp, { GameEndType, SetupType } from "@rumble-raffle-dao/rumble";
 
-export const createGame = async (
-  activities: ActivitiesObjType,
-  prizeSplit: PrizeSplitType,
-  initialPlayers: PlayerType[]
-): Promise<GameEndType> => {
-  const rumble = new RumbleApp({
-    activities,
-    prizeSplit,
-    initialPlayers
-  });
+export const createGame = async (setup: SetupType): Promise<GameEndType> => {
+  const rumble = new RumbleApp(setup);
   return await rumble.startAutoPlayGame();
 }

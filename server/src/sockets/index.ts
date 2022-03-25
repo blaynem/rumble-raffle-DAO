@@ -8,6 +8,7 @@ import { selectPayoutFromGameData, selectPrizeSplitFromParams } from '../helpers
 import { parseActivityLogForClient, parseActivityLogForDbPut } from "../helpers/parseActivityLogs";
 import {definitions, EntireGameLog, PlayerAndPrizeSplitType} from '@rumble-raffle-dao/types'
 import { CLEAR_GAME, JOIN_GAME, JOIN_ROOM, START_GAME, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { SetupType } from "@rumble-raffle-dao/rumble";
 
 let io: Server;
 let roomSocket: Socket;
@@ -193,14 +194,19 @@ const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
     console.log('---startRumble--ERROR', roomSlug);
     return;
   }
-  const { data: allActivities } = await getAllActivities();
-  const prizeSplit = selectPrizeSplitFromParams(room.params);
+  const { data: activities } = await getAllActivities();
+  const prizeSplit: SetupType['prizeSplit'] = selectPrizeSplitFromParams(room.params);
   // RumbleApp expects players = {id, name}
-  const players = room.players.map(player => ({ ...player, id: player.public_address }))
+  const initialPlayers: SetupType['initialPlayers'] = room.players.map(player => ({ ...player, id: player.public_address }))
+  const params: SetupType['params'] = {
+    chanceOfPve: room.params.pve_chance,
+    chanceOfRevive: room.params.revive_chance,
+    entryPrice: room.params.entry_fee
+  }
 
   // TODO: Store this giant blob somewhere so we can go over the files later.
   // Autoplay the game
-  const finalGameData = await createGame(allActivities, prizeSplit, players);
+  const finalGameData = await createGame({activities, params, prizeSplit, initialPlayers});
 
   // Parse the package's activity log to a more usable format to send to client
   const parsedActivityLog = parseActivityLogForClient(finalGameData.gameActivityLogs, room.players);

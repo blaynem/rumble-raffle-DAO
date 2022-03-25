@@ -40,6 +40,12 @@ const defaultGameActivities: ActivitiesObjType = {
   REVIVE: []
 };
 
+const defaultParams: SetupType['params'] = {
+  chanceOfPve: 30,
+  chanceOfRevive: 5,
+  entryPrice: 10
+}
+
 const initialGamePayouts: PrizePayouts = {
   altSplit: 0,
   creatorSplit: 0,
@@ -81,15 +87,18 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
 
   constructor(setup: SetupType = {
     activities: defaultGameActivities,
+    params: defaultParams,
     initialPlayers: [],
     prizeSplit: defaultPrizeSplit,
   }) {
     this.activities = setup.activities;
 
     // Defining the params of the game
-    this.chanceOfPve = 30;
-    this.chanceOfRevive = 5;
-    this.entryPrice = 10;
+    this.chanceOfPve = setup.params.chanceOfPve;
+    this.chanceOfRevive = setup.params.chanceOfRevive;
+    this.entryPrice = setup.params.entryPrice;
+    this.prizeSplit = setup.prizeSplit;
+
     this.maxActivitiesPerRound = 2;
     this.prizes = {
       altSplit: 0,
@@ -100,7 +109,6 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
       kills: 0,
       totalPrize: 0,
     };
-    this.prizeSplit = setup.prizeSplit;
 
     // Used before starting
     this.allPlayers = {};
