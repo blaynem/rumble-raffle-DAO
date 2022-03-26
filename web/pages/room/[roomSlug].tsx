@@ -8,6 +8,7 @@ import DisplayPrizes from "../../components/room/prizes";
 import DisplayActivityLog from "../../components/room/activityLog";
 import DisplayEntrant from "../../components/room/entrants";
 import { useWallet } from '../../containers/wallet'
+import { ClickToCopyPopper } from "../../components/Popper";
 
 const socket = io('http://localhost:3001').connect()
 
@@ -102,7 +103,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
 
   return (
     <div>
-      <div> 
+      <div>
         {/* If we don't wrap this, all of the styles break for some reason. I don't even. */}
         {roomCreator === user?.public_address && <AdminRoomPanel {...{ socket, roomSlug }} />}
       </div>
@@ -126,9 +127,9 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
           {activityLog.winners && <div>
             <h3>Winner!!</h3>
             <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
-              <li className="px-6 py-2 border-b border-gray-200 w-full" >Congratulations {activityLog.winners[0].name}</li>
-              <li className="px-6 py-2 border-b border-gray-200 w-full" >2nd place: {activityLog.winners[1].name}</li>
-              <li className="px-6 py-2 w-full rounded-b-lg" >3rd place: {activityLog.winners[2].name}</li>
+              <li className="px-6 py-2 border-b border-gray-200 w-full" >Congratulations <ClickToCopyPopper boldText text={activityLog.winners[0].name} popperText={activityLog.winners[0].public_address} /> </li>
+              <li className="px-6 py-2 border-b border-gray-200 w-full" >2nd place: <ClickToCopyPopper boldText text={activityLog.winners[1].name} popperText={activityLog.winners[1].public_address} /></li>
+              <li className="px-6 py-2 w-full rounded-b-lg" >3rd place: <ClickToCopyPopper boldText text={activityLog.winners[2].name} popperText={activityLog.winners[2].public_address} /></li>
             </ul>
           </div>}
         </div>

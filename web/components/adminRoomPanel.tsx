@@ -38,8 +38,8 @@ const AdminRoomPanel = ({ socket, roomSlug }) => {
       <h4>Admin Panel</h4>
       <button disabled={gameStarted} className={gameStarted ? buttonDisabled : buttonClass} onClick={autoGame}>Start Auto Game</button>
       <button className={buttonClass} onClick={clearGame}>Clear Game State</button>
-      <button className={buttonClass} onClick={seedDb}>Seed DB</button>
-      <button className={buttonClass} onClick={deleteSeededDB}>Delete Seeded Data</button>
+      {/* <button className={buttonClass} onClick={seedDb}>Seed DB</button>
+      <button className={buttonClass} onClick={deleteSeededDB}>Delete Seeded Data</button> */}
     </div>
   )
 }

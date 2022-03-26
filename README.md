@@ -47,6 +47,7 @@ Run `yarn dev` in another tab to start the app
 ## Web
 
 - General:
+  - Set up different staging (test / production)
   - Determine hosting
 - Players:
   - Allow players to change their names.
@@ -63,6 +64,7 @@ Run `yarn dev` in another tab to start the app
   - ~~Should show the users public address on hover of their name.~~
     - Should style this better
   - Request payment before joining a game.
+  - When you are in an activity, it should highlight the row / your name or something to bring awareness to it.
 - Home Page:
   - Add list of rooms that have are open
   - If the user has `admin` rights, show them the `create` room button
@@ -73,6 +75,7 @@ Run `yarn dev` in another tab to start the app
 ## Server
 
 - General:
+  - Set up different staging (test / production)
   - Determine hosting
   - Better error handling
 - Create Room:
