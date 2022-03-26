@@ -47,6 +47,8 @@ Run `yarn dev` in another tab to start the app
 ## Web
 
 - General:
+  - Users can switch between metamask accounts, so we should constantly check for those changes
+    - ex: `web3.eth.accounts[0];`
   - Set up different staging (test / production)
   - Determine hosting
 - Players:
@@ -61,8 +63,6 @@ Run `yarn dev` in another tab to start the app
     - Only with x amount of coin
     - Etc
 - Rooms:
-  - ~~Should show the users public address on hover of their name.~~
-    - Should style this better
   - Request payment before joining a game.
   - When you are in an activity, it should highlight the row / your name or something to bring awareness to it.
 - Home Page:
@@ -122,6 +122,18 @@ Run `yarn dev` in another tab to start the app
 
 # Extra Ideas
 
+- DEATHROLL APP
+  - In WoW we would deathroll our gold. How it works:
+    - Challenge someone to deathroll of x value. you'd type `/roll x` and it would randomly pick a number between 1 and x.
+    - Ex: "I challenge you to roll of `50,000` coins"
+    - Person who started the game would type `/roll 500000`
+    - the console would spit out random number `Blah rolled: 34562`
+    - You repeat this until the last person rolls `1`. That person would then owe the other person the `50,000`
+- WOW GAMBLING APP
+  - You would set the game to go off of `10,000`
+  - 20 people agree to roll `/roll 10000` each
+  - The person who rolled the lowest then owes the person who rolled the highest, the difference between theyre rolls.
+  - ex: Person1 rolls `120` Person2 rolls `9450`. Person 1 then pays `9450 -120` to Person 2.
 - END OF WEEK TOURNEY
   - At the end of the week, all the remainder money goes into a prize pool. Anyone who has played this week will be automatically entered into this massive raffle and then paid out how we determine. (This sounds like it's easily manipulated though by entering different raffles or something. Still good for hype.)
 - NFT Ideas
