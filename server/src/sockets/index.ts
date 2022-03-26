@@ -7,7 +7,7 @@ import { getAllActivities } from "../routes/api/activities";
 import { selectPayoutFromGameData, selectPrizeSplitFromParams } from '../helpers/payoutHelpers';
 import { parseActivityLogForClient, parseActivityLogForDbPut } from "../helpers/parseActivityLogs";
 import {definitions, EntireGameLog, PlayerAndPrizeSplitType} from '@rumble-raffle-dao/types'
-import { CLEAR_GAME, JOIN_GAME, JOIN_ROOM, START_GAME, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { CLEAR_GAME, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, START_GAME, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { SetupType } from "@rumble-raffle-dao/rumble";
 
 let io: Server;
@@ -56,6 +56,7 @@ async function joinGame(data: { playerData: definitions["users"]; roomSlug: stri
   // Will error if the player is already added to the game.
   const { error } = await addPlayer(data.roomSlug, data.playerData);
   if (error) {
+    io.to(this.id).emit(JOIN_GAME_ERROR, error);
     return;
   }
   const playersAndPrizeSplit = getPlayersAndPrizeSplit(data.roomSlug);
@@ -132,10 +133,13 @@ async function clearGame(data: { playerData: definitions["users"]; roomSlug: str
 const addPlayer = async (
   roomSlug: string,
   playerData: definitions["users"]
-): Promise<{ data?: definitions["players"][]; error?: PostgrestError }> => {
+): Promise<{ data?: definitions["players"][]; error?: PostgrestError | string; }> => {
   const room = availableRoomsData[roomSlug];
   if (!room) {
     return;
+  }
+  if (room.players.length > 900) {
+    return { error: 'reached max players' }
   }
   const { data, error } = await client.from<definitions["players"]>('players')
     .insert({ room_id: room.id, player: playerData.public_address, slug: roomSlug })

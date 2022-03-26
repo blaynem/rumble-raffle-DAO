@@ -86,21 +86,16 @@ Run `yarn dev` in another tab to start the app
     - Etc
   - ~~Only admins should be able to create a room.~~
 - Rooms:
-  - On server start we should get all the data for activity logs, etc so they aren't lost.
-    - Should parse the necessary details instead of passing the entire object down.
-  - Set limit of like 200 players for now?
-    - Limit test amount of players
+  - Trickle out the activity log.
   - "Clear Game" should remove all the players from the payouts / set the room `game_started` back to false
     - Only allow game owner to do this
 - Users:
-  - ~~Give admin permissions so only specific address can create rooms at this time.~~
   - Allow users to alter their names.
 - Players (users who have joined agame):
   - Listen for address activity and only convert a `user` -> `player` when a payment tx goes through
 - Sockets:
   - Sockets data needs to be encoded from server side somehow
 - Testing:
-  - Add function to seed db with 100+ users to simulate game playing
 
 ## Rumble Package
 

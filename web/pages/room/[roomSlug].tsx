@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
 import { EntireGameLog, PlayerAndPrizeSplitType } from "@rumble-raffle-dao/types";
-import { JOIN_GAME, JOIN_ROOM, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
 import DisplayPrizes from "../../components/room/prizes";
@@ -44,6 +44,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   const [prizes, setPrizes] = useState({} as PlayerAndPrizeSplitType['prizeSplit']);
   const [roomInfo, setRoomInfo] = useState({} as PlayerAndPrizeSplitType['roomInfo']);
   const [activityLog, setActivityLog] = useState({} as EntireGameLog);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   console.log('------reee', { entrants, prizes, activityLog, user, roomInfo });
 
@@ -69,6 +70,14 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   })
 
   useEffect(() => {
+    socket.on(JOIN_GAME_ERROR, (err) => {
+      if (typeof err === 'string') {
+        setErrorMessage(err)
+      }
+    })
+  })
+
+  useEffect(() => {
     socket.on('disconnect', (s) => {
       // Attempts to reconnect.
       socket.emit(JOIN_ROOM, roomSlug);
@@ -83,7 +92,6 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   }, [roomSlug]);
 
   const onJoinClick = () => {
-    console.log(user);
     if (user) {
       socket.emit(JOIN_GAME, { playerData: user, roomSlug });
       // todo: remove join game click
@@ -100,7 +108,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
       </div>
       <h2 className="p-2 text-center">Player: <span className="font-bold">{user?.name}</span></h2>
       <div className="flex items-center justify-center p-2">
-        <button className={alreadyJoined ? buttonDisabled : buttonClass} onClick={onJoinClick}>Join Game</button>
+        <button className={(alreadyJoined || errorMessage) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{errorMessage ? errorMessage : 'Join Game'}</button>
       </div>
       <div className="flex justify-around">
         <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />

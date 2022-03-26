@@ -7,6 +7,7 @@ export const NETWORK_NAME_POLYGON = 'polygon';
 
 export const CLEAR_GAME = 'clear_game';
 export const JOIN_GAME = 'join_game';
+export const JOIN_GAME_ERROR = 'join_game_error';
 export const JOIN_ROOM = 'join_room';
 export const START_GAME = 'start_game';
 export const UPDATE_ACTIVITY_LOG = 'update_activity_log'
