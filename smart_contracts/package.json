@@ -1,5 +1,7 @@
 {
-  "name": "hardhat-project",
+  "name": "@rumble-raffle-dao/smart-contracts",
+  "version": "0.1.0",
+  "private": true,
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",
