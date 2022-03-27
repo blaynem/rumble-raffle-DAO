@@ -1,4 +1,4 @@
-import { ActivitiesObjType, ActivityTypes } from '@rumble-raffle-dao/rumble';
+import { ActivitiesObjType, ActivityTypes, SetupType } from '@rumble-raffle-dao/rumble';
 import { definitions } from '@rumble-raffle-dao/types';
 import express from 'express';
 import client from '../../client';
@@ -29,7 +29,7 @@ export const getAllActivities = async () => {
       error = 'Error when fetching activities tables.'
     }
     // Type casting this because number[] are returning as unknown[] from definitions.
-    const data: ActivitiesObjType = {
+    const data: SetupType['activities'] = {
       PVE: pveData as ActivityTypes[],
       PVP: pvpData as ActivityTypes[],
       REVIVE: reviveData as ActivityTypes[]

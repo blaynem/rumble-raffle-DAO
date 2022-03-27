@@ -25,10 +25,10 @@ const coinContracts = {
   }
 }
 
-const PleaseLoginMessage = () => {
+const AlternativeMessage = ({ message }: {message: string}) => {
   return (
     <div className='p-8 text-center'>
-      <h2 className="text-lg leading-6 font-medium text-gray-900">You must login before creating a room.</h2>
+      <h2 className="text-lg leading-6 font-medium text-gray-900">{message}</h2>
     </div>
   )
 }
@@ -77,7 +77,11 @@ const CreatePage = () => {
   const [selectedContract, setSelectedContract] = useState(null as GetPolyContractReturnType);
 
   if (!user || !user.public_address) {
-    return <PleaseLoginMessage />
+    return <AlternativeMessage message="You must login before creating a room."/>
+  }
+
+  if (!user.is_admin) {
+    return <AlternativeMessage message="Only admins can create a room at this time. Sorry about that."/>
   }
 
 

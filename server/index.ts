@@ -4,7 +4,7 @@ import cors from "cors";
 import { Server } from "socket.io";
 
 import initServer from './src/helpers/initServer';
-import { initRoom } from './src/sockets/server';
+import { initRoom } from './src/sockets';
 
 /**
  * TODO:

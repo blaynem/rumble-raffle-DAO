@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { createContainer } from 'unstated-next'
 import { authenticate } from '../lib/wallet'
 import { useLocalStorage } from '../lib/localstorage'
-import { SupabaseUserType } from '../pages/api/auth'
+import { SupabaseUserType } from '@rumble-raffle-dao/types'
 
 const useContainer = initialState => {
   const [localUser, setLocalUser] = useLocalStorage('user', initialState)

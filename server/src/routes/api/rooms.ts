@@ -13,7 +13,13 @@ const jsonParser = bodyParser.json()
  * - Create `room` entry
  */
 router.post('/create', jsonParser, async (req: any, res: any) => {
-  const {contract, user, ...restReqBody} = req.body;
+  const { contract, user, ...restReqBody } = req.body;
+  const { data: userData, error: userError } = await client.from<definitions['users']>('users').select('is_admin').eq('public_address', user.public_address)
+  // If they aren't an admin, we say no.
+  if (!userData[0].is_admin) {
+    res.status(401).json({ error: 'Only admin may create rooms at this time.' })
+    return;
+  }
   const contract_id = contract.contract_address;
   const created_by = user.public_address;
   // Insert room_param
@@ -27,7 +33,7 @@ router.post('/create', jsonParser, async (req: any, res: any) => {
     return;
   }
   // Insert Rooms
-  const {id: roomParamId} = roomParamsData[0];
+  const { id: roomParamId } = roomParamsData[0];
   const { data, error } = await client.from<definitions['rooms']>('rooms').insert({
     params_id: roomParamId,
     slug: restReqBody.slug,

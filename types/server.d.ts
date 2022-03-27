@@ -1,10 +1,15 @@
 import { definitions } from "./supabase";
-import {PrizeSplitType} from "@rumble-raffle-dao/rumble";
+import { PrizeSplitType } from "@rumble-raffle-dao/rumble";
 
-// All players and prize split
+// All players, the prize split, and the necessary room info
 export type PlayerAndPrizeSplitType = {
   allPlayers: PickFromPlayers[];
-  prizeSplit: PrizeSplitType
+  prizeSplit: PrizeSplitType;
+  // Creator, entryFee, tokenContract, tokenNetwork
+  roomInfo: {
+    contract: Pick<definitions['contracts'], 'contract_address' | 'network_name' | 'symbol'>;
+    params: Pick<definitions['room_params'], 'alt_split_address' | 'created_by' | 'entry_fee' | 'pve_chance' | 'revive_chance'>;
+  }
 }
 
 // Used to hold all the available rooms inside the server

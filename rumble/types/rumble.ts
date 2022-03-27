@@ -5,6 +5,7 @@ import { ActivityTypes, PrizeValuesType, allPlayersObj, PrizePayouts, PlayerType
  */
 export type SetupType = {
   activities: ActivitiesObjType,
+  params: Pick<RumbleInterface, 'chanceOfPve' | 'chanceOfRevive' | 'entryPrice'>
   initialPlayers: PlayerType[],
   prizeSplit: PrizeSplitType,
 }

@@ -895,6 +895,7 @@ export interface paths {
           name?: parameters["rowFilter.users.name"];
           updated_at?: parameters["rowFilter.users.updated_at"];
           user_id?: parameters["rowFilter.users.user_id"];
+          is_admin?: parameters["rowFilter.users.is_admin"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -951,6 +952,7 @@ export interface paths {
           name?: parameters["rowFilter.users.name"];
           updated_at?: parameters["rowFilter.users.updated_at"];
           user_id?: parameters["rowFilter.users.user_id"];
+          is_admin?: parameters["rowFilter.users.is_admin"];
         };
         header: {
           /** Preference */
@@ -971,6 +973,7 @@ export interface paths {
           name?: parameters["rowFilter.users.name"];
           updated_at?: parameters["rowFilter.users.updated_at"];
           user_id?: parameters["rowFilter.users.user_id"];
+          is_admin?: parameters["rowFilter.users.is_admin"];
         };
         body: {
           /** users */
@@ -1357,6 +1360,8 @@ export interface definitions {
     updated_at: string;
     /** Format: bigint */
     user_id: number;
+    /** Format: boolean */
+    is_admin?: boolean;
   };
 }
 
@@ -1641,6 +1646,8 @@ export interface parameters {
   "rowFilter.users.updated_at": string;
   /** Format: bigint */
   "rowFilter.users.user_id": string;
+  /** Format: boolean */
+  "rowFilter.users.is_admin": string;
 }
 
 export interface operations {}

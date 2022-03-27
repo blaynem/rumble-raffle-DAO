@@ -40,6 +40,12 @@ const defaultGameActivities: ActivitiesObjType = {
   REVIVE: []
 };
 
+const defaultParams: SetupType['params'] = {
+  chanceOfPve: 30,
+  chanceOfRevive: 5,
+  entryPrice: 10
+}
+
 const initialGamePayouts: PrizePayouts = {
   altSplit: 0,
   creatorSplit: 0,
@@ -81,15 +87,18 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
 
   constructor(setup: SetupType = {
     activities: defaultGameActivities,
+    params: defaultParams,
     initialPlayers: [],
     prizeSplit: defaultPrizeSplit,
   }) {
     this.activities = setup.activities;
 
     // Defining the params of the game
-    this.chanceOfPve = 30;
-    this.chanceOfRevive = 5;
-    this.entryPrice = 10;
+    this.chanceOfPve = setup.params.chanceOfPve;
+    this.chanceOfRevive = setup.params.chanceOfRevive;
+    this.entryPrice = setup.params.entryPrice;
+    this.prizeSplit = setup.prizeSplit;
+
     this.maxActivitiesPerRound = 2;
     this.prizes = {
       altSplit: 0,
@@ -100,7 +109,6 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
       kills: 0,
       totalPrize: 0,
     };
-    this.prizeSplit = setup.prizeSplit;
 
     // Used before starting
     this.allPlayers = {};
@@ -318,7 +326,13 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
    * @returns - amount of activities should be possible in a loop
    */
   private getActivityLoopTimes(amtPlayers: number): number {
-    if (amtPlayers > 100) {
+    if (amtPlayers > 500) {
+      // We want a minimum of 20 times, maximum of 30.
+      return getRandomNumber(10) + 20
+    } else if (amtPlayers > 200) {
+      // We want a minimum of 15 times, maximum of 25.
+      return getRandomNumber(10) + 15
+    } else if (amtPlayers > 100) {
       // We want a minimum of 10 times, maximum of 17. Idk why 17, we can increase this later.
       return getRandomNumber(7) + 10
     } else if (amtPlayers > 45) {

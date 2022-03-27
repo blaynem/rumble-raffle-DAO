@@ -30,10 +30,26 @@ const getPolygonContractData = async (contract_address: string): Promise<GetPoly
     const web3 = new Web3(new Web3.providers.HttpProvider(`${ALCHEMY_BASE_URL_POLYGON}/${process.env.ALCHEMY_API_KEY_POLYGON}`))
 
     const contract = new web3.eth.Contract(data.contractABI, contract_address);
+    // console.log('----test', await contract.methods.symbol().call());
 
+    // If theres an implementation, then we need to go this route instead.
+    // if (typeof contract.methods.implementation === 'function') {
+    //   // Get the implementations address, call it with 
+    //   const implementation_address = await contract.methods.implementation().call();
+    //   // get the implementations data for the contractABI
+    //   const implementation_data = await fetchContractABI(implementation_address);
+    //   // create the contract with the implementations abi, but the original proxies address.
+    //   const implementation_contract = new web3.eth.Contract(implementation_data.contractABI, contract_address);
+    //   console.log(await implementation_contract.methods.name().call());
+    // }
+      
     const symbol = await contract.methods.symbol().call();
     const name = await contract.methods.name().call();
     const decimals = await contract.methods.decimals().call();
+
+    if (!symbol || !name || !decimals) {
+      throw new Error('Contract is missing needed information.');
+    }
 
     return {
       contract_address,
@@ -60,7 +76,7 @@ export default async function getContractsData(
 ) {
   const { contract_address, network_name } = req.query;
   if (!contract_address || !network_name) {
-    res.status(401).json({ error: 'contract_address and network_name are required' })
+    res.status(400).json({ error: 'contract_address and network_name are required' })
   }
   if (network_name.toLowerCase() === NETWORK_NAME_POLYGON) {
     try {
@@ -68,7 +84,7 @@ export default async function getContractsData(
       const { data: [contractData], error } = await fetch(`http://localhost:3001/api/contracts/${contract_address}`)
         .then(res => res.json());
       if (error) {
-        res.status(401).json({ error })
+        res.status(400).json({ error })
         return;
       }
       if (contractData) {
@@ -80,7 +96,7 @@ export default async function getContractsData(
 
       // If there are errors, we don't go anywhere else
       if (polygonScanData.error) {
-        res.status(401).json({ error: 'There was an error processing this contract.' })
+        res.status(400).json({ error: 'There was an error processing this contract.' })
         return;
       }
 
@@ -102,7 +118,7 @@ export default async function getContractsData(
       res.status(200).json({ data: postBody })
     } catch (error) {
       console.error('--err', error);
-      res.status(401).json({ error: `Something went wrong with the request.` })
+      res.status(400).json({ error: `Something went wrong with the request.` })
     }
   }
 }

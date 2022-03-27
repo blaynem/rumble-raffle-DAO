@@ -7,7 +7,8 @@ import { getAllActivities } from "../routes/api/activities";
 import { selectPayoutFromGameData, selectPrizeSplitFromParams } from '../helpers/payoutHelpers';
 import { parseActivityLogForClient, parseActivityLogForDbPut } from "../helpers/parseActivityLogs";
 import {definitions, EntireGameLog, PlayerAndPrizeSplitType} from '@rumble-raffle-dao/types'
-import { CLEAR_GAME, JOIN_GAME, JOIN_ROOM, START_GAME, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { CLEAR_GAME, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, START_GAME, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { SetupType } from "@rumble-raffle-dao/rumble";
 
 let io: Server;
 let roomSocket: Socket;
@@ -55,6 +56,7 @@ async function joinGame(data: { playerData: definitions["users"]; roomSlug: stri
   // Will error if the player is already added to the game.
   const { error } = await addPlayer(data.roomSlug, data.playerData);
   if (error) {
+    io.to(this.id).emit(JOIN_GAME_ERROR, error);
     return;
   }
   const playersAndPrizeSplit = getPlayersAndPrizeSplit(data.roomSlug);
@@ -71,13 +73,19 @@ async function joinGame(data: { playerData: definitions["users"]; roomSlug: stri
  */
 async function startGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   const room = availableRoomsData[data.roomSlug];
+  // Check if they're an admin.
+  const { data: userData, error: userError } = await client.from<definitions['users']>('users').select('is_admin').eq('public_address', data.playerData?.public_address)
+  // If they aren't an admin, we do nothing.
+  if (!userData[0].is_admin) {
+    return;
+  }
   // Only let the room owner start the game.
   if (data.playerData?.public_address !== room.created_by) {
     console.warn(`${data.playerData?.public_address} tried to start a game they are not the owner of.`);
     return;
   }
   // Game already started, do nothing about it.
-  if (!room || room.game_started) {
+  if (!room || room.game_started || room.players.length < 1) {
     console.log('---startRumble--ERROR', data.roomSlug);
     return;
   }
@@ -92,6 +100,12 @@ async function startGame(data: { playerData: definitions["users"]; roomSlug: str
 // ONLY USED FOR TESTING.
 async function clearGame(data: { playerData: definitions["users"]; roomSlug: string }) {
   const room = availableRoomsData[data.roomSlug];
+  // Check if they're an admin.
+  const { data: userData, error: userError } = await client.from<definitions['users']>('users').select('is_admin').eq('public_address', data.playerData?.public_address)
+  // If they aren't an admin, we do nothing.
+  if (!userData[0].is_admin) {
+    return;
+  }
   if (data.playerData?.public_address !== room.created_by) {
     console.warn(`${data.playerData?.public_address} tried to clear a game they are not the owner of.`);
     return;
@@ -119,10 +133,13 @@ async function clearGame(data: { playerData: definitions["users"]; roomSlug: str
 const addPlayer = async (
   roomSlug: string,
   playerData: definitions["users"]
-): Promise<{ data?: definitions["players"][]; error?: PostgrestError }> => {
+): Promise<{ data?: definitions["players"][]; error?: PostgrestError | string; }> => {
   const room = availableRoomsData[roomSlug];
   if (!room) {
     return;
+  }
+  if (room.players.length > 900) {
+    return { error: 'reached max players' }
   }
   const { data, error } = await client.from<definitions["players"]>('players')
     .insert({ room_id: room.id, player: playerData.public_address, slug: roomSlug })
@@ -143,9 +160,24 @@ const getPlayersAndPrizeSplit = (roomSlug: string): PlayerAndPrizeSplitType => {
   }
   const allPlayers = room.players
   const prizeSplit = selectPrizeSplitFromParams(room.params);
+  const roomInfo: PlayerAndPrizeSplitType['roomInfo'] = {
+    contract: {
+      contract_address: room.contract.contract_address,
+      network_name: room.contract.network_name,
+      symbol: room.contract.symbol,
+    },
+    params: {
+      alt_split_address: room.params.alt_split_address,
+      created_by: room.params.created_by,
+      entry_fee: room.params.entry_fee,
+      pve_chance: room.params.pve_chance,
+      revive_chance: room.params.revive_chance
+    }
+  }
   return {
     allPlayers,
-    prizeSplit
+    prizeSplit,
+    roomInfo
   }
 }
 
@@ -166,14 +198,19 @@ const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
     console.log('---startRumble--ERROR', roomSlug);
     return;
   }
-  const { data: allActivities } = await getAllActivities();
-  const prizeSplit = selectPrizeSplitFromParams(room.params);
+  const { data: activities } = await getAllActivities();
+  const prizeSplit: SetupType['prizeSplit'] = selectPrizeSplitFromParams(room.params);
   // RumbleApp expects players = {id, name}
-  const players = room.players.map(player => ({ ...player, id: player.public_address }))
+  const initialPlayers: SetupType['initialPlayers'] = room.players.map(player => ({ ...player, id: player.public_address }))
+  const params: SetupType['params'] = {
+    chanceOfPve: room.params.pve_chance,
+    chanceOfRevive: room.params.revive_chance,
+    entryPrice: room.params.entry_fee
+  }
 
   // TODO: Store this giant blob somewhere so we can go over the files later.
   // Autoplay the game
-  const finalGameData = await createGame(allActivities, prizeSplit, players);
+  const finalGameData = await createGame({activities, params, prizeSplit, initialPlayers});
 
   // Parse the package's activity log to a more usable format to send to client
   const parsedActivityLog = parseActivityLogForClient(finalGameData.gameActivityLogs, room.players);
