@@ -24,7 +24,7 @@
     - Creates local test network and gives us some accounts to test with
     - Keep this node running
 6. In another window run `npx hardhat run scripts/deploy.js --network localhost` to deploy to the localhost
-    - Make sure to get the smart contract address
+   
 
 # Advanced Sample Hardhat Project
 
