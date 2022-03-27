@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
-import "@typechain/hardhat";
+// import "@typechain/hardhat"; // not working rn for some reason
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 
