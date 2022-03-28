@@ -43,7 +43,7 @@ contract RumbleRaffle is Ownable {
         }
     }
 
-    function payEntryFee(address _tokenAddress, uint _amount) public onlyOwner {
+    function payEntryFee(address _tokenAddress, uint _amount) public {
         // convert to token
         IERC20 token = IERC20(_tokenAddress);
         // TODO: Put in a check for allowance of the specified token

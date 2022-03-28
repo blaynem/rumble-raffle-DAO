@@ -20,6 +20,20 @@ async function main() {
   await greeter.deployed();
 
   console.log("Greeter deployed to:", greeter.address);
+
+  const RumbleRaffle = await hre.ethers.getContractFactory('RumbleRaffle');
+  const rumbleRaffle = await RumbleRaffle.deploy();
+
+  await rumbleRaffle.deployed();
+
+  console.log("RumbleRaffle deployed to:", rumbleRaffle.address);
+
+  const Token = await hre.ethers.getContractFactory('Token');
+  const token = await Token.deploy();
+
+  await token.deployed();
+
+  console.log("Token deployed to:", token.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
