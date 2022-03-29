@@ -9,8 +9,9 @@ import DisplayActivityLog from "../../components/room/activityLog";
 import DisplayEntrant from "../../components/room/entrants";
 import { useWallet } from '../../containers/wallet'
 import { ClickToCopyPopper } from "../../components/Popper";
+import {BASE_API_URL, BASE_WEB_URL} from "../../lib/constants";
 
-const socket = io('http://localhost:3001').connect()
+const socket = io(BASE_API_URL).connect()
 
 const buttonClass = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
 const buttonDisabled = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md focus:outline-none focus:ring-0 transition duration-150 ease-in-out pointer-events-none opacity-60"
@@ -22,7 +23,7 @@ export type ServerSidePropsType = {
 }
 
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }): Promise<{ props: ServerSidePropsType }> => {
-  const { data } = await fetch(`http://localhost:3000/api/rooms/${query.roomSlug}`).then(res => res.json())
+  const { data } = await fetch(`${BASE_WEB_URL}/api/rooms/${query.roomSlug}`).then(res => res.json())
   const activeRoom = data?.length > 0;
   const { created_by } = data[0];
   return {
@@ -110,7 +111,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   }
 
   const alreadyJoined = entrants.findIndex(entrant => entrant.public_address === user?.public_address) >= 0;
-
+  console.log(BASE_API_URL);
   return (
     <div>
       <div>

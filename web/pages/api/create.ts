@@ -1,3 +1,4 @@
+import { BASE_API_URL } from '../../lib/constants';
 import createRoomSchema from '../../lib/schemaValidations/createRoom';
 
 export default async function createRumble(req, res) {
@@ -22,7 +23,7 @@ export default async function createRumble(req, res) {
 
     const stringedBody = JSON.stringify(paramsToNumbers)
     // Make the fetch
-    const { data, error } = await fetch(`http://localhost:3001/api/rooms/create`, {
+    const { data, error } = await fetch(`${BASE_API_URL}/api/rooms/create`, {
       body: stringedBody,
       headers: {
         'Content-Type': 'application/json'

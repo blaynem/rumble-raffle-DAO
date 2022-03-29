@@ -16,7 +16,7 @@ router.post('/create', jsonParser, async (req: any, res: any) => {
   const { contract, user, ...restReqBody } = req.body;
   const { data: userData, error: userError } = await client.from<definitions['users']>('users').select('is_admin').eq('public_address', user.public_address)
   // If they aren't an admin, we say no.
-  if (!userData[0].is_admin) {
+  if (!userData[0]?.is_admin) {
     res.status(401).json({ error: 'Only admin may create rooms at this time.' })
     return;
   }

@@ -5,6 +5,7 @@ import { useWallet } from '../containers/wallet';
 import createRoomSchema from '../lib/schemaValidations/createRoom';
 import ToastMessage from '../components/toast';
 import { GetPolyContractReturnType, CreateRoomValues, ToastTypes } from '@rumble-raffle-dao/types';
+import { BASE_API_URL, BASE_WEB_URL } from '../lib/constants';
 
 const coinNetworks = [
   {
@@ -34,7 +35,7 @@ const AlternativeMessage = ({ message }: {message: string}) => {
 }
 
 async function checkSlugAvailable(slug: string) {
-  const { data } = await fetch(`http://localhost:3001/api/rooms/${slug}`).then(res => res.json())
+  const { data } = await fetch(`${BASE_API_URL}/api/rooms/${slug}`).then(res => res.json())
   return data;
 }
 
@@ -123,7 +124,7 @@ const CreatePage = () => {
     setToastOpen(true)
   }
 
-  const onSuccessSlugUrlMessage = (slug: string) => <Link href={`/room/${slug}`}><a className="inline-flex items-center">{`http://localhost:3000/room/${slug}`}</a></Link>
+  const onSuccessSlugUrlMessage = (slug: string) => <Link href={`/room/${slug}`}><a className="inline-flex items-center">{`${BASE_WEB_URL}/room/${slug}`}</a></Link>
   const showAltSplitAddress = (values: CreateRoomValues) => {
     const { prize_alt_split } = values.prize_split;
     return prize_alt_split !== '' && parseInt(prize_alt_split) > 0;

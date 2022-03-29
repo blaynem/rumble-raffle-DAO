@@ -1,6 +1,7 @@
 import Web3 from 'web3'
 import { GetPolyContractReturnType, FetchContractReturnType, PolygonscanResponseType } from '@rumble-raffle-dao/types'
 import { ALCHEMY_BASE_URL_POLYGON, NETWORK_NAME_POLYGON } from '@rumble-raffle-dao/types/constants';
+import { BASE_API_URL } from '../../lib/constants';
 
 
 /**
@@ -84,7 +85,7 @@ export default async function getContractsData(
   if (network_name.toLowerCase() === NETWORK_NAME_POLYGON) {
     try {
       // Attempt to fetch from our own db
-      const { data: [contractData], error } = await fetch(`http://localhost:3001/api/contracts/${contract_address}`)
+      const { data: [contractData], error } = await fetch(`${BASE_API_URL}/api/contracts/${contract_address}`)
         .then(res => res.json());
       if (error) {
         res.status(400).json({ error })
@@ -108,7 +109,7 @@ export default async function getContractsData(
         network_name,
       }
       // We attempt to save it in our db.
-      const data = await fetch(`http://localhost:3001/api/contracts/${contract_address}`, {
+      const data = await fetch(`${BASE_API_URL}/api/contracts/${contract_address}`, {
         body: JSON.stringify(postBody),
         headers: {
           'Content-Type': 'application/json'
