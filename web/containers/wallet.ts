@@ -60,32 +60,43 @@ const useContainer = initialState => {
     })
   }
 
-  const payEntryFee = async (contractDetails: PlayerAndPrizeSplitType['roomInfo']['contract'], tokenAddress: string, amount: string): Promise<{ paid: boolean; error: any; }> => {
+  const payEntryFee = async (contractDetails: PlayerAndPrizeSplitType['roomInfo']['contract'], amount: string): Promise<{ paid: boolean; error: any; }> => {
     try {
       if ((window as any).ethereum) {
-        // todo: Enable check chain for non-localhost
-        // await checkChain(Web3.utils.toHex(contractDetails.chain_id));
+        let rumbleContractAddress = process.env.RUMBLE_CONTRACT_ADDRESS;
+        let rumbleContract;
+        let tokenContract;
+        let tokenAddress;
+        console.log(process.env.DEV_TOKEN_CONTRACT_ADDRESS);
+        if (process.env.NODE_ENV === 'development') {
+          // Need the decimal value to get correct payment amount.
+          // convert from bigint by doing  `number => ethers.utils.formatUnits(amt, decimals)`
+          rumbleContract = createEthereumContract(rumbleContractAddress, RumbleRaffle.abi);
+          tokenAddress = process.env.DEV_TOKEN_CONTRACT_ADDRESS;
+          tokenContract = createEthereumContract(tokenAddress, TestToken.abi);
+        }
+        if (process.env.NODE_ENV === 'production') {
+          // todo: Enable check chain for non-localhost
+          await checkChain(Web3.utils.toHex(contractDetails.chain_id));
+          // Contract info
+          const rumbleContractAbi = await fetchPolygonContractABI(rumbleContractAddress);
+          rumbleContract = createEthereumContract(rumbleContractAddress, rumbleContractAbi.contractABI);
+          // Token info
+          tokenAddress = contractDetails.contract_address
+          const tokenAbi = await fetchPolygonContractABI(tokenAddress);
+          tokenContract = createEthereumContract(tokenAddress, tokenAbi.contractABI);
+        }
 
-        // Need the decimal value to get correct payment amount.
-        // convert from bigint by doing  `number => ethers.utils.formatUnits(amt, decimals)`
-        const contractAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
-        const rumbleContract = createEthereumContract(contractAddress, RumbleRaffle.abi);
-        // commented out one is for localHost
-        // const tokenContract = createEthereumContract(tokenAddress, TestToken.abi);
-        const tokenAbi = await fetchPolygonContractABI(contractDetails.contract_address);
-        console.log('---tokenabi', contractDetails);
-        const tokenContract = createEthereumContract(contractDetails.contract_address, tokenAbi.contractABI);
-        console.log('---tokenContract', tokenContract);
-
-        const tokenDecimals: number = await tokenContract.decimals();
+        let tokenDecimals: number = await tokenContract.decimals();
+        tokenDecimals.toString();
         // // Todo: Check how much we are approved to take. If it's enough, we take that.
         // // If not, we ask them to approve x amount.
 
-        const data = await tokenContract.approve(contractAddress, (ethers.utils.parseUnits(amount, tokenDecimals)));
-        console.log('---data', data);
-        // const paidData = await tokenContract.transfer(contractAddress, ethers.utils.parseUnits('1', 'ether'));
+        const data = await tokenContract.approve(rumbleContractAddress, (ethers.utils.parseUnits(amount, tokenDecimals)));
+        // console.log('---data', data);
+
         const paidData = await rumbleContract.payEntryFee(tokenAddress, ethers.utils.parseUnits(amount, tokenDecimals));
-        console.log('--paidData', paidData);
+        // console.log('--paidData', paidData);
 
         await paidData.wait();
 

@@ -96,11 +96,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
     if (user) {
       // Clear error message.
       setErrorMessage(null);
-      // Using temp tokenAddress for now
-      // const data = await payEntryFee(roomInfo.contract.contract_address, roomInfo.params.entry_fee.toString());
-      const tokenAddress = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0';
-      const { paid, error } = await payEntryFee(roomInfo.contract, tokenAddress, roomInfo.params.entry_fee.toString());
-      console.log('---doThing:data', { paid, error });
+      const { paid, error } = await payEntryFee(roomInfo.contract, roomInfo.params.entry_fee.toString());
       if (error) {
         setErrorMessage(error)
         console.error('Join Click:', error);
