@@ -10,8 +10,17 @@ Install all node modules with `yarn`
 Update the `.env` / `.env.local` in each package (server / types / web)
 Run `yarn update-types` to get the latest types from the supabase db.
 
-Run `yar server` to start server.
-Run `yarn dev` in another tab to start the app
+Tab 1: Run `yarn server` to start server.
+Tab 2: Run `yarn dev` to start the app.
+
+For local smart contracts you will need to:
+
+Tab 3: Run `yarn hardhat-compile` to compile the contract and spit out the artifacts.
+Tab 3: Run `yarn hardhat-node` to start the local node. Keep this open as it's our local blockchain.
+
+Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
+
+
 
 
 ## Context
