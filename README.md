@@ -60,6 +60,7 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 - General:
   - Users can switch between metamask accounts, so we should constantly check for those changes
     - ex: `web3.eth.accounts[0];`
+  - User could overwrite cookies and still make calls, so we need to be more vigilant there somehow.
   - Set up different staging (test / production)
   - Determine hosting
 - Players:
@@ -74,7 +75,7 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
     - Only with x amount of coin
     - Etc
 - Rooms:
-  - Request payment before joining a game.
+  - ~~Request payment before joining a game.~~
   - When you are in an activity, it should highlight the row / your name or something to bring awareness to it.
 - Home Page:
   - Add list of rooms that have are open
@@ -89,6 +90,7 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
   - Set up different staging (test / production)
   - Determine hosting
   - Better error handling
+  - Users can pretend to be admins if they set their cookies to have `is_admin` / the admins publicAddress, we should probably check the signatures or something to make it harder.
 - Create Room:
   - Allow setting of player limits
   - Allow setting entry fee to 0.
