@@ -35,7 +35,7 @@ export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest })
 })
 
 const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePropsType) => {
-  const { user } = useWallet()
+  const { user, payEntryFee } = useWallet()
   // console.log('---RumbleRoom PROPS---', {user, roomSlug, activeRoom});
   // TODO: Redirect them to home if there is no room shown?
   if (!activeRoom) {
@@ -47,7 +47,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   const [activityLog, setActivityLog] = useState({} as EntireGameLog);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  console.log('------reee', { entrants, prizes, activityLog, user, roomInfo });
+  // console.log('------reee', { entrants, prizes, activityLog, user, roomInfo });
 
   useEffect(() => {
     socket.on(UPDATE_ACTIVITY_LOG, (activityLog: EntireGameLog) => {
@@ -72,9 +72,9 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
 
   useEffect(() => {
     socket.on(JOIN_GAME_ERROR, (err) => {
-      if (typeof err === 'string') {
-        setErrorMessage(err)
-      }
+      // if (typeof err === 'string') {
+      //   setErrorMessage(err)
+      // }
     })
   })
 
@@ -92,9 +92,19 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
     }
   }, [roomSlug]);
 
-  const onJoinClick = () => {
+  const onJoinClick = async () => {
     if (user) {
-      socket.emit(JOIN_GAME, { playerData: user, roomSlug });
+      // Clear error message.
+      setErrorMessage(null);
+      const { paid, error } = await payEntryFee(roomInfo.contract, roomInfo.params.entry_fee.toString());
+      if (error) {
+        setErrorMessage(error)
+        console.error('Join Click:', error);
+        return;
+      }
+      if (paid) {
+        socket.emit(JOIN_GAME, { playerData: user, roomSlug });
+      }
       // todo: remove join game click
     }
   }
@@ -109,8 +119,9 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
       </div>
       <h2 className="p-2 text-center">Player: <span className="font-bold">{user?.name}</span></h2>
       <div className="flex items-center justify-center p-2">
-        <button className={(alreadyJoined || errorMessage) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{errorMessage ? errorMessage : 'Join Game'}</button>
+        <button className={(alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Joined' : 'Join Game'}</button>
       </div>
+      {errorMessage && <p className="text-center text-red-600">{errorMessage}</p>}
       <div className="flex justify-around">
         <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
         <div>

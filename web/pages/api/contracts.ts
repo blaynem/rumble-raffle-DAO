@@ -7,7 +7,7 @@ import { ALCHEMY_BASE_URL_POLYGON, NETWORK_NAME_POLYGON } from '@rumble-raffle-d
  * Get the abi or sourceCode from a contract.
  * @returns 
  */
-const fetchContractABI = async (contractAddress: string): Promise<FetchContractReturnType> => {
+export const fetchPolygonContractABI = async (contractAddress: string): Promise<FetchContractReturnType> => {
   const data: PolygonscanResponseType = await fetch(`https://api.polygonscan.com/api?module=contract&action=getabi&address=${contractAddress}&apikey=${process.env.POLYGONSCAN_API_KEY}`)
     .then(res => res.json());
   let contractABI: any;
@@ -26,7 +26,7 @@ const fetchContractABI = async (contractAddress: string): Promise<FetchContractR
  */
 const getPolygonContractData = async (contract_address: string): Promise<GetPolyContractReturnType> => {
   try {
-    const data = await fetchContractABI(contract_address);
+    const data = await fetchPolygonContractABI(contract_address);
     const web3 = new Web3(new Web3.providers.HttpProvider(`${ALCHEMY_BASE_URL_POLYGON}/${process.env.ALCHEMY_API_KEY_POLYGON}`))
 
     const contract = new web3.eth.Contract(data.contractABI, contract_address);
@@ -42,7 +42,8 @@ const getPolygonContractData = async (contract_address: string): Promise<GetPoly
     //   const implementation_contract = new web3.eth.Contract(implementation_data.contractABI, contract_address);
     //   console.log(await implementation_contract.methods.name().call());
     // }
-      
+    
+    const chain_id = await contract.methods.getChainId().call();
     const symbol = await contract.methods.symbol().call();
     const name = await contract.methods.name().call();
     const decimals = await contract.methods.decimals().call();
@@ -52,6 +53,7 @@ const getPolygonContractData = async (contract_address: string): Promise<GetPoly
     }
 
     return {
+      chain_id,
       contract_address,
       decimals,
       name,
@@ -61,6 +63,7 @@ const getPolygonContractData = async (contract_address: string): Promise<GetPoly
   } catch (error) {
     // Return with the error I guess?
     return {
+      chain_id: null,
       contract_address: '',
       decimals: '',
       name: '',

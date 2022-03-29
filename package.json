@@ -27,6 +27,7 @@
   "workspaces": [
     "rumble",
     "server",
+    "smart_contracts",
     "types",
     "web"
   ]

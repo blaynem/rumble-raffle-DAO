@@ -135,6 +135,7 @@ const CreatePage = () => {
       initialValues={{
         alt_split_address: '',
         contract: {
+          chain_id: null,
           decimals: '',
           name: '',
           symbol: '',
@@ -490,6 +491,7 @@ const CreatePage = () => {
                               <p className="block text-sm font-medium text-gray-700">Name: {selectedContract.name}</p>
                               <p className="block text-sm font-medium text-gray-700">Symbol: {selectedContract.symbol}</p>
                               <p className="block text-sm font-medium text-gray-700">Decimal: {selectedContract.decimals}</p>
+                              <p className="block text-sm font-medium text-gray-700">Chain Id: {selectedContract.chain_id}</p>
                             </div>
                           </>
                         }
