@@ -131,6 +131,7 @@ export interface paths {
           symbol?: parameters["rowFilter.contracts.symbol"];
           decimals?: parameters["rowFilter.contracts.decimals"];
           network_name?: parameters["rowFilter.contracts.network_name"];
+          chain_id?: parameters["rowFilter.contracts.chain_id"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -188,6 +189,7 @@ export interface paths {
           symbol?: parameters["rowFilter.contracts.symbol"];
           decimals?: parameters["rowFilter.contracts.decimals"];
           network_name?: parameters["rowFilter.contracts.network_name"];
+          chain_id?: parameters["rowFilter.contracts.chain_id"];
         };
         header: {
           /** Preference */
@@ -209,6 +211,7 @@ export interface paths {
           symbol?: parameters["rowFilter.contracts.symbol"];
           decimals?: parameters["rowFilter.contracts.decimals"];
           network_name?: parameters["rowFilter.contracts.network_name"];
+          chain_id?: parameters["rowFilter.contracts.chain_id"];
         };
         body: {
           /** contracts */
@@ -1048,6 +1051,8 @@ export interface definitions {
     decimals: string;
     /** Format: character varying */
     network_name: string;
+    /** Format: numeric */
+    chain_id: number;
   };
   /** @description All activities played in a given round, per game. */
   game_round_logs: {
@@ -1432,6 +1437,8 @@ export interface parameters {
   "rowFilter.contracts.decimals": string;
   /** Format: character varying */
   "rowFilter.contracts.network_name": string;
+  /** Format: numeric */
+  "rowFilter.contracts.chain_id": string;
   /** @description game_round_logs */
   "body.game_round_logs": definitions["game_round_logs"];
   /** Format: bigint */

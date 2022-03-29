@@ -18,6 +18,8 @@ export type FetchContractReturnType = {
  * Contract information from the polygon net
  */
 export type GetPolyContractReturnType = {
+  // Contract Tokens chain id
+  chain_id: number;
   // Contract Token Address
   contract_address: string;
   // Contract Token Decimals

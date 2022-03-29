@@ -27,7 +27,7 @@ router.post('/:id', jsonParser, async (req: any, res: any) => {
 router.get('/:contract_address', async (req: any, res: any) => {
   const contract_address = req.params.contract_address;
   const { data, error } = await client.from<definitions['contracts']>('contracts').select(`
-    decimals, name, network_name, symbol, contract_address
+    decimals, name, network_name, symbol, contract_address, chain_id
   `).eq('contract_address', contract_address)
   if (error) {
     res.status(res.statusCode).json({ error });

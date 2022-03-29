@@ -162,6 +162,7 @@ const getPlayersAndPrizeSplit = (roomSlug: string): PlayerAndPrizeSplitType => {
   const prizeSplit = selectPrizeSplitFromParams(room.params);
   const roomInfo: PlayerAndPrizeSplitType['roomInfo'] = {
     contract: {
+      chain_id: room.contract.chain_id,
       contract_address: room.contract.contract_address,
       network_name: room.contract.network_name,
       symbol: room.contract.symbol,
