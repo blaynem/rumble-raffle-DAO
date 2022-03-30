@@ -178,6 +178,10 @@ export type SingleActivity = {
    */
   id: definitions['activities']['id'];
   /**
+   * Kill count for each activity
+   */
+  kill_count: { [playerId: string]: number }
+  /**
    * Participants of the activity
    */
   participants: PickFromPlayers[];

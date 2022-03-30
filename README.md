@@ -63,11 +63,11 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
   - User could overwrite cookies and still make calls, so we need to be more vigilant there somehow.
   - Set up different staging (test / production)
   - Determine hosting
+  - Finish the `checkChain` piece in wallet.ts
 - Players:
   - Allow players to change their names.
 - Create Room:
   - Allow setting of player limits
-  - Allow setting entry fee to 0.
   - Allow setting an initial prize purse.
   - Allow params of user that can join:
     - Whitelist addresses
@@ -76,6 +76,8 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
     - Etc
 - Rooms:
   - ~~Request payment before joining a game.~~
+  - Should show a running tally of all the kills so players can see as the game goes on
+    - added killCount to activityLogs specific activity
   - When you are in an activity, it should highlight the row / your name or something to bring awareness to it.
 - Home Page:
   - Add list of rooms that are open
@@ -90,7 +92,6 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
   - Better error handling
 - Create Room:
   - Allow setting of player limits
-  - Allow setting entry fee to 0.
   - Allow setting an initial prize purse.
   - Allow params of user that can join:
     - Whitelist addresses

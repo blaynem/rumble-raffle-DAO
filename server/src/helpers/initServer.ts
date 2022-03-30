@@ -19,6 +19,29 @@ import {
 const findPlayerByPubAddress = (pubAddress: string, players: PickFromUsers[]): PickFromUsers => players.find(player => player.public_address === pubAddress)
 
 /**
+ * Gets the kill count of a player
+ * @param killCounts - array of kill counts for the activity
+ * @param players - array of players joined the activity
+ * @returns 
+ */
+const getKillCountsFromPlayers = (killCounts: number[], players: string[]): { [playerId: string]: number } => {
+  if (killCounts === null) {
+    return null;
+  }
+  return killCounts?.reduce((
+    acc: { [playerId: string]: number },
+    curr: number,
+    index
+  ) => {
+    const public_address = players[index] as string;
+    return {
+      ...acc,
+      [public_address]: curr
+    }
+  }, {})
+}
+
+/**
  * Loops through all of the activities played in a given game and merges them together into a
  * rounds object to make it easier to display client side.
  * @param allGameActivities - All activities that happened in a given game
@@ -60,6 +83,7 @@ const getRoundsData = (allGameActivities: RoundsType[], players: PickFromUsers[]
       description: activity.activity.description,
       environment: activity.activity.environment,
       id: activity.activity_id,
+      kill_count: getKillCountsFromPlayers(activity.activity.killCounts as number[], activity.players as string[]),
       participants: activity.players.map((pubAdd: string) => findPlayerByPubAddress(pubAdd, players))
     }
     // Update the players_remaining

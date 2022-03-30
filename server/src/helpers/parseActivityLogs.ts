@@ -17,12 +17,13 @@ export const parseActivityLogForClient = (gameActivityLogs: GameEndType['gameAct
         .forEach(player => winners.push({ ...player, public_address: player.id }))
       return;
     };
-    const activities: SingleActivity[] = round.activityLog.map(({ activity, activityId, participants }, index) => ({
+    const activities: SingleActivity[] = round.activityLog.map(({ activity, activityId, participants, killCount }, index) => ({
       activity_order: index,
       description: activity.description,
       environment: activity.environment,
       id: activityId,
       participants: participants.map(player => gamePlayers.find(p => p.public_address === player)),
+      kill_count: killCount as any,
     }));
     const roundLog: RoundActivityLog = {
       activities,
