@@ -78,11 +78,9 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
   - ~~Request payment before joining a game.~~
   - When you are in an activity, it should highlight the row / your name or something to bring awareness to it.
 - Home Page:
-  - Add list of rooms that have are open
+  - Add list of rooms that are open
   - If the user has `admin` rights, show them the `create` room button
   - Add list of past rooms and payouts
-- Sockets:
-  - Socket data should be encoded from client side somehow
 
 ## Server
 
@@ -90,7 +88,6 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
   - Set up different staging (test / production)
   - Determine hosting
   - Better error handling
-  - Users can pretend to be admins if they set their cookies to have `is_admin` / the admins publicAddress, we should probably check the signatures or something to make it harder.
 - Create Room:
   - Allow setting of player limits
   - Allow setting entry fee to 0.
@@ -100,15 +97,11 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
     - Only x NFT holder
     - Only with x amount of coin
     - Etc
-  - ~~Only admins should be able to create a room.~~
 - Rooms:
-  - Trickle out the activity log.
   - "Clear Game" should remove all the players from the payouts / set the room `game_started` back to false
     - Only allow game owner to do this
 - Users:
   - Allow users to alter their names.
-- Players (users who have joined agame):
-  - Listen for address activity and only convert a `user` -> `player` when a payment tx goes through
 - Sockets:
   - We need more security when passing them back and forth.
   - Sockets data needs to be encoded from server side somehow
