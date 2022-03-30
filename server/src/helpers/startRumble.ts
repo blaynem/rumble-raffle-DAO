@@ -27,7 +27,20 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
   const { data: activities } = await getAllActivities();
   const prizeSplit: SetupType['prizeSplit'] = selectPrizeSplitFromParams(roomData.params);
   // RumbleApp expects players = {id, name}
-  const initialPlayers: SetupType['initialPlayers'] = roomData.players.map(player => ({ ...player, id: player.public_address }))
+  // TODO: This will potentially be limited to only 1000 results.
+  // We need to assure there aren't more than that before starting.
+  // Get all current players in case we missed someone in the db when it's started.
+  // Or in case they changed their name and we don't see it.
+  const { data } = await client.from<definitions['players'] & { users: definitions['users'] }>('players')
+    .select(`users ( public_address ,name)`)
+    .eq('room_id', roomData.id);
+
+  // Map the data to what rumble expects
+  const initialPlayers = data.map(({ users }) => ({
+    id: users.public_address,
+    name: users.name
+  }))
+
   const params: SetupType['params'] = {
     chanceOfPve: roomData.params.pve_chance,
     chanceOfRevive: roomData.params.revive_chance,
@@ -36,7 +49,7 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
 
   // TODO: Store this giant blob somewhere so we can go over the files later.
   // Autoplay the game
-  const finalGameData = await createGame({ activities, params, prizeSplit, initialPlayers });
+  const finalGameData = await createGame({ activities, params, prizeSplit, initialPlayers: initialPlayers as any });
 
   // Parse the package's activity log to a more usable format to send to client
   const parsedActivityLog = parseActivityLogForClient(finalGameData.gameActivityLogs, roomData.players);
