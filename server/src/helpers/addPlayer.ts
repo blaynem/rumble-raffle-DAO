@@ -18,20 +18,20 @@ export const addPlayer = async (
   roomSlug: string,
   playerData: definitions["users"]
 ): Promise<{ data?: definitions["players"][]; error?: PostgrestError | string; }> => {
-  const room = availableRoomsData[roomSlug];
-  if (!room) {
+  const {roomData} = availableRoomsData[roomSlug];
+  if (!roomData) {
     return;
   }
-  if (room.players.length > 900) {
+  if (roomData.players.length > 900) {
     return { error: 'reached max players' }
   }
   const { data, error } = await client.from<definitions["players"]>('players')
-    .insert({ room_id: room.id, player: playerData.public_address, slug: roomSlug })
+    .insert({ room_id: roomData.id, player: playerData.public_address, slug: roomSlug })
   if (error) {
     // If error, we return the error.
     return { error };
   }
   // Otherwise add the player to the rumble locally.
-  room.players.push(playerData);
+  roomData.players.push(playerData);
   return { data }
 }

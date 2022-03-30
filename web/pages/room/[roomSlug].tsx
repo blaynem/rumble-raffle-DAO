@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
 import { EntireGameLog, PlayerAndPrizeSplitType } from "@rumble-raffle-dao/types";
-import { JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
 import DisplayPrizes from "../../components/room/prizes";
@@ -45,17 +45,22 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   const [entrants, setEntrants] = useState([] as PlayerAndPrizeSplitType['allPlayers']);
   const [prizes, setPrizes] = useState({} as PlayerAndPrizeSplitType['prizeSplit']);
   const [roomInfo, setRoomInfo] = useState({} as PlayerAndPrizeSplitType['roomInfo']);
-  const [activityLog, setActivityLog] = useState({} as EntireGameLog);
+  const [activityLogRounds, setActivityLogRounds] = useState([] as EntireGameLog['rounds']);
+  const [activityLogWinners, setActivityLogWinners] = useState([] as EntireGameLog['winners']);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  // console.log('------reee', { entrants, prizes, activityLog, user, roomInfo });
+  console.log('------RumbleRoom', { entrants, prizes, activityLogRounds, activityLogWinners, user, roomInfo });
 
   useEffect(() => {
-    socket.on(UPDATE_ACTIVITY_LOG, (activityLog: EntireGameLog) => {
-      console.log('---emited?', activityLog);
-      setActivityLog(activityLog);
+    socket.on(UPDATE_ACTIVITY_LOG_ROUND, (activityLog: EntireGameLog['rounds']) => {
+      console.log('---UPDATE_ACTIVITY_LOG_ROUND', activityLog);
+      setActivityLogRounds(activityLog);
     })
-  }, [activityLog])
+    socket.on(UPDATE_ACTIVITY_LOG_WINNER, (activityLog: EntireGameLog['winners']) => {
+      console.log('---UPDATE_ACTIVITY_LOG_WINNER', activityLog);
+      setActivityLogWinners(activityLog);
+    })
+  }, [])
 
   useEffect(() => {
     /**
@@ -64,7 +69,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
      * - Any time a "user"" is converted to a "player"
      */
     socket.on(UPDATE_PLAYER_LIST, (data: PlayerAndPrizeSplitType) => {
-      console.log('---data', data);
+      console.log('---UPDATE_PLAYER_LIST', data);
       data.allPlayers !== null && setEntrants([...data.allPlayers]);
       data.prizeSplit !== null && setPrizes(data.prizeSplit);
       data.roomInfo !== null && setRoomInfo(data.roomInfo);
@@ -134,13 +139,13 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
       <div>
         <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Activity Log</h3>
         <div className="flex flex-col items-center max-h-96 overflow-auto">
-          {activityLog.rounds?.map((entry, i) => <DisplayActivityLog key={`${entry.round_counter}-${i}`} {...entry} />)}
-          {activityLog.winners && <div>
+          {activityLogRounds?.map((entry, i) => <DisplayActivityLog key={`${entry.round_counter}-${i}`} {...entry} />)}
+          {activityLogWinners.length > 0 && <div>
             <h3>Winner!!</h3>
             <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
-              <li className="px-6 py-2 border-b border-gray-200 w-full" >Congratulations <ClickToCopyPopper boldText text={activityLog.winners[0].name} popperText={activityLog.winners[0].public_address} /> </li>
-              <li className="px-6 py-2 border-b border-gray-200 w-full" >2nd place: <ClickToCopyPopper boldText text={activityLog.winners[1].name} popperText={activityLog.winners[1].public_address} /></li>
-              <li className="px-6 py-2 w-full rounded-b-lg" >3rd place: <ClickToCopyPopper boldText text={activityLog.winners[2].name} popperText={activityLog.winners[2].public_address} /></li>
+              <li className="px-6 py-2 border-b border-gray-200 w-full" >Congratulations <ClickToCopyPopper boldText text={activityLogWinners[0].name} popperText={activityLogWinners[0].public_address} /> </li>
+              <li className="px-6 py-2 border-b border-gray-200 w-full" >2nd place: <ClickToCopyPopper boldText text={activityLogWinners[1].name} popperText={activityLogWinners[1].public_address} /></li>
+              <li className="px-6 py-2 w-full rounded-b-lg" >3rd place: <ClickToCopyPopper boldText text={activityLogWinners[2].name} popperText={activityLogWinners[2].public_address} /></li>
             </ul>
           </div>}
         </div>

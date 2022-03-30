@@ -19,19 +19,19 @@ import availableRoomsData from "./roomRumbleData";
  * - - dumps activity logs to supabase bucket
  */
 export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
-  const room = availableRoomsData[roomSlug];
-  if (!room || room.game_started) {
+  const { roomData } = availableRoomsData[roomSlug];
+  if (!roomData || roomData.game_started) {
     console.log('---startRumble--ERROR', roomSlug);
     return;
   }
   const { data: activities } = await getAllActivities();
-  const prizeSplit: SetupType['prizeSplit'] = selectPrizeSplitFromParams(room.params);
+  const prizeSplit: SetupType['prizeSplit'] = selectPrizeSplitFromParams(roomData.params);
   // RumbleApp expects players = {id, name}
-  const initialPlayers: SetupType['initialPlayers'] = room.players.map(player => ({ ...player, id: player.public_address }))
+  const initialPlayers: SetupType['initialPlayers'] = roomData.players.map(player => ({ ...player, id: player.public_address }))
   const params: SetupType['params'] = {
-    chanceOfPve: room.params.pve_chance,
-    chanceOfRevive: room.params.revive_chance,
-    entryPrice: room.params.entry_fee
+    chanceOfPve: roomData.params.pve_chance,
+    chanceOfRevive: roomData.params.revive_chance,
+    entryPrice: roomData.params.entry_fee
   }
 
   // TODO: Store this giant blob somewhere so we can go over the files later.
@@ -39,10 +39,10 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
   const finalGameData = await createGame({ activities, params, prizeSplit, initialPlayers });
 
   // Parse the package's activity log to a more usable format to send to client
-  const parsedActivityLog = parseActivityLogForClient(finalGameData.gameActivityLogs, room.players);
+  const parsedActivityLog = parseActivityLogForClient(finalGameData.gameActivityLogs, roomData.players);
 
   // Parse the activity log to store it to the db better
-  const activitiesInGame = parseActivityLogForDbPut(parsedActivityLog, room);
+  const activitiesInGame = parseActivityLogForDbPut(parsedActivityLog, roomData);
   const activityLogSubmit = await client.from<definitions['game_round_logs']>('game_round_logs')
     .insert(activitiesInGame)
   if (activityLogSubmit.error) {
@@ -50,7 +50,7 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
   }
 
   // Calculate payout info
-  const payoutInfo = selectPayoutFromGameData(room, finalGameData);
+  const payoutInfo = selectPayoutFromGameData(roomData, finalGameData);
   // Submit all payouts to db
   const payoutSubmit = await client.from<definitions['payouts']>('payouts')
     .insert(payoutInfo);
@@ -64,12 +64,12 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
       total_prize_purse: finalGameData.gamePayouts.total,
       winners: parsedActivityLog.winners.map(winner => winner.public_address)
     })
-    .match({ id: room.id })
+    .match({ id: roomData.id })
   if (updateRoomSubmit.error) {
     console.error(updateRoomSubmit.error);
   }
   // Set the game started to true.
-  room.game_started = true;
+  roomData.game_started = true;
 
   return parsedActivityLog;
 }

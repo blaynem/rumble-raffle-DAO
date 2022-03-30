@@ -10,5 +10,6 @@ export const JOIN_GAME = 'join_game';
 export const JOIN_GAME_ERROR = 'join_game_error';
 export const JOIN_ROOM = 'join_room';
 export const START_GAME = 'start_game';
-export const UPDATE_ACTIVITY_LOG = 'update_activity_log'
+export const UPDATE_ACTIVITY_LOG_ROUND = 'update_activity_log_round'
+export const UPDATE_ACTIVITY_LOG_WINNER = 'update_activity_log_winner'
 export const UPDATE_PLAYER_LIST = 'update_player_list'
