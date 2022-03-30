@@ -1,6 +1,6 @@
 import { GameEndType, PrizeSplitType } from "@rumble-raffle-dao/rumble";
 import { PrizePayouts } from "@rumble-raffle-dao/rumble/types";
-import {definitions, RoomDataType, PayoutsOmitId, PayoutTemplateType} from '@rumble-raffle-dao/types'
+import { definitions, RoomDataType, PayoutsOmitId, PayoutTemplateType } from '@rumble-raffle-dao/types'
 
 export const selectPrizeSplitFromParams = (params: definitions['room_params']): PrizeSplitType => ({
   altSplit: params.prize_alt_split,
@@ -83,7 +83,7 @@ export const selectPayoutFromGameData = (
 
   // Filter all of the winners / runnerups out of the kill payouts list.
   const listOfWinners = payouts.map(obj => obj.public_address);
-  const filteredKillIds = Object.keys(gamePayouts.kills).filter(id => listOfWinners.indexOf(id) === -1 );
+  const filteredKillIds = Object.keys(gamePayouts.kills).filter(id => listOfWinners.indexOf(id) === -1);
   // Loop through all the payout kills and set the payout data.
   filteredKillIds.forEach(public_address => {
     const killPayout: PayoutsOmitId = payoutTemplate({
@@ -97,20 +97,18 @@ export const selectPayoutFromGameData = (
     payouts.push(killPayout);
   })
 
-  // Only add this if there is an alt split to payout.
-  if (room.params.prize_alt_split > 0) {
-    const alternateSplitPayout: PayoutsOmitId = payoutTemplate({
-      public_address: room.params.alt_split_address,
-      room,
-      payment_amount: gamePayouts.altSplit,
-      payment_reason: 'alt_split',
-      notes: `Alternate split payout of ${gamePayouts.altSplit}`
-    });
-    // Push the alternate split payout
-    payouts.push(alternateSplitPayout);
-  }
-  // return all the payouts
-  return payouts;
+  const alternateSplitPayout: PayoutsOmitId = payoutTemplate({
+    public_address: room.params.alt_split_address,
+    room,
+    payment_amount: gamePayouts.altSplit,
+    payment_reason: 'alt_split',
+    notes: `Alternate split payout of ${gamePayouts.altSplit}`
+  });
+  // Push the alternate split payout
+  payouts.push(alternateSplitPayout);
+
+  // Filter so we only add payouts when there is one.
+  return payouts.filter(thing => thing.payment_amount > 0);
 }
 
 /**
