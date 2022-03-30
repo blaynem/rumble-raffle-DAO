@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
 import { EntireGameLog, PlayerAndPrizeSplitType } from "@rumble-raffle-dao/types";
-import { JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
 import DisplayPrizes from "../../components/room/prizes";
@@ -9,7 +9,7 @@ import DisplayActivityLog from "../../components/room/activityLog";
 import DisplayEntrant from "../../components/room/entrants";
 import { useWallet } from '../../containers/wallet'
 import { ClickToCopyPopper } from "../../components/Popper";
-import {BASE_API_URL, BASE_WEB_URL} from "../../lib/constants";
+import { BASE_API_URL, BASE_WEB_URL } from "../../lib/constants";
 
 const socket = io(BASE_API_URL).connect()
 
@@ -45,18 +45,86 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   const [entrants, setEntrants] = useState([] as PlayerAndPrizeSplitType['allPlayers']);
   const [prizes, setPrizes] = useState({} as PlayerAndPrizeSplitType['prizeSplit']);
   const [roomInfo, setRoomInfo] = useState({} as PlayerAndPrizeSplitType['roomInfo']);
-  const [activityLog, setActivityLog] = useState({} as EntireGameLog);
+  const [activityLogRounds, setActivityLogRounds] = useState([] as EntireGameLog['rounds']);
+  const [activityLogWinners, setActivityLogWinners] = useState([] as EntireGameLog['winners']);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [timeToGameStart, setTimeToGameStart] = useState(null);
+  const [timeToNextRoundStart, setTimeToNextRoundStart] = useState(null);
 
-  // console.log('------reee', { entrants, prizes, activityLog, user, roomInfo });
+  let gameStartInterval: NodeJS.Timer;
+  let nextRoundInterval: NodeJS.Timer;
+  // console.log('------RumbleRoom', { entrants, prizes, activityLogRounds, activityLogWinners, user, roomInfo });
 
+  // Countdown for the GAME to start
   useEffect(() => {
-    socket.on(UPDATE_ACTIVITY_LOG, (activityLog: EntireGameLog) => {
-      console.log('---emited?', activityLog);
-      setActivityLog(activityLog);
+    socket.on(GAME_START_COUNTDOWN, (timeToStart: number) => {
+      console.log('---GAME_START_COUNTDOWN', timeToStart);
+      // Basic countdown until game starts
+      setTimeToGameStart(timeToStart)
+      let timeElapsed = 0;
+      gameStartInterval = setInterval(() => {
+        if (timeElapsed >= timeToStart) {
+          setTimeToGameStart(null);
+          clearInterval(gameStartInterval);
+          return;
+        }
+        timeElapsed += 1;
+        setTimeToGameStart(timeToStart - timeElapsed);
+      }, 1000)
     })
-  }, [activityLog])
+  }, [])
 
+  // Countdown for the NEXT ROUND to start
+  useEffect(() => {
+    socket.on(NEXT_ROUND_START_COUNTDOWN, (timeToStart: number) => {
+      console.log('---NEXT_ROUND_START_COUNTDOWN', timeToStart);
+      // clear game start time
+      setTimeToGameStart(null)
+      clearInterval(gameStartInterval);
+      // Basic countdown until next round starts
+      setTimeToNextRoundStart(timeToStart)
+      let timeElapsed = 0;
+      nextRoundInterval = setInterval(() => {
+        if (timeElapsed >= timeToStart) {
+          setTimeToNextRoundStart(null);
+          clearInterval(nextRoundInterval);
+          return;
+        }
+        timeElapsed += 1;
+        setTimeToNextRoundStart(timeToStart - timeElapsed);
+      }, 1000)
+    })
+  }, [])
+
+  // Any time the activity log is updated for the round
+  useEffect(() => {
+    socket.on(UPDATE_ACTIVITY_LOG_ROUND, (activityLog: EntireGameLog['rounds']) => {
+      console.log('---UPDATE_ACTIVITY_LOG_ROUND');
+      setActivityLogRounds(activityLog);
+      // clear game start time
+      setTimeToGameStart(null)
+      clearInterval(gameStartInterval);
+      // clear next round start time
+      setTimeToNextRoundStart(null)
+      clearInterval(nextRoundInterval);
+    })
+  }, [])
+
+  // Any time the winners are announced
+  useEffect(() => {
+    socket.on(UPDATE_ACTIVITY_LOG_WINNER, (activityLog: EntireGameLog['winners']) => {
+      console.log('---UPDATE_ACTIVITY_LOG_WINNER');
+      setActivityLogWinners(activityLog);
+      // clear game start time
+      setTimeToGameStart(null)
+      clearInterval(gameStartInterval);
+      // clear round start time
+      setTimeToNextRoundStart(null)
+      clearInterval(nextRoundInterval);
+    })
+  }, [])
+
+  // Any time there are more players added to the list.
   useEffect(() => {
     /**
      * UPDATE_PLAYER_LIST called:
@@ -64,7 +132,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
      * - Any time a "user"" is converted to a "player"
      */
     socket.on(UPDATE_PLAYER_LIST, (data: PlayerAndPrizeSplitType) => {
-      console.log('---data', data);
+      console.log('---UPDATE_PLAYER_LIST');
       data.allPlayers !== null && setEntrants([...data.allPlayers]);
       data.prizeSplit !== null && setPrizes(data.prizeSplit);
       data.roomInfo !== null && setRoomInfo(data.roomInfo);
@@ -79,8 +147,10 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
     })
   })
 
+  // Any time a user joins or is disconnected
   useEffect(() => {
     socket.on('disconnect', (s) => {
+      console.log('DISCONNECTED');
       // Attempts to reconnect.
       socket.emit(JOIN_ROOM, roomSlug);
     })
@@ -121,6 +191,10 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
       <div className="flex items-center justify-center p-2">
         <button className={(alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Joined' : 'Join Game'}</button>
       </div>
+      <div>
+        {timeToGameStart && <div>Game starts in: {timeToGameStart}</div>}
+        {timeToNextRoundStart && <div>Next round begins in: {timeToNextRoundStart}</div> }
+      </div>
       {errorMessage && <p className="text-center text-red-600">{errorMessage}</p>}
       <div className="flex justify-around">
         <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
@@ -134,13 +208,13 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
       <div>
         <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Activity Log</h3>
         <div className="flex flex-col items-center max-h-96 overflow-auto">
-          {activityLog.rounds?.map((entry, i) => <DisplayActivityLog key={`${entry.round_counter}-${i}`} {...entry} />)}
-          {activityLog.winners && <div>
+          {activityLogRounds?.map((entry, i) => <DisplayActivityLog key={`${entry.round_counter}-${i}`} {...entry} />)}
+          {activityLogWinners.length > 0 && <div>
             <h3>Winner!!</h3>
             <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
-              <li className="px-6 py-2 border-b border-gray-200 w-full" >Congratulations <ClickToCopyPopper boldText text={activityLog.winners[0].name} popperText={activityLog.winners[0].public_address} /> </li>
-              <li className="px-6 py-2 border-b border-gray-200 w-full" >2nd place: <ClickToCopyPopper boldText text={activityLog.winners[1].name} popperText={activityLog.winners[1].public_address} /></li>
-              <li className="px-6 py-2 w-full rounded-b-lg" >3rd place: <ClickToCopyPopper boldText text={activityLog.winners[2].name} popperText={activityLog.winners[2].public_address} /></li>
+              <li className="px-6 py-2 border-b border-gray-200 w-full" >Congratulations <ClickToCopyPopper boldText text={activityLogWinners[0].name} popperText={activityLogWinners[0].public_address} /> </li>
+              <li className="px-6 py-2 border-b border-gray-200 w-full" >2nd place: <ClickToCopyPopper boldText text={activityLogWinners[1].name} popperText={activityLogWinners[1].public_address} /></li>
+              <li className="px-6 py-2 w-full rounded-b-lg" >3rd place: <ClickToCopyPopper boldText text={activityLogWinners[2].name} popperText={activityLogWinners[2].public_address} /></li>
             </ul>
           </div>}
         </div>

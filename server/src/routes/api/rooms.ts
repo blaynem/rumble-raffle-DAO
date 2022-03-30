@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { definitions, RoomDataType } from '@rumble-raffle-dao/types';
 import client from '../../client';
-import { addNewRoomToMemory } from '../../helpers/initServer';
+import { addNewRoomToMemory } from '../../helpers/roomRumbleData';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
@@ -49,6 +49,7 @@ router.post('/create', jsonParser, async (req: any, res: any) => {
     created_by,
     contract: contract,
     gameData: null,
+    game_completed: false,
     game_started: false,
     id: data[0].id,
     params: roomParamsData[0],
