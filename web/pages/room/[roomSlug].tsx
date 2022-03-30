@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
 import { EntireGameLog, PlayerAndPrizeSplitType } from "@rumble-raffle-dao/types";
-import { JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
 import DisplayPrizes from "../../components/room/prizes";
@@ -9,7 +9,7 @@ import DisplayActivityLog from "../../components/room/activityLog";
 import DisplayEntrant from "../../components/room/entrants";
 import { useWallet } from '../../containers/wallet'
 import { ClickToCopyPopper } from "../../components/Popper";
-import {BASE_API_URL, BASE_WEB_URL} from "../../lib/constants";
+import { BASE_API_URL, BASE_WEB_URL } from "../../lib/constants";
 
 const socket = io(BASE_API_URL).connect()
 
@@ -48,23 +48,83 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   const [activityLogRounds, setActivityLogRounds] = useState([] as EntireGameLog['rounds']);
   const [activityLogWinners, setActivityLogWinners] = useState([] as EntireGameLog['winners']);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [timeToGameStart, setTimeToGameStart] = useState(null);
+  const [timeToNextRoundStart, setTimeToNextRoundStart] = useState(null);
 
-  console.log('------RumbleRoom', { entrants, prizes, activityLogRounds, activityLogWinners, user, roomInfo });
+  let gameStartInterval: NodeJS.Timer;
+  let nextRoundInterval: NodeJS.Timer;
+  // console.log('------RumbleRoom', { entrants, prizes, activityLogRounds, activityLogWinners, user, roomInfo });
 
+  // Countdown for the GAME to start
+  useEffect(() => {
+    socket.on(GAME_START_COUNTDOWN, (timeToStart: number) => {
+      console.log('---GAME_START_COUNTDOWN', timeToStart);
+      // Basic countdown until game starts
+      setTimeToGameStart(timeToStart)
+      let timeElapsed = 0;
+      gameStartInterval = setInterval(() => {
+        if (timeElapsed >= timeToStart) {
+          setTimeToGameStart(null);
+          clearInterval(gameStartInterval);
+          return;
+        }
+        timeElapsed += 1;
+        setTimeToGameStart(timeToStart - timeElapsed);
+      }, 1000)
+    })
+  }, [])
+
+  // Countdown for the NEXT ROUND to start
+  useEffect(() => {
+    socket.on(NEXT_ROUND_START_COUNTDOWN, (timeToStart: number) => {
+      console.log('---NEXT_ROUND_START_COUNTDOWN', timeToStart);
+      // clear game start time
+      setTimeToGameStart(null)
+      clearInterval(gameStartInterval);
+      // Basic countdown until next round starts
+      setTimeToNextRoundStart(timeToStart)
+      let timeElapsed = 0;
+      nextRoundInterval = setInterval(() => {
+        if (timeElapsed >= timeToStart) {
+          setTimeToNextRoundStart(null);
+          clearInterval(nextRoundInterval);
+          return;
+        }
+        timeElapsed += 1;
+        setTimeToNextRoundStart(timeToStart - timeElapsed);
+      }, 1000)
+    })
+  }, [])
+
+  // Any time the activity log is updated for the round
   useEffect(() => {
     socket.on(UPDATE_ACTIVITY_LOG_ROUND, (activityLog: EntireGameLog['rounds']) => {
-      console.log('---UPDATE_ACTIVITY_LOG_ROUND', activityLog);
+      console.log('---UPDATE_ACTIVITY_LOG_ROUND');
       setActivityLogRounds(activityLog);
+      // clear game start time
+      setTimeToGameStart(null)
+      clearInterval(gameStartInterval);
+      // clear next round start time
+      setTimeToNextRoundStart(null)
+      clearInterval(nextRoundInterval);
     })
   }, [])
 
+  // Any time the winners are announced
   useEffect(() => {
     socket.on(UPDATE_ACTIVITY_LOG_WINNER, (activityLog: EntireGameLog['winners']) => {
-      console.log('---UPDATE_ACTIVITY_LOG_WINNER', activityLog);
+      console.log('---UPDATE_ACTIVITY_LOG_WINNER');
       setActivityLogWinners(activityLog);
+      // clear game start time
+      setTimeToGameStart(null)
+      clearInterval(gameStartInterval);
+      // clear round start time
+      setTimeToNextRoundStart(null)
+      clearInterval(nextRoundInterval);
     })
   }, [])
 
+  // Any time there are more players added to the list.
   useEffect(() => {
     /**
      * UPDATE_PLAYER_LIST called:
@@ -72,7 +132,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
      * - Any time a "user"" is converted to a "player"
      */
     socket.on(UPDATE_PLAYER_LIST, (data: PlayerAndPrizeSplitType) => {
-      console.log('---UPDATE_PLAYER_LIST', data);
+      console.log('---UPDATE_PLAYER_LIST');
       data.allPlayers !== null && setEntrants([...data.allPlayers]);
       data.prizeSplit !== null && setPrizes(data.prizeSplit);
       data.roomInfo !== null && setRoomInfo(data.roomInfo);
@@ -87,8 +147,10 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
     })
   })
 
+  // Any time a user joins or is disconnected
   useEffect(() => {
     socket.on('disconnect', (s) => {
+      console.log('DISCONNECTED');
       // Attempts to reconnect.
       socket.emit(JOIN_ROOM, roomSlug);
     })
@@ -128,6 +190,10 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
       <h2 className="p-2 text-center">Player: <span className="font-bold">{user?.name}</span></h2>
       <div className="flex items-center justify-center p-2">
         <button className={(alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Joined' : 'Join Game'}</button>
+      </div>
+      <div>
+        {timeToGameStart && <div>Game starts in: {timeToGameStart}</div>}
+        {timeToNextRoundStart && <div>Next round begins in: {timeToNextRoundStart}</div> }
       </div>
       {errorMessage && <p className="text-center text-red-600">{errorMessage}</p>}
       <div className="flex justify-around">

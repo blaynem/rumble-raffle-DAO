@@ -18,7 +18,7 @@ const getGameState = (room: RoomDataType): GameState => {
       gameCompleted: true,
       roundCounter: room.gameData.rounds.length,
       showWinners: true,
-      waitTime: 15,
+      waitTime: defaultGameState.waitTime,
     }
   }
   return defaultGameState;
