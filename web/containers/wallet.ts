@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createContainer } from 'unstated-next'
 import { authenticate } from '../lib/wallet'
 import { useLocalStorage } from '../lib/localstorage'
@@ -84,9 +84,27 @@ const useContainer = initialState => {
   const [localUser, setLocalUser] = useLocalStorage('user', initialState)
   const [user, setUser] = useState(localUser as SupabaseUserType)
 
+  useEffect(() => {
+    if (window !== undefined) {
+      const web3 = new Web3((window as any).ethereum)
+      // We check if the metamask address is the same as the cookie. if not,
+      // we reset the user state so they have to re login
+      web3.eth.getCoinbase().then(coinbase => {
+        if (coinbase !== user?.public_address) {
+          setLocalUser(undefined);
+          setUser(undefined);
+        }
+      });
+    }
+  }, [])
+
   const doAuth = () => {
-    authenticate((authResponse: SupabaseUserType) => {
-      console.log('frontend user?', authResponse)
+    authenticate((authResponse) => {
+      // If there's an error, let's display it.
+      if (authResponse?.error) {
+        window.alert(authResponse?.error);
+        return;
+      }
       setLocalUser(authResponse)
       setUser(authResponse)
     })

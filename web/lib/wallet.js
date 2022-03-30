@@ -14,7 +14,7 @@ export const getCookie = ({ public_address, signature }) =>
 export const handleSignMessage = async ({ public_address, nonce }) => {
   try {
     const signature = await web3.eth.personal.sign(
-      `${NONCE_MESSAGE}${nonce}`,
+      `${NONCE_MESSAGE} ${nonce}`,
       public_address,
       '' // MetaMask will ignore the password argument here
     )

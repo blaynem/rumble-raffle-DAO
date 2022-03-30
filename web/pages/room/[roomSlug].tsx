@@ -111,7 +111,6 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   }
 
   const alreadyJoined = entrants.findIndex(entrant => entrant.public_address === user?.public_address) >= 0;
-  console.log(BASE_API_URL);
   return (
     <div>
       <div>

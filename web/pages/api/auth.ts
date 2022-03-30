@@ -24,7 +24,7 @@ async function auth(req, res) {
     res.status(404).json({ error: 'Not found' })
     return null
   }
-  const msg = `${NONCE_MESSAGE}${user.nonce}`
+  const msg = `${NONCE_MESSAGE} ${user.nonce}`
 
   // We now are in possession of msg, public_address and signature. We
   // will use a helper from eth-sig-util to extract the address from the signature

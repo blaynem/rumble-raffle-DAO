@@ -110,6 +110,7 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 - Players (users who have joined agame):
   - Listen for address activity and only convert a `user` -> `player` when a payment tx goes through
 - Sockets:
+  - We need more security when passing them back and forth.
   - Sockets data needs to be encoded from server side somehow
 - Testing:
 
