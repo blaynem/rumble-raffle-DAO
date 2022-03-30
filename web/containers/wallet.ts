@@ -81,7 +81,7 @@ const checkChain = async (chainId) => {
 }
 
 const useContainer = initialState => {
-  const [localUser, setLocalUser] = useLocalStorage('user', initialState)
+  const [localUser, setLocalUser] = useLocalStorage('user', initialState) // `null` clears local storage
   const [user, setUser] = useState(localUser as SupabaseUserType)
 
   useEffect(() => {
@@ -91,12 +91,17 @@ const useContainer = initialState => {
       // we reset the user state so they have to re login
       web3.eth.getCoinbase().then(coinbase => {
         if (coinbase !== user?.public_address) {
-          setLocalUser(undefined);
+          setLocalUser(null);
           setUser(undefined);
         }
       });
     }
   }, [])
+
+  const logout = () => {
+    setLocalUser(null);
+    setUser(undefined);
+  }
 
   const doAuth = () => {
     authenticate((authResponse) => {
@@ -169,7 +174,7 @@ const useContainer = initialState => {
 
   }
 
-  return { payWinners, payEntryFee, doAuth, user }
+  return { payWinners, payEntryFee, doAuth, user, logout }
 }
 
 

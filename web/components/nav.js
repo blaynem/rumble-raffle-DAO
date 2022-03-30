@@ -6,18 +6,18 @@ import { useWallet } from '../containers/wallet'
 import Logo from './logo'
 import WalletAddress from './wallet-address'
 
-const userNavigation = [
-  { name: 'Your Profile', href: '#' },
-  { name: 'Settings', href: '#' },
-  { name: 'Sign out', href: '#' }
-]
-
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 const Nav = () => {
-  const { user } = useWallet()
+  const { user, logout} = useWallet()
+
+  const userNavigation = [
+    { name: 'Settings', href: '/settings' },
+    { name: 'Sign out', onClick: () => logout() }
+  ]
+
   return (
     <>
       <Popover
@@ -76,6 +76,7 @@ const Nav = () => {
                           <Menu.Item key={item.name}>
                             {({ active }) => (
                               <a
+                                {...(true && {onClick: item.onClick})}
                                 href={item.href}
                                 className={classNames(
                                   active ? 'bg-gray-100' : '',
