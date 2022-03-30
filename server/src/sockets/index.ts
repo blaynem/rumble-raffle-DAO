@@ -1,14 +1,11 @@
-import { PostgrestError } from "@supabase/supabase-js";
 import { Server, Socket } from "socket.io";
 import client from '../client';
-import { createGame } from "../helpers/createRumble";
 import availableRoomsData from '../helpers/roomRumbleData';
-import { getAllActivities } from "../routes/api/activities";
-import { selectPayoutFromGameData, selectPrizeSplitFromParams } from '../helpers/payoutHelpers';
-import { parseActivityLogForClient, parseActivityLogForDbPut } from "../helpers/parseActivityLogs";
-import {definitions, EntireGameLog, PlayerAndPrizeSplitType} from '@rumble-raffle-dao/types'
+import { definitions } from '@rumble-raffle-dao/types'
 import { CLEAR_GAME, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, START_GAME, UPDATE_ACTIVITY_LOG, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
-import { SetupType } from "@rumble-raffle-dao/rumble";
+import { startRumble } from "../helpers/startRumble";
+import { addPlayer } from "../helpers/addPlayer";
+import { getPlayersAndPrizeSplit } from "../helpers/getPlayersAndPrizeSplit";
 
 let io: Server;
 let roomSocket: Socket;
@@ -119,132 +116,3 @@ async function clearGame(data: { playerData: definitions["users"]; roomSlug: str
   io.in(data.roomSlug).emit(UPDATE_ACTIVITY_LOG, [])
 }
 
-/**
- * Add player should:
- * - check if playerId is already in `players` db. If so, return "already added" or something
- * - If not present in db, we make need to start a crypto tx to charge them to join game.
- * - After success, we insert playerId + roomId to `players` db
- * - Then we return success / fail?
- * 
- * @param roomSlug
- * @param playerData 
- * @returns 
- */
-const addPlayer = async (
-  roomSlug: string,
-  playerData: definitions["users"]
-): Promise<{ data?: definitions["players"][]; error?: PostgrestError | string; }> => {
-  const room = availableRoomsData[roomSlug];
-  if (!room) {
-    return;
-  }
-  if (room.players.length > 900) {
-    return { error: 'reached max players' }
-  }
-  const { data, error } = await client.from<definitions["players"]>('players')
-    .insert({ room_id: room.id, player: playerData.public_address, slug: roomSlug })
-  if (error) {
-    // If error, we return the error.
-    return { error };
-  }
-  // Otherwise add the player to the rumble locally.
-  room.players.push(playerData);
-  return { data }
-}
-
-const getPlayersAndPrizeSplit = (roomSlug: string): PlayerAndPrizeSplitType => {
-  const room = availableRoomsData[roomSlug];
-  if (!room) {
-    console.log('---getPlayersAndPrizeSplit--ERROR', roomSlug);
-    return;
-  }
-  const allPlayers = room.players
-  const prizeSplit = selectPrizeSplitFromParams(room.params);
-  const roomInfo: PlayerAndPrizeSplitType['roomInfo'] = {
-    contract: {
-      chain_id: room.contract.chain_id,
-      contract_address: room.contract.contract_address,
-      network_name: room.contract.network_name,
-      symbol: room.contract.symbol,
-    },
-    params: {
-      alt_split_address: room.params.alt_split_address,
-      created_by: room.params.created_by,
-      entry_fee: room.params.entry_fee,
-      pve_chance: room.params.pve_chance,
-      revive_chance: room.params.revive_chance
-    }
-  }
-  return {
-    allPlayers,
-    prizeSplit,
-    roomInfo
-  }
-}
-
-/**
- * Starting a rumble will:
- * - Get all players, and prizeSplit from params
- * - fetch all activities to play
- * - create the game and play it
- * 
- * - After createGame finishes:
- * - - game payouts to db
- * - - update `rooms` in db with `total_prize_purse`, `game_started`
- * - - dumps activity logs to supabase bucket
- */
-const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
-  const room = availableRoomsData[roomSlug];
-  if (!room || room.game_started) {
-    console.log('---startRumble--ERROR', roomSlug);
-    return;
-  }
-  const { data: activities } = await getAllActivities();
-  const prizeSplit: SetupType['prizeSplit'] = selectPrizeSplitFromParams(room.params);
-  // RumbleApp expects players = {id, name}
-  const initialPlayers: SetupType['initialPlayers'] = room.players.map(player => ({ ...player, id: player.public_address }))
-  const params: SetupType['params'] = {
-    chanceOfPve: room.params.pve_chance,
-    chanceOfRevive: room.params.revive_chance,
-    entryPrice: room.params.entry_fee
-  }
-
-  // TODO: Store this giant blob somewhere so we can go over the files later.
-  // Autoplay the game
-  const finalGameData = await createGame({activities, params, prizeSplit, initialPlayers});
-
-  // Parse the package's activity log to a more usable format to send to client
-  const parsedActivityLog = parseActivityLogForClient(finalGameData.gameActivityLogs, room.players);
-
-  // Parse the activity log to store it to the db better
-  const activitiesInGame = parseActivityLogForDbPut(parsedActivityLog, room);
-  const activityLogSubmit = await client.from<definitions['game_round_logs']>('game_round_logs')
-    .insert(activitiesInGame)
-  if (activityLogSubmit.error) {
-    console.error(activityLogSubmit.error);
-  }
-
-  // Calculate payout info
-  const payoutInfo = selectPayoutFromGameData(room, finalGameData);
-  // Submit all payouts to db
-  const payoutSubmit = await client.from<definitions['payouts']>('payouts')
-    .insert(payoutInfo);
-  if (payoutSubmit.error) {
-    console.error(payoutSubmit.error);
-  }
-  // Update the rooms
-  const updateRoomSubmit = await client.from<definitions['rooms']>('rooms')
-    .update({
-      game_started: true,
-      total_prize_purse: finalGameData.gamePayouts.total,
-      winners: parsedActivityLog.winners.map(winner => winner.public_address)
-    })
-    .match({ id: room.id })
-  if (updateRoomSubmit.error) {
-    console.error(updateRoomSubmit.error);
-  }
-  // Set the game started to true.
-  room.game_started = true;
-
-  return parsedActivityLog;
-}

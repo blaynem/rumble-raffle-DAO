@@ -1,15 +1,14 @@
-import availableRoomsData from "./roomRumbleData";
+import { addNewRoomToMemory } from "./roomRumbleData";
 import client from "../client";
-import {PickFromUsers, RoomDataType, RoundsType, OmegaRoomInterface, EntireGameLog, RoundActivityLog, SingleActivity} from '@rumble-raffle-dao/types';
-
-export const addNewRoomToMemory = (room: RoomDataType) => {
-  const slug = room.slug;
-  const roomData: RoomDataType = {
-    ...room,
-    gameData: room.gameData || null,
-  }
-  availableRoomsData[slug] = roomData;
-}
+import {
+  EntireGameLog,
+  OmegaRoomInterface,
+  PickFromUsers,
+  RoomDataType,
+  RoundActivityLog,
+  RoundsType,
+  SingleActivity
+} from '@rumble-raffle-dao/types';
 
 /**
  * Finds the player by the publicAddress and returns the player object.
@@ -35,7 +34,7 @@ const getRoundsData = (allGameActivities: RoundsType[], players: PickFromUsers[]
     players_remaining: 0,
   };
   // Sort the activities so we make sure the rounds are ordered properly.
-  const sorted = [...allGameActivities].sort((a,b) => a.round_counter - b.round_counter)
+  const sorted = [...allGameActivities].sort((a, b) => a.round_counter - b.round_counter)
   // Go through all sorted activities.
   sorted.forEach((activity) => {
     /**
@@ -47,14 +46,14 @@ const getRoundsData = (allGameActivities: RoundsType[], players: PickFromUsers[]
       // Sort the activities by the order in which they happen
       const roundObj: RoundActivityLog = {
         ...tempRoundObj,
-        activities: tempRoundObj.activities.sort((a,b) => a.activity_order - b.activity_order)
+        activities: tempRoundObj.activities.sort((a, b) => a.activity_order - b.activity_order)
       }
       rounds.push(roundObj);
       tempRoundObj.round_counter = activity.round_counter;
       tempRoundObj.activities = [];
       tempRoundObj.players_remaining = 0;
     }
-    
+
     // Fill out the activity info
     const singleActivity: SingleActivity = {
       activity_order: activity.activity_order,
@@ -70,8 +69,8 @@ const getRoundsData = (allGameActivities: RoundsType[], players: PickFromUsers[]
     tempRoundObj.activities.push(singleActivity)
   })
   // Push the last remaining activity to the rounds arr.
-  rounds.push({...tempRoundObj});
-  
+  rounds.push({ ...tempRoundObj });
+
   return rounds;
 }
 
