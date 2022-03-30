@@ -36,7 +36,7 @@ export const getAllActivities = async () => {
     }
     return {data, error};
   } catch (err) {
-    console.error(err, error);
+    console.error('Server: getAllActivities', error, err);
     return {error}
   }
 }

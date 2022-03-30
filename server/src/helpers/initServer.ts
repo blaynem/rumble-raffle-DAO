@@ -120,7 +120,8 @@ const selectRoomInfo = (roomInfo: OmegaRoomInterface): RoomDataType => {
 
 // todo: check if game was already completed and has stored activity log / winner data.
 const InitializeServer = async () => {
-  const { data, error } = await client.from<OmegaRoomInterface>('rooms').select(`
+  try {
+    const { data, error } = await client.from<OmegaRoomInterface>('rooms').select(`
     id,
     players:users!players(public_address, name),
     params:params_id(*),
@@ -131,14 +132,17 @@ const InitializeServer = async () => {
     game_activities: game_round_logs(*, activity:activity_id(*)),
     winners
     `)
-  if (error) {
-    console.error('---error', error);
-    return;
+    if (error) {
+      console.error('---error', error);
+      return;
+    }
+    data.forEach(room => {
+      const roomToAdd = selectRoomInfo(room)
+      addNewRoomToMemory(roomToAdd);
+    })
+  } catch (error) {
+    console.error('Server: InitializeServer', error);
   }
-  data.forEach(room => {
-    const roomToAdd = selectRoomInfo(room)
-    addNewRoomToMemory(roomToAdd);
-  })
 }
 
 

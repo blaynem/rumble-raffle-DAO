@@ -31,20 +31,24 @@ export const initRoom = (sio: Server, socket: Socket) => {
  * - Return all players and the prize list
  */
 function joinRoom(roomSlug: string) {
-  const { roomData, gameState } = availableRoomsData[roomSlug];
-  // console.log('---room', room, this.id);
-  if (!roomData) {
-    return;
-  }
-  this.join(roomSlug);
-  console.log(`User with ID: ${this.id} joined room: ${roomSlug}`);
-  const playersAndPrizeSplit = getPlayersAndPrizeSplit(roomSlug);
-  io.to(this.id).emit(UPDATE_PLAYER_LIST, playersAndPrizeSplit);
-  if (roomData.game_started) {
-    const { visibleRounds, winners } = getVisibleGameStateForClient(roomData, gameState);
-    // TODO: Limit this to whatever current logs are being shown.
-    io.to(this.id).emit(UPDATE_ACTIVITY_LOG_ROUND, visibleRounds);
-    io.to(this.id).emit(UPDATE_ACTIVITY_LOG_WINNER, winners);
+  try {
+    const { roomData, gameState } = availableRoomsData[roomSlug];
+    // console.log('---room', room, this.id);
+    if (!roomData) {
+      return;
+    }
+    this.join(roomSlug);
+    console.log(`User with ID: ${this.id} joined room: ${roomSlug}`);
+    const playersAndPrizeSplit = getPlayersAndPrizeSplit(roomSlug);
+    io.to(this.id).emit(UPDATE_PLAYER_LIST, playersAndPrizeSplit);
+    if (roomData.game_started) {
+      const { visibleRounds, winners } = getVisibleGameStateForClient(roomData, gameState);
+      // TODO: Limit this to whatever current logs are being shown.
+      io.to(this.id).emit(UPDATE_ACTIVITY_LOG_ROUND, visibleRounds);
+      io.to(this.id).emit(UPDATE_ACTIVITY_LOG_WINNER, winners);
+    }
+  } catch (error) {
+    console.error('Server: joinRoom', error)
   }
 }
 
@@ -53,12 +57,16 @@ function joinRoom(roomSlug: string) {
  * - Do things
  */
 async function joinGame(data: { playerData: definitions["users"]; roomSlug: string }) {
-  // Will error if the player is already added to the game.
-  const { error } = await addPlayer(data.roomSlug, data.playerData);
-  if (error) {
-    io.to(this.id).emit(JOIN_GAME_ERROR, error);
-    return;
+  try {
+    // Will error if the player is already added to the game.
+    const { error } = await addPlayer(data.roomSlug, data.playerData);
+    if (error) {
+      io.to(this.id).emit(JOIN_GAME_ERROR, error);
+      return;
+    }
+    const playersAndPrizeSplit = getPlayersAndPrizeSplit(data.roomSlug);
+    io.in(data.roomSlug).emit(UPDATE_PLAYER_LIST, playersAndPrizeSplit);
+  } catch (error) {
+    console.error('Server: joinGame', 'error')
   }
-  const playersAndPrizeSplit = getPlayersAndPrizeSplit(data.roomSlug);
-  io.in(data.roomSlug).emit(UPDATE_PLAYER_LIST, playersAndPrizeSplit);
 }
