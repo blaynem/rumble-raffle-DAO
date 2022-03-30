@@ -7,11 +7,15 @@ const DisplayPrizes = ({ entryFee, entryToken, firstPlace, secondPlace, thirdPla
     <ul className="border-2 border-slate-100 roundedbg-white rounded-lg w-96 text-gray-900">
       <li className="px-6 py-2 border-b border-gray-200 w-full rounded-t-lg">Total Entrants: {totalEntrants} Battlers</li>
       <li className="px-6 py-2 border-b border-gray-200 w-full">Entry Fee: {entryFee} {entryToken}</li>
-      <li className="px-6 py-2 border-b border-gray-200 w-full">Kills: {kills}%</li>
-      <li className="px-6 py-2 border-b border-gray-200 w-full">1st: {firstPlace}%</li>
-      <li className="px-6 py-2 border-b border-gray-200 w-full">2nd: {secondPlace}%</li>
-      <li className="px-6 py-2 border-b border-gray-200 w-full">3rd: {thirdPlace}%</li>
-      <li className="px-6 py-2 border-b border-gray-200 w-full">Alt Split: {altSplit}%</li>
+      {entryFee > 0 && (
+        <>
+          <li className="px-6 py-2 border-b border-gray-200 w-full">Kills: {kills}%</li>
+          <li className="px-6 py-2 border-b border-gray-200 w-full">1st: {firstPlace}%</li>
+          <li className="px-6 py-2 border-b border-gray-200 w-full">2nd: {secondPlace}%</li>
+          <li className="px-6 py-2 border-b border-gray-200 w-full">3rd: {thirdPlace}%</li>
+          <li className="px-6 py-2 border-b border-gray-200 w-full">Alt Split: {altSplit}%</li>
+        </>
+      )}
     </ul>
   </div>
 );

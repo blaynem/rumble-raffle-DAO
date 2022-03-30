@@ -111,6 +111,9 @@ const useContainer = initialState => {
   }
 
   const payEntryFee = async (contractDetails: PlayerAndPrizeSplitType['roomInfo']['contract'], amount: string): Promise<{ paid: boolean; error: any; }> => {
+    if (amount === "0") {
+      return { paid: true, error: null }
+    }
     try {
       if ((window as any).ethereum) {
         const { rumbleContract, rumbleContractAddress, tokenAddress, tokenContract, tokenDecimals } = await getContractDetails(contractDetails);

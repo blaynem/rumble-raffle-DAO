@@ -97,16 +97,19 @@ export const selectPayoutFromGameData = (
     payouts.push(killPayout);
   })
 
-  const alternateSplitPayout: PayoutsOmitId = payoutTemplate({
-    public_address: room.params.alt_split_address,
-    room,
-    payment_amount: gamePayouts.altSplit,
-    payment_reason: 'alt_split',
-    notes: `Alternate split payout of ${gamePayouts.altSplit}`
-  });
-  // Push the alternate split payout
-  payouts.push(alternateSplitPayout);
-  // Payout alternate split
+  // Only add this if there is an alt split to payout.
+  if (room.params.prize_alt_split > 0) {
+    const alternateSplitPayout: PayoutsOmitId = payoutTemplate({
+      public_address: room.params.alt_split_address,
+      room,
+      payment_amount: gamePayouts.altSplit,
+      payment_reason: 'alt_split',
+      notes: `Alternate split payout of ${gamePayouts.altSplit}`
+    });
+    // Push the alternate split payout
+    payouts.push(alternateSplitPayout);
+  }
+  // return all the payouts
   return payouts;
 }
 
