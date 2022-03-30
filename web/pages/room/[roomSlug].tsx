@@ -56,6 +56,9 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
       console.log('---UPDATE_ACTIVITY_LOG_ROUND', activityLog);
       setActivityLogRounds(activityLog);
     })
+  }, [])
+
+  useEffect(() => {
     socket.on(UPDATE_ACTIVITY_LOG_WINNER, (activityLog: EntireGameLog['winners']) => {
       console.log('---UPDATE_ACTIVITY_LOG_WINNER', activityLog);
       setActivityLogWinners(activityLog);

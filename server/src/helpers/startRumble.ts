@@ -15,12 +15,12 @@ import availableRoomsData from "./roomRumbleData";
  * 
  * - After createGame finishes:
  * - - game payouts to db
- * - - update `rooms` in db with `total_prize_purse`, `game_started`
+ * - - update `rooms` in db with `total_prize_purse`, `game_completed`
  * - - dumps activity logs to supabase bucket
  */
 export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
   const { roomData } = availableRoomsData[roomSlug];
-  if (!roomData || roomData.game_started) {
+  if (!roomData || roomData.game_completed || roomData.game_started) {
     console.log('---startRumble--ERROR', roomSlug);
     return;
   }
@@ -60,7 +60,7 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
   // Update the rooms
   const updateRoomSubmit = await client.from<definitions['rooms']>('rooms')
     .update({
-      game_started: true,
+      game_completed: true,
       total_prize_purse: finalGameData.gamePayouts.total,
       winners: parsedActivityLog.winners.map(winner => winner.public_address)
     })

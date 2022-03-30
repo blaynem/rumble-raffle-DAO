@@ -25,27 +25,27 @@ export type AllAvailableRoomsType = {
 //  */
 //  export type RoomDataAndGameState = RoomDataType & GameState;
 
- /**
-  * The current state of the game. How many rounds have been shown, etc.
-  */
-  export type GameState = {
-   /**
-    * True if the game has been completed.
-    */
-   gameCompleted: boolean;
-   /**
-    * How many rounds of the game should be shown.
-    */
-   roundCounter: number;
-   /**
-    * True if the winners should be shown to the players.
-    */
-   showWinners: boolean;
-   /**
-    * Wait time between displaying the next round.
-    */
-   waitTime: number;
- }
+/**
+ * The current state of the game. How many rounds have been shown, etc.
+ */
+export type GameState = {
+  /**
+   * True if the game has been completed.
+   */
+  gameCompleted: boolean;
+  /**
+   * How many rounds of the game should be shown.
+   */
+  roundCounter: number;
+  /**
+   * True if the winners should be shown to the players.
+   */
+  showWinners: boolean;
+  /**
+   * Wait time, in seconds, between displaying the next round.
+   */
+  waitTime: number;
+}
 
 // Payouts type omitting the id
 export type PayoutsOmitId = Omit<definitions["payouts"], 'id'>;
@@ -96,9 +96,13 @@ export type RoomDataType = {
    */
   gameData?: EntireGameLog | null;
   /**
-   * True if the game has already been started.
+   * True if the game has been completed.
    */
-  game_started: definitions['rooms']['game_started']
+  game_completed: definitions['rooms']['game_completed']
+  /**
+   * True if the game has already begun playing.
+   */
+  game_started: boolean;
   /**
    * Id of the given room.
    */
@@ -131,7 +135,7 @@ export type OmegaRoomInterface = {
   params: definitions['room_params'];
   contract: definitions['contracts'];
   game_activities: RoundsType[];
-} & Pick<definitions['rooms'], 'id' | 'slug' | 'game_started' | 'created_by' | 'winners'>
+} & Pick<definitions['rooms'], 'id' | 'slug' | 'game_completed' | 'created_by' | 'winners'>
 
 // All of the game_round_logs types, omitting the id
 export type GameRoundLogsOmitId = Omit<definitions['game_round_logs'], 'id'>

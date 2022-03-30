@@ -85,7 +85,8 @@ const selectRoomInfo = (roomInfo: OmegaRoomInterface): RoomDataType => {
     },
     created_by: roomInfo.created_by,
     contract: roomInfo.contract,
-    game_started: roomInfo.game_started,
+    game_completed: roomInfo.game_completed,
+    game_started: roomInfo.game_completed, // if the game is already completed, it has started for the server.
     id: roomInfo.id,
     players: roomInfo.players,
     params: roomInfo.params,
@@ -101,7 +102,7 @@ const InitializeServer = async () => {
     params:params_id(*),
     slug,
     contract:contract_id(*),
-    game_started,
+    game_completed,
     created_by,
     game_activities: game_round_logs(*, activity:activity_id(*)),
     winners

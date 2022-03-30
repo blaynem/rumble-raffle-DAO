@@ -778,7 +778,7 @@ export interface paths {
           slug?: parameters["rowFilter.rooms.slug"];
           params_id?: parameters["rowFilter.rooms.params_id"];
           created_by?: parameters["rowFilter.rooms.created_by"];
-          game_started?: parameters["rowFilter.rooms.game_started"];
+          game_completed?: parameters["rowFilter.rooms.game_completed"];
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
@@ -840,7 +840,7 @@ export interface paths {
           slug?: parameters["rowFilter.rooms.slug"];
           params_id?: parameters["rowFilter.rooms.params_id"];
           created_by?: parameters["rowFilter.rooms.created_by"];
-          game_started?: parameters["rowFilter.rooms.game_started"];
+          game_completed?: parameters["rowFilter.rooms.game_completed"];
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
@@ -866,7 +866,7 @@ export interface paths {
           slug?: parameters["rowFilter.rooms.slug"];
           params_id?: parameters["rowFilter.rooms.params_id"];
           created_by?: parameters["rowFilter.rooms.created_by"];
-          game_started?: parameters["rowFilter.rooms.game_started"];
+          game_completed?: parameters["rowFilter.rooms.game_completed"];
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
@@ -1323,7 +1323,7 @@ export interface definitions {
      */
     created_by: string;
     /** Format: boolean */
-    game_started: boolean;
+    game_completed: boolean;
     /**
      * Format: numeric
      * @description Total prize purse depending on amount of players when game starts.
@@ -1626,7 +1626,7 @@ export interface parameters {
   /** Format: character varying */
   "rowFilter.rooms.created_by": string;
   /** Format: boolean */
-  "rowFilter.rooms.game_started": string;
+  "rowFilter.rooms.game_completed": string;
   /**
    * Format: numeric
    * @description Total prize purse depending on amount of players when game starts.

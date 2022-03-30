@@ -49,6 +49,7 @@ router.post('/create', jsonParser, async (req: any, res: any) => {
     created_by,
     contract: contract,
     gameData: null,
+    game_completed: false,
     game_started: false,
     id: data[0].id,
     params: roomParamsData[0],
