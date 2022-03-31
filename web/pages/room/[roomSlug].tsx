@@ -213,13 +213,13 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
           {activityLogWinners.length > 0 && <div>
             <h3>Winner!!</h3>
             <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
-              <li className={`px-6 py-2 border-b border-gray-200 w-full ${activityLogWinners[0].public_address === user.public_address ? 'bg-slate-200' : 'bg-white'}`} >
+              <li className={`px-6 py-2 border-b border-gray-200 w-full ${activityLogWinners[0].public_address === user?.public_address ? 'bg-slate-200' : 'bg-white'}`} >
                 Congratulations <ClickToCopyPopper boldText text={activityLogWinners[0].name} popperText={activityLogWinners[0].public_address} />
               </li>
-              <li className={`px-6 py-2 border-b border-gray-200 w-full ${activityLogWinners[1].public_address === user.public_address ? 'bg-slate-200' : 'bg-white'}`} >
+              <li className={`px-6 py-2 border-b border-gray-200 w-full ${activityLogWinners[1].public_address === user?.public_address ? 'bg-slate-200' : 'bg-white'}`} >
                 2nd place: <ClickToCopyPopper boldText text={activityLogWinners[1].name} popperText={activityLogWinners[1].public_address} />
               </li>
-              <li className={`px-6 py-2 w-full rounded-b-lg ${activityLogWinners[2].public_address === user.public_address ? 'bg-slate-200' : 'bg-white'}`} >
+              <li className={`px-6 py-2 w-full rounded-b-lg ${activityLogWinners[2].public_address === user?.public_address ? 'bg-slate-200' : 'bg-white'}`} >
                 3rd place: <ClickToCopyPopper boldText text={activityLogWinners[2].name} popperText={activityLogWinners[2].public_address} />
               </li>
             </ul>

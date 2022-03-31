@@ -24,7 +24,7 @@ const DisplayActivityLog = ({logs, user}: { logs: RoundActivityLog; user: Supaba
   /**
    * Returns true if the play is present in the array
    */
-  const containsUser = (participants: PickFromPlayers[]) => participants.findIndex(p => p.public_address === user.public_address) > -1;
+  const containsUser = (participants: PickFromPlayers[]) => participants.findIndex(p => p?.public_address === user?.public_address) > -1;
 
   return (
     <div>

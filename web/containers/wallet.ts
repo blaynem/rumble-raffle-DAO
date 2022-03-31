@@ -4,10 +4,14 @@ import { authenticate } from '../lib/wallet'
 import { useLocalStorage } from '../lib/localstorage'
 import { definitions, PlayerAndPrizeSplitType, SupabaseUserType } from '@rumble-raffle-dao/types'
 import { ethers } from 'ethers';
+let RaffleSmartContracts;
+if (process.env.NODE_ENV === 'development') {
+  import('@rumble-raffle-dao/smart-contracts').then(module => RaffleSmartContracts = module);
+}
 
-import { RumbleRaffle, TestToken } from '@rumble-raffle-dao/smart-contracts';
 import Web3 from 'web3'
 import { fetchPolygonContractABI } from '../pages/api/contracts'
+
 
 const createEthereumContract = (address, abi) => {
   const provider = new ethers.providers.Web3Provider((window as any).ethereum);
@@ -26,9 +30,9 @@ const getContractDetails = async (contractDetails: Pick<definitions['contracts']
   if (process.env.NODE_ENV === 'development') {
     // Need the decimal value to get correct payment amount.
     // convert from bigint by doing  `number => ethers.utils.formatUnits(amt, decimals)`
-    rumbleContract = createEthereumContract(rumbleContractAddress, RumbleRaffle.abi);
+    rumbleContract = createEthereumContract(rumbleContractAddress, RaffleSmartContracts.RumbleRaffle.abi);
     tokenAddress = process.env.DEV_TOKEN_CONTRACT_ADDRESS;
-    tokenContract = createEthereumContract(tokenAddress, TestToken.abi);
+    tokenContract = createEthereumContract(tokenAddress, RaffleSmartContracts.TestToken.abi);
   }
   if (process.env.NODE_ENV === 'production') {
     // todo: Enable check chain for non-localhost
