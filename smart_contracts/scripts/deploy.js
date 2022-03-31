@@ -13,26 +13,19 @@ async function main() {
   // manually to make sure everything is compiled
   // await hre.run('compile');
 
-  // We get the contract to deploy
-  const Greeter = await hre.ethers.getContractFactory("Greeter");
-  const greeter = await Greeter.deploy("Hello, Hardhat!");
-
-  await greeter.deployed();
-
-  console.log("Greeter deployed to:", greeter.address);
-
+  // We get the contract factory
   const RumbleRaffle = await hre.ethers.getContractFactory('RumbleRaffle');
-  const rumbleRaffle = await RumbleRaffle.deploy();
-
-  await rumbleRaffle.deployed();
-
-  console.log("RumbleRaffle deployed to:", rumbleRaffle.address);
-
   const Token = await hre.ethers.getContractFactory('Token');
+  
+  // We get the contract to deploy
+  const rumbleRaffle = await RumbleRaffle.deploy();
   const token = await Token.deploy();
-
+  
+  // We wait for it to deploy
+  await rumbleRaffle.deployed();
   await token.deployed();
-
+  
+  console.log("RumbleRaffle deployed to:", rumbleRaffle.address);
   console.log("Token deployed to:", token.address);
 }
 

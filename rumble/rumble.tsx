@@ -46,6 +46,13 @@ const defaultParams: SetupType['params'] = {
   entryPrice: 10
 }
 
+export const defaultSetup: SetupType = {
+  activities: defaultGameActivities,
+  params: defaultParams,
+  initialPlayers: [],
+  prizeSplit: defaultPrizeSplit,
+}
+
 const initialGamePayouts: PrizePayouts = {
   altSplit: 0,
   creatorSplit: 0,
@@ -85,12 +92,7 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
   playersSlainIds: string[];
   roundCounter: number;
 
-  constructor(setup: SetupType = {
-    activities: defaultGameActivities,
-    params: defaultParams,
-    initialPlayers: [],
-    prizeSplit: defaultPrizeSplit,
-  }) {
+  constructor(setup: SetupType = defaultSetup) {
     this.activities = setup.activities;
 
     // Defining the params of the game
@@ -593,6 +595,7 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
     return this.allPlayers[id];
   }
 
+  // todo: PrizeValuesType should actually be using the PrizePayouts. As it's returning the actual amount of coin, not a percentage
   private calculatePrizeSplit(totalPrize: number, totalPlayers: number): PrizeValuesType {
     this.validatePrizeSplit();
 
