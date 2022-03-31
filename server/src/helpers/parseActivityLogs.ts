@@ -1,4 +1,4 @@
-import { GameEndType } from "@rumble-raffle-dao/rumble";
+import { GameEndType } from '@rumble-raffle-dao/rumble/types';
 import {GameRoundLogsOmitId, EntireGameLog, SingleActivity, RoundActivityLog, PickFromPlayers, RoomDataType} from '@rumble-raffle-dao/types';
 
 /**

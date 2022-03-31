@@ -1,4 +1,4 @@
-import { ActivitiesObjType, ActivityTypes, SetupType } from '@rumble-raffle-dao/rumble';
+import { SetupType, ActivityTypes } from '@rumble-raffle-dao/rumble/types';
 import { definitions } from '@rumble-raffle-dao/types';
 import express from 'express';
 import client from '../../client';

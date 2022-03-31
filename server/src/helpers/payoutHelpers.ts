@@ -1,5 +1,4 @@
-import { GameEndType, PrizeSplitType } from "@rumble-raffle-dao/rumble";
-import { PrizePayouts } from "@rumble-raffle-dao/rumble/types";
+import { PrizePayouts, GameEndType, PrizeSplitType } from "@rumble-raffle-dao/rumble/types";
 import { definitions, RoomDataType, PayoutsOmitId, PayoutTemplateType } from '@rumble-raffle-dao/types'
 
 export const selectPrizeSplitFromParams = (params: definitions['room_params']): PrizeSplitType => ({

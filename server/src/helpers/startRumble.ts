@@ -1,4 +1,4 @@
-import { SetupType } from "@rumble-raffle-dao/rumble";
+import { SetupType } from "@rumble-raffle-dao/rumble/types";
 import { EntireGameLog, definitions } from "@rumble-raffle-dao/types";
 import client from "../client";
 import { getAllActivities } from "../routes/api/activities";

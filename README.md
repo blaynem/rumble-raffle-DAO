@@ -78,7 +78,6 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
   - ~~Request payment before joining a game.~~
   - Should show a running tally of all the kills so players can see as the game goes on
     - added killCount to activityLogs specific activity
-  - When you are in an activity, it should highlight the row / your name or something to bring awareness to it.
 - Home Page:
   - Add list of rooms that are open
   - If the user has `admin` rights, show them the `create` room button
@@ -114,8 +113,6 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
   - TESTING. We have zero tests. Not great!
 - Revives:
   - We should increase the amount of revives based on how many players are left. Right now it's only 1 per round.
-- replaceActivityDescPlaceholders
-  - Right now it only shows the player names. We need to be able to hover a players name and show their publicAddress.
 
 ## Smart Contracts
 

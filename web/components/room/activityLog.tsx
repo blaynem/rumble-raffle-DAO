@@ -6,7 +6,6 @@ import { ClickToCopyPopper } from '../Popper';
 const replaceActivityDescPlaceholders = (activity: SingleActivity): (string | JSX.Element)[] => {
   const matchPlayerNumber = /(PLAYER_\d+)/ // matches PLAYER_0, PLAYER_12, etc
   const parts = activity.description.split(matchPlayerNumber);
-  console.log(activity);
 
   const replaceNames = parts.map((part, i) => {
     if (part.match(matchPlayerNumber)) {
