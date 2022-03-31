@@ -55,10 +55,6 @@ const customPrizeSplitMessage = (errorMsg: string, touched: FormikTouched<Create
   return message ? <div className='px-4 space-y-6 sm:px-6'>{message}</div> : null;
 }
 
-const customContractErrorMessage = (errorMsg) => {
-
-}
-
 const customErrorColors = (msg: string) => <div className='text-red-600 py-2'>{msg}</div>
 
 /**

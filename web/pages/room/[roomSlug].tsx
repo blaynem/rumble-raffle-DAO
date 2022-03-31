@@ -37,11 +37,6 @@ export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest })
 
 const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePropsType) => {
   const { user, payEntryFee } = useWallet()
-  // console.log('---RumbleRoom PROPS---', {user, roomSlug, activeRoom});
-  // TODO: Redirect them to home if there is no room shown?
-  if (!activeRoom) {
-    return <>Please check room number.</>
-  }
   const [entrants, setEntrants] = useState([] as PlayerAndPrizeSplitType['allPlayers']);
   const [prizes, setPrizes] = useState({} as PlayerAndPrizeSplitType['prizeSplit']);
   const [roomInfo, setRoomInfo] = useState({} as PlayerAndPrizeSplitType['roomInfo']);
@@ -108,7 +103,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
       setTimeToNextRoundStart(null)
       clearInterval(nextRoundInterval);
     })
-  }, [])
+  })
 
   // Any time the winners are announced
   useEffect(() => {
@@ -122,7 +117,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
       setTimeToNextRoundStart(null)
       clearInterval(nextRoundInterval);
     })
-  }, [])
+  })
 
   // Any time there are more players added to the list.
   useEffect(() => {
@@ -181,6 +176,12 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   }
 
   const alreadyJoined = entrants.findIndex(entrant => entrant.public_address === user?.public_address) >= 0;
+
+  // TODO: Redirect them to home if there is no room shown?
+  if (!activeRoom) {
+    return <>Please check room number.</>
+  }
+
   return (
     <div>
       <div>
