@@ -121,13 +121,13 @@ contract RumbleRaffle is Ownable {
     function payoutPrizes(address payable[] memory _paymentAddrs, uint[] memory _paymentAmts, IERC20 _token) payable public onlyOwner  {
         // Gets total amount of held tokens
         uint _tokenBalance = getTokenBalance(_token);
-        require(_tokenBalance > 0, "There are no tokens of this type.");
+        require(_tokenBalance > 0, "The token balance for this address is 0.");
         // the addresses and amounts should be same in length
-        require(_paymentAddrs.length == _paymentAmts.length, "The length of two array should be the same");
+        require(_paymentAddrs.length == _paymentAmts.length, "The length of the two arrays should be equal.");
         
         uint _totalPaymentAmt = _sum(_paymentAmts);
         // the total available token balance is greater than the desired payment amount.
-        require(_tokenBalance >= _totalPaymentAmt, "The value is not sufficient or exceed");
+        require(_tokenBalance >= _totalPaymentAmt, "Requested payment amount is greater than the current holdings.");
         
         
         for (uint _i = 0; _i < _paymentAddrs.length; _i++) {
