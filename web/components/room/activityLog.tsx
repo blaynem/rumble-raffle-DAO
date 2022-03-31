@@ -7,12 +7,12 @@ const replaceActivityDescPlaceholders = (activity: SingleActivity): (string | JS
   const matchPlayerNumber = /(PLAYER_\d+)/ // matches PLAYER_0, PLAYER_12, etc
   const parts = activity.description.split(matchPlayerNumber);
 
-  const replaceNames = parts.map(part => {
+  const replaceNames = parts.map((part, i) => {
     if (part.match(matchPlayerNumber)) {
       const index = Number(part.replace('PLAYER_', ''))
       // Gets the name of the player.
       const player = activity.participants[index]
-      return <ClickToCopyPopper boldText text={player.name} popperText={player.public_address} />
+      return <ClickToCopyPopper key={i} boldText text={player.name} popperText={player.public_address} />
     }
     return part;
   })
