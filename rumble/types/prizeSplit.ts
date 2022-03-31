@@ -46,7 +46,9 @@ export type PrizeSplitType = {
  * Ex: If TotalPrize is 1000, and the winners cut is 50%, PrizeValue.firstPlace = 500.
  */
 export interface PrizeValuesType extends PrizeSplitType {
-  // Total prize value
+  /**
+   * Total prize value
+   */
   totalPrize: number;
 }
 

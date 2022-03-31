@@ -50,7 +50,7 @@ export const pickActivity = (options: ActivityTypes[], minimumPlayerAmount: numb
  * @param playerIds - array of player ids
  * @returns array of player ids
  */
-const getPlayersFromIndex = (
+export const getPlayersFromIndex = (
   indexes: number[] | null,
   playerIds: string[]
 ): string[] | null => {
