@@ -193,7 +193,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
       </div>
       <div>
         {timeToGameStart && <div>Game starts in: {timeToGameStart}</div>}
-        {timeToNextRoundStart && <div>Next round begins in: {timeToNextRoundStart}</div> }
+        {timeToNextRoundStart && <div>Next round begins in: {timeToNextRoundStart}</div>}
       </div>
       {errorMessage && <p className="text-center text-red-600">{errorMessage}</p>}
       <div className="flex justify-around">
@@ -201,20 +201,26 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
         <div>
           <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Entrants</h3>
           <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900 min-w-[440px] max-h-80 overflow-auto">
-            {entrants.map(entrant => <DisplayEntrant key={entrant.public_address} {...entrant} />)}
+            {entrants.map(entrant => <DisplayEntrant key={entrant.public_address} entrant={entrant} user={user} />)}
           </ul>
         </div>
       </div>
       <div>
         <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Activity Log</h3>
         <div className="flex flex-col items-center max-h-96 overflow-auto">
-          {activityLogRounds?.map((entry, i) => <DisplayActivityLog key={`${entry.round_counter}-${i}`} {...entry} />)}
+          {activityLogRounds?.map((entry, i) => <DisplayActivityLog key={`${entry.round_counter}-${i}`} logs={entry} user={user} />)}
           {activityLogWinners.length > 0 && <div>
             <h3>Winner!!</h3>
             <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
-              <li className="px-6 py-2 border-b border-gray-200 w-full" >Congratulations <ClickToCopyPopper boldText text={activityLogWinners[0].name} popperText={activityLogWinners[0].public_address} /> </li>
-              <li className="px-6 py-2 border-b border-gray-200 w-full" >2nd place: <ClickToCopyPopper boldText text={activityLogWinners[1].name} popperText={activityLogWinners[1].public_address} /></li>
-              <li className="px-6 py-2 w-full rounded-b-lg" >3rd place: <ClickToCopyPopper boldText text={activityLogWinners[2].name} popperText={activityLogWinners[2].public_address} /></li>
+              <li className={`px-6 py-2 border-b border-gray-200 w-full ${activityLogWinners[0].public_address === user.public_address ? 'bg-slate-200' : 'bg-white'}`} >
+                Congratulations <ClickToCopyPopper boldText text={activityLogWinners[0].name} popperText={activityLogWinners[0].public_address} />
+              </li>
+              <li className={`px-6 py-2 border-b border-gray-200 w-full ${activityLogWinners[1].public_address === user.public_address ? 'bg-slate-200' : 'bg-white'}`} >
+                2nd place: <ClickToCopyPopper boldText text={activityLogWinners[1].name} popperText={activityLogWinners[1].public_address} />
+              </li>
+              <li className={`px-6 py-2 w-full rounded-b-lg ${activityLogWinners[2].public_address === user.public_address ? 'bg-slate-200' : 'bg-white'}`} >
+                3rd place: <ClickToCopyPopper boldText text={activityLogWinners[2].name} popperText={activityLogWinners[2].public_address} />
+              </li>
             </ul>
           </div>}
         </div>
