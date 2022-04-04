@@ -27,7 +27,7 @@ const DisplayActivity = ({ activity, containsUser }: { activity: SingleActivity;
       <span className="self-center pr-4 stepper-icon">
         <MenuIcon className="h-5 w-5 dark:stroke-rumbleNone stroke-rumbleOutline" />
       </span>
-      <span className={`p-2 dark:text-rumbleNone ${containsUser ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>{replaceActivityDescPlaceholders(activity)}</span>
+      <span className={`p-2 font-light dark:text-rumbleNone ${containsUser ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>{replaceActivityDescPlaceholders(activity)}</span>
     </li>
   )
 }
@@ -47,7 +47,7 @@ const DisplayRound = ({ logs, publicAddress }: { logs: RoundActivityLog; publicA
         {logs.activities?.map((activity, index) => (
           <DisplayActivity key={`${activity.id}-${index}`} activity={activity} containsUser={containsUser(activity.participants)} />
         ))}
-        <li className="relative border-l-2 dark:border-l-rumbleNone/40 border-l-black pt-2 pb-8 px-9 lowercase text-base dark:text-rumbleNone/60 text-rumbleOutline/60">
+        <li className="border-l-2 dark:border-l-rumbleNone/40 border-l-black pt-2 pb-8 px-9 lowercase text-base dark:text-rumbleNone/60 text-rumbleOutline/60">
           {logs.players_remaining} {logs.players_remaining > 1 ? 'players' : 'player'} left
         </li>
       </ul>
