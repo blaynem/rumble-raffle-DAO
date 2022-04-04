@@ -6,15 +6,15 @@ import io from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
 import DisplayPrizes from "../../components/room/prizes";
 import DisplayActivityLog from "../../components/room/activityLog";
-import DisplayEntrant from "../../components/room/entrants";
 import { useWallet } from '../../containers/wallet'
 import { ClickToCopyPopper } from "../../components/Popper";
 import { BASE_API_URL, BASE_WEB_URL } from "../../lib/constants";
+import Entrants from "../../components/room/entrants";
 
 const socket = io(BASE_API_URL).connect()
 
-const buttonClass = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
-const buttonDisabled = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md focus:outline-none focus:ring-0 transition duration-150 ease-in-out pointer-events-none opacity-60"
+const buttonClass = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone font-medium text-xs uppercase transition duration-150 ease-in-out border-r-2 hover:bg-rumbleSecondary focus:bg-rumbleSecondary"
+const buttonDisabled = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone font-medium text-xs uppercase transition duration-150 ease-in-out border-r-2 pointer-events-none opacity-60"
 
 export type ServerSidePropsType = {
   activeRoom: boolean;
@@ -183,32 +183,29 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   }
 
   return (
-    <div className="bg-rumbleBgLight">
+    <div className="dark:bg-black bg-rumbleBgLight">
       <div>
         {/* If we don't wrap this, all of the styles break for some reason. I don't even. */}
         {roomCreator === user?.public_address && <AdminRoomPanel {...{ socket, roomSlug }} />}
-      </div>
-      <h2 className="p-2 text-center">Player: <span className="font-bold">{user?.name}</span></h2>
-      <div className="flex items-center justify-center p-2">
-        <button className={(alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Joined' : 'Join Game'}</button>
       </div>
       <div>
         {timeToGameStart && <div>Game starts in: {timeToGameStart}</div>}
         {timeToNextRoundStart && <div>Next round begins in: {timeToNextRoundStart}</div>}
       </div>
-      {errorMessage && <p className="text-center text-red-600">{errorMessage}</p>}
-      <div className="flex justify-around">
-        <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
-        <div>
-          <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Entrants</h3>
-          <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900 min-w-[440px] max-h-80 overflow-auto">
-            {entrants.map(entrant => <DisplayEntrant key={entrant.public_address} entrant={entrant} user={user} />)}
-          </ul>
+      <div className="flex px-20 py-10">
+        {/* Left Side */}
+        <div className="flex-1">
+          <h2 className="mb-8 dark:text-rumbleNone">(img) <span className="font-bold">{user?.name}</span></h2>
+          <div className="mb-8">
+            <button className={(alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Join Game' : 'Join Game'}</button>
+            {errorMessage && <p className="mt-4 text-red-600">Error: {errorMessage}</p>}
+          </div>
+          <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
+          <Entrants entrants={entrants} user={user}/>
         </div>
-      </div>
-      <div>
-        <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Activity Log</h3>
-        <div className="flex flex-col items-center max-h-96 overflow-auto">
+        {/* Left Side */}
+        <div className="flex-1">
+          <div className="flex flex-col items-center max-h-96 overflow-auto">
           {activityLogRounds?.map((entry, i) => <DisplayActivityLog key={`${entry.round_counter}-${i}`} logs={entry} user={user} />)}
           {activityLogWinners.length > 0 && <div>
             <h3>Winner!!</h3>
@@ -224,6 +221,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
               </li>
             </ul>
           </div>}
+        </div>
         </div>
       </div>
     </div>

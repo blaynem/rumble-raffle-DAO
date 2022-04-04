@@ -25,7 +25,7 @@ export const ClickToCopyPopper = ({text, boldText, popperText}: { text: string; 
       {visible && (
         <div
           ref={setTooltipRef}
-          {...getTooltipProps({ className: 'tooltip-container' })}
+          {...getTooltipProps({ className: 'tooltip-container p-2 shadow-md bg-rumbleBgLight border-2 border-black' })}
         >
           <div className='cursor-default text-xs'>--Click to copy--</div>
           <div onClick={handleClick} className='cursor-pointer'>{popperText}</div>

@@ -25,7 +25,7 @@ const Nav = () => {
         className={({ open }) =>
           classNames(
             open ? 'fixed inset-0 z-40 overflow-y-auto' : '',
-            'bg-rumbleBgLight border-b-2 lg:static lg:overflow-y-visible'
+            'dark:bg-black bg-rumbleBgLight border-b-2 dark:border-rumbleNone border-rumbleOutline lg:static lg:overflow-y-visible'
           )
         }
       >
@@ -35,7 +35,7 @@ const Nav = () => {
               {/* Profile dropdown */}
               <Menu as="div" className="relative">
                 <div>
-                  <Menu.Button className="bg-rumblePrimary text-rumbleNone border-l-2 border-rumbleOutline px-6 py-4 focus:outline-none focus:ring-2 focus:ring-rumbleSecondary">
+                  <Menu.Button className="bg-rumblePrimary text-rumbleNone border-l-2 dark:border-rumbleNone border-rumbleOutline px-6 py-4 focus:outline-none focus:ring-2 focus:ring-rumbleSecondary">
                     <span className="sr-only">Open user menu</span>
                     {!user && <WalletConnector />}
                     {user && <WalletAddress address={user.public_address} />}
