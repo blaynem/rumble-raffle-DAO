@@ -183,7 +183,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   }
 
   return (
-    <div>
+    <div className="bg-rumbleBgLight">
       <div>
         {/* If we don't wrap this, all of the styles break for some reason. I don't even. */}
         {roomCreator === user?.public_address && <AdminRoomPanel {...{ socket, roomSlug }} />}
