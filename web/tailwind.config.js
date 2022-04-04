@@ -3,6 +3,15 @@ module.exports = {
   mode: 'jit',
   darkMode: 'class', // or 'media' or 'class'
   theme: {
+    colors: {
+      rumbleBgLight: '#F8F8F8',
+      rumbleBgDark: '#222222',
+      rumblePrimary: '#9912B8',
+      rumbleSecondary: '#4CE3B6',
+      rumbleTertiary: '#FDFC00',
+      rumbleOutline: '#000000',
+      rumbleNone: '#FFFFFF',
+    },
     extend: {},
   },
   variants: {
