@@ -182,19 +182,22 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
     return <>Please check room number.</>
   }
 
+  const isRoomCreator = roomCreator === user?.public_address;
+  const calcHeight = isRoomCreator ? 'calc(100vh - 158px)' : 'calc(100vh - 108px)';
+
   return (
-    <div className="dark:bg-black bg-rumbleBgLight">
+    <div className="dark:bg-black bg-rumbleBgLight" style={{height: 'calc(100vh - 58px)'}}>
       <div>
         {/* If we don't wrap this, all of the styles break for some reason. I don't even. */}
-        {roomCreator === user?.public_address && <AdminRoomPanel {...{ socket, roomSlug }} />}
+        {isRoomCreator && <AdminRoomPanel {...{ socket, roomSlug }} />}
       </div>
       <div>
         {timeToGameStart && <div>Game starts in: {timeToGameStart}</div>}
         {timeToNextRoundStart && <div>Next round begins in: {timeToNextRoundStart}</div>}
       </div>
-      <div className="flex px-20 py-10">
+      <div className="flex">
         {/* Left Side */}
-        <div className="flex-1">
+        <div className="pt-10 ml-20 mr-4 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
           <h2 className="mb-8 dark:text-rumbleNone">(img) <span className="font-bold">{user?.name}</span></h2>
           <div className="mb-8">
             <button className={(alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Join Game' : 'Join Game'}</button>
@@ -204,9 +207,9 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
           <Entrants entrants={entrants} user={user}/>
         </div>
         {/* Left Side */}
-        <div className="flex-1">
-          <div className="flex flex-col items-center max-h-96 overflow-auto">
-          {activityLogRounds?.map((entry, i) => <DisplayActivityLog key={`${entry.round_counter}-${i}`} logs={entry} user={user} />)}
+        <div className="py-10 pr-20 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
+          <div className="flex flex-col items-center max-h-full">
+          <DisplayActivityLog allActivities={activityLogRounds} user={user} />
           {activityLogWinners.length > 0 && <div>
             <h3>Winner!!</h3>
             <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">

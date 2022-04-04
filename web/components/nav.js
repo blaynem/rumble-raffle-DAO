@@ -1,9 +1,7 @@
 import { React, Fragment } from 'react'
 import { Menu, Popover, Transition } from '@headlessui/react'
-import { MenuIcon, XIcon } from '@heroicons/react/outline'
 import WalletConnector from './wallet-connector'
 import { useWallet } from '../containers/wallet'
-import Logo from './logo'
 import WalletAddress from './wallet-address'
 
 function classNames(...classes) {

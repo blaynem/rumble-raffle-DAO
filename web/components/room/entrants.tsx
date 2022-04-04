@@ -3,7 +3,7 @@ import { PickFromPlayers, SupabaseUserType } from "@rumble-raffle-dao/types";
 import { ClickToCopyPopper } from '../Popper';
 
 const DisplayEntrant = ({ entrant: { public_address, name }, user }: { entrant: PickFromPlayers; user: SupabaseUserType }) => (
-  <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${public_address === user?.public_address ? 'bg-rumbleTertiary/40' : ''}`} key={public_address}>
+  <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${public_address === user?.public_address ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`} key={public_address}>
     <ClickToCopyPopper text={name} popperText={public_address} />
   </li>
 )
