@@ -10746,11 +10746,6 @@ react-is@^17.0.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
-react-middle-ellipsis@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/react-middle-ellipsis/-/react-middle-ellipsis-1.2.1.tgz#2f71b6b7ba2b13713ca7bbe52f57575dd4a701f9"
-  integrity sha512-BUQWVXIWwkY7qBqZx0qyeCnPIh188t0lLS0ftfBsU41HB6k769HyBwE23eP+qNXr4vEnmKTEmlicrypVdWYs0w==
-
 react-popper-tooltip@^4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/react-popper-tooltip/-/react-popper-tooltip-4.3.1.tgz#0bfdd40453395865d7a5678a160640243070528e"
