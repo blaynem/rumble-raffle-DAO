@@ -3,14 +3,11 @@ import ContainerRoot from '../containers/root'
 import React from 'react'
 import Nav from '../components/nav'
 
-function MyApp({ Component, pageProps, darkMode }) {
-
+function MyApp({ Component, pageProps }) {
   return (
     <ContainerRoot>
-      <div className={darkMode ? 'dark' : ''}>
-        <Nav />
-        <Component {...pageProps} />
-      </div>
+      <Nav />
+      <Component {...pageProps} />
     </ContainerRoot>
   )
 }

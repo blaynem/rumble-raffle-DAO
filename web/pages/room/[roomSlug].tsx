@@ -9,6 +9,7 @@ import { DisplayActivityLogs, DisplayWinners } from "../../components/room/activ
 import { useWallet } from '../../containers/wallet'
 import { BASE_API_URL, BASE_WEB_URL } from "../../lib/constants";
 import Entrants from "../../components/room/entrants";
+import { usePreferences } from "../../containers/preferences";
 
 const socket = io(BASE_API_URL).connect()
 
@@ -36,6 +37,7 @@ export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest })
 
 const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePropsType) => {
   const { user, payEntryFee } = useWallet()
+  const { preferences } = usePreferences();
   const [entrants, setEntrants] = useState([] as PlayerAndPrizeSplitType['allPlayers']);
   const [prizes, setPrizes] = useState({} as PlayerAndPrizeSplitType['prizeSplit']);
   const [roomInfo, setRoomInfo] = useState({} as PlayerAndPrizeSplitType['roomInfo']);
@@ -190,31 +192,33 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   }
 
   return (
-    <div className="dark:bg-black bg-rumbleBgLight overflow-auto sm:overflow-hidden" style={{ height: 'calc(100vh - 58px)' }}>
-      <div>
-        {/* If we don't wrap this, all of the styles break for some reason. I don't even. */}
-        {isRoomCreator && <AdminRoomPanel {...{ socket, roomSlug }} />}
-      </div>
-      <div className="flex flex-col md:flex-row sm:flex-row">
-        {/* Left Side */}
-        <div className="ml-6 lg:ml-20 md:ml-6 sm:ml-6 pr-6 mr-2 pt-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
-          <h2 className="mb-8 dark:text-rumbleNone">(img) <span className="font-bold">{user?.name}</span></h2>
-          <div className="mb-8">
-            <button className={(alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Join Game' : 'Join Game'}</button>
-            {errorMessage && <p className="mt-4 text-red-600">Error: {errorMessage}</p>}
-          </div>
-          <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
-          <Entrants entrants={entrants} user={user} />
+    <div className={`${preferences?.darkMode ? 'dark' : 'light'}`}>
+      <div className="dark:bg-black bg-rumbleBgLight overflow-auto sm:overflow-hidden" style={{ height: 'calc(100vh - 58px)' }}>
+        <div>
+          {/* If we don't wrap this, all of the styles break for some reason. I don't even. */}
+          {isRoomCreator && <AdminRoomPanel {...{ socket, roomSlug }} />}
         </div>
-        {/* Left Side */}
-        <div className="pr-6 lg:pr-20 md:pr-6 sm:pr-6 py-2 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
-          <div className="my-4 h-6 text-center">
-            {timeToGameStart && <span>Game starts in: {timeToGameStart}</span>}
-            {timeToNextRoundStart && <span>Next round begins in: {timeToNextRoundStart}</span>}
+        <div className="flex flex-col md:flex-row sm:flex-row">
+          {/* Left Side */}
+          <div className="ml-6 lg:ml-20 md:ml-6 sm:ml-6 pr-6 mr-2 pt-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
+            <h2 className="mb-8 dark:text-rumbleNone">(img) <span className="font-bold">{user?.name}</span></h2>
+            <div className="mb-8">
+              <button className={(alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Join Game' : 'Join Game'}</button>
+              {errorMessage && <p className="mt-4 text-red-600">Error: {errorMessage}</p>}
+            </div>
+            <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
+            <Entrants entrants={entrants} user={user} />
           </div>
-          <div className="flex flex-col items-center max-h-full">
-            <DisplayActivityLogs allActivities={activityLogRounds} user={user} />
-            {activityLogWinners.length > 0 && <DisplayWinners winners={activityLogWinners} user={user} />}
+          {/* Left Side */}
+          <div className="pr-6 lg:pr-20 md:pr-6 sm:pr-6 py-2 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
+            <div className="my-4 h-6 text-center">
+              {timeToGameStart && <span>Game starts in: {timeToGameStart}</span>}
+              {timeToNextRoundStart && <span>Next round begins in: {timeToNextRoundStart}</span>}
+            </div>
+            <div className="flex flex-col items-center max-h-full">
+              <DisplayActivityLogs allActivities={activityLogRounds} user={user} />
+              {activityLogWinners.length > 0 && <DisplayWinners winners={activityLogWinners} user={user} />}
+            </div>
           </div>
         </div>
       </div>

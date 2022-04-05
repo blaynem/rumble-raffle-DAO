@@ -1,8 +1,10 @@
-import { React, Fragment } from 'react'
+import { React, Fragment, useState, useEffect } from 'react'
 import { Menu, Popover, Transition } from '@headlessui/react'
 import WalletConnector from './wallet-connector'
 import { useWallet } from '../containers/wallet'
+import { usePreferences } from '../containers/preferences'
 import WalletAddress from './wallet-address'
+import EmojiEventsOutlinedIcon from '@mui/icons-material/ContrastOutlined';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -10,6 +12,7 @@ function classNames(...classes) {
 
 const Nav = () => {
   const { user, logout } = useWallet()
+  const { preferences, setDarkmode } = usePreferences();
 
   const userNavigation = [
     // { name: 'Settings', href: '/settings' },
@@ -17,7 +20,7 @@ const Nav = () => {
   ]
 
   return (
-    <>
+    <div className={`${preferences?.darkMode ? 'dark' : 'light'}`}>
       <Popover
         as="header"
         className={({ open }) =>
@@ -33,6 +36,9 @@ const Nav = () => {
               {/* Profile dropdown */}
               <Menu as="div" className="relative">
                 <div>
+                  <button onClick={setDarkmode} className='mr-6'>
+                    <EmojiEventsOutlinedIcon className='dark:fill-rumbleBgLight fill-rumbleBgDark' />
+                  </button>
                   <Menu.Button className="dark:bg-rumbleSecondary bg-rumblePrimary text-rumbleNone border-l-2 dark:border-rumbleNone border-rumbleOutline px-6 py-4 focus:outline-none focus:ring-2 focus:ring-rumbleSecondary">
                     <span className="sr-only">Open user menu</span>
                     {!user && <WalletConnector />}
@@ -72,7 +78,7 @@ const Nav = () => {
           </>
         )}
       </Popover>
-    </>
+    </div>
   )
 }
 

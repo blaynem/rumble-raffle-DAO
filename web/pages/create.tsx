@@ -6,6 +6,7 @@ import createRoomSchema from '../lib/schemaValidations/createRoom';
 import ToastMessage from '../components/toast';
 import { GetPolyContractReturnType, CreateRoomValues, ToastTypes } from '@rumble-raffle-dao/types';
 import { BASE_API_URL, BASE_WEB_URL } from '../lib/constants';
+import { usePreferences } from '../containers/preferences';
 
 const coinNetworks = [
   {
@@ -65,6 +66,7 @@ const customErrorColors = (msg: string) => <div className='text-base h-10 text-r
  */
 const CreatePage = () => {
   const { user } = useWallet()
+  const { preferences } = usePreferences();
   // State
   const [toastOpen, setToastOpen] = useState(false);
   const [toast, setToast] = useState(null as ToastTypes);
@@ -186,7 +188,7 @@ const CreatePage = () => {
       }}
     >
       {({ isSubmitting, touched, values, setValues }) => (
-        <Form>
+        <Form className={`${preferences?.darkMode ? 'dark' : 'light'}`}>
           <div className='dark:bg-black bg-rumbleBgLight w-full mx-auto py-8 px-6 lg:px-[15%] md:px-[10%] sm:px-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark"' style={{ height: 'calc(100vh - 58px)' }}>
             <div className='absolute top-2 right-2 z-20'>
               {toastOpen && <ToastMessage message={toast.message} type={toast.type} onClick={() => handleSetToast(null)} />}
