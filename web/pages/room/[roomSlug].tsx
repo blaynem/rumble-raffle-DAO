@@ -5,9 +5,8 @@ import { GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
 import DisplayPrizes from "../../components/room/prizes";
-import DisplayActivityLog from "../../components/room/activityLog";
+import { DisplayActivityLogs, DisplayWinners } from "../../components/room/activityLog";
 import { useWallet } from '../../containers/wallet'
-import { ClickToCopyPopper } from "../../components/Popper";
 import { BASE_API_URL, BASE_WEB_URL } from "../../lib/constants";
 import Entrants from "../../components/room/entrants";
 
@@ -45,10 +44,18 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   const [errorMessage, setErrorMessage] = useState(null);
   const [timeToGameStart, setTimeToGameStart] = useState(null);
   const [timeToNextRoundStart, setTimeToNextRoundStart] = useState(null);
+  const [calcHeight, setCalcHeight] = useState('calc(100vh - 58px)');
 
   let gameStartInterval: NodeJS.Timer;
   let nextRoundInterval: NodeJS.Timer;
   // console.log('------RumbleRoom', { entrants, prizes, activityLogRounds, activityLogWinners, user, roomInfo });
+
+  const isRoomCreator = roomCreator === user?.public_address;
+
+  useEffect(() => {
+    // If this isn't in a useEffect it doesn't always catch in the rerenders.
+    setCalcHeight(isRoomCreator ? 'calc(100vh - 108px)' : 'calc(100vh - 58px)');
+  })
 
   // Countdown for the GAME to start
   useEffect(() => {
@@ -182,11 +189,8 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
     return <>Please check room number.</>
   }
 
-  const isRoomCreator = roomCreator === user?.public_address;
-  const calcHeight = isRoomCreator ? 'calc(100vh - 158px)' : 'calc(100vh - 108px)';
-
   return (
-    <div className="dark:bg-black bg-rumbleBgLight" style={{height: 'calc(100vh - 58px)'}}>
+    <div className="dark:bg-black bg-rumbleBgLight overflow-hidden" style={{height: 'calc(100vh - 58px)'}}>
       <div>
         {/* If we don't wrap this, all of the styles break for some reason. I don't even. */}
         {isRoomCreator && <AdminRoomPanel {...{ socket, roomSlug }} />}
@@ -209,21 +213,8 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
         {/* Left Side */}
         <div className="py-10 pr-20 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
           <div className="flex flex-col items-center max-h-full">
-          <DisplayActivityLog allActivities={activityLogRounds} user={user} />
-          {activityLogWinners.length > 0 && <div>
-            <h3>Winner!!</h3>
-            <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
-              <li className={`px-6 py-2 border-b border-gray-200 w-full ${activityLogWinners[0].public_address === user?.public_address ? 'bg-slate-200' : 'bg-white'}`} >
-                Congratulations <ClickToCopyPopper boldText text={activityLogWinners[0].name} popperText={activityLogWinners[0].public_address} />
-              </li>
-              <li className={`px-6 py-2 border-b border-gray-200 w-full ${activityLogWinners[1].public_address === user?.public_address ? 'bg-slate-200' : 'bg-white'}`} >
-                2nd place: <ClickToCopyPopper boldText text={activityLogWinners[1].name} popperText={activityLogWinners[1].public_address} />
-              </li>
-              <li className={`px-6 py-2 w-full rounded-b-lg ${activityLogWinners[2].public_address === user?.public_address ? 'bg-slate-200' : 'bg-white'}`} >
-                3rd place: <ClickToCopyPopper boldText text={activityLogWinners[2].name} popperText={activityLogWinners[2].public_address} />
-              </li>
-            </ul>
-          </div>}
+          <DisplayActivityLogs allActivities={activityLogRounds} user={user} />
+          {activityLogWinners.length > 0 && <DisplayWinners winners={activityLogWinners} user={user}/>}
         </div>
         </div>
       </div>

@@ -3,9 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@emotion/react": "^11.8.2",
+    "@emotion/styled": "^11.8.1",
     "@faker-js/faker": "^6.0.0-alpha.7",
     "@headlessui/react": "^1.5.0",
     "@heroicons/react": "^1.0.6",
+    "@mui/icons-material": "^5.5.1",
+    "@mui/material": "^5.5.3",
     "@rumble-raffle-dao/rumble": "0.1.0",
     "@rumble-raffle-dao/smart-contracts": "0.1.0",
     "@rumble-raffle-dao/types": "0.1.0",

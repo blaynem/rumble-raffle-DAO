@@ -130,6 +130,8 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 # Extra Ideas
 
+- Different designs for different coins
+  - Allows it to be tailored towards the individuals branding
 - DEATHROLL APP
   - In WoW we would deathroll our gold. How it works:
     - Challenge someone to deathroll of x value. you'd type `/roll x` and it would randomly pick a number between 1 and x.
