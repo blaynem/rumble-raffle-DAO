@@ -118,7 +118,7 @@ contract RumbleRaffle is Ownable {
     
     // Pays out multiple prizes to multiple different accounts in one call
     // decreasing network fees
-    function payoutPrizes(address payable[] memory _paymentAddrs, uint[] memory _paymentAmts, IERC20 _token) payable public onlyOwner  {
+    function payoutPrizes(address payable[] memory _paymentAddrs, uint[] memory _paymentAmts, IERC20 _token) public onlyOwner  {
         // Gets total amount of held tokens
         uint _tokenBalance = getTokenBalance(_token);
         require(_tokenBalance > 0, "The token balance for this address is 0.");

@@ -58,6 +58,8 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 ## Web
 
 - General:
+  - Theming
+  - Redo all the styles
   - Users can switch between metamask accounts, so we should constantly check for those changes
     - ex: `web3.eth.accounts[0];`
   - User could overwrite cookies and still make calls, so we need to be more vigilant there somehow.
@@ -98,6 +100,7 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
     - Only with x amount of coin
     - Etc
 - Rooms:
+  - On completion of game, remove it from the active rooms and then do a simple fetch from the db instead of having it stored in memory
   - "Clear Game" should remove all the players from the payouts / set the room `game_started` back to false
     - Only allow game owner to do this
 - Users:
@@ -127,6 +130,8 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 # Extra Ideas
 
+- Different designs for different coins
+  - Allows it to be tailored towards the individuals branding
 - DEATHROLL APP
   - In WoW we would deathroll our gold. How it works:
     - Challenge someone to deathroll of x value. you'd type `/roll x` and it would randomly pick a number between 1 and x.

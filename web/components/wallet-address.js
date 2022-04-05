@@ -1,12 +1,6 @@
-import MiddleEllipsis from 'react-middle-ellipsis'
-
 function WalletAddress({ address }) {
   return (
-    <div style={{ width: '100px' }}>
-      <MiddleEllipsis>
-        <span>{address}</span>
-      </MiddleEllipsis>
-    </div>
+    <span>{address.substring(0,3)}...{address.substring(39)}</span>
   )
 }
 
