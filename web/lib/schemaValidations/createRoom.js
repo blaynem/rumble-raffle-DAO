@@ -18,9 +18,9 @@ const basicRequireMsg = 'Required field'
 const postiveValMsg = "Must be >= 0"
 
 const createRoomSchema = object({
-  alt_split_address: string().when('prize_split.altSplit', {
-    is: (altSplit) => altSplit > 0,
-    then: string().required('Address required if Alternative Split > 0')
+  alt_split_address: string().when('prize_split', {
+    is: (prize_split) => prize_split.prize_alt_split > 0,
+    then: string().required('Address required if Alternative Split > 0%')
   }),
   contract: object({
     contract_address: string().required(basicRequireMsg),

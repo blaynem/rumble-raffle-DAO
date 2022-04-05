@@ -6,6 +6,7 @@ import createRoomSchema from '../lib/schemaValidations/createRoom';
 import ToastMessage from '../components/toast';
 import { GetPolyContractReturnType, CreateRoomValues, ToastTypes } from '@rumble-raffle-dao/types';
 import { BASE_API_URL, BASE_WEB_URL } from '../lib/constants';
+import { usePreferences } from '../containers/preferences';
 
 const coinNetworks = [
   {
@@ -26,7 +27,7 @@ const coinContracts = {
   }
 }
 
-const AlternativeMessage = ({ message }: {message: string}) => {
+const AlternativeMessage = ({ message }: { message: string }) => {
   return (
     <div className='p-8 text-center'>
       <h2 className="text-lg leading-6 font-medium text-gray-900">{message}</h2>
@@ -55,7 +56,7 @@ const customPrizeSplitMessage = (errorMsg: string, touched: FormikTouched<Create
   return message ? <div className='px-4 space-y-6 sm:px-6'>{message}</div> : null;
 }
 
-const customErrorColors = (msg: string) => <div className='text-red-600 py-2'>{msg}</div>
+const customErrorColors = (msg: string) => <div className='text-base h-10 text-red-600 py-2'>{msg}</div>
 
 /**
  * TODO:
@@ -65,6 +66,7 @@ const customErrorColors = (msg: string) => <div className='text-red-600 py-2'>{m
  */
 const CreatePage = () => {
   const { user } = useWallet()
+  const { preferences } = usePreferences();
   // State
   const [toastOpen, setToastOpen] = useState(false);
   const [toast, setToast] = useState(null as ToastTypes);
@@ -74,11 +76,11 @@ const CreatePage = () => {
   const [selectedContract, setSelectedContract] = useState(null as GetPolyContractReturnType);
 
   if (!user || !user.public_address) {
-    return <AlternativeMessage message="You must login before creating a room."/>
+    return <AlternativeMessage message="You must login before creating a room." />
   }
 
   if (!user.is_admin) {
-    return <AlternativeMessage message="Only admins can create a room at this time. Sorry about that."/>
+    return <AlternativeMessage message="Only admins can create a room at this time. Sorry about that." />
   }
 
 
@@ -125,6 +127,11 @@ const CreatePage = () => {
     const { prize_alt_split } = values.prize_split;
     return prize_alt_split !== '' && parseInt(prize_alt_split) > 0;
   }
+
+  const headerClass = "mb-2 uppercase leading-7 text-lg font-medium dark:text-rumbleSecondary text-rumblePrimary";
+  const fieldClass = 'h-14 dark:focus:ring-rumbleNone focus:ring-rumbleOutline dark:focus:border-rumbleNone focus:border-rumbleOutline dark:bg-rumbleBgDark bg-rumbleNone dark:text-rumbleNone text-rumbleOutline flex-1 block w-full border-none';
+  const labelClass = "mb-1 uppercase block text-base font-medium leading-6 dark:text-rumbleNone text-rumbleOutline";
+  const spanClass = "inline-flex items-center px-3 dark:bg-rumbleBgDark bg-rumbleNone dark:text-rumbleNone/40 text-rumbleOutline/40 text-base";
 
   return (
     <Formik
@@ -181,330 +188,326 @@ const CreatePage = () => {
       }}
     >
       {({ isSubmitting, touched, values, setValues }) => (
-        <Form>
-          <div className='max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'>
-            <div className="mt-10 sm:mt-0">
-              <div className="md:grid md:grid-cols-3 md:gap-6">
-                <div className="lg:col-span-1 md:col-span-3">
-                  <div className="px-4 sm:px-0">
-                    <h3 className="text-lg font-medium leading-6 text-gray-900">Create A Room</h3>
-                    <p className="mt-1 text-sm text-gray-600">
-                      This information will be used to create a rumble room.
-                    </p>
-                  </div>
-                  {toastOpen && <ToastMessage message={toast.message} type={toast.type} onClick={() => handleSetToast(null)} />}
-                </div>
-                <div className="mt-5 md:mt-0 lg:col-span-2 md:col-span-3">
-                  <div className="shadow overflow-hidden sm:rounded-md">
-                    <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
-                      <h4 className="text-base font-medium text-gray-900">Game Details</h4>
-                      <div className="grid grid-cols-7 gap-6">
-                        {/* SLUG */}
-                        <div className="col-span-3 sm:col-span-3">
-                          <label htmlFor="desired-slug" className="block text-sm font-medium text-gray-700">
-                            Slug
-                          </label>
-                          <div className="mt-1 flex rounded-md shadow-sm">
-                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                              /
-                            </span>
-                            <Field
-                              type="text"
-                              name="slug"
-                              id="desired-slug"
-                              className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
-                              placeholder="abc123"
-                            />
-                          </div>
-                          <ErrorMessage name="slug" >
-                            {msg => customErrorColors(msg)}
-                          </ErrorMessage>
-                        </div>
-                        {/* PVE CHANCE */}
-                        <div className="col-span-2">
-                          <label htmlFor="pve-chance" className="block text-sm font-medium text-gray-700">
-                            PvE Chance
-                          </label>
-                          <div className="mt-1 flex rounded-md shadow-sm">
-                            <Field
-                              type="number"
-                              name="pve_chance"
-                              id="pve-chance"
-                              className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
-                              placeholder="30"
-                            />
-                            <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                              %
-                            </span>
-                          </div>
-                          <ErrorMessage name="pve_chance" >
-                            {msg => customErrorColors(msg)}
-                          </ErrorMessage>
-                        </div>
-                        {/* REVIVE CHANCE */}
-                        <div className="col-span-2">
-                          <label htmlFor="revive-chance" className="block text-sm font-medium text-gray-700">
-                            Revive Chance
-                          </label>
-                          <div className="mt-1 flex rounded-md shadow-sm">
-                            <Field
-                              type="number"
-                              name="revive_chance"
-                              id="revive-chance"
-                              className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
-                              placeholder="5"
-                            />
-                            <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                              %
-                            </span>
-                          </div>
-                          <ErrorMessage name="revive_chance" >
-                            {msg => customErrorColors(msg)}
-                          </ErrorMessage>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
-                      <h4 className="text-base font-medium text-gray-900">Prize Split</h4>
-                      <div className="grid grid-cols-6 gap-6">
-                        {/* KILL COUNT SPLIT */}
-                        <div className="col-span-1 xl:col-span-1 sm:col-span-2">
-                          <label htmlFor="payout-kill" className="block text-sm font-medium text-gray-700">
-                            Kills
-                          </label>
-                          <div className="mt-1 flex rounded-md shadow-sm">
-                            <Field
-                              type="number"
-                              name="prize_split.prize_kills"
-                              id="payout-kill"
-                              className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
-                              placeholder="5"
-                            />
-                            <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                              %
-                            </span>
-                          </div>
-                          <ErrorMessage name="prize_split.prize_kills" >
-                            {msg => customErrorColors(msg)}
-                          </ErrorMessage>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-6 gap-6">
-                        {/* FIRST PLACE SPLIT */}
-                        <div className="col-span-1 xl:col-span-1 sm:col-span-2">
-                          <label htmlFor="payout-prize_first" className="block text-sm font-medium text-gray-700">
-                            First Place
-                          </label>
-                          <div className="mt-1 flex rounded-md shadow-sm">
-                            <Field
-                              type="number"
-                              name="prize_split.prize_first"
-                              id="payout-prize_first"
-                              className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
-                              placeholder="5"
-                            />
-                            <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                              %
-                            </span>
-                          </div>
-                          <ErrorMessage name="prize_split.prize_first" >
-                            {msg => customErrorColors(msg)}
-                          </ErrorMessage>
-                        </div>
-                        {/* SECOND PLACE SPLIT */}
-                        <div className="col-span-1 xl:col-span-1 sm:col-span-2">
-                          <label htmlFor="payout-prize_second" className="block text-sm font-medium text-gray-700">
-                            Second Place
-                          </label>
-                          <div className="mt-1 flex rounded-md shadow-sm">
-                            <Field
-                              type="number"
-                              name="prize_split.prize_second"
-                              id="payout-prize_second"
-                              className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
-                              placeholder="5"
-                            />
-                            <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                              %
-                            </span>
-                          </div>
-                          <ErrorMessage name="prize_split.prize_second" >
-                            {msg => customErrorColors(msg)}
-                          </ErrorMessage>
-                        </div>
-                        {/* THIRD PLACE SPLIT */}
-                        <div className="col-span-1 xl:col-span-1 sm:col-span-2">
-                          <label htmlFor="payout-prize_third" className="block text-sm font-medium text-gray-700">
-                            Third Place
-                          </label>
-                          <div className="mt-1 flex rounded-md shadow-sm">
-                            <Field
-                              type="number"
-                              name="prize_split.prize_third"
-                              id="payout-prize_third"
-                              className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
-                              placeholder="5"
-                            />
-                            <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                              %
-                            </span>
-                          </div>
-                          <ErrorMessage name="prize_split.prize_third" >
-                            {msg => customErrorColors(msg)}
-                          </ErrorMessage>
-                        </div>
-                        {/* ALT SPLIT */}
-                        <div className="col-span-1 xl:col-span-1 sm:col-span-2">
-                          <label htmlFor="payout-alternative" className="block text-sm font-medium text-gray-700">
-                            Alternative Split
-                          </label>
-                          <div className="mt-1 flex rounded-md shadow-sm">
-                            <Field
-                              type="number"
-                              name="prize_split.prize_alt_split"
-                              id="payout-alternative"
-                              className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
-                              placeholder="5"
-                            />
-                            <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                              %
-                            </span>
-                          </div>
-                          <ErrorMessage name="prize_split.prize_alt_split" >
-                            {msg => customErrorColors(msg)}
-                          </ErrorMessage>
-                        </div>
-                        {/* RUMBLE RAFFLE SPLIT */}
-                        <div className="col-span-1 xl:col-span-1 sm:col-span-2">
-                          <label htmlFor="payout-creator" className="block text-sm font-medium text-gray-700">
-                            Rumble Raffle
-                          </label>
-                          <div className="mt-1 flex rounded-md shadow-sm">
-                            <Field
-                              disabled
-                              type="number"
-                              name="prize_split.prize_creator"
-                              id="payout-creator"
-                              className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
-                              placeholder="1"
-                            />
-                            <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                              %
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      {showAltSplitAddress(values) && <div className="col-span-6">
-                        <label htmlFor="prize_alt_split-address" className="block text-sm font-medium text-gray-700">
-                          Alternative Split Address
-                        </label>
+        <Form className={`${preferences?.darkMode ? 'dark' : 'light'}`}>
+          <div className='dark:bg-black bg-rumbleBgLight w-full mx-auto py-8 px-6 lg:px-[15%] md:px-[10%] sm:px-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark"' style={{ height: 'calc(100vh - 58px)' }}>
+            <div className='absolute top-2 right-2 z-20'>
+              {toastOpen && <ToastMessage message={toast.message} type={toast.type} onClick={() => handleSetToast(null)} />}
+            </div>
+            <h3 className="uppercase text-2xl font-medium leading-9 dark:text-rumbleNone text-rumbleOutline">Create A Room</h3>
+            <p className="mb-20 text-base leading-6 dark:text-rumbleNone text-rumbleOutline opacity-60">
+              This information will be used to create a rumble room.
+            </p>
+            <div className="">
+              <div className="">
+                <div className="mb-20">
+                  <h4 className={headerClass}>Game Details</h4>
+                  <div className="grid grid-cols-7 gap-6">
+                    {/* SLUG */}
+                    <div className="col-span-7 sm:col-span-3">
+                      <label htmlFor="desired-slug" className={labelClass}>
+                        Slug
+                      </label>
+                      <div className="flex">
+                        <span className={spanClass}>
+                          /
+                        </span>
                         <Field
                           type="text"
-                          name="alt_split_address"
-                          id="prize_alt_split-address"
-                          placeholder="Wallet Address"
-                          className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                          name="slug"
+                          id="desired-slug"
+                          className={fieldClass}
+                          placeholder="rumble-room-2"
                         />
-                        <ErrorMessage name="alt_split_address" >
-                          {msg => customErrorColors(msg)}
-                        </ErrorMessage>
-                      </div>}
-                    </div>
-                    <ErrorMessage render={msg => customPrizeSplitMessage(msg, touched)} name="prize_split" >
-                      {msg => customErrorColors(msg)}
-                    </ErrorMessage>
-                    {/* COIN INFORMATION */}
-                    <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
-                      <h4 className="text-base font-medium text-gray-900">Payment Information</h4>
-                      <div className="grid grid-cols-6 gap-6">
-                        {/* CONTRACT NETWORK */}
-                        <div className="col-span-2 sm:col-span-2">
-                          <label htmlFor="contract-network" className="block text-sm font-medium text-gray-700">
-                            Contract Network
-                          </label>
-                          <Field
-                            as="select"
-                            id="contract-network"
-                            name="contract.network_name"
-                            className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                          >
-                            {coinNetworks.map(net => <option key={net.rpc} value={net.rpc}>{net.name}</option>)}
-                          </Field>
-                          <ErrorMessage name="contract.network_name" >
-                            {msg => customErrorColors(msg)}
-                          </ErrorMessage>
-                        </div>
-                        {/* CONTRACT ADDRESS */}
-                        <div className="md:col-span-4 sm:col-span-6">
-                          <label htmlFor="contract-address" className="block text-sm font-medium text-gray-700">
-                            Contract Address
-                          </label>
-                          <Field
-                            type="text"
-                            name="contract.contract_address"
-                            id="contract-address"
-                            className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                          />
-                          <ErrorMessage name="contract.contract_address" >
-                            {msg => customErrorColors(msg)}
-                          </ErrorMessage>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => fetchContractData(setValues, values)}
-                          className="sm:col-span-6 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                          {contractDetailsLoading ? "Loading..." : "Fetch Contract Data"}
-                        </button>
-                        {/* ENTRY COST */}
-                        {!selectedContract ?
-                          <div className='sm:col-span-6'>Please click the button above to fetch contract data.</div>
-                          :
-                          <>
-                            <div className="col-span-2">
-                              <label htmlFor="entry-fee" className="block text-sm font-medium text-gray-700">
-                                Entry Fee
-                              </label>
-                              <div className="mt-1 flex rounded-md shadow-sm">
-                                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                                  {selectedContract.symbol}
-                                </span>
-                                <Field
-                                  type="number"
-                                  name="entry_fee"
-                                  id="entry-fee"
-                                  className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
-                                  placeholder="10"
-                                />
-                              </div>
-                              <ErrorMessage name="entry_fee" >
-                                {msg => customErrorColors(msg)}
-                              </ErrorMessage>
-                            </div>
-                            <div className="col-span-4">
-                              <p className="block text-sm font-medium text-gray-700">
-                                Token Information
-                              </p>
-                              <p className="block text-sm font-medium text-gray-700">Name: {selectedContract.name}</p>
-                              <p className="block text-sm font-medium text-gray-700">Symbol: {selectedContract.symbol}</p>
-                              <p className="block text-sm font-medium text-gray-700">Decimal: {selectedContract.decimals}</p>
-                              <p className="block text-sm font-medium text-gray-700">Chain Id: {selectedContract.chain_id}</p>
-                            </div>
-                          </>
-                        }
                       </div>
+                      <ErrorMessage name="slug" >
+                        {msg => customErrorColors(msg)}
+                      </ErrorMessage>
                     </div>
-                    <div className="px-4 py-3 bg-gray-50 text-right sm:px-6 flex justify-between">
-                      {/* Setting empty div allows button to always flex all the way right. */}
-                      {savedSlugMessage ? onSuccessSlugUrlMessage(savedSlugMessage) : <div />}
-                      <button
-                        type="submit"
-                        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                      >
-                        {isSubmitting ? 'Saving...' : 'Save'}
-                      </button>
+                    {/* PVE CHANCE */}
+                    <div className="col-span-7 sm:col-span-2">
+                      <label htmlFor="pve-chance" className={labelClass}>
+                        PvE Chance
+                      </label>
+                      <div className="flex">
+                        <Field
+                          type="number"
+                          name="pve_chance"
+                          id="pve-chance"
+                          className={fieldClass}
+                          placeholder="30"
+                        />
+                        <span className="inline-flex items-center px-3 dark:bg-rumbleBgDark bg-rumbleNone dark:text-rumbleNone/40 text-rumbleOutline/40 text-base">
+                          %
+                        </span>
+                      </div>
+                      <ErrorMessage name="pve_chance" >
+                        {msg => customErrorColors(msg)}
+                      </ErrorMessage>
+                    </div>
+                    {/* REVIVE CHANCE */}
+                    <div className="col-span-7 sm:col-span-2">
+                      <label htmlFor="revive-chance" className={labelClass}>
+                        Revive Chance
+                      </label>
+                      <div className="flex">
+                        <Field
+                          type="number"
+                          name="revive_chance"
+                          id="revive-chance"
+                          className={fieldClass}
+                          placeholder="5"
+                        />
+                        <span className={spanClass}>
+                          %
+                        </span>
+                      </div>
+                      <ErrorMessage name="revive_chance" >
+                        {msg => customErrorColors(msg)}
+                      </ErrorMessage>
                     </div>
                   </div>
+                </div>
+                <div className="mb-20">
+                  <h4 className={headerClass}>Prize Split</h4>
+                  <div className="mb-6 grid grid-cols-6 gap-6">
+                    {/* KILL COUNT SPLIT */}
+                    <div className="col-span-6 sm:col-span-3">
+                      <label htmlFor="payout-kill" className={labelClass}>
+                        Kills
+                      </label>
+                      <div className="flex">
+                        <Field
+                          type="number"
+                          name="prize_split.prize_kills"
+                          id="payout-kill"
+                          className={fieldClass}
+                          placeholder="5"
+                        />
+                        <span className={spanClass}>
+                          %
+                        </span>
+                      </div>
+                      <ErrorMessage name="prize_split.prize_kills" >
+                        {msg => customErrorColors(msg)}
+                      </ErrorMessage>
+                    </div>
+                  </div>
+                  <div className="mb-6 grid grid-cols-7 gap-6">
+                    {/* FIRST PLACE SPLIT */}
+                    <div className="col-span-7 lg:col-span-1 md:col-span-2 sm:col-span-3">
+                      <label htmlFor="payout-prize_first" className={labelClass}>
+                        1st Place
+                      </label>
+                      <div className="flex">
+                        <Field
+                          type="number"
+                          name="prize_split.prize_first"
+                          id="payout-prize_first"
+                          className={fieldClass}
+                          placeholder="5"
+                        />
+                        <span className={spanClass} >
+                          %
+                        </span>
+                      </div>
+                      <ErrorMessage name="prize_split.prize_first" >
+                        {msg => customErrorColors(msg)}
+                      </ErrorMessage>
+                    </div>
+                    {/* SECOND PLACE SPLIT */}
+                    <div className="col-span-7 lg:col-span-1 md:col-span-2 sm:col-span-3">
+                      <label htmlFor="payout-prize_second" className={labelClass}>
+                        2nd Place
+                      </label>
+                      <div className="flex">
+                        <Field
+                          type="number"
+                          name="prize_split.prize_second"
+                          id="payout-prize_second"
+                          className={fieldClass}
+                          placeholder="5"
+                        />
+                        <span className={spanClass}>
+                          %
+                        </span>
+                      </div>
+                      <ErrorMessage name="prize_split.prize_second" >
+                        {msg => customErrorColors(msg)}
+                      </ErrorMessage>
+                    </div>
+                    {/* THIRD PLACE SPLIT */}
+                    <div className="col-span-7 lg:col-span-1 md:col-span-2 sm:col-span-3">
+                      <label htmlFor="payout-prize_third" className={labelClass}>
+                        3rd Place
+                      </label>
+                      <div className="flex">
+                        <Field
+                          type="number"
+                          name="prize_split.prize_third"
+                          id="payout-prize_third"
+                          className={fieldClass}
+                          placeholder="5"
+                        />
+                        <span className={spanClass}>
+                          %
+                        </span>
+                      </div>
+                      <ErrorMessage name="prize_split.prize_third" >
+                        {msg => customErrorColors(msg)}
+                      </ErrorMessage>
+                    </div>
+                    {/* ALT SPLIT */}
+                    <div className="col-span-7 md:col-span-2 sm:col-span-3">
+                      <label htmlFor="payout-alternative" className={labelClass}>
+                        Alternative Split
+                      </label>
+                      <div className="flex">
+                        <Field
+                          type="number"
+                          name="prize_split.prize_alt_split"
+                          id="payout-alternative"
+                          className={fieldClass}
+                          placeholder="5"
+                        />
+                        <span className={spanClass}>
+                          %
+                        </span>
+                      </div>
+                      <ErrorMessage name="prize_split.prize_alt_split" >
+                        {msg => customErrorColors(msg)}
+                      </ErrorMessage>
+                    </div>
+                    {/* RUMBLE RAFFLE SPLIT */}
+                    <div className="col-span-7 md:col-span-2 sm:col-span-3">
+                      <label htmlFor="payout-creator" className={labelClass}>
+                        Rumble Raffle
+                      </label>
+                      <div className="flex">
+                        <Field
+                          disabled
+                          type="number"
+                          name="prize_split.prize_creator"
+                          id="payout-creator"
+                          className={fieldClass}
+                          placeholder="1"
+                        />
+                        <span className={spanClass}>
+                          %
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {showAltSplitAddress(values) && <div className="col-span-6">
+                    <label htmlFor="prize_alt_split-address" className={labelClass}>
+                      Alternative Split Address
+                    </label>
+                    <Field
+                      type="text"
+                      name="alt_split_address"
+                      id="prize_alt_split-address"
+                      placeholder="Wallet Address"
+                      className={fieldClass}
+                    />
+                    <ErrorMessage name="alt_split_address" >
+                      {msg => customErrorColors(msg)}
+                    </ErrorMessage>
+                  </div>}
+                </div>
+                <ErrorMessage render={msg => customPrizeSplitMessage(msg, touched)} name="prize_split" >
+                  {msg => customErrorColors(msg)}
+                </ErrorMessage>
+                {/* COIN INFORMATION */}
+                <div className="mb-20">
+                  <h4 className={headerClass}>Payment Information</h4>
+                  <div className="grid grid-cols-7 gap-6">
+                    {/* CONTRACT NETWORK */}
+                    <div className="col-span-7 md:col-span-2 sm:col-span-4">
+                      <label htmlFor="contract-network" className={labelClass}>
+                        Contract Network
+                      </label>
+                      <Field
+                        as="select"
+                        id="contract-network"
+                        name="contract.network_name"
+                        className={fieldClass}
+                      >
+                        {coinNetworks.map(net => <option key={net.rpc} value={net.rpc}>{net.name}</option>)}
+                      </Field>
+                      <ErrorMessage name="contract.network_name" >
+                        {msg => customErrorColors(msg)}
+                      </ErrorMessage>
+                    </div>
+                    {/* CONTRACT ADDRESS */}
+                    <div className="col-span-7 md:col-span-3 sm:col-span-4">
+                      <label htmlFor="contract-address" className={labelClass}>
+                        Contract Address
+                      </label>
+                      <Field
+                        type="text"
+                        name="contract.contract_address"
+                        id="contract-address"
+                        className={fieldClass}
+                      />
+                      <ErrorMessage name="contract.contract_address" >
+                        {msg => customErrorColors(msg)}
+                      </ErrorMessage>
+                    </div>
+                    <div className="col-span-4 lg:col-span-2 md:col-span-3 sm:col-span-3 flex">
+                      <button
+                        type="button"
+                        onClick={() => fetchContractData(setValues, values)}
+                        className="overflow-hidden uppercase place-self-end h-14 py-4 px-6 border-2 dark:border-rumbleBgLight border-rumbleBgDark dark:bg-rumbleBgDark bg-rumbleBgLight dark:text-rumbleNone dark:hover:bg-rumbleSecondary dark:hover:border-rumbleSecondary hover:bg-rumblePrimary hover:border-rumblePrimary hover:text-rumbleNone text-rumbleOutline font-medium"
+                      >
+                        {contractDetailsLoading ? "Loading..." : "Fetch Contract Data"}
+                      </button>
+                    </div>
+                    {/* ENTRY COST */}
+                    {!selectedContract ?
+                      <div className='col-span-7'>Please fetch contract data before continuing.</div>
+                      :
+                      <div className="col-span-7 grid grid-cols-6 gap-6">
+                        <div className="col-span-6 md:col-span-2 sm:col-span-3">
+                          <label htmlFor="entry-fee" className={labelClass}>
+                            Entry Fee
+                          </label>
+                          <div className="flex">
+                            <span className={spanClass}>
+                              {selectedContract.symbol}
+                            </span>
+                            <Field
+                              type="number"
+                              name="entry_fee"
+                              id="entry-fee"
+                              className={fieldClass}
+                              placeholder="10"
+                            />
+                          </div>
+                          <ErrorMessage name="entry_fee" >
+                            {msg => customErrorColors(msg)}
+                          </ErrorMessage>
+                        </div>
+                        <div className="col-span-6 md:col-span-2 sm:col-span-3">
+                          <p className={labelClass}>
+                            Token Information
+                          </p>
+                          <p className={labelClass}>Name: <span className='font-normal'>{selectedContract.name}</span></p>
+                          <p className={labelClass}>Symbol: <span className='font-normal'>{selectedContract.symbol}</span></p>
+                          <p className={labelClass}>Decimal: <span className='font-normal'>{selectedContract.decimals}</span></p>
+                          <p className={labelClass}>Chain Id: <span className='font-normal'>{selectedContract.chain_id}</span></p>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+                <div className="">
+                  {/* Setting empty div allows button to always flex all the way right. */}
+                  {savedSlugMessage ? onSuccessSlugUrlMessage(savedSlugMessage) : <div />}
+                  <button
+                    type="submit"
+                    className="uppercase h-14 py-4 px-6 border-2 dark:border-rumbleBgLight border-rumbleBgDark dark:bg-rumbleBgLight bg-rumbleBgDark dark:hover:bg-rumbleSecondary dark:hover:border-rumbleSecondary hover:bg-rumblePrimary hover:border-rumblePrimary dark:text-rumbleOutline text-rumbleNone font-medium"
+                  >
+                    {isSubmitting ? 'Saving...' : 'Save'}
+                  </button>
                 </div>
               </div>
             </div>

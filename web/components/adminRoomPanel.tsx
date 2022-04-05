@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { useWallet } from '../containers/wallet'
 import { bulkAddPlayer, deleteSeededData } from "../lib/seedDB";
 
-const buttonClass = "inline-block mr-2 px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
-const buttonDisabled = "inline-block mr-2 px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md focus:outline-none focus:ring-0 transition duration-150 ease-in-out pointer-events-none opacity-60"
+const buttonClass = "inline-block px-6 py-4 dark:bg-black bg-rumbleBgLight dark:border-rumbleNone border-rumbleOutline dark:text-rumbleNone text-rumbleOutline font-medium text-xs uppercase transition duration-150 ease-in-out border-b-2 sm:border-b-0 border-r-2 hover:bg-rumbleSecondary focus:bg-rumbleSecondary "
+const buttonDisabled = "inline-block px-6 py-4 dark:bg-black bg-rumbleBgLight dark:border-rumbleNone border-rumbleOutline dark:text-rumbleNone text-rumbleOutline font-medium text-xs uppercase transition duration-150 ease-in-out border-b-2 sm:border-b-0 border-r-2 pointer-events-none opacity-60"
 
 const AdminRoomPanel = ({ socket, roomSlug }) => {
   const [gameStarted, setGameStarted] = useState(false);
@@ -34,12 +34,11 @@ const AdminRoomPanel = ({ socket, roomSlug }) => {
   }
 
   return (
-    <div className="p-4 border-2 border-slate-100 w-full text-gray-900">
-      <h4>Admin Panel</h4>
+    <div className="w-full text-gray-900 border-b-2 dark:border-rumbleNone border-rumbleOutline">
       <button disabled={gameStarted} className={gameStarted ? buttonDisabled : buttonClass} onClick={autoGame}>Start Auto Game</button>
       <button className={buttonClass} onClick={clearGame}>Clear Game State</button>
-      {/* <button className={buttonClass} onClick={seedDb}>Seed DB</button>
-      <button className={buttonClass} onClick={deleteSeededDB}>Delete Seeded Data</button> */}
+      <button className={buttonClass} onClick={seedDb}>Seed DB</button>
+      <button className={buttonClass} onClick={deleteSeededDB}>Delete Seeded Data</button>
     </div>
   )
 }

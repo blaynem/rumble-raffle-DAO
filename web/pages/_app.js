@@ -4,7 +4,6 @@ import React from 'react'
 import Nav from '../components/nav'
 
 function MyApp({ Component, pageProps }) {
-
   return (
     <ContainerRoot>
       <Nav />

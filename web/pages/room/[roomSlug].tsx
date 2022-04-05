@@ -5,16 +5,16 @@ import { GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
 import DisplayPrizes from "../../components/room/prizes";
-import DisplayActivityLog from "../../components/room/activityLog";
-import DisplayEntrant from "../../components/room/entrants";
+import { DisplayActivityLogs, DisplayWinners } from "../../components/room/activityLog";
 import { useWallet } from '../../containers/wallet'
-import { ClickToCopyPopper } from "../../components/Popper";
 import { BASE_API_URL, BASE_WEB_URL } from "../../lib/constants";
+import Entrants from "../../components/room/entrants";
+import { usePreferences } from "../../containers/preferences";
 
 const socket = io(BASE_API_URL).connect()
 
-const buttonClass = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
-const buttonDisabled = "inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md focus:outline-none focus:ring-0 transition duration-150 ease-in-out pointer-events-none opacity-60"
+const buttonClass = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out border-r-2 hover:bg-rumbleSecondary focus:bg-rumbleSecondary"
+const buttonDisabled = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out border-r-2 pointer-events-none opacity-60"
 
 export type ServerSidePropsType = {
   activeRoom: boolean;
@@ -37,6 +37,7 @@ export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest })
 
 const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePropsType) => {
   const { user, payEntryFee } = useWallet()
+  const { preferences } = usePreferences();
   const [entrants, setEntrants] = useState([] as PlayerAndPrizeSplitType['allPlayers']);
   const [prizes, setPrizes] = useState({} as PlayerAndPrizeSplitType['prizeSplit']);
   const [roomInfo, setRoomInfo] = useState({} as PlayerAndPrizeSplitType['roomInfo']);
@@ -45,10 +46,18 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   const [errorMessage, setErrorMessage] = useState(null);
   const [timeToGameStart, setTimeToGameStart] = useState(null);
   const [timeToNextRoundStart, setTimeToNextRoundStart] = useState(null);
+  const [calcHeight, setCalcHeight] = useState('calc(100vh - 58px)');
 
   let gameStartInterval: NodeJS.Timer;
   let nextRoundInterval: NodeJS.Timer;
   // console.log('------RumbleRoom', { entrants, prizes, activityLogRounds, activityLogWinners, user, roomInfo });
+
+  const isRoomCreator = roomCreator === user?.public_address;
+
+  useEffect(() => {
+    // If this isn't in a useEffect it doesn't always catch in the rerenders.
+    setCalcHeight(isRoomCreator ? 'calc(100vh - 108px)' : 'calc(100vh - 58px)');
+  })
 
   // Countdown for the GAME to start
   useEffect(() => {
@@ -183,47 +192,34 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   }
 
   return (
-    <div>
-      <div>
-        {/* If we don't wrap this, all of the styles break for some reason. I don't even. */}
-        {roomCreator === user?.public_address && <AdminRoomPanel {...{ socket, roomSlug }} />}
-      </div>
-      <h2 className="p-2 text-center">Player: <span className="font-bold">{user?.name}</span></h2>
-      <div className="flex items-center justify-center p-2">
-        <button className={(alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Joined' : 'Join Game'}</button>
-      </div>
-      <div>
-        {timeToGameStart && <div>Game starts in: {timeToGameStart}</div>}
-        {timeToNextRoundStart && <div>Next round begins in: {timeToNextRoundStart}</div>}
-      </div>
-      {errorMessage && <p className="text-center text-red-600">{errorMessage}</p>}
-      <div className="flex justify-around">
-        <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
+    <div className={`${preferences?.darkMode ? 'dark' : 'light'}`}>
+      <div className="dark:bg-black bg-rumbleBgLight overflow-auto sm:overflow-hidden" style={{ height: 'calc(100vh - 58px)' }}>
         <div>
-          <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Entrants</h3>
-          <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900 min-w-[440px] max-h-80 overflow-auto">
-            {entrants.map(entrant => <DisplayEntrant key={entrant.public_address} entrant={entrant} user={user} />)}
-          </ul>
+          {/* If we don't wrap this, all of the styles break for some reason. I don't even. */}
+          {isRoomCreator && <AdminRoomPanel {...{ socket, roomSlug }} />}
         </div>
-      </div>
-      <div>
-        <h3 className="font-medium leading-tight text-xl text-center mt-0 mb-2">Activity Log</h3>
-        <div className="flex flex-col items-center max-h-96 overflow-auto">
-          {activityLogRounds?.map((entry, i) => <DisplayActivityLog key={`${entry.round_counter}-${i}`} logs={entry} user={user} />)}
-          {activityLogWinners.length > 0 && <div>
-            <h3>Winner!!</h3>
-            <ul className="bg-white rounded-lg border border-gray-200 w-96 text-gray-900">
-              <li className={`px-6 py-2 border-b border-gray-200 w-full ${activityLogWinners[0].public_address === user?.public_address ? 'bg-slate-200' : 'bg-white'}`} >
-                Congratulations <ClickToCopyPopper boldText text={activityLogWinners[0].name} popperText={activityLogWinners[0].public_address} />
-              </li>
-              <li className={`px-6 py-2 border-b border-gray-200 w-full ${activityLogWinners[1].public_address === user?.public_address ? 'bg-slate-200' : 'bg-white'}`} >
-                2nd place: <ClickToCopyPopper boldText text={activityLogWinners[1].name} popperText={activityLogWinners[1].public_address} />
-              </li>
-              <li className={`px-6 py-2 w-full rounded-b-lg ${activityLogWinners[2].public_address === user?.public_address ? 'bg-slate-200' : 'bg-white'}`} >
-                3rd place: <ClickToCopyPopper boldText text={activityLogWinners[2].name} popperText={activityLogWinners[2].public_address} />
-              </li>
-            </ul>
-          </div>}
+        <div className="flex flex-col md:flex-row sm:flex-row">
+          {/* Left Side */}
+          <div className="ml-6 lg:ml-20 md:ml-6 sm:ml-6 pr-6 mr-2 pt-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
+            <h2 className="mb-8 dark:text-rumbleNone"><span className="font-bold">{user?.name}</span></h2>
+            <div className="mb-8">
+              <button className={(alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Join Game' : 'Join Game'}</button>
+              {errorMessage && <p className="mt-4 text-red-600">Error: {errorMessage}</p>}
+            </div>
+            <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
+            <Entrants entrants={entrants} user={user} />
+          </div>
+          {/* Left Side */}
+          <div className="pr-6 lg:pr-20 md:pr-6 sm:pr-6 py-2 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
+            <div className="my-4 h-6 text-center dark:text-rumbleNone text-rumbleOutline">
+              {timeToGameStart && <span>Game starts in: {timeToGameStart}</span>}
+              {timeToNextRoundStart && <span>Next round begins in: {timeToNextRoundStart}</span>}
+            </div>
+            <div className="flex flex-col items-center max-h-full">
+              <DisplayActivityLogs allActivities={activityLogRounds} user={user} />
+              {activityLogWinners.length > 0 && <DisplayWinners winners={activityLogWinners} user={user} />}
+            </div>
+          </div>
         </div>
       </div>
     </div>
