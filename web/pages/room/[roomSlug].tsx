@@ -190,14 +190,10 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   }
 
   return (
-    <div className="dark:bg-black bg-rumbleBgLight overflow-hidden" style={{height: 'calc(100vh - 58px)'}}>
+    <div className="dark:bg-black bg-rumbleBgLight overflow-hidden" style={{ height: 'calc(100vh - 58px)' }}>
       <div>
         {/* If we don't wrap this, all of the styles break for some reason. I don't even. */}
         {isRoomCreator && <AdminRoomPanel {...{ socket, roomSlug }} />}
-      </div>
-      <div>
-        {timeToGameStart && <div>Game starts in: {timeToGameStart}</div>}
-        {timeToNextRoundStart && <div>Next round begins in: {timeToNextRoundStart}</div>}
       </div>
       <div className="flex">
         {/* Left Side */}
@@ -208,14 +204,18 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
             {errorMessage && <p className="mt-4 text-red-600">Error: {errorMessage}</p>}
           </div>
           <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
-          <Entrants entrants={entrants} user={user}/>
+          <Entrants entrants={entrants} user={user} />
         </div>
         {/* Left Side */}
-        <div className="py-10 pr-20 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
+        <div className="py-2 pr-20 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
+          <div className="my-4 h-6 text-center">
+            {timeToGameStart && <span>Game starts in: {timeToGameStart}</span>}
+            {timeToNextRoundStart && <span>Next round begins in: {timeToNextRoundStart}</span>}
+          </div>
           <div className="flex flex-col items-center max-h-full">
-          <DisplayActivityLogs allActivities={activityLogRounds} user={user} />
-          {activityLogWinners.length > 0 && <DisplayWinners winners={activityLogWinners} user={user}/>}
-        </div>
+            <DisplayActivityLogs allActivities={activityLogRounds} user={user} />
+            {activityLogWinners.length > 0 && <DisplayWinners winners={activityLogWinners} user={user} />}
+          </div>
         </div>
       </div>
     </div>
