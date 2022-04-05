@@ -190,14 +190,14 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   }
 
   return (
-    <div className="dark:bg-black bg-rumbleBgLight overflow-hidden" style={{ height: 'calc(100vh - 58px)' }}>
+    <div className="dark:bg-black bg-rumbleBgLight overflow-auto sm:overflow-hidden" style={{ height: 'calc(100vh - 58px)' }}>
       <div>
         {/* If we don't wrap this, all of the styles break for some reason. I don't even. */}
         {isRoomCreator && <AdminRoomPanel {...{ socket, roomSlug }} />}
       </div>
-      <div className="flex">
+      <div className="flex flex-col md:flex-row sm:flex-row">
         {/* Left Side */}
-        <div className="pt-10 ml-20 mr-4 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
+        <div className="ml-6 lg:ml-20 md:ml-6 sm:ml-6 pr-6 mr-2 pt-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
           <h2 className="mb-8 dark:text-rumbleNone">(img) <span className="font-bold">{user?.name}</span></h2>
           <div className="mb-8">
             <button className={(alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Join Game' : 'Join Game'}</button>
@@ -207,7 +207,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
           <Entrants entrants={entrants} user={user} />
         </div>
         {/* Left Side */}
-        <div className="py-2 pr-20 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
+        <div className="pr-6 lg:pr-20 md:pr-6 sm:pr-6 py-2 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
           <div className="my-4 h-6 text-center">
             {timeToGameStart && <span>Game starts in: {timeToGameStart}</span>}
             {timeToNextRoundStart && <span>Next round begins in: {timeToNextRoundStart}</span>}

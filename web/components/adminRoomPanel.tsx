@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { useWallet } from '../containers/wallet'
 import { bulkAddPlayer, deleteSeededData } from "../lib/seedDB";
 
-const buttonClass = "inline-block px-6 py-4 dark:bg-black bg-rumbleBgLight dark:border-rumbleNone border-rumbleOutline dark:text-rumbleNone text-rumbleOutline font-medium text-xs uppercase transition duration-150 ease-in-out border-r-2 hover:bg-rumbleSecondary focus:bg-rumbleSecondary "
-const buttonDisabled = "inline-block px-6 py-4 dark:bg-black bg-rumbleBgLight dark:border-rumbleNone border-rumbleOutline dark:text-rumbleNone text-rumbleOutline font-medium text-xs uppercase transition duration-150 ease-in-out border-r-2 pointer-events-none opacity-60"
+const buttonClass = "inline-block px-6 py-4 dark:bg-black bg-rumbleBgLight dark:border-rumbleNone border-rumbleOutline dark:text-rumbleNone text-rumbleOutline font-medium text-xs uppercase transition duration-150 ease-in-out border-b-2 sm:border-b-0 border-r-2 hover:bg-rumbleSecondary focus:bg-rumbleSecondary "
+const buttonDisabled = "inline-block px-6 py-4 dark:bg-black bg-rumbleBgLight dark:border-rumbleNone border-rumbleOutline dark:text-rumbleNone text-rumbleOutline font-medium text-xs uppercase transition duration-150 ease-in-out border-b-2 sm:border-b-0 border-r-2 pointer-events-none opacity-60"
 
 const AdminRoomPanel = ({ socket, roomSlug }) => {
   const [gameStarted, setGameStarted] = useState(false);
