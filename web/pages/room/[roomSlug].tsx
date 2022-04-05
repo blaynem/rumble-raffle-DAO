@@ -201,7 +201,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
         <div className="flex flex-col md:flex-row sm:flex-row">
           {/* Left Side */}
           <div className="ml-6 lg:ml-20 md:ml-6 sm:ml-6 pr-6 mr-2 pt-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
-            <h2 className="mb-8 dark:text-rumbleNone">(img) <span className="font-bold">{user?.name}</span></h2>
+            <h2 className="mb-8 dark:text-rumbleNone"><span className="font-bold">{user?.name}</span></h2>
             <div className="mb-8">
               <button className={(alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Join Game' : 'Join Game'}</button>
               {errorMessage && <p className="mt-4 text-red-600">Error: {errorMessage}</p>}
