@@ -4,7 +4,7 @@ import {ToastTypes} from '@rumble-raffle-dao/types';
 
 /**
  * NOTE: TailwindCSS will tree shake any of these background classes that are not explicitly set
- * In order to stop that, inside of tailwind.config.js we have whitelisted some colors.
+ * In order to stop that, inside of tailwind.config.js we have whitelisted some colors
  */
 
 const ToastMessage = ({ type, message, onClick }: ToastTypes) => {
