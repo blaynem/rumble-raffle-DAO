@@ -4,7 +4,8 @@
   "private": true,
   "main": "index.ts",
   "scripts": {
-    "server": "ts-node-dev index.ts"
+    "server": "ts-node-dev index.ts",
+    "start": "ts-node-dev index.ts"
   },
   "dependencies": {
     "@rumble-raffle-dao/rumble": "0.1.0",
