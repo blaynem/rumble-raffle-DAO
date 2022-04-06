@@ -31,11 +31,15 @@ const getContractDetails = async (contractDetails: Pick<definitions['contracts']
     // Need the decimal value to get correct payment amount.
     // convert from bigint by doing  `number => ethers.utils.formatUnits(amt, decimals)`
     rumbleContract = createEthereumContract(rumbleContractAddress, RaffleSmartContracts.RumbleRaffle.abi);
-    tokenAddress = process.env.DEV_TOKEN_CONTRACT_ADDRESS;
-    tokenContract = createEthereumContract(tokenAddress, RaffleSmartContracts.TestToken.abi);
+    tokenAddress = contractDetails.contract_address;
+    let tokenAbi = RaffleSmartContracts.TestToken.abi;
+    // If the token isn't the test token, we fetch the abi.
+    if (tokenAddress !== process.env.DEV_TOKEN_CONTRACT_ADDRESS) {
+      tokenAbi = await (await fetchPolygonContractABI(tokenAddress)).contractABI;
+    }
+    tokenContract = createEthereumContract(tokenAddress, tokenAbi);
   }
   if (process.env.NODE_ENV === 'production') {
-    // todo: Enable check chain for non-localhost
     await checkChain(Web3.utils.toHex(contractDetails.chain_id));
     // Contract info
     const rumbleContractAbi = await fetchPolygonContractABI(rumbleContractAddress);
@@ -45,7 +49,8 @@ const getContractDetails = async (contractDetails: Pick<definitions['contracts']
     const tokenAbi = await fetchPolygonContractABI(tokenAddress);
     tokenContract = createEthereumContract(tokenAddress, tokenAbi.contractABI);
   }
-
+  
+  console.log('Token Contract:', tokenContract);
   let tokenDecimals: number = await tokenContract.decimals();
   tokenDecimals.toString();
 

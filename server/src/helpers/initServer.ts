@@ -16,10 +16,8 @@ game_activities: game_round_logs(*, activity:activity_id(*)),
 winners
 `
 
-// todo: check if game was already completed and has stored activity log / winner data.
 const InitializeServer = async () => {
   try {
-    // TODO: Limit by games that haven't completed yet.
     const { data, error } = await client.from<OmegaRoomInterface>('rooms')
       .select(omegaFetch)
       .eq('game_completed', false)
