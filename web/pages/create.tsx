@@ -53,7 +53,7 @@ const customPrizeSplitMessage = (errorMsg: string, touched: FormikTouched<Create
   if (prize_alt_split && prize_first && prize_second && prize_third && prize_kills && typeof errorMsg === "string") {
     message = errorMsg;
   }
-  return message ? <div className='px-4 space-y-6 sm:px-6'>{message}</div> : null;
+  return message ? <div className='text-base h-10 py-2 text-red-600'>{message}</div> : null;
 }
 
 const customErrorColors = (msg: string) => <div className='text-base h-10 text-red-600 py-2'>{msg}</div>
@@ -122,7 +122,7 @@ const CreatePage = () => {
     setToastOpen(true)
   }
 
-  const onSuccessSlugUrlMessage = (slug: string) => <Link href={`/room/${slug}`}><a className="inline-flex items-center">{`${BASE_WEB_URL}/room/${slug}`}</a></Link>
+  const onSuccessSlugUrlMessage = (slug: string) => <Link href={`/room/${slug}`}><a className="inline-flex items-center dark:text-rumbleNone text-rumbleOutline">{`${BASE_WEB_URL}/room/${slug}`}</a></Link>
   const showAltSplitAddress = (values: CreateRoomValues) => {
     const { prize_alt_split } = values.prize_split;
     return prize_alt_split !== '' && parseInt(prize_alt_split) > 0;
@@ -397,25 +397,27 @@ const CreatePage = () => {
                       </div>
                     </div>
                   </div>
-                  {showAltSplitAddress(values) && <div className="col-span-6">
-                    <label htmlFor="prize_alt_split-address" className={labelClass}>
-                      Alternative Split Address
-                    </label>
-                    <Field
-                      type="text"
-                      name="alt_split_address"
-                      id="prize_alt_split-address"
-                      placeholder="Wallet Address"
-                      className={fieldClass}
-                    />
-                    <ErrorMessage name="alt_split_address" >
-                      {msg => customErrorColors(msg)}
-                    </ErrorMessage>
-                  </div>}
+                  <ErrorMessage render={msg => customPrizeSplitMessage(msg, touched)} name="prize_split" >
+                    {msg => customErrorColors(msg)}
+                  </ErrorMessage>
+                  {showAltSplitAddress(values) && (
+                    <div className="col-span-6">
+                      <label htmlFor="prize_alt_split-address" className={labelClass}>
+                        Alternative Split Address
+                      </label>
+                      <Field
+                        type="text"
+                        name="alt_split_address"
+                        id="prize_alt_split-address"
+                        placeholder="Wallet Address"
+                        className={fieldClass}
+                      />
+                      <ErrorMessage name="alt_split_address" >
+                        {msg => customErrorColors(msg)}
+                      </ErrorMessage>
+                    </div>
+                  )}
                 </div>
-                <ErrorMessage render={msg => customPrizeSplitMessage(msg, touched)} name="prize_split" >
-                  {msg => customErrorColors(msg)}
-                </ErrorMessage>
                 {/* COIN INFORMATION */}
                 <div className="mb-20">
                   <h4 className={headerClass}>Payment Information</h4>
@@ -499,15 +501,15 @@ const CreatePage = () => {
                     }
                   </div>
                 </div>
-                <div className="">
-                  {/* Setting empty div allows button to always flex all the way right. */}
-                  {savedSlugMessage ? onSuccessSlugUrlMessage(savedSlugMessage) : <div />}
+                <div>
                   <button
                     type="submit"
-                    className="uppercase h-14 py-4 px-6 border-2 dark:border-rumbleBgLight border-rumbleBgDark dark:bg-rumbleBgLight bg-rumbleBgDark dark:hover:bg-rumbleSecondary dark:hover:border-rumbleSecondary hover:bg-rumblePrimary hover:border-rumblePrimary dark:text-rumbleOutline text-rumbleNone font-medium"
+                    className="uppercase h-14 mr-8 py-4 px-6 border-2 dark:border-rumbleBgLight border-rumbleBgDark dark:bg-rumbleBgLight bg-rumbleBgDark dark:hover:bg-rumbleSecondary dark:hover:border-rumbleSecondary hover:bg-rumblePrimary hover:border-rumblePrimary dark:text-rumbleOutline text-rumbleNone font-medium"
                   >
                     {isSubmitting ? 'Saving...' : 'Save'}
                   </button>
+                  {/* Setting empty div allows button to always flex all the way right. */}
+                  {savedSlugMessage ? onSuccessSlugUrlMessage(savedSlugMessage) : <div />}
                 </div>
               </div>
             </div>
