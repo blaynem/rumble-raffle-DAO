@@ -8,8 +8,8 @@ export default async function fetchRooms(req, res) {
     return;
   }
   if (data.length > 0) {
-    res.status(200).json({ data })
+    res.status(200).json({ data, error: null })
     return;
   }
-  res.status(404).json({ error })
+  res.status(404).json({ error: 'There are no rooms matching this slug.', data: [] })
 }

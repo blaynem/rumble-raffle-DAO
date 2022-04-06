@@ -94,7 +94,7 @@ router.get('/:slug', async (req: any, res: any) => {
       return;
     }
     const roomToAdd = selectRoomInfo(data[0])
-    res.json({ data: roomToAdd })
+    res.json({ data: [roomToAdd] })
   } catch (error) {
     console.error('Server: Fetch by slug', error);
     res.json({ error, data: [] });

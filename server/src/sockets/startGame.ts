@@ -28,12 +28,16 @@ const dripGameDataOnDelay = (io: Server, roomSlug: string) => {
       if (gameState.roundCounter >= roomData.gameData.rounds.length) {
         gameState.gameCompleted = true;
         gameState.showWinners = true;
+        // Update the rooms completed state to true.
         const updateRoomSubmit = await client.from<definitions['rooms']>('rooms')
-          .update({ game_completed: true })
-          .match({ id: roomData.id })
+        .update({ game_completed: true })
+        .match({ id: roomData.id })
+        // Log any errors from changing game to completed
         if (updateRoomSubmit.error) {
-          console.error(updateRoomSubmit.error);
+          console.error('drip game data: game_completed = true', updateRoomSubmit.error);
         }
+        // delete the game state from the server
+        delete availableRoomsData[roomSlug];
       }
 
       // We get the visible game state to spit out to the client.

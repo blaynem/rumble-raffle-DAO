@@ -209,7 +209,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
             <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
             <Entrants entrants={entrants} user={user} />
           </div>
-          {/* Left Side */}
+          {/* Right Side */}
           <div className="pr-6 lg:pr-20 md:pr-6 sm:pr-6 py-2 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
             <div className="my-4 h-6 text-center dark:text-rumbleNone text-rumbleOutline">
               {timeToGameStart && <span>Game starts in: {timeToGameStart}</span>}
