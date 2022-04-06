@@ -6,6 +6,9 @@
   "scripts": {
     "test": "jest"
   },
+  "publishConfig": {
+    "@blaynem:registry": "https://npm.pkg.github.com"
+  },
   "dependencies": {
     "ts-node": "^10.6.0",
     "typescript": "^4.5.5",
