@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
 import { RoomDataType } from "@rumble-raffle-dao/types";
 import DisplayPrizes from "../../components/room/prizes";
@@ -7,6 +7,7 @@ import { useWallet } from '../../containers/wallet'
 import { BASE_WEB_URL } from "../../lib/constants";
 import Entrants from "../../components/room/entrants";
 import { usePreferences } from "../../containers/preferences";
+import router from "next/router";
 
 export type ServerSidePropsType = {
   roomData: RoomDataType
@@ -27,7 +28,15 @@ const RumbleRoom = ({ roomData, error }: ServerSidePropsType) => {
   const { user } = useWallet()
   const { preferences } = usePreferences();
 
-  if (error) {
+  useEffect(() => {
+    // If the game hasn't been completed, push them there.
+    if (!roomData.game_completed) {
+      router.push(`/room/${roomData.slug}`);
+      return;
+    }
+  })
+
+  if (error || !roomData.game_completed) {
     return (
       <div className={`${preferences?.darkMode ? 'dark' : 'light'}`} >
         <div className="flex justify-center dark:bg-rumbleOutline bg-rumbleBgLight" style={{ height: 'calc(100vh - 58px)' }}>
