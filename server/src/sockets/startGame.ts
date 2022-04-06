@@ -85,7 +85,7 @@ async function startGame(io: Server, data: { playerData: definitions["users"]; r
     }
     // Game already started, do nothing about it.
     if (!roomData || roomData.game_started || roomData.game_completed || roomData.players.length < 1) {
-      console.log('---startRumble--ERROR', data.roomSlug);
+      console.log('---startGame--ERROR', data.roomSlug);
       return;
     }
     const gameData = await startRumble(data.roomSlug);
