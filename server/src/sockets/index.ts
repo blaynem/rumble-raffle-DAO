@@ -32,6 +32,9 @@ export const initRoom = (sio: Server, socket: Socket) => {
  */
 function joinRoom(roomSlug: string) {
   try {
+    if (!availableRoomsData[roomSlug]) {
+      return
+    }
     const { roomData, gameState } = availableRoomsData[roomSlug];
     // console.log('---room', room, this.id);
     if (!roomData) {

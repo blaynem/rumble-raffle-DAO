@@ -30,7 +30,7 @@ const RumbleRoom = ({ roomData, error }: ServerSidePropsType) => {
   if (error) {
     return (
       <div className={`${preferences?.darkMode ? 'dark' : 'light'}`} >
-        <div className="flex justify-center dark:bg-rumbleBgDark bg-rumbleBgLight" style={{ height: 'calc(100vh - 58px)' }}>
+        <div className="flex justify-center dark:bg-rumbleOutline bg-rumbleBgLight" style={{ height: 'calc(100vh - 58px)' }}>
           <div className="w-fit pt-20">
             <p className="text-lg dark:text-rumbleSecondary text-rumblePrimary">Oops...</p>
             <h2 className="text-xl dark:text-rumbleNone text-rumbleOutline">{error}</h2>
