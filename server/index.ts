@@ -36,6 +36,7 @@ const io = new Server(server, {
     origin: BASE_WEB_URL,
     methods: ["GET", "POST"],
   },
+  transports: ["websocket"]
 });
 
 server.listen(port, () => {
