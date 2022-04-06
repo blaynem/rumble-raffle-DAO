@@ -55,7 +55,7 @@ const RumbleRoom = ({ roomData, error }: ServerSidePropsType) => {
         <h2 className="text-center pt-6 text-xl uppercase dark:text-rumbleNone text-rumbleOutline">Viewing a past game</h2>
         <div className="flex flex-col md:flex-row sm:flex-row">
           {/* Left Side */}
-          <div className="ml-6 lg:ml-20 md:ml-6 sm:ml-6 pr-6 mr-2 pt-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 58px)' }}>
+          <div className="ml-6 lg:ml-20 md:ml-6 sm:ml-6 pr-6 mr-2 pt-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 110px)' }}>
             <DisplayPrizes
               entryFee={roomData.params?.entry_fee}
               entryToken={roomData.contract?.symbol}
@@ -69,7 +69,7 @@ const RumbleRoom = ({ roomData, error }: ServerSidePropsType) => {
             <Entrants entrants={roomData.players} user={user} />
           </div>
           {/* Right Side */}
-          <div className="pr-6 lg:pr-20 md:pr-6 sm:pr-6 py-2 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 58px)' }}>
+          <div className="pr-6 lg:pr-20 md:pr-6 sm:pr-6 py-2 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 110px)' }}>
             <div className="my-4 h-6 text-center dark:text-rumbleNone text-rumbleOutline" />
             <div className="flex flex-col items-center max-h-full">
               <DisplayActivityLogs allActivities={roomData.gameData.rounds} user={user} />

@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import client from "../client";
 import availableRoomsData, { defaultGameState } from "../helpers/roomRumbleData";
 
+//TODO: MUST ADD THE LOGS BACK TO THE availableRoomsData CUZ OTHERWISE THINGS KILL
 // TODO: REMOVE THIS. SHOULD NOT BE ABLE TO CLEAR GAME DATA.
 // ONLY USED FOR TESTING.
 async function clearGame(io: Server, data: { playerData: definitions["users"]; roomSlug: string }) {
