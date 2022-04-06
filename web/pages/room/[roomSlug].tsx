@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
-import { EntireGameLog, PlayerAndPrizeSplitType } from "@rumble-raffle-dao/types";
+import { EntireGameLog, PlayerAndPrizeSplitType, RoomDataType } from "@rumble-raffle-dao/types";
 import { GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
@@ -10,6 +10,7 @@ import { useWallet } from '../../containers/wallet'
 import { BASE_API_URL, BASE_WEB_URL } from "../../lib/constants";
 import Entrants from "../../components/room/entrants";
 import { usePreferences } from "../../containers/preferences";
+import { useRouter } from "next/router";
 
 const socket = io(BASE_API_URL).connect()
 
@@ -18,26 +19,31 @@ const buttonDisabled = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumble
 
 export type ServerSidePropsType = {
   activeRoom: boolean;
+  game_completed: boolean;
+  game_started: boolean;
   roomCreator: string;
   roomSlug: string;
 }
 
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }): Promise<{ props: ServerSidePropsType }> => {
-  const { data } = await fetch(`${BASE_WEB_URL}/api/rooms/${query.roomSlug}`).then(res => res.json())
-  const activeRoom = data?.length > 0;
-  const { created_by } = data[0];
+  const { data }: { data: RoomDataType[] } = await fetch(`${BASE_WEB_URL}/api/rooms/${query.roomSlug}`).then(res => res.json())
+  
+  const roomData = data[0];
   return {
     props: {
-      activeRoom,
-      roomCreator: created_by,
+      activeRoom: data.length > 0,
+      game_completed: roomData?.game_completed || null,
+      game_started: roomData?.game_started || null,
+      roomCreator: roomData?.created_by || null,
       roomSlug: query.roomSlug,
     }
   }
 })
 
-const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePropsType) => {
+const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roomSlug, ...rest }: ServerSidePropsType) => {
   const { user, payEntryFee } = useWallet()
   const { preferences } = usePreferences();
+  const router = useRouter()
   const [entrants, setEntrants] = useState([] as PlayerAndPrizeSplitType['allPlayers']);
   const [prizes, setPrizes] = useState({} as PlayerAndPrizeSplitType['prizeSplit']);
   const [roomInfo, setRoomInfo] = useState({} as PlayerAndPrizeSplitType['roomInfo']);
@@ -55,6 +61,10 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
   const isRoomCreator = roomCreator === user?.public_address;
 
   useEffect(() => {
+    if (game_completed) {
+      router.push(`/completed/${roomSlug}`);
+      return;
+    }
     // If this isn't in a useEffect it doesn't always catch in the rerenders.
     setCalcHeight(isRoomCreator ? 'calc(100vh - 108px)' : 'calc(100vh - 58px)');
   })
@@ -156,10 +166,15 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
     socket.on('disconnect', (s) => {
       console.log('DISCONNECTED');
       // Attempts to reconnect.
-      socket.emit(JOIN_ROOM, roomSlug);
+      if (activeRoom && !game_completed) {
+        // Join a room
+        socket.emit(JOIN_ROOM, roomSlug);
+      }
     })
-    // Join a room
-    socket.emit(JOIN_ROOM, roomSlug);
+    if (activeRoom && !game_completed) {
+      // Join a room
+      socket.emit(JOIN_ROOM, roomSlug);
+    }
     // Return function here is used to cleanup the sockets
     return function cleanup() {
       // clean up sockets
@@ -188,7 +203,16 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
 
   // TODO: Redirect them to home if there is no room shown?
   if (!activeRoom) {
-    return <>Please check room number.</>
+    return (
+      <div className={`${preferences?.darkMode ? 'dark' : 'light'}`} >
+        <div className="flex justify-center dark:bg-rumbleOutline bg-rumbleBgLight" style={{ height: 'calc(100vh - 58px)' }}>
+          <div className="w-fit pt-20">
+            <p className="text-lg dark:text-rumbleSecondary text-rumblePrimary">Oops...</p>
+            <h2 className="text-xl dark:text-rumbleNone text-rumbleOutline">Not a valid room number.</h2>
+          </div>
+        </div>
+      </div >
+    )
   }
 
   return (
@@ -209,7 +233,7 @@ const RumbleRoom = ({ activeRoom, roomCreator, roomSlug, ...rest }: ServerSidePr
             <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
             <Entrants entrants={entrants} user={user} />
           </div>
-          {/* Left Side */}
+          {/* Right Side */}
           <div className="pr-6 lg:pr-20 md:pr-6 sm:pr-6 py-2 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
             <div className="my-4 h-6 text-center dark:text-rumbleNone text-rumbleOutline">
               {timeToGameStart && <span>Game starts in: {timeToGameStart}</span>}

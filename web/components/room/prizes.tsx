@@ -1,7 +1,7 @@
 import React from 'react';
 import { PlayerAndPrizeSplitType } from '@rumble-raffle-dao/types';
 
-const DisplayPrizes = ({ entryFee, entryToken, firstPlace, secondPlace, thirdPlace, kills, altSplit, totalEntrants }: PlayerAndPrizeSplitType['prizeSplit'] & { entryFee: number; entryToken: string; totalEntrants: number }) => (
+const DisplayPrizes = ({ entryFee, entryToken, firstPlace, secondPlace, thirdPlace, kills, altSplit, totalEntrants }: Omit<PlayerAndPrizeSplitType['prizeSplit'], 'creatorSplit'> & { entryFee: number; entryToken: string; totalEntrants: number }) => (
   <div className="mb-8 w-80 p-6 border-2 dark:border-rumbleNone border-rumbleOutline">
     <div className="flex justify-between mb-2">
       <div className="dark:text-rumbleSecondary text-rumblePrimary uppercase text-lg font-medium leading-7">Prize Split</div>

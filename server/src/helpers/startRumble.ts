@@ -3,6 +3,7 @@ import { EntireGameLog, definitions } from "@rumble-raffle-dao/types";
 import client from "../client";
 import { getAllActivities } from "../routes/api/activities";
 import { createGame } from "./createRumble";
+import { getGameDataFromDb } from "./getGameDataFromDb";
 import { parseActivityLogForClient, parseActivityLogForDbPut } from "./parseActivityLogs";
 import { selectPrizeSplitFromParams, selectPayoutFromGameData } from "./payoutHelpers";
 import availableRoomsData from "./roomRumbleData";
@@ -20,7 +21,7 @@ import availableRoomsData from "./roomRumbleData";
  */
 export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
   try {
-    const { roomData } = availableRoomsData[roomSlug];
+    const {data: [roomData], error} = await getGameDataFromDb(roomSlug);
     if (!roomData || roomData.game_completed || roomData.game_started) {
       console.log('---startRumble--ERROR', roomSlug);
       return;
@@ -74,7 +75,7 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
     // Update the rooms
     const updateRoomSubmit = await client.from<definitions['rooms']>('rooms')
       .update({
-        game_completed: true,
+        game_started: true,
         total_prize_purse: finalGameData.gamePayouts.total,
         winners: parsedActivityLog.winners.map(winner => winner.public_address)
       })

@@ -32,8 +32,10 @@ export const initRoom = (sio: Server, socket: Socket) => {
  */
 function joinRoom(roomSlug: string) {
   try {
+    if (!availableRoomsData[roomSlug]) {
+      return
+    }
     const { roomData, gameState } = availableRoomsData[roomSlug];
-    // console.log('---room', room, this.id);
     if (!roomData) {
       return;
     }
@@ -43,7 +45,7 @@ function joinRoom(roomSlug: string) {
     io.to(this.id).emit(UPDATE_PLAYER_LIST, playersAndPrizeSplit);
     if (roomData.game_started) {
       const { visibleRounds, winners } = getVisibleGameStateForClient(roomData, gameState);
-      // TODO: Limit this to whatever current logs are being shown.
+      // Limit this to whatever current logs are being shown.
       io.to(this.id).emit(UPDATE_ACTIVITY_LOG_ROUND, visibleRounds);
       io.to(this.id).emit(UPDATE_ACTIVITY_LOG_WINNER, winners);
     }

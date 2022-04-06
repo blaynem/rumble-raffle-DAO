@@ -1,5 +1,6 @@
 import { AllAvailableRoomsType, GameState, RoomDataType } from "@rumble-raffle-dao/types";
 
+// TODO: Reduce this down, a lot of this information can come straight from the db instead of sockets
 const availableRoomsData: AllAvailableRoomsType = {};
 
 // defaults for the game state

@@ -10,8 +10,6 @@ import {BASE_WEB_URL} from './constants';
 /**
  * TODO:
  * - Error handling on server side so when something errors we don't need to restart the server, that's wack.
- * - Validate the "Create a room" inputs.
- * - Should somehow extract all of these types into another subfolder so they can be gotten across all files.
  */
 
 const app = express();

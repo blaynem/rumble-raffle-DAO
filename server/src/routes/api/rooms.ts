@@ -1,8 +1,9 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { definitions, RoomDataType } from '@rumble-raffle-dao/types';
+import { definitions, OmegaRoomInterface, RoomDataType } from '@rumble-raffle-dao/types';
 import client from '../../client';
 import { addNewRoomToMemory } from '../../helpers/roomRumbleData';
+import { getGameDataFromDb } from '../../helpers/getGameDataFromDb';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
@@ -69,12 +70,14 @@ router.post('/create', jsonParser, async (req: any, res: any) => {
  */
 router.get('/:slug', async (req: any, res: any) => {
   const slug = req.params.slug;
-  const { data, error } = await client.from<definitions['rooms']>('rooms').select('*').eq('slug', slug)
-  if (error) {
-    res.status(res.statusCode).json({ error });
-    return;
+  try {
+    const { data, error } = await getGameDataFromDb(slug);
+
+    res.json({ data, error });
+  } catch (error) {
+    console.error('Server: Fetch by slug', error);
+    res.json({ error, data: [] });
   }
-  res.json({ data });
 })
 
 module.exports = router;
