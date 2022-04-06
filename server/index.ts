@@ -5,6 +5,7 @@ import { Server } from "socket.io";
 
 import initServer from './src/helpers/initServer';
 import { initRoom } from './src/sockets';
+import {BASE_WEB_URL} from './constants';
 
 /**
  * TODO:
@@ -32,9 +33,10 @@ app.use((err: any, req: any, res: any, next: any) => {
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: BASE_WEB_URL,
     methods: ["GET", "POST"],
-  },
+    credentials: true
+  }
 });
 
 server.listen(port, () => {
