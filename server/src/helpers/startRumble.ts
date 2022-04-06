@@ -74,7 +74,7 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
     // Update the rooms
     const updateRoomSubmit = await client.from<definitions['rooms']>('rooms')
       .update({
-        game_completed: true,
+        game_started: true,
         total_prize_purse: finalGameData.gamePayouts.total,
         winners: parsedActivityLog.winners.map(winner => winner.public_address)
       })

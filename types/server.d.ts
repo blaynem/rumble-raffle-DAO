@@ -102,7 +102,7 @@ export type RoomDataType = {
   /**
    * True if the game has already begun playing.
    */
-  game_started: boolean;
+  game_started: definitions['rooms']['game_started'];
   /**
    * Id of the given room.
    */
@@ -135,7 +135,7 @@ export type OmegaRoomInterface = {
   params: definitions['room_params'];
   contract: definitions['contracts'];
   game_activities: RoundsType[];
-} & Pick<definitions['rooms'], 'id' | 'slug' | 'game_completed' | 'created_by' | 'winners'>
+} & Pick<definitions['rooms'], 'id' | 'slug' | 'game_completed' | 'game_started' | 'created_by' | 'winners'>
 
 // All of the game_round_logs types, omitting the id
 export type GameRoundLogsOmitId = Omit<definitions['game_round_logs'], 'id'>

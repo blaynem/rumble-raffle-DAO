@@ -13,7 +13,7 @@ import { startRumble } from "../helpers/startRumble";
 const dripGameDataOnDelay = (io: Server, roomSlug: string) => {
   try {
     const { roomData, gameState } = availableRoomsData[roomSlug];
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       // If there is no game data, we don't want to do anything else.
       // This can happen if the admin clears the game state.
       if (!roomData.gameData) {
@@ -28,6 +28,12 @@ const dripGameDataOnDelay = (io: Server, roomSlug: string) => {
       if (gameState.roundCounter >= roomData.gameData.rounds.length) {
         gameState.gameCompleted = true;
         gameState.showWinners = true;
+        const updateRoomSubmit = await client.from<definitions['rooms']>('rooms')
+          .update({ game_completed: true })
+          .match({ id: roomData.id })
+        if (updateRoomSubmit.error) {
+          console.error(updateRoomSubmit.error);
+        }
       }
 
       // We get the visible game state to spit out to the client.

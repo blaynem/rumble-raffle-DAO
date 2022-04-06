@@ -778,12 +778,15 @@ export interface paths {
           slug?: parameters["rowFilter.rooms.slug"];
           params_id?: parameters["rowFilter.rooms.params_id"];
           created_by?: parameters["rowFilter.rooms.created_by"];
+          /** If the game has completed showing to the users. */
           game_completed?: parameters["rowFilter.rooms.game_completed"];
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
           /** Array of winners by their publicAddress in users table. */
           winners?: parameters["rowFilter.rooms.winners"];
+          /** If the game has begun to display to the users. */
+          game_started?: parameters["rowFilter.rooms.game_started"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -840,12 +843,15 @@ export interface paths {
           slug?: parameters["rowFilter.rooms.slug"];
           params_id?: parameters["rowFilter.rooms.params_id"];
           created_by?: parameters["rowFilter.rooms.created_by"];
+          /** If the game has completed showing to the users. */
           game_completed?: parameters["rowFilter.rooms.game_completed"];
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
           /** Array of winners by their publicAddress in users table. */
           winners?: parameters["rowFilter.rooms.winners"];
+          /** If the game has begun to display to the users. */
+          game_started?: parameters["rowFilter.rooms.game_started"];
         };
         header: {
           /** Preference */
@@ -866,12 +872,15 @@ export interface paths {
           slug?: parameters["rowFilter.rooms.slug"];
           params_id?: parameters["rowFilter.rooms.params_id"];
           created_by?: parameters["rowFilter.rooms.created_by"];
+          /** If the game has completed showing to the users. */
           game_completed?: parameters["rowFilter.rooms.game_completed"];
           /** Total prize purse depending on amount of players when game starts. */
           total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
           /** Array of winners by their publicAddress in users table. */
           winners?: parameters["rowFilter.rooms.winners"];
+          /** If the game has begun to display to the users. */
+          game_started?: parameters["rowFilter.rooms.game_started"];
         };
         body: {
           /** rooms */
@@ -1322,7 +1331,10 @@ export interface definitions {
      * This is a Foreign Key to `users.public_address`.<fk table='users' column='public_address'/>
      */
     created_by: string;
-    /** Format: boolean */
+    /**
+     * Format: boolean
+     * @description If the game has completed showing to the users.
+     */
     game_completed: boolean;
     /**
      * Format: numeric
@@ -1340,6 +1352,11 @@ export interface definitions {
      * @description Array of winners by their publicAddress in users table.
      */
     winners?: unknown[];
+    /**
+     * Format: boolean
+     * @description If the game has begun to display to the users.
+     */
+    game_started: boolean;
   };
   /** @description Users that have logged into the app */
   users: {
@@ -1625,7 +1642,10 @@ export interface parameters {
   "rowFilter.rooms.params_id": string;
   /** Format: character varying */
   "rowFilter.rooms.created_by": string;
-  /** Format: boolean */
+  /**
+   * Format: boolean
+   * @description If the game has completed showing to the users.
+   */
   "rowFilter.rooms.game_completed": string;
   /**
    * Format: numeric
@@ -1639,6 +1659,11 @@ export interface parameters {
    * @description Array of winners by their publicAddress in users table.
    */
   "rowFilter.rooms.winners": string;
+  /**
+   * Format: boolean
+   * @description If the game has begun to display to the users.
+   */
+  "rowFilter.rooms.game_started": string;
   /** @description users */
   "body.users": definitions["users"];
   /** Format: character varying */
