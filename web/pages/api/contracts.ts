@@ -44,7 +44,9 @@ const getPolygonContractData = async (contract_address: string): Promise<GetPoly
     //   console.log(await implementation_contract.methods.name().call());
     // }
     
-    const chain_id = await contract.methods.getChainId().call();
+    // const chain_id = await contract.methods.getChainId().call();
+    // Chain id for all polygon is 137
+    const chain_id = 137;
     const symbol = await contract.methods.symbol().call();
     const name = await contract.methods.name().call();
     const decimals = await contract.methods.decimals().call();
