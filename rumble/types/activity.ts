@@ -92,7 +92,7 @@ export type GameEndType = {
   gameKills: {[playerId: string]: number};
   // Payouts for the game;
   gamePayouts: PrizePayouts;
-  // The game runner ups (2nd / 3rd).
+  // The entire list of participants, excluding the winner, ordered by their placement.
   gameRunnerUps: PlayerType[] | null;
   // The game winner.
   gameWinner: PlayerType | null;

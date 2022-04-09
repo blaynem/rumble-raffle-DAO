@@ -449,9 +449,8 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
 
     const winner = this.allPlayers[id];
 
-    let runnerUpIds = this.playersSlainIds.length > 2 ? this.playersSlainIds.slice(-2) : this.playersSlainIds;
-    // Added to playersSlain in order of death, so we reverse to get correct 2nd/3rd place
-    runnerUpIds = [...runnerUpIds].reverse();
+    // Added to playersSlain in order of death, so we reverse the array.
+    const runnerUpIds = [...this.playersSlainIds].reverse();
     let runnerUps = runnerUpIds.map(id => this.allPlayers[id]);
 
     const roundLog: WinnerLogType = {
