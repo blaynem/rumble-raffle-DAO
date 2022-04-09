@@ -68,7 +68,7 @@ export interface RumbleInterface {
   gameKills: { [playerId: string]: number };
   // Payouts for the game;
   gamePayouts: PrizePayouts;
-  // The game runner ups (2nd / 3rd).
+  // The entire list of participants, excluding the winner, ordered by their placement.
   gameRunnerUps: PlayerType[];
   // Has game already been started.
   gameStarted: boolean;
