@@ -4,7 +4,7 @@ import { SupabaseUserType } from '@rumble-raffle-dao/types';
 
 import supabase from '../../client';
 // idk fun to have a fake name instead of not.
-const fancyName = `${faker.name.jobType().toUpperCase()}-${faker.animal.type().toUpperCase()}-${faker.datatype.number(100)}`
+const fancyName = () => `${faker.name.jobType().toUpperCase()}-${faker.animal.type().toUpperCase()}-${faker.datatype.number(100)}`
 
 export default async function usersHandler(req, res) {
   const { public_address } = req?.query || req?.body
@@ -31,7 +31,7 @@ export default async function usersHandler(req, res) {
     return;
   }
   // If we didn't find the user, then we add them to the db with a fancy name
-  const { data, error } = await supabase.from<SupabaseUserType>('users').insert({ public_address, nonce, name: fancyName }).select('public_address, name, nonce')
+  const { data, error } = await supabase.from<SupabaseUserType>('users').insert({ public_address, nonce, name: fancyName() }).select('public_address, name, nonce')
   if (error) {
     res.status(401).json({ error: 'Something went wrong in creating the user.' })
   }
