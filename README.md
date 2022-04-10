@@ -68,6 +68,7 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
   - Finish the `checkChain` piece in wallet.ts
 - Players:
   - Allow players to change their names.
+  - Allow players to pick a profile picutre.
 - Create Room:
   - Allow setting of player limits
   - Allow setting an initial prize purse.
