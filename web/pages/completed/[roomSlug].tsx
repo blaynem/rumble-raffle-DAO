@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { withSessionSsr } from '../../lib/with-session';
 import { RoomDataType } from "@rumble-raffle-dao/types";
 import DisplayPrizes from "../../components/room/prizes";
@@ -27,6 +27,11 @@ export const getServerSideProps = withSessionSsr(async ({ req, query }): Promise
 const RumbleRoom = ({ roomData, error }: ServerSidePropsType) => {
   const { user } = useWallet()
   const { preferences } = usePreferences();
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    setDarkMode(preferences?.darkMode);
+  }, [preferences?.darkMode]);
 
   useEffect(() => {
     // If the game hasn't been completed, push them there.
@@ -38,7 +43,7 @@ const RumbleRoom = ({ roomData, error }: ServerSidePropsType) => {
 
   if (error || !roomData.game_completed) {
     return (
-      <div className={`${preferences?.darkMode ? 'dark' : 'light'}`} >
+      <div className={`${darkMode ? 'dark' : 'light'}`} >
         <div className="flex justify-center dark:bg-rumbleOutline bg-rumbleBgLight" style={{ height: 'calc(100vh - 58px)' }}>
           <div className="w-fit pt-20">
             <p className="text-lg dark:text-rumbleSecondary text-rumblePrimary">Oops...</p>
@@ -50,7 +55,7 @@ const RumbleRoom = ({ roomData, error }: ServerSidePropsType) => {
   }
 
   return (
-    <div className={`${preferences?.darkMode ? 'dark' : 'light'}`}>
+    <div className={`${darkMode ? 'dark' : 'light'}`}>
       <div className="dark:bg-black bg-rumbleBgLight overflow-auto sm:overflow-hidden" style={{ height: 'calc(100vh - 58px)' }}>
         <h2 className="text-center pt-6 text-xl uppercase dark:text-rumbleNone text-rumbleOutline">Viewing a past game</h2>
         <div className="flex flex-col md:flex-row sm:flex-row">

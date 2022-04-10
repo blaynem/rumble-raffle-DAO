@@ -13,6 +13,11 @@ function classNames(...classes) {
 const Nav = () => {
   const { user, logout } = useWallet()
   const { preferences, setDarkmode } = usePreferences();
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    setDarkMode(preferences?.darkMode);
+  }, [preferences?.darkMode]);
 
   const userNavigation = [
     // { name: 'Settings', href: '/settings' },
@@ -20,7 +25,7 @@ const Nav = () => {
   ]
 
   return (
-    <div className={`${preferences?.darkMode ? 'dark' : 'light'}`}>
+    <div className={`${darkMode ? 'dark' : 'light'}`}>
       <Popover
         as="header"
         className={({ open }) =>
