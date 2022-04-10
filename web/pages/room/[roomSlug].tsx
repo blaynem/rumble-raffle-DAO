@@ -12,7 +12,7 @@ import Entrants from "../../components/room/entrants";
 import { usePreferences } from "../../containers/preferences";
 import { useRouter } from "next/router";
 
-const socket = io(BASE_API_URL).connect()
+const socket = io(BASE_API_URL);
 
 const buttonClass = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out border-r-2 hover:bg-rumbleSecondary focus:bg-rumbleSecondary"
 const buttonDisabled = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out border-r-2 pointer-events-none opacity-60"
@@ -53,6 +53,7 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
   const [timeToGameStart, setTimeToGameStart] = useState(null);
   const [timeToNextRoundStart, setTimeToNextRoundStart] = useState(null);
   const [calcHeight, setCalcHeight] = useState('calc(100vh - 58px)');
+  const [darkMode, setDarkMode] = useState(false);
 
   let gameStartInterval: NodeJS.Timer;
   let nextRoundInterval: NodeJS.Timer;
@@ -61,13 +62,17 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
   const isRoomCreator = roomCreator === user?.public_address;
 
   useEffect(() => {
+    setDarkMode(preferences?.darkMode);
+  }, [preferences?.darkMode]);
+
+  useEffect(() => {
     if (game_completed) {
       router.push(`/completed/${roomSlug}`);
       return;
     }
     // If this isn't in a useEffect it doesn't always catch in the rerenders.
     setCalcHeight(isRoomCreator ? 'calc(100vh - 108px)' : 'calc(100vh - 58px)');
-  })
+  }, [])
 
   // Countdown for the GAME to start
   useEffect(() => {
@@ -122,7 +127,7 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
       setTimeToNextRoundStart(null)
       clearInterval(nextRoundInterval);
     })
-  })
+  }, [])
 
   // Any time the winners are announced
   useEffect(() => {
@@ -136,7 +141,7 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
       setTimeToNextRoundStart(null)
       clearInterval(nextRoundInterval);
     })
-  })
+  }, [])
 
   // Any time there are more players added to the list.
   useEffect(() => {
@@ -151,7 +156,7 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
       data.prizeSplit !== null && setPrizes(data.prizeSplit);
       data.roomInfo !== null && setRoomInfo(data.roomInfo);
     });
-  })
+  }, [])
 
   useEffect(() => {
     socket.on(JOIN_GAME_ERROR, (err) => {
@@ -159,10 +164,11 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
       //   setErrorMessage(err)
       // }
     })
-  })
+  }, [])
 
   // Any time a user joins or is disconnected
   useEffect(() => {
+    socket.connect();
     socket.on('disconnect', (s) => {
       console.log('DISCONNECTED');
       // Attempts to reconnect.
@@ -204,7 +210,7 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
   // TODO: Redirect them to home if there is no room shown?
   if (!activeRoom) {
     return (
-      <div className={`${preferences?.darkMode ? 'dark' : 'light'}`} >
+      <div className={`${darkMode ? 'dark' : 'light'}`} >
         <div className="flex justify-center dark:bg-rumbleOutline bg-rumbleBgLight" style={{ height: 'calc(100vh - 58px)' }}>
           <div className="w-fit pt-20">
             <p className="text-lg dark:text-rumbleSecondary text-rumblePrimary">Oops...</p>
@@ -216,7 +222,7 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
   }
 
   return (
-    <div className={`${preferences?.darkMode ? 'dark' : 'light'}`}>
+    <div className={`${darkMode ? 'dark' : 'light'}`}>
       <div className="dark:bg-black bg-rumbleBgLight overflow-auto sm:overflow-hidden" style={{ height: 'calc(100vh - 58px)' }}>
         <div>
           {/* If we don't wrap this, all of the styles break for some reason. I don't even. */}
