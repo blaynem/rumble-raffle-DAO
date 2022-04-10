@@ -1,6 +1,6 @@
 function WalletAddress({ address }) {
   return (
-    <span>{address.substring(0,3)}...{address.substring(39)}</span>
+    <span>{address?.substring(0,3)}...{address?.substring(39)}</span>
   )
 }
 
