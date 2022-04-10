@@ -6,7 +6,7 @@ const WalletConnector = () => {
   const handleClick = () => {
     doAuth()
   }
-  return <button onClick={handleClick}>Connect Metamask</button>
+  return <span onClick={handleClick}>Connect Metamask</span>
 }
 
 export default WalletConnector

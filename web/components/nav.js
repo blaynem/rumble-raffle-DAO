@@ -14,10 +14,14 @@ const Nav = () => {
   const { user, logout } = useWallet()
   const { preferences, setDarkmode } = usePreferences();
   const [darkMode, setDarkMode] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
     setDarkMode(preferences?.darkMode);
-  }, [preferences?.darkMode]);
+    setLoggedIn(!!user?.public_address);
+  }, [preferences?.darkMode, user]);
+  
+  console.log(preferences, loggedIn);
 
   const userNavigation = [
     // { name: 'Settings', href: '/settings' },
@@ -46,8 +50,7 @@ const Nav = () => {
                   </button>
                   <Menu.Button className="dark:bg-rumbleSecondary bg-rumblePrimary text-rumbleNone border-l-2 dark:border-rumbleNone border-rumbleOutline px-6 py-4 focus:outline-none focus:ring-2 focus:ring-rumbleSecondary">
                     <span className="sr-only">Open user menu</span>
-                    {!user && <WalletConnector />}
-                    {user && <WalletAddress address={user.public_address} />}
+                    {loggedIn ? <WalletAddress address={user?.public_address} /> : <WalletConnector />}
                   </Menu.Button>
                 </div>
                 <Transition
