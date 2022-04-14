@@ -53,7 +53,7 @@ export const defaultSetup: SetupType = {
   prizeSplit: defaultPrizeSplit,
 }
 
-const initialGamePayouts: PrizePayouts = {
+export const initialGamePayouts: PrizePayouts = {
   altSplit: 0,
   creatorSplit: 0,
   winner: 0,
@@ -324,6 +324,13 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
   /**
    * Helper that determines how many activities should be possible to do in a given round.
    * 
+   * amtPlayer  | minimumLoops
+   * 0 - 45     | 2
+   * 46 - 100   | 5
+   * 101 - 200  | 10
+   * 201 - 500  | 15
+   * 500+       | 20
+   * 
    * @param amtPlayers - amount of players left in the game
    * @returns - amount of activities should be possible in a loop
    */
@@ -343,6 +350,25 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
     }
     // We want a minimum of 2 times, maximum of 6 (2+4). Idk why 6, we can increase this later.
     return getRandomNumber(4) + 2
+  }
+
+  /**
+   * Picks a pve or pvp round, then does the activity and returns it.
+   * @param playerIds - array of player id's
+   * @returns {ActivityLogType} The activity log
+   */
+  private pickAndCreateActivity(playerIds: string[]): ActivityLogType {
+    // Picks pve or pvp round, will always be pve round if there is only one person currently alive.
+    // This only happens if someone will also revive this turn.
+    const pveRound = playerIds.length === 1 || doesEventOccur(this.chanceOfPve)
+    // We want to set the maximum deaths to the potential players -1. There always needs to be one player left.
+    const chosenActivity = pickActivity(pveRound ? this.activities.PVE : this.activities.PVP, playerIds.length, playerIds.length - 1);
+    // Chooses random players
+    const chosenPlayerIds: string[] = getAmtRandomItemsFromArr(playerIds, chosenActivity.amountOfPlayers);
+    // Do the activity here
+    const activity: ActivityLogType = doActivity(chosenActivity, chosenPlayerIds, this.replaceActivityDescPlaceholders);
+    
+    return activity;
   }
 
   /**
@@ -385,16 +411,7 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
       if (filterRepeatPlayers.length <= 1) {
         break;
       }
-      // Picks pve or pvp round, will always be pve round if there is only one person currently alive.
-      // This only happens if someone will also revive this turn.
-      const pveRound = filterRepeatPlayers.length === 1 || doesEventOccur(this.chanceOfPve)
-      // We want to set the maximum deaths to the potential players -1. There always needs to be one player left.
-      const chosenActivity = pickActivity(pveRound ? this.activities.PVE : this.activities.PVP, filterRepeatPlayers.length, filterRepeatPlayers.length - 1);
-      // Chooses random players
-      const chosenPlayerIds: string[] = getAmtRandomItemsFromArr(filterRepeatPlayers, chosenActivity.amountOfPlayers);
-
-      // Do the activity here
-      const activity: ActivityLogType = doActivity(chosenActivity, chosenPlayerIds, this.replaceActivityDescPlaceholders);
+      const activity = this.pickAndCreateActivity(filterRepeatPlayers);
       // push the activity to the log
       activityLog.push(activity)
 
@@ -442,11 +459,6 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
    * @returns 
    */
   private setGameWinner(id: string) {
-    if (this.gameWinner !== null) {
-      console.log('---already a winner, clear game');
-      return;
-    }
-
     const winner = this.allPlayers[id];
 
     // Added to playersSlain in order of death, so we reverse the array.

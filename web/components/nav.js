@@ -20,8 +20,6 @@ const Nav = () => {
     setDarkMode(preferences?.darkMode);
     setLoggedIn(!!user?.public_address);
   }, [preferences?.darkMode, user]);
-  
-  console.log(preferences, loggedIn);
 
   const userNavigation = [
     // { name: 'Settings', href: '/settings' },

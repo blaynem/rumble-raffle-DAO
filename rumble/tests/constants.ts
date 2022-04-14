@@ -1,6 +1,6 @@
 import { ActivitiesObjType } from "../types";
 
-const examples: ActivitiesObjType = {
+export const TEST_ACTIVITIES: ActivitiesObjType = {
   PVP: [
     {
       "id": "886f6a3f-b6d3-47ae-a2e5-93b58f9d41ed",
