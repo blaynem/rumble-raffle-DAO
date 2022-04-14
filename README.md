@@ -115,6 +115,15 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 - General:
   - TESTING. We have zero tests. Not great!
+- Start Game
+  - Should throw error if:
+    - No activities
+    - no players
+    - no chance of pve / pvp
+- Activities
+  - Allow different activity formats
+    - Add `PLAYER1 killed PLAYER2 by ACTION WEAPON` format
+    - Add passing special weapons from users
 - Revives:
   - We should increase the amount of revives based on how many players are left. Right now it's only 1 per round.
 
@@ -131,6 +140,12 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 # Extra Ideas
 
+Discord bot implementation
+  - Just displays a message of where the link is to view / pay
+  - Then shows the same messages as the website does inside the discord server.
+- Special weapons that can be purchased via nft or tokens
+  - Will have special messages
+  - Will have special effects on the website. like animations or something? idk
 - Different designs for different coins
   - Allows it to be tailored towards the individuals branding
 - DEATHROLL APP
