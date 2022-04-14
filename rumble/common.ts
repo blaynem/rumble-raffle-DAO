@@ -17,7 +17,7 @@ export const getAmtRandomItemsFromArr = (arr: any[], n: number): any[] => {
     len = arr.length,
     taken = new Array(len);
   if (n > len)
-    throw new RangeError("getRandom: more elements taken than available");
+    throw new RangeError("getAmtRandomItemsFromArr: more elements taken than available");
   while (n--) {
     var x = Math.floor(Math.random() * len);
     result[n] = arr[x in taken ? taken[x] : x];
@@ -31,9 +31,9 @@ export const getAmtRandomItemsFromArr = (arr: any[], n: number): any[] => {
  * @param options - list of available activities
  * @returns 
  */
-export const pickActivity = (options: ActivityTypes[], minimumPlayerAmount: number, maxDeaths?: number): ActivityTypes => {
+export const pickActivity = (options: ActivityTypes[], maxPlayerAmount: number, maxDeaths?: number): ActivityTypes => {
   // We only want to give options where there are enough players.
-  let filteredOptions = options.filter(({ amountOfPlayers }) => amountOfPlayers <= minimumPlayerAmount)
+  let filteredOptions = options.filter(({ amountOfPlayers }) => amountOfPlayers <= maxPlayerAmount)
   // getAmtRandomItemsFromArr returns an array, so we get the first item.
   if (maxDeaths) {
     filteredOptions = [...filteredOptions].filter(({ activityLoser }) => {
