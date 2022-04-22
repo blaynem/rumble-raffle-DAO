@@ -55,6 +55,13 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 # TODO:
 
+## Other Setup
+
+- Twitter
+- Email
+- eth domain?
+- What else?
+
 ## Web
 
 - General:
@@ -88,6 +95,8 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 ## Server
 
+- Security
+  - Uhhh, yeah we gotta figure out some better security here.
 - General:
   - How do we persist the data across server resets?
   - Set up different staging (test / production)
@@ -105,6 +114,7 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
   - "Clear Game" should remove all the players from the payouts / set the room `game_started` back to false
     - Only allow game owner to do this
 - Users:
+  - When user is created on backend they might potentially have the same name as someone else, this could cause errors. Assure that we don't have issues with saving those names.
   - Allow users to alter their names.
 - Sockets:
   - We need more security when passing them back and forth.
@@ -113,8 +123,6 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 ## Rumble Package
 
-- General:
-  - TESTING. We have zero tests. Not great!
 - Start Game
   - Should throw error if:
     - No activities
@@ -123,7 +131,7 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 - Activities
   - Allow different activity formats
     - Add `PLAYER1 killed PLAYER2 by ACTION WEAPON` format
-    - Add passing special weapons from users
+  - Implement special weapons from users
 - Revives:
   - We should increase the amount of revives based on how many players are left. Right now it's only 1 per round.
 
