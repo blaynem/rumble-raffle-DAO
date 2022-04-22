@@ -4,6 +4,7 @@ import Head from 'next/head'
 import { useState } from 'react';
 import ToastMessage from '../components/toast';
 import { usePreferences } from '../containers/preferences';
+import { useWallet } from '../containers/wallet';
 import userSettingsSchema from '../lib/schemaValidations/userSettings';
 import { withSessionSsr } from '../lib/with-session';
 
@@ -14,7 +15,8 @@ type SettingsTypes = {
 const customErrorColors = (msg: string) => <div className='text-base h-10 text-red-600 py-2'>{msg}</div>
 
 const pageTitle = `Settings`
-export default function PageIndex({ user }: { user: SupabaseUserType }) {
+export default function PageIndex(props: { user: SupabaseUserType }) {
+  const { user } = useWallet();
   const { preferences } = usePreferences();
 
   const [toastOpen, setToastOpen] = useState(false);
