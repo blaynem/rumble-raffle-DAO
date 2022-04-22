@@ -22,7 +22,7 @@ const Nav = () => {
   }, [preferences?.darkMode, user]);
 
   const userNavigation = [
-    // { name: 'Settings', href: '/settings' },
+    { name: 'Settings', href: '/settings' },
     { name: 'Sign out', onClick: () => logout() }
   ]
 
@@ -68,8 +68,8 @@ const Nav = () => {
                             {...(true && { onClick: item.onClick })}
                             href={item.href}
                             className={classNames(
-                              active ? 'bg-gray-100' : '',
-                              'block py-2 px-4 text-sm text-gray-700'
+                              active ? 'bg-gray-100 cursor-pointer' : '',
+                              'block py-2 px-4 text-sm text-gray-700 cursor-pointer'
                             )}
                           >
                             {item.name}
