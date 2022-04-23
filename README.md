@@ -86,8 +86,6 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
     - Etc
 - Rooms:
   - If the altSplit address is 0x0000000000000000000000000000000000000000 then rename the label to "burn percent" or whatever
-  - Should show a running tally of all the kills so players can see as the game goes on
-    - added killCount to activityLogs specific activity
 - Home Page:
   - Add list of rooms that are open
   - If the user has `admin` rights, show them the `create` room button
