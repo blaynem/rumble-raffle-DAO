@@ -57,8 +57,6 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 ## Other Setup
 
-- Twitter
-- Email
 - Discord
 - White Paper
   - All about transparency
