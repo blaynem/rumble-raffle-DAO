@@ -16,7 +16,7 @@ const customErrorColors = (msg: string) => <div className='text-base h-10 text-r
 
 const pageTitle = `Settings`
 export default function PageIndex(props: { user: SupabaseUserType }) {
-  const { user } = useWallet();
+  const { user, updateName } = useWallet();
   const { preferences } = usePreferences();
 
   const [toastOpen, setToastOpen] = useState(false);
@@ -72,6 +72,7 @@ export default function PageIndex(props: { user: SupabaseUserType }) {
             }
             setSubmitting(false);
             handleSetToast({ type: 'SUCCESS', message: "Settings saved." });
+            updateName(values.name);
           })
         }}
       >
