@@ -146,7 +146,7 @@ export const DisplayKillCount = ({ entrants, rounds, user }: { entrants: PickFro
             :
             calcKillCounts(rounds).map(player => {
               const entrant = entrants.find(e => e.public_address === player.public_address)
-              return <DisplayEntrantKills count={player.count} entrant={entrant} user={user} />
+              return <DisplayEntrantKills key={user.public_address} count={player.count} entrant={entrant} user={user} />
             })
         }
       </ul>
