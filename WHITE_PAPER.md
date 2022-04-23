@@ -149,11 +149,10 @@ Increases replayability              |
     - Teddy Borksevelt: Teddy Roosevelt look-alike
     - Rescue Ted: Newfies are rescue dogs, so it'll have lifeguard things. Think Baywatch. Glasses, sunscreen nose, big fluffy chest hair, shorts.
     - Theodore Tedville: Alvin and the chipmunks ted
-    - 
 
 <br>
 
-# **Other NFT Ideas**
+# **Extra Token Burn Mechanism Ideas**
 
 ## **Armor**
 - Purchasable via Rumble token.
