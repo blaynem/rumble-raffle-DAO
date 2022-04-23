@@ -2,7 +2,6 @@
 
 Below is the collection of thoughts and ideas around the Rumble Raffle DAO ecosystem.
 
-<br>
 
 **Links**
 - [Token](#rumble-token)
@@ -10,19 +9,16 @@ Below is the collection of thoughts and ideas around the Rumble Raffle DAO ecosy
 - [Activites (NFT)](#activities)
 - [Non Fungible Ted (NFTed)](#non-fungible-ted)
 
-<br>
 
 # **Rumble Token**
 
 Rumble Token will be the currency used in order to play any of the current or future Rumble games.
 
-<br>
 
 ### **How Many?**
 
 TBD. Dogecoin has 100 Billion tokens. FNC has 1 Billion. 
 
-<br>
 
 ### **Why?**
 
@@ -30,13 +26,11 @@ When you visit somewhere like Dave And Busters or Chuck E Cheese, they have a to
 
 Ultimately, players will have more fun when seeing higher numbers of tokens being thrown around in the game. So while we could base prices off of wETH (or any alt coin), it feels better seeing you win 1000+ Rumble Tokens than it does seeing .05 wETH rewards.
 
-<br>
 
 ### **Tokenomics**
 
 TBD.
 
-<br>
 
 ### **Use Cases**
 
@@ -45,7 +39,6 @@ TBD.
 3. Can be used to purchase in game things like badges?
 4. Staking?
 
-<br>
 
 ### **How are they earned?**
 
@@ -55,7 +48,6 @@ TBD.
 4. If you own an NFT Activity and your activity is picked, you get bonus tokens.
 5. Staking?
 
-<br>
 
 ### **Burn Mechanisms**
 
@@ -70,7 +62,6 @@ TBD.
 
 Weapons have no impact on the outcome of a game, though they have other perks.
 
-<br>
 
 ### **Benefits**
 
@@ -87,7 +78,6 @@ Epic      | 3x         | 500
 Rare      | 2x         | 1000
 Common    | 1.5x       | 2000
 
-<br>
 
 ### **Should it be purchased through a Rumble Token or via a mint?**
 
@@ -96,7 +86,6 @@ Token                         | Mint
 Gives a usecase for a token   | Initial seed funding and excitement
 Another avenue to burn tokens |
 
-<br>
 
 ### **If minted, should it also be purchased via token?**
 Leaning no
@@ -114,7 +103,6 @@ More reason to participate           | Reducing the potential revenue from selli
 
 Activities are the bread and butter of Rumble Raffle. They create a fun and evolving ecosystem with user generated content.
 
-<br>
 
 ### **Benefits**
 
@@ -131,13 +119,11 @@ Epic      | 3x         | 500
 Rare      | 1.5x       | 1000
 Common    | 1x         | 2000
 
-<br>
 
 ### **Should it be purchased through a Rumble Token or via a mint?**
 
 Ownership of all initially created phrases will be ownable and minted.
 
-<br>
 
 ### **If minted, should it also be purchased via token?**
 
