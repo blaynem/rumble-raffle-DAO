@@ -59,14 +59,15 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 - Twitter
 - Email
+- Discord
+- White Paper
+  - All about transparency
 - eth domain?
 - What else?
 
 ## Web
 
 - General:
-  - Theming
-  - Redo all the styles
   - Users can switch between metamask accounts, so we should constantly check for those changes
     - ex: `web3.eth.accounts[0];`
   - User could overwrite cookies and still make calls, so we need to be more vigilant there somehow.
@@ -74,18 +75,19 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
   - Determine hosting
   - Finish the `checkChain` piece in wallet.ts
 - Players:
-  - Allow players to change their names.
   - Allow players to pick a profile picutre.
 - Create Room:
   - Allow setting of player limits
   - Allow setting an initial prize purse.
+    - Requires the user who is creating the game to deposit a certain amount of coins before making the game.
+  - Add a checkbox to replace altSplit with "burn"
   - Allow params of user that can join:
     - Whitelist addresses
     - Only x NFT holder
     - Only with x amount of coin
     - Etc
 - Rooms:
-  - ~~Request payment before joining a game.~~
+  - If the altSplit address is 0x0000000000000000000000000000000000000000 then rename the label to "burn percent" or whatever
   - Should show a running tally of all the kills so players can see as the game goes on
     - added killCount to activityLogs specific activity
 - Home Page:
@@ -115,7 +117,6 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
     - Only allow game owner to do this
 - Users:
   - When user is created on backend they might potentially have the same name as someone else, this could cause errors. Assure that we don't have issues with saving those names.
-  - Allow users to alter their names.
 - Sockets:
   - We need more security when passing them back and forth.
   - Sockets data needs to be encoded from server side somehow
@@ -146,6 +147,94 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 - There are some.. just haven't found them yet.
 
+# Weapons (NFT)
+
+### **If a player gets kills with weapon, they get bonus DAO tokens**
+Different multiplier depending on weapon rarity
+
+Rarity    | Multiplier | Total Amt
+----------|:----------:|:---------:
+Legendary | 5x         | 50
+Epic      | 3x         | 500
+Rare      | 2x         | 1000
+Common    | 1.5x       | 2000
+
+### **Should it be purchased through a DAO token or via a mint?**
+
+Token                         | Mint
+:---:                         | :---:
+Gives a usecase for a token   | Initial seed funding and excitement
+Another avenue to burn tokens |
+
+### **If minted, should it also be purchased via token?**
+Leaning no
+
+Yes                                  | No
+:---:                                | :---:
+Reduces rarity / scarcity of weapons | Gives more usecases for our tokens
+Reducing the potential revenue from selling of weapons on opensea |
+
+
+
+# Activities (NFT)
+
+- Ownership of all initially created phrases can be minted.
+  - Decent Seed funding
+- Owning the activity gives you bonus DAO tokens when the activity is used.
+  - Different multiplier depending on activity rarity.
+- Should we be able to create more by burning a certain amount of DAO tokens?
+  - If so, should be limited as it will reduce chances of the other rounds showing up.
+- Why would someone own a legendary activity? Wouldn't it be better to own the commons?
+  - It's a flex?
+  - it's a side income?
+  - Maybe theres a better chance of them being picked in a given round?
+
+Rarity    | Multiplier | Total Amt
+----------|:----------:|:---------:
+Legendary | 5x         | 50
+Epic      | 3x         | 500
+Rare      | 1.5x       | 1000
+Common    | 1x         | 2000
+
+
+
+# DAO Token
+
+Not entirely sure if we should have a DAO token. With no token there is less of a reason to own the Weapons / Activities. With less of a reason to own NFTs, theres less price pressure on them. With less price pressure, less reason to play the game. Though maybe the use of in game badges is enough of a reason?
+
+Unsure of it being a true governance token, people are not necessarily the brightest and we might know better. Though I am totally open to that discussion in the future.
+
+### **How would it be earned?**
+
+  - Winning games
+  - Getting kills
+  - If you own an NFT weapon, armor, etc you get bonus tokens.
+  - If you own an NFT Activity and your activity is picked, you get bonus tokens.
+  - Staking?
+
+
+
+# Armor (NFT)
+- Purchasable via DAO token.
+- Does nothing, is entirely a viewable badge or something inside of the game.
+  - Somewhat of a utility, but not really.
+  - Most likely better as a badge of some sort.
+
+
+
+# Profile Pictures
+- Rumble Raffle specific PFPs based on what you own?
+  - Weapons, armor, helmet (they do nothing. Just for flexing)
+- External NFT PFPs (different options)
+    1. Show the NFT
+    2. Implement weapon layers or a "serum" similar to BAYC that could be used to add weapons to your NFT?
+
+
+
+# Badges
+- How many wins you've gotten, etc
+- Similar idea to the Rumble specific PFPs (weapons, armor, etc)
+
 # Extra Ideas
 
 Discord bot implementation
@@ -170,12 +259,5 @@ Discord bot implementation
   - ex: Person1 rolls `120` Person2 rolls `9450`. Person 1 then pays `9450 -120` to Person 2.
 - END OF WEEK TOURNEY
   - At the end of the week, all the remainder money goes into a prize pool. Anyone who has played this week will be automatically entered into this massive raffle and then paid out how we determine. (This sounds like it's easily manipulated though by entering different raffles or something. Still good for hype.)
-- NFT Ideas
-  - Winners get NFT's (Gold/Silver/Bronze)
-    - Can sell the NFT, but we always get a 5% cut or whatever is the norm.
-    - Can trade the NFT up for higher win score NFTs or something?
-    - A certain amount of wins can let you burn the NFTs for ability to add your own naming of the activity (pve/pvp/revive round)
-- DAO Token?
-  - Do similar things as the NFT idea? (I like the NFT idea better, it gives more cashflow for people that may want to buy 5 or whatever winning rounds to make suggestions)
-  - Can vote on things that are implement? idk
-  - Good to just release and get cashflow as well.
+- NFT of teddy (NFTed / Non Fungible Ted)
+  - Different bibs, hairstyles, mouth, eyes, colors, patterns
