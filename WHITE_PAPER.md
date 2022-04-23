@@ -56,7 +56,6 @@ TBD.
 3. Purchasing in game badges
 
 <br>
-<br>
 
 # **Weapons**
 
@@ -96,7 +95,6 @@ Gives more usecases for our tokens   | Reduces rarity / scarcity of weapons
 More reason to participate           | Reducing the potential revenue from selling of weapons on opensea
 
 
-<br>
 <br>
 
 # **Activities**
@@ -138,7 +136,6 @@ Community driven content             | Reduces potential revenue from selling on
 Increases replayability              | 
 
 <br>
-<br>
 
 # **Non Fungible Ted**
   - Similar to ethlizards, etc.
@@ -154,7 +151,6 @@ Increases replayability              |
     - Theodore Tedville: Alvin and the chipmunks ted
     - 
 
-<br>
 <br>
 
 # **Other NFT Ideas**
