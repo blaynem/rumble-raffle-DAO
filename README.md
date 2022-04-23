@@ -1,6 +1,6 @@
 # Rumble Raffle
 
-It uhh does some battle with birbs.
+Link to [White Paper](/WHITE_PAPER.md).
 
 
 ## How to start
@@ -147,117 +147,41 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 - There are some.. just haven't found them yet.
 
-# Weapons (NFT)
 
-### **If a player gets kills with weapon, they get bonus DAO tokens**
-Different multiplier depending on weapon rarity
+# Game Modes
 
-Rarity    | Multiplier | Total Amt
-----------|:----------:|:---------:
-Legendary | 5x         | 50
-Epic      | 3x         | 500
-Rare      | 2x         | 1000
-Common    | 1.5x       | 2000
-
-### **Should it be purchased through a DAO token or via a mint?**
-
-Token                         | Mint
-:---:                         | :---:
-Gives a usecase for a token   | Initial seed funding and excitement
-Another avenue to burn tokens |
-
-### **If minted, should it also be purchased via token?**
-Leaning no
-
-Yes                                  | No
-:---:                                | :---:
-Reduces rarity / scarcity of weapons | Gives more usecases for our tokens
-Reducing the potential revenue from selling of weapons on opensea |
-
-
-
-# Activities (NFT)
-
-- Ownership of all initially created phrases can be minted.
-  - Decent Seed funding
-- Owning the activity gives you bonus DAO tokens when the activity is used.
-  - Different multiplier depending on activity rarity.
-- Should we be able to create more by burning a certain amount of DAO tokens?
-  - If so, should be limited as it will reduce chances of the other rounds showing up.
-- Why would someone own a legendary activity? Wouldn't it be better to own the commons?
-  - It's a flex?
-  - it's a side income?
-  - Maybe theres a better chance of them being picked in a given round?
-
-Rarity    | Multiplier | Total Amt
-----------|:----------:|:---------:
-Legendary | 5x         | 50
-Epic      | 3x         | 500
-Rare      | 1.5x       | 1000
-Common    | 1x         | 2000
-
-
-
-# DAO Token
-
-Not entirely sure if we should have a DAO token. With no token there is less of a reason to own the Weapons / Activities. With less of a reason to own NFTs, theres less price pressure on them. With less price pressure, less reason to play the game. Though maybe the use of in game badges is enough of a reason?
-
-Unsure of it being a true governance token, people are not necessarily the brightest and we might know better. Though I am totally open to that discussion in the future.
-
-### **How would it be earned?**
-
-  - Winning games
-  - Getting kills
-  - If you own an NFT weapon, armor, etc you get bonus tokens.
-  - If you own an NFT Activity and your activity is picked, you get bonus tokens.
-  - Staking?
-
-
-
-# Armor (NFT)
-- Purchasable via DAO token.
-- Does nothing, is entirely a viewable badge or something inside of the game.
-  - Somewhat of a utility, but not really.
-  - Most likely better as a badge of some sort.
-
-
-
-# Profile Pictures
-- Rumble Raffle specific PFPs based on what you own?
-  - Weapons, armor, helmet (they do nothing. Just for flexing)
-- External NFT PFPs (different options)
-    1. Show the NFT
-    2. Implement weapon layers or a "serum" similar to BAYC that could be used to add weapons to your NFT?
-
-
-
-# Badges
-- How many wins you've gotten, etc
-- Similar idea to the Rumble specific PFPs (weapons, armor, etc)
-
-# Extra Ideas
-
-Discord bot implementation
-  - Just displays a message of where the link is to view / pay
-  - Then shows the same messages as the website does inside the discord server.
-- Special weapons that can be purchased via nft or tokens
-  - Will have special messages
-  - Will have special effects on the website. like animations or something? idk
-- Different designs for different coins
-  - Allows it to be tailored towards the individuals branding
-- DEATHROLL APP
+**DEATHROLL APP**
   - In WoW we would deathroll our gold. How it works:
     - Challenge someone to deathroll of x value. you'd type `/roll x` and it would randomly pick a number between 1 and x.
     - Ex: "I challenge you to roll of `50,000` coins"
     - Person who started the game would type `/roll 500000`
     - the console would spit out random number `Blah rolled: 34562`
     - You repeat this until the last person rolls `1`. That person would then owe the other person the `50,000`
-- WOW GAMBLING APP
+
+**HIGH ROLLER**
   - You would set the game to go off of `10,000`
   - 20 people agree to roll `/roll 10000` each
   - The person who rolled the lowest then owes the person who rolled the highest, the difference between theyre rolls.
   - ex: Person1 rolls `120` Person2 rolls `9450`. Person 1 then pays `9450 -120` to Person 2.
-- END OF WEEK TOURNEY
+
+
+# Extra Ideas
+
+**Discord bot implementation**
+  - Just displays a message of where the link is to view / pay
+  - Then shows the same messages as the website does inside the discord server.
+
+**Different designs for different coins?**
+  - Allows it to be tailored towards the individuals branding
+
+**END OF WEEK TOURNEY**
   - At the end of the week, all the remainder money goes into a prize pool. Anyone who has played this week will be automatically entered into this massive raffle and then paid out how we determine. (This sounds like it's easily manipulated though by entering different raffles or something. Still good for hype.)
-- NFT of teddy (NFTed / Non Fungible Ted)
-  - Different bibs, hairstyles, mouth, eyes, colors, patterns
+
+# Extra Ideas
+
+## Profile Pictures
+- Rumble Raffle specific PFPs based on what you own?
+  - Weapons, armor, helmet (they do nothing. Just for flexing)
+- External NFT PFPs (different options)
+    1. Show the NFT
+    2. Implement weapon layers or a "serum" similar to BAYC that could be used to add weapons to your NFT?
