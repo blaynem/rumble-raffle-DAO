@@ -102,7 +102,7 @@ export const DisplayActivityLogs = ({ allActivities, user }: { allActivities: Ro
 }
 
 const DisplayEntrantKills = ({ count, entrant: { public_address, name }, user }: { count: number; entrant: PickFromPlayers; user: SupabaseUserType }) => (
-  <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${public_address === user?.public_address ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`} key={public_address}>
+  <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${public_address === user?.public_address ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>
     <div className='flex justify-between'>
       <ClickToCopyPopper text={name} popperText={public_address} truncate/>
       <div>{count}</div>
@@ -146,7 +146,7 @@ export const DisplayKillCount = ({ entrants, rounds, user }: { entrants: PickFro
             :
             calcKillCounts(rounds).map(player => {
               const entrant = entrants.find(e => e.public_address === player.public_address)
-              return <DisplayEntrantKills key={user.public_address} count={player.count} entrant={entrant} user={user} />
+              return <DisplayEntrantKills key={player?.public_address} count={player.count} entrant={entrant} user={user} />
             })
         }
       </ul>

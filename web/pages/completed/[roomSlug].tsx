@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { withSessionSsr } from '../../lib/with-session';
-import { RoomDataType } from "@rumble-raffle-dao/types";
+import { RoomDataType, SupabaseUserType } from "@rumble-raffle-dao/types";
 import DisplayPrizes from "../../components/room/prizes";
 import { DisplayActivityLogs, DisplayKillCount, DisplayWinners } from "../../components/room/activityLog";
 import { useWallet } from '../../containers/wallet'
@@ -10,14 +10,17 @@ import { usePreferences } from "../../containers/preferences";
 import router from "next/router";
 
 export type ServerSidePropsType = {
-  roomData: RoomDataType
+  user: SupabaseUserType;
+  roomData: RoomDataType;
   error: any;
 }
 
 export const getServerSideProps = withSessionSsr(async ({ req, query }): Promise<{ props: ServerSidePropsType }> => {
+  const { user } = req.session
   const { data, error } = await fetch(`${BASE_WEB_URL}/api/rooms/${query.roomSlug}`).then(res => res.json())
   return {
     props: {
+      user: user || null,
       roomData: data.length > 0 ? data[0] : null,
       error
     }
