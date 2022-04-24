@@ -1,3 +1,4 @@
+import { SupabaseUserType } from '@rumble-raffle-dao/types'
 import { withIronSessionApiRoute, withIronSessionSsr } from 'iron-session/next'
 
 const sessionOptions = {
@@ -14,4 +15,10 @@ export function withSessionRoute(handler) {
 
 export function withSessionSsr(handler) {
   return withIronSessionSsr(handler, sessionOptions)
+}
+
+declare module 'iron-session' {
+  interface IronSessionData {
+    user?: SupabaseUserType
+  }
 }

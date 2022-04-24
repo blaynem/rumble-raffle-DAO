@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
-import { EntireGameLog, PlayerAndPrizeSplitType, RoomDataType } from "@rumble-raffle-dao/types";
+import { EntireGameLog, PlayerAndPrizeSplitType, RoomDataType, SupabaseUserType } from "@rumble-raffle-dao/types";
 import { GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
 import DisplayPrizes from "../../components/room/prizes";
-import { DisplayActivityLogs, DisplayWinners } from "../../components/room/activityLog";
+import { DisplayActivityLogs, DisplayKillCount, DisplayWinners } from "../../components/room/activityLog";
 import { useWallet } from '../../containers/wallet'
 import { BASE_API_URL, BASE_WEB_URL } from "../../lib/constants";
 import Entrants from "../../components/room/entrants";
@@ -23,9 +23,11 @@ export type ServerSidePropsType = {
   game_started: boolean;
   roomCreator: string;
   roomSlug: string;
+  user: SupabaseUserType;
 }
 
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }): Promise<{ props: ServerSidePropsType }> => {
+  const { user } = req.session
   const { data }: { data: RoomDataType[] } = await fetch(`${BASE_WEB_URL}/api/rooms/${query.roomSlug}`).then(res => res.json())
   
   const roomData = data[0];
@@ -36,6 +38,7 @@ export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest })
       game_started: roomData?.game_started || null,
       roomCreator: roomData?.created_by || null,
       roomSlug: query.roomSlug,
+      user: user || null,
     }
   }
 })
@@ -233,11 +236,12 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
           <div className="ml-6 lg:ml-20 md:ml-6 sm:ml-6 pr-6 mr-2 pt-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
             <h2 className="mb-8 dark:text-rumbleNone"><span className="font-bold">{user?.name}</span></h2>
             <div className="mb-8">
-              <button className={(alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Join Game' : 'Join Game'}</button>
+              <button className={(!user || alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Join Game' : 'Join Game'}</button>
               {errorMessage && <p className="mt-4 text-red-600">Error: {errorMessage}</p>}
             </div>
             <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
             <Entrants entrants={entrants} user={user} />
+            <DisplayKillCount entrants={entrants} rounds={activityLogRounds} user={user} />
           </div>
           {/* Right Side */}
           <div className="pr-6 lg:pr-20 md:pr-6 sm:pr-6 py-2 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>

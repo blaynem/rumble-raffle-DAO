@@ -79,12 +79,12 @@ export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; 
         Winner
       </h3>
       <ul>
-        {winners.map((winner, i) => (
+        {winners.slice(0,3).map((winner, i) => (
           <Fragment key={winner.public_address}>
             {i > 0 && <ActivityBreak />}
             <ActivityListItem
               icon={EmojiEventsOutlinedIcon}
-              description={[placementMessage[i], ' ', <ClickToCopyPopper key={winner.public_address} boldText text={winner.name} popperText={winner.public_address} />]}
+              description={[placementMessage[i], ' ', <ClickToCopyPopper key={winner.public_address} boldText text={winner.name} popperText={winner.public_address} />, '.']}
               highlight={winner.public_address === user?.public_address}
             />
           </Fragment>
@@ -101,3 +101,55 @@ export const DisplayActivityLogs = ({ allActivities, user }: { allActivities: Ro
   </>
 }
 
+const DisplayEntrantKills = ({ count, entrant: { public_address, name }, user }: { count: number; entrant: PickFromPlayers; user: SupabaseUserType }) => (
+  <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${public_address === user?.public_address ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>
+    <div className='flex justify-between'>
+      <ClickToCopyPopper text={name} popperText={public_address} truncate/>
+      <div>{count}</div>
+    </div>
+  </li>
+)
+
+const calcKillCounts = (rounds: RoundActivityLog[]) => {
+  const killCounts: { [id: string]: number } = {}
+
+  rounds.forEach(round => {
+    round.activities.forEach(activity => {
+      if (activity.kill_count === null) {
+        return;
+      }
+      Object.keys(activity.kill_count).forEach(publicAddress => {
+        if (killCounts[publicAddress]) {
+          killCounts[publicAddress] += activity.kill_count[publicAddress]
+        } else {
+          activity.kill_count[publicAddress] > 0 && (killCounts[publicAddress] = activity.kill_count[publicAddress]);
+        }
+      })
+    })
+  })
+
+  const killCountArr = Object.keys(killCounts)
+    .map(public_address => ({ public_address, count: killCounts[public_address] }))
+    .sort((a, b) => b.count - a.count);
+
+  return killCountArr;
+}
+
+export const DisplayKillCount = ({ entrants, rounds, user }: { entrants: PickFromPlayers[]; rounds: RoundActivityLog[]; user: SupabaseUserType; }) => {
+  return (
+    <div className="mb-8 w-80 py-6 pl-6 border-2 dark:border-rumbleNone border-rumbleOutline">
+      <div className="dark:text-rumbleSecondary text-rumblePrimary uppercase text-lg font-medium leading-7 mb-2">Kill Count</div>
+      <ul className="max-h-80 overflow-auto scrollbar-thin scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgLight">
+        {
+          rounds.length < 1 ?
+            <li className="mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal">No kills yet.</li>
+            :
+            calcKillCounts(rounds).map(player => {
+              const entrant = entrants.find(e => e.public_address === player.public_address)
+              return <DisplayEntrantKills key={player?.public_address} count={player.count} entrant={entrant} user={user} />
+            })
+        }
+      </ul>
+    </div>
+  )
+}

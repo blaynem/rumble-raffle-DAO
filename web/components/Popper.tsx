@@ -1,6 +1,6 @@
 import { usePopperTooltip } from 'react-popper-tooltip';
 
-export const ClickToCopyPopper = ({text, boldText, popperText}: { text: string; boldText?: boolean; popperText: string; }) => {
+export const ClickToCopyPopper = ({ text, boldText, popperText, truncate }: { text: string; boldText?: boolean; popperText: string; truncate?: boolean; }) => {
   const {
     getArrowProps,
     getTooltipProps,
@@ -19,7 +19,7 @@ export const ClickToCopyPopper = ({text, boldText, popperText}: { text: string; 
 
   return (
     <>
-      <div className={`inline-block cursor-pointer ${boldText && 'font-medium'}`} ref={setTriggerRef}>
+      <div className={`inline-block cursor-pointer ${boldText && 'font-medium'} ${truncate && 'truncate'}`} ref={setTriggerRef}>
         {text}
       </div>
       {visible && (

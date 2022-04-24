@@ -107,6 +107,11 @@ const useContainer = initialState => {
     }
   }, [])
 
+  const updateName = (name: string) => {
+    setLocalUser({...localUser, name});
+    setUser({...user, name});
+  }
+
   const logout = () => {
     setLocalUser(null);
     setUser(undefined);
@@ -183,7 +188,7 @@ const useContainer = initialState => {
 
   }
 
-  return { payWinners, payEntryFee, doAuth, user, logout }
+  return { payWinners, payEntryFee, doAuth, user, logout, updateName }
 }
 
 

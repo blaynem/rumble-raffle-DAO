@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { withSessionSsr } from '../../lib/with-session';
-import { RoomDataType } from "@rumble-raffle-dao/types";
+import { RoomDataType, SupabaseUserType } from "@rumble-raffle-dao/types";
 import DisplayPrizes from "../../components/room/prizes";
-import { DisplayActivityLogs, DisplayWinners } from "../../components/room/activityLog";
+import { DisplayActivityLogs, DisplayKillCount, DisplayWinners } from "../../components/room/activityLog";
 import { useWallet } from '../../containers/wallet'
 import { BASE_WEB_URL } from "../../lib/constants";
 import Entrants from "../../components/room/entrants";
@@ -10,14 +10,17 @@ import { usePreferences } from "../../containers/preferences";
 import router from "next/router";
 
 export type ServerSidePropsType = {
-  roomData: RoomDataType
+  user: SupabaseUserType;
+  roomData: RoomDataType;
   error: any;
 }
 
 export const getServerSideProps = withSessionSsr(async ({ req, query }): Promise<{ props: ServerSidePropsType }> => {
+  const { user } = req.session
   const { data, error } = await fetch(`${BASE_WEB_URL}/api/rooms/${query.roomSlug}`).then(res => res.json())
   return {
     props: {
+      user: user || null,
       roomData: data.length > 0 ? data[0] : null,
       error
     }
@@ -72,6 +75,7 @@ const RumbleRoom = ({ roomData, error }: ServerSidePropsType) => {
               altSplit={roomData.params.prize_alt_split}
             />
             <Entrants entrants={roomData.players} user={user} />
+            <DisplayKillCount entrants={roomData.players} rounds={roomData.gameData.rounds} user={user} />
           </div>
           {/* Right Side */}
           <div className="pr-6 lg:pr-20 md:pr-6 sm:pr-6 py-2 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 110px)' }}>
