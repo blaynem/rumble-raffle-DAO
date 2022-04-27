@@ -134,9 +134,10 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 ## Smart Contracts
 
-- All the things
-- Accepting Payments
-- Dispensing payouts
+- Look at staking contract for Coin
+- Look into Tokenomics for Coin
+- Look into how to release a coin
+- Look into how to get early adopters of coins, etc
 
 
 # Known bugs

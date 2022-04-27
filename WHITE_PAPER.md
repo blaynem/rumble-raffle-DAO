@@ -51,9 +51,13 @@ TBD.
 
 ### **Burn Mechanisms**
 
-1. Every rumble raffle will have a percentage of the prize pool burned.
+1. Every rumble raffle, where the entry fee is in Rumble Token, will have a percentage of the prize pool burned.
 2. Purchasing any Rumble NFTs (Weapons / Activity) should burn the token.
-3. Purchasing in game badges
+3. Purchasing in game badges.
+
+### **Throwaway Ideas**
+
+- Something similar to twitches "Predictions"
 
 <br>
 
@@ -149,6 +153,9 @@ Increases replayability              |
     - Teddy Borksevelt: Teddy Roosevelt look-alike
     - Rescue Ted: Newfies are rescue dogs, so it'll have lifeguard things. Think Baywatch. Glasses, sunscreen nose, big fluffy chest hair, shorts.
     - Theodore Tedville: Alvin and the chipmunks ted
+    - Wacdonalds Ted: Everyone is doing it I guess. idk
+    - GIF: prancing shiny ted
+    - NASA Ted
 
 <br>
 
