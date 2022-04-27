@@ -5,8 +5,6 @@ import { withSessionRoute } from '../../lib/with-session'
 
 async function userRoute(req: NextApiRequest, res: NextApiResponse<SupabaseUserType>) {
   if (req.session.user) {
-    // in a real world application you might read the user id from the session and then do a database request
-    // to get more information on the user if needed
     res.json({
       ...req.session.user,
     })

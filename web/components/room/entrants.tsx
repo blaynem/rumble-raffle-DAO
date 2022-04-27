@@ -4,7 +4,7 @@ import { ClickToCopyPopper } from '../Popper';
 
 const DisplayEntrant = ({ entrant: { public_address, name }, user }: { entrant: PickFromPlayers; user: SupabaseUserType }) => (
   <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${public_address === user?.public_address ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`} key={public_address}>
-    <ClickToCopyPopper text={name} popperText={public_address} />
+    <ClickToCopyPopper text={public_address === user?.public_address ? user.name : name} popperText={public_address} />
   </li>
 )
 
@@ -15,9 +15,9 @@ const Entrants = ({ entrants, user }: any) => {
       <ul className="max-h-80 overflow-auto scrollbar-thin scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgLight">
         {
           entrants.length < 1 ?
-          <li className="mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal">No entrants yet.</li>
-          :
-          entrants.map(entrant => <DisplayEntrant key={entrant.public_address} entrant={entrant} user={user} />)
+            <li className="mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal">No entrants yet.</li>
+            :
+            entrants.map(entrant => <DisplayEntrant key={entrant.public_address} entrant={entrant} user={user} />)
         }
       </ul>
     </div>

@@ -11,6 +11,7 @@ if (process.env.NODE_ENV === 'development') {
 
 import Web3 from 'web3'
 import { fetchPolygonContractABI } from '../pages/api/contracts'
+import useSWR from 'swr'
 
 
 const createEthereumContract = (address, abi) => {
@@ -90,8 +91,7 @@ const checkChain = async (chainId) => {
 }
 
 const useContainer = initialState => {
-  const [localUser, setLocalUser] = useLocalStorage('user', initialState) // `null` clears local storage
-  const [user, setUser] = useState(localUser as SupabaseUserType)
+  const { data: user, mutate: mutateUser } = useSWR<SupabaseUserType>('/api/user')
 
   useEffect(() => {
     if (window !== undefined) {
@@ -100,21 +100,18 @@ const useContainer = initialState => {
       // we reset the user state so they have to re login
       web3.eth.getCoinbase().then(coinbase => {
         if (coinbase !== user?.public_address) {
-          setLocalUser(null);
-          setUser(undefined);
+          mutateUser(undefined);
         }
       });
     }
   }, [])
 
   const updateName = (name: string) => {
-    setLocalUser({...localUser, name});
-    setUser({...user, name});
+    mutateUser({...user, name});
   }
 
   const logout = () => {
-    setLocalUser(null);
-    setUser(undefined);
+    mutateUser(undefined);
   }
 
   const doAuth = () => {
@@ -124,8 +121,7 @@ const useContainer = initialState => {
         window.alert(authResponse?.error);
         return;
       }
-      setLocalUser(authResponse)
-      setUser(authResponse)
+      mutateUser(authResponse)
     })
   }
 
