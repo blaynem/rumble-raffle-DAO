@@ -1,9 +1,16 @@
+import { NextApiRequest, NextApiResponse } from 'next'
 import { SupabaseUserType } from '@rumble-raffle-dao/types';
 
 import supabase from '../../../client';
 import { withSessionRoute } from '../../../lib/with-session';
 
-async function usersHandler(req, res) {
+interface ExtendedNextAPIRequest extends NextApiRequest {
+  query: {
+    public_address: string;
+  }
+}
+
+async function usersHandler(req: ExtendedNextAPIRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const { public_address } = req?.query;
     const { name } = JSON.parse(req?.body);

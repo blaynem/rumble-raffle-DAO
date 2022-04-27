@@ -1,7 +1,8 @@
+import { NextApiRequest, NextApiResponse } from 'next'
 import supabase from '../../client';
-import { definitions, SupabaseUserType } from '@rumble-raffle-dao/types';
+import { definitions } from '@rumble-raffle-dao/types';
 
-export default async function availablerooms(req, res) {
+export default async function availablerooms(req: NextApiRequest, res: NextApiResponse) {
   const { data, error } = await supabase.from<definitions['rooms']>('rooms').select(`
     id,
     params: params_id (

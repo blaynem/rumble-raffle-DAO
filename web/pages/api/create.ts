@@ -1,7 +1,8 @@
+import { NextApiRequest, NextApiResponse } from 'next'
 import { BASE_API_URL } from '../../lib/constants';
 import createRoomSchema from '../../lib/schemaValidations/createRoom';
 
-export default async function createRumble(req, res) {
+export default async function createRumble(req: NextApiRequest, res: NextApiResponse) {
   try {
     // Attempt to validate the body
     await createRoomSchema.validate(req.body, { abortEarly: false })
@@ -31,11 +32,11 @@ export default async function createRumble(req, res) {
       method: 'POST'
     }).then(res => res.json())
     if (error) {
-      res.status(400).json({error})
+      res.status(400).json({ error })
       return;
     }
-    res.status(200).json({data})
+    res.status(200).json({ data })
   } catch (error) {
-    res.status(400).json({error})
+    res.status(400).json({ error })
   }
 }
