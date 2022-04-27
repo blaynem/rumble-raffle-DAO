@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { createContainer } from 'unstated-next'
 import { authenticate } from '../lib/wallet'
-import { useLocalStorage } from '../lib/localstorage'
 import { definitions, PlayerAndPrizeSplitType, SupabaseUserType } from '@rumble-raffle-dao/types'
 import { ethers } from 'ethers';
 let RaffleSmartContracts;
@@ -90,7 +89,7 @@ const checkChain = async (chainId) => {
   }
 }
 
-const useContainer = initialState => {
+const useContainer = () => {
   const { data: user, mutate: mutateUser } = useSWR<SupabaseUserType>('/api/user')
 
   useEffect(() => {

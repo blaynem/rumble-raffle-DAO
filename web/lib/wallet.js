@@ -60,7 +60,7 @@ export const authenticate = async onLoggedIn => {
     .then(handleSignMessage)
     // Send signature to backend on the /auth route to get cookie
     .then(getCookie)
-    // Pass accessToken back to parent component (to save it in localStorage)
+    // Pass accessToken back to parent component (to save it in cookies)
     .then(onLoggedIn)
     .catch(err => {
       window.alert(err)
