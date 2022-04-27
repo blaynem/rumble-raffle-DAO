@@ -8,7 +8,7 @@ const DisplayPrizes = ({ entryFee, entryToken, firstPlace, secondPlace, thirdPla
       <div className="dark:text-rumbleNone uppercase text-lg font-medium leading-7">{totalEntrants} Battlers</div>
     </div>
     <ul>
-      <li className="mb-2 dark:text-rumbleNone text-rumbleOutline text-base font-normal opacity-60">Entry Fee: {entryFee} {entryToken}</li>
+      <li className="mb-2 dark:text-rumbleNone text-rumbleOutline text-base font-normal opacity-60">Entry Fee: {entryFee > 0 ? `${entryFee} ${entryToken}` : 'Free'}</li>
       {entryFee > 0 && (
         <>
           <li className="mb-2 dark:text-rumbleNone text-rumbleOutline text-base font-normal opacity-60">Kills: {kills}%</li>
