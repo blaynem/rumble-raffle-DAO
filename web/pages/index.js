@@ -12,7 +12,7 @@ import Link from 'next/link'
 const pageTitle = `Rumble Raffle DAO`
 export default function PageIndex(props) {
   const { preferences } = usePreferences();
-  
+
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
@@ -35,35 +35,68 @@ export default function PageIndex(props) {
 }
 
 const DisplayRooms = () => {
-  const [rooms, setRooms] = useState([]);
-  const [roomsError, setRoomsError] = useState(null);
+  const [availableRooms, setAvailableRooms] = useState([]);
+  const [pastRooms, setPastRooms] = useState([]);
+  const [availableRoomsError, setAvailableRoomsError] = useState(null);
+  const [pastRoomsError, setPastRoomsError] = useState(null);
 
   useEffect(async () => {
-    const { data, error } = await fetch('/api/availablerooms').then(res => res.json());
-    if (error) {
-      setRoomsError('Unable to fetch rooms.');
-      setRooms([]);
+    const { data: availableRooms, error: availableRoomsError } = await fetch('/api/availablerooms').then(res => res.json());
+    const { data: pastRooms, error: pastRoomsError } = await fetch('/api/pastrooms').then(res => res.json());
+
+    // Past Rooms
+    if (pastRoomsError) {
+      setPastRoomsError('Unable to fetch availableRooms.');
+      setPastRooms([]);
       return;
     }
-    setRoomsError(null);
-    setRooms(data);
+    setPastRoomsError(null);
+    setPastRooms(pastRooms);
+
+    // Available Rooms
+    if (availableRoomsError) {
+      setAvailableRoomsError('Unable to fetch availableRooms.');
+      setAvailableRooms([]);
+      return;
+    }
+    setAvailableRoomsError(null);
+    setAvailableRooms(availableRooms);
   }, []);
+
   return (
-    <div className="mb-8 w-80 p-6 border-2 dark:border-rumbleNone border-rumbleOutline">
-      <div className="flex mb-2">
-        <div className="mr-2 dark:text-rumbleSecondary text-rumblePrimary uppercase text-lg font-medium leading-7">Available Rooms:</div>
-        <div className="dark:text-rumbleNone uppercase text-lg font-medium leading-7">{rooms.length}</div>
+    <div>
+      <div className="mb-8 w-80 p-6 border-2 dark:border-rumbleNone border-rumbleOutline">
+        <div className="flex mb-2">
+          <div className="mr-2 dark:text-rumbleSecondary text-rumblePrimary uppercase text-lg font-medium leading-7">Available Rooms:</div>
+          <div className="dark:text-rumbleNone uppercase text-lg font-medium leading-7">{availableRooms.length}</div>
+        </div>
+        <ul>
+          {availableRooms.map(room => (
+            <li key={room.id} className="mb-2 dark:text-rumbleNone text-rumbleOutline text-base font-normal opacity-60 grid grid-cols-2 gap-2">
+              <Link href={`/room/${room?.params?.slug}`}>
+                <a className='truncate'>{room?.params?.slug}</a>
+              </Link>
+              <div>{room?.params?.entry_fee} {room?.params?.contract.symbol}</div>
+            </li>
+          ))}
+        </ul>
       </div>
-      <ul>
-        {rooms.map(room => (
-          <li key={room.id} className="mb-2 dark:text-rumbleNone text-rumbleOutline text-base font-normal opacity-60 grid grid-cols-2 gap-2">
-            <Link href={`/room/${room?.params?.slug}`}>
-              <a className='truncate'>{room?.params?.slug}</a>
-            </Link>
-            <div>{room?.params?.entry_fee} {room?.params?.contract.symbol}</div>
-          </li>
-        ))}
-      </ul>
+      <div className="mb-8 w-80 p-6 border-2 dark:border-rumbleNone border-rumbleOutline">
+        <div className="flex mb-2">
+          <div className="mr-2 dark:text-rumbleSecondary text-rumblePrimary uppercase text-lg font-medium leading-7">Completed Rooms:</div>
+          <div className="dark:text-rumbleNone uppercase text-lg font-medium leading-7">{pastRooms.length}</div>
+        </div>
+        <ul>
+          {pastRooms.map(room => (
+            <li key={room.id} className="mb-2 dark:text-rumbleNone text-rumbleOutline text-base font-normal opacity-60 grid grid-cols-2 gap-2">
+              <Link href={`/room/${room?.params?.slug}`}>
+                <a className='truncate'>{room?.params?.slug}</a>
+              </Link>
+              <div>{room?.params?.entry_fee} {room?.params?.contract.symbol}</div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }
