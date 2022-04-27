@@ -1,18 +1,19 @@
+import { NextApiRequest, NextApiResponse } from 'next'
 import { recoverPersonalSignature } from 'eth-sig-util'
 import { bufferToHex } from 'ethereumjs-util'
 import { withSessionRoute } from '../../lib/with-session'
 import { NONCE_MESSAGE } from '../../lib/constants'
 import supabase from '../../client';
-import {SupabaseUserType} from '@rumble-raffle-dao/types';
+import { SupabaseUserType } from '@rumble-raffle-dao/types';
 
-async function auth(req, res) {
+async function auth(req: NextApiRequest, res: NextApiResponse) {
   const { signature, public_address } = req.body
   if (!signature || !public_address) {
     return res.status(400).json({ error: 'Request should have signature and public_address' })
   }
 
   // get user from the database where public_address
-  const {error, data} = await supabase.from<SupabaseUserType>('users').select(`public_address, nonce, name, is_admin`).eq('public_address', public_address)
+  const { error, data } = await supabase.from<SupabaseUserType>('users').select(`public_address, nonce, name, is_admin`).eq('public_address', public_address)
   // supabase returns array
   const user = data[0];
   if (!user.is_admin) {

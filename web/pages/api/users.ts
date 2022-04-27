@@ -1,3 +1,4 @@
+import { NextApiRequest, NextApiResponse } from 'next'
 import crypto from 'crypto'
 import { faker } from "@faker-js/faker";
 import { SupabaseUserType } from '@rumble-raffle-dao/types';
@@ -6,7 +7,7 @@ import supabase from '../../client';
 // idk fun to have a fake name instead of not.
 const fancyName = () => `${faker.name.jobType().toUpperCase()}-${faker.animal.type().toUpperCase()}-${faker.datatype.number(100)}`
 
-export default async function usersHandler(req, res) {
+export default async function usersHandler(req: NextApiRequest, res: NextApiResponse) {
   const { public_address } = req?.query || req?.body
 
   if (!public_address) {

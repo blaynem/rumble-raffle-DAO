@@ -1,3 +1,4 @@
+import { NextApiRequest, NextApiResponse } from 'next'
 import Web3 from 'web3'
 import { GetPolyContractReturnType, FetchContractReturnType, PolygonscanResponseType } from '@rumble-raffle-dao/types'
 import { ALCHEMY_BASE_URL_POLYGON, NETWORK_NAME_POLYGON } from '@rumble-raffle-dao/types/constants';
@@ -43,7 +44,7 @@ const getPolygonContractData = async (contract_address: string): Promise<GetPoly
     //   const implementation_contract = new web3.eth.Contract(implementation_data.contractABI, contract_address);
     //   console.log(await implementation_contract.methods.name().call());
     // }
-    
+
     // const chain_id = await contract.methods.getChainId().call();
     // Chain id for all polygon is 137
     const chain_id = 137;
@@ -76,9 +77,16 @@ const getPolygonContractData = async (contract_address: string): Promise<GetPoly
   }
 }
 
+interface ExtendedNextAPIRequest extends NextApiRequest {
+  query: {
+    contract_address: string;
+    network_name: string;
+  }
+}
+
 export default async function getContractsData(
-  req: { query: { contract_address: string; network_name: string; } },
-  res
+  req: ExtendedNextAPIRequest,
+  res: NextApiResponse
 ) {
   const { contract_address, network_name } = req.query;
   if (!contract_address || !network_name) {
