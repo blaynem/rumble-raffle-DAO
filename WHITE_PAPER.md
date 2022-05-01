@@ -1,8 +1,21 @@
-# **White Paper**
+Explain better:
+- What activities are
+
+# **Rumble Raffle White Paper**
+
+Welcome to Rumble Raffle.
+
+A free to play, completely random game where you can earn RUMBLE tokens. Battle other participants, create and upgrade weapons to earn more RUMBLE tokens. Reroll to get the perfect stats!
+
+## **How It Works**
+
+Click "Connect Metamask" to sign in. Then click "Join Game".
+
+Congratulations! You just entered a completely random raffle where you have the chance to win prizes.
 
 While anyone may join a Rumble Raffle and earn RUMBLE tokens for winning a game, only holders of the Rumble NFTs will earn extra rewards. [See this table for more info.](#weapon-rewards-by-rarity)
 
-While games like marbles are a fun experience, we believe Rumble Raffle can becomean even more engaging way for Content Creators to raffle off prizes. Anything from whitelists to coin giveaways and more.
+*Note: Weapons do not affect the outcome of the game, they are completely random. You must own a weapon in order to earn special rewards.*
 
 Below you will find the collection of thoughts and ideas around the Rumble Raffle DAO ecosystem.
 
@@ -43,22 +56,21 @@ TBD.
 
 ## **Token Burn Mechanisms**
 
+If we decide to go deflationary, these are the burning mechanisms we can have in place.
+
 1. Any time a weapon is purchased or upgraded, `50%` of the token will be burnt. The remaining `50%` will be returned to the stakers.
 2. There will be special Rumble Raffles where you can purchase up to 10 additional entries. That fee will go to the prize pool. `10%` will be burned, `10%` will be returned as revdis, the remaining prize pool will be distrubuted to the top 3 remaining players. (Definite numbers TBD)
 3. Purchasing in game badges and accessories.
 4. Armor? Is simply a badge inside the game of some sort. 
 5. Badges? Maybe specific PFPs or something? idk
 
-## **Throwaway Ideas**
-
-- Something similar to twitches "Predictions"
-- Can make a Rumble PFP NFT as well, charging RUMBLE to mint.
+If we decide to not have burn mechanics, we can instead give `100%` of that revenue back to stackers. 
 
 <br>
 
 # **Weapons**
 
-Weapons have no impact on normal games, however there will be many benefits to holding them.
+Weapons have **no impact** on games, however there will be many benefits to holding them.
 
 While any player may earn 1 RUMBLE token by being the winner, only a Weapon Holder will be able to earn rewards at a heavily increased rate.
 
@@ -77,9 +89,9 @@ Common recieves very little rewards, as we want to incentivize players to partic
 | ---       | ---                 | :---:                     | :---:                      | ---
 No Weapon   | 0 RUMBLE            | 0%                        | 0%                         | 1 RUMBLE
 Common      | 0 RUMBLE            | 0%                        | 0%                         | 2 RUMBLE
-Rare        | 1 RUMBLE            | 30%                       | 10%                        | 3 RUMBLE
-Epic        | 2 RUMBLE            | 40%                       | 10%                        | 4 RUMBLE
-Legendary   | 3 RUMBLE            | 60%                       | 10%                        | 5 RUMBLE
+Rare        | 1 RUMBLE            | 10-30%                    | 2-8%                       | 2-4 RUMBLE
+Epic        | 2 RUMBLE            | 35-55%                    | 3-9%                       | 3-5 RUMBLE
+Legendary   | 3 RUMBLE            | 55-75%                    | 7-11%                      | 6-10 RUMBLE
 Shiny Bonus | 1.5x                | +10%                      | 0%                         | 2x
 
 \* There is an `x%` chance that you will recieve `y` RUMBLE tokens on a kill as payment. If you do recieve this payment, the percent chance will increase by `10%`. This repeats until the chance of payment is `100%`.
@@ -92,16 +104,22 @@ After the initial minting phase, common weapons will be purchasable for 100 RUMB
 
 ## **How are weapons upgraded?**
 
-By paying a fee + burning the previous weapon, players will be able to upgrade the rarity of their weapons.
+By paying a fee + burning the previous weapon, players will be able to upgrade the rarity of their weapons. They also have the ability to reroll their weapons stats by paying a certain fee.
 
-Actual upgrade costs TBD.
+The following stats will be randomly selected when a weapon is upgraded or rerolled:
+- "Chance of Pay on Kill"
+- "Pay Chance Increase"
+- Shiny? True or False
+- Winning Game Payout
 
-|               | Upgrade Cost |
-| ---           | ---          |
-| **Common**    | 1k RUMBLE    |
-| **Rare**      | 5k RUMBLE    |
-| **Epic**      | 10k RUMBLE   |
-| **Legendary** | 1 M RUMBLE   |
+Actual costs TBD.
+
+|               | Upgrade Cost | Reroll Cost |
+| ---           | ---          | ---         |
+| **Common**    | 1k RUMBLE    | N/A         |
+| **Rare**      | 5k RUMBLE    | 100 RUMBLE  |
+| **Epic**      | 10k RUMBLE   | 500 RUMBLE  |
+| **Legendary** | 1 M RUMBLE   | 10k RUMBLE  |
 
 ## **Where do the fees go?**
 
@@ -110,6 +128,15 @@ The fees are returned `100%` back to stakers of RUMBLE token.
 ## **How many weapons can I hold?**
 
 One (1). Feel free to collect as many as you like! Though you will only get rewards for your single highest rarity weapon.
+
+## **Weapon Seasons**
+
+In order to create an ever evolving ecosystem, every ~6-12 months should be a new season of weapons. Old weapons will no longer be able to earn extra token rewards, though maybe they will have a future use case.
+
+Ex:
+- Season 1: very basic sticks, bows, rocks, simple weapons
+- Season 2: medieval weapons mace, halberd, swords
+- Season 3: guns? Or just straight to rayguns and future tech?
 
 <br>
 <br>
@@ -165,3 +192,11 @@ In order to keep an interest in Rumble Raffle, we believe there needs to be cons
     - NASA Ted
 
 <br>
+
+# **Throwaway Bonus Ideas**
+
+- Something similar to twitches "Predictions"
+  - When it gets down to the last 5 people we pause for 30 seconds and allow people to predict who might win. Winners earn extra tokens or something idk.
+- "Entrances" like in WWE games. Maybe it quickly scrolls through people with weapons and you can show weapon / name / other things like how many kills theyve got or wins theyve got.
+- Separate sort of "pay2win" mode where armor and weapons actually have an affect on your stats, though its still completely random. Armor gives you 2 hit points or something. While weapons maybe give you a chance to dodge or hit harder. There is an entrance fee of x RUMBLE token as well.
+- Can make a Rumble PFP NFT as well, charging RUMBLE to mint.
