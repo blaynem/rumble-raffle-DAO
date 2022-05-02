@@ -1,34 +1,65 @@
-Explain better:
-- What activities are
-
 # **Rumble Raffle White Paper**
 
 Welcome to Rumble Raffle.
 
-A free to play, completely random game where you can earn RUMBLE tokens. Battle other participants, create and upgrade weapons to earn more RUMBLE tokens. Reroll to get the perfect stats!
+A free to play, completely random game where you can earn RUMBLE tokens. Create and upgrade weapons to use in battle in order to earn more RUMBLE tokens. Reroll your weapons to get the perfect secondary stats!
 
 ## **How It Works**
 
-Click "Connect Metamask" to sign in. Then click "Join Game".
+It's as simple 1, 2, 3.
 
-Congratulations! You just entered a completely random raffle where you have the chance to win prizes.
+1. Connect with metamask
+2. Sign the required message
+3. Click "Join Game"
+
+Congratulations, you just entered a completely random raffle where you have the chance to win rewards!
 
 While anyone may join a Rumble Raffle and earn RUMBLE tokens for winning a game, only holders of the Rumble NFTs will earn extra rewards. [See this table for more info.](#weapon-rewards-by-rarity)
 
-*Note: Weapons do not affect the outcome of the game, they are completely random. You must own a weapon in order to earn special rewards.*
+*Note: Weapons do not affect the outcome of the game, games winners will always remain completely random. However, you must own a weapon in order to earn special rewards.*
 
-Below you will find the collection of thoughts and ideas around the Rumble Raffle DAO ecosystem.
+## **In-game Scenarios**
 
-**Links**
+There are 3 activity types that may be chosen throughout a game at random. Player vs Player (PVP), Player vs Environment (PVE), and a Revive. While PVE does sound like it's safe from death and dismemberment, be extra careful when stopping to smell the roses...
+
+**PVP Examples**
+```
+PLAYER_0 killed PLAYER_1 with a knife.
+PLAYER_0 and PLAYER_1 teamed up and ate PLAYER_2 alive.
+```
+
+**PVE Examples**
+```
+PLAYER_0 took a stroll through the tulip fields.
+PLAYER_0 drank infected water and died.
+PLAYER_0 and PLAYER_1 tried to start a fire to stay warm using their own bodies as tinder.
+```
+
+**Revive Examples**
+```
+The population of heaven just decreased, because PLAYER_0 is back!
+PLAYER_0 has risen from the dead. Is that a zombie?
+```
+
+## **Links**
+
+- [How It Works](#how-it-works)
 - [Token](#rumble-token)
 - [Weapons (NFT)](#weapons)
 - [Activites (NFT)](#activities)
 - [Non Fungible Ted (NFTed)](#non-fungible-ted)
 
-
 # **Rumble Token**
 
-Rumble Token is the reward earned for participating in, getting kills in, or being the last man standing in a rumble game. Tokens can also be earned by staking RUMBLE or holding an Activity NFT.
+Rumble Tokens are a reward earned by:
+- Winning a game
+- Joining a game (*)
+- Getting kills in a game (*)
+
+\* *Must hold a Weapon NFT in order to earn reward*
+
+Tokens can also be earned by staking RUMBLE and / or holding an Activity NFT.
+
 
 ## **How Many Tokens are there?**
 
@@ -72,27 +103,31 @@ If we decide to not have burn mechanics, we can instead give `100%` of that reve
 
 Weapons have **no impact** on games, however there will be many benefits to holding them.
 
-While any player may earn 1 RUMBLE token by being the winner, only a Weapon Holder will be able to earn rewards at a heavily increased rate.
-
 ## **Benefits**
 
-1. Weapon holders will receive a multiplier of tokens earned when getting kills. This multiplier depends on the weapons rarity + shiny status. (See chart below.)
+While any player may earn 1 RUMBLE token by being the winner, only a Weapon Holder will be able to earn rewards at a heavily increased rate.
 
-2. Weapon holders will recieve multiple free entries, on top of the initial free entry, to future external Whitelist / NFT raffles. (Think Yuga Labs / WW / Fluf mints, etc)
+1. Owning a weapon let's you earn extra tokens by simply joining a game, no matter the outcome.
+
+2. Weapon holders will receive a multiplier of tokens earned when getting kills. This multiplier depends on the weapons rarity + shiny status. (See chart below.)
+
+3. Weapon holders will recieve multiple free entries, on top of the initial free entry, to future external Whitelist / NFT raffles. (Think Yuga Labs / WW / Fluf mints, etc)
+
+4. Complete quests to earn even more rewards. (Quests TBD)
 
 
 ### **Weapon Rewards by Rarity**
 
-Common recieves very little rewards, as we want to incentivize players to participate in more games.
+Common rarity recieves very little rewards, as we want to incentivize players to participate in more games.
 
-|           | **Reward Per Kill** | **Chance of Pay on Kill** | **Pay Chance Increase(*)** | **Win Game** 
-| ---       | ---                 | :---:                     | :---:                      | ---
-No Weapon   | 0 RUMBLE            | 0%                        | 0%                         | 1 RUMBLE
-Common      | 0 RUMBLE            | 0%                        | 0%                         | 2 RUMBLE
-Rare        | 1 RUMBLE            | 10-30%                    | 2-8%                       | 2-4 RUMBLE
-Epic        | 2 RUMBLE            | 35-55%                    | 3-9%                       | 3-5 RUMBLE
-Legendary   | 3 RUMBLE            | 55-75%                    | 7-11%                      | 6-10 RUMBLE
-Shiny Bonus | 1.5x                | +10%                      | 0%                         | 2x
+|           | **Join Game** | **Reward Per Kill** | **Chance of Pay on Kill** | **Pay Chance Increase(*)** | **Win Game**
+| ---       | :---:         | ---                 | :---:                     | :---:                      | --- 
+No Weapon   | 0 RUMBLE      | 0 RUMBLE            | 0%                        | 0%                         | 1 RUMBLE
+Common      | 1 RUMBLE      | 0 RUMBLE            | 0%                        | 0%                         | 2 RUMBLE
+Rare        | 1 RUMBLE      | 1 RUMBLE            | 10-30%                    | 2-8%                       | 2-4 RUMBLE
+Epic        | 1 RUMBLE      | 2 RUMBLE            | 35-55%                    | 3-9%                       | 3-5 RUMBLE
+Legendary   | 1 RUMBLE      | 3 RUMBLE            | 55-75%                    | 7-11%                      | 6-10 RUMBLE
+Shiny Bonus | 2x            | 1.5x                | +10%                      | 0%                         | 2x
 
 \* There is an `x%` chance that you will recieve `y` RUMBLE tokens on a kill as payment. If you do recieve this payment, the percent chance will increase by `10%`. This repeats until the chance of payment is `100%`.
 
@@ -143,13 +178,13 @@ Ex:
 
 # **Activities**
 
-Activities are the bread and butter of Rumble Raffle. They create a fun and evolving ecosystem with user generated content.
+Activities are any sort of event that happens within a given Rumble Raffle game. They create a fun and evolving ecosystem with user generated content.
 
 ## **How are activities minted?**
 
 All activities will be available to be minted at a TBD price.
 
-## **Benefits**
+## **Benefits to holding**
 
 1. **Passive Income**. Holders of any Activities (NFT) will earn tokens any time their activity is used across the Rumble platform. Holders do not need to participate in order to recieve these benefits.
 

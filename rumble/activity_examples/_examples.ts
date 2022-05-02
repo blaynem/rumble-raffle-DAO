@@ -54,7 +54,7 @@ const examples: ActivitiesObjType = {
     {
       "id": "93d81cc0-07d8-4c2d-ae0a-c277e304a8b6",
       "environment": "REVIVE",
-      "description": "The population of heave just decreased, because PLAYER_0 is back!",
+      "description": "The population of heaven just decreased, because PLAYER_0 is back!",
       "amountOfPlayers": 1,
       "activityWinner": [0],
       "activityLoser": null,
