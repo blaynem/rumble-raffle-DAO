@@ -4,7 +4,6 @@ import { EntireGameLog, PlayerAndPrizeSplitType, RoomDataType, SupabaseUserType 
 import { GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
-import DisplayPrizes from "../../components/room/prizes";
 import { DisplayActivityLogs, DisplayKillCount, DisplayWinners } from "../../components/room/activityLog";
 import { useWallet } from '../../containers/wallet'
 import { BASE_API_URL, BASE_WEB_URL } from "../../lib/constants";
@@ -239,7 +238,6 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
               <button className={(!user || alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Join Game' : 'Join Game'}</button>
               {errorMessage && <p className="mt-4 text-red-600">Error: {errorMessage}</p>}
             </div>
-            <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
             <Entrants entrants={entrants} user={user} />
             <DisplayKillCount entrants={entrants} rounds={activityLogRounds} user={user} />
           </div>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { withSessionSsr } from '../../lib/with-session';
 import { RoomDataType, SupabaseUserType } from "@rumble-raffle-dao/types";
-import DisplayPrizes from "../../components/room/prizes";
 import { DisplayActivityLogs, DisplayKillCount, DisplayWinners } from "../../components/room/activityLog";
 import { useWallet } from '../../containers/wallet'
 import { BASE_WEB_URL } from "../../lib/constants";
@@ -64,16 +63,6 @@ const RumbleRoom = ({ roomData, error }: ServerSidePropsType) => {
         <div className="flex flex-col md:flex-row sm:flex-row">
           {/* Left Side */}
           <div className="ml-6 lg:ml-20 md:ml-6 sm:ml-6 pr-6 mr-2 pt-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 110px)' }}>
-            <DisplayPrizes
-              entryFee={roomData.params?.entry_fee}
-              entryToken={roomData.contract?.symbol}
-              totalEntrants={roomData.players.length}
-              firstPlace={roomData.params.prize_first}
-              secondPlace={roomData.params.prize_second}
-              thirdPlace={roomData.params.prize_third}
-              kills={roomData.params.prize_kills}
-              altSplit={roomData.params.prize_alt_split}
-            />
             <Entrants entrants={roomData.players} user={user} />
             <DisplayKillCount entrants={roomData.players} rounds={roomData.gameData.rounds} user={user} />
           </div>
