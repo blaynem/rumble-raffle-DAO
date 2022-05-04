@@ -65,6 +65,21 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 ## Web
 
+- Make this work with complete free version for now.
+  - How Rumble Raffle works page
+  - Activities
+    - Add some more activities, damn!
+  - Rooms
+    - Remove Prize split info unless theres an entry fee.
+    - Different icons for pvp, pve, revive
+  - Home Page
+    - Remove the '0 sFNC', should just say "free" if theres no entry fee
+  - Create Page
+    - Remove contract requirement unless there is an entryFee piece
+  - Weapons Page
+    - Buy weapon
+    - Upgrade weapon
+
 - General:
   - Users can switch between metamask accounts, so we should constantly check for those changes
     - ex: `web3.eth.accounts[0];`
