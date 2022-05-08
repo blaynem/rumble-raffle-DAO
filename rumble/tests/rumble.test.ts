@@ -1,4 +1,4 @@
-import RumbleApp, { defaultSetup, initialGamePayouts } from '../rumble';
+import RumbleApp, { defaultSetup } from '../src/rumble';
 import { RoundActivityLogType, RumbleInterface, SetupType, WinnerLogType } from '../types';
 import { TEST_ACTIVITIES } from './constants';
 import * as common from '../common';
@@ -12,21 +12,6 @@ const defaultInitialPlayers = [player1, player2, player3]
 
 describe('Rumble App', () => {
   describe('on initialization', () => {
-    test('throws error if prize split !== 100', () => {
-      const setup: SetupType = {
-        ...defaultSetup,
-        prizeSplit: {
-          kills: 99,
-          thirdPlace: 99,
-          secondPlace: 99,
-          firstPlace: 99,
-          altSplit: 99,
-          creatorSplit: 99,
-        }
-      };
-      expect(() => new RumbleApp(setup)).toThrowError('Prize split totals must equal exactly 100.');
-    });
-
     test('adds correct initial players', () => {
       const setup: SetupType = {
         ...defaultSetup,
@@ -50,15 +35,6 @@ describe('Rumble App', () => {
     })
 
     test('adds player and calls setPlayer', () => {
-      const expectedPrizesObj = {
-        altSplit: 4.5,
-        creatorSplit: 0.01,
-        firstPlace: 25,
-        secondPlace: 7.5,
-        thirdPlace: 2.5,
-        kills: 2,
-        totalPrize: 50,
-      }
       const newPlayer = { id: 'new', name: 'new-player' }
       const newPlayer2 = { id: 'new2', name: 'new-player2' }
 
@@ -72,21 +48,9 @@ describe('Rumble App', () => {
       expect(rumbleRaffle.allPlayerIds.length).toBe(5);
       expect(rumbleRaffle.totalPlayers).toBe(5);
       expect(rumbleRaffle.allPlayers).toEqual({ ...defaultAllPlayersObj, 'new': newPlayer, 'new2': newPlayer2 });
-      // prize changes
-      expect(rumbleRaffle.totalPrize).toEqual(rumbleRaffle.entryPrice * 5);
-      expect(rumbleRaffle.prizes).toEqual(expectedPrizesObj);
     })
 
     test('cannot add a player with the same id or when game has already started', () => {
-      const expectedPrizesObj = {
-        altSplit: 2.6999999999999997,
-        creatorSplit: 0.01,
-        firstPlace: 15,
-        secondPlace: 4.5,
-        thirdPlace: 1.5,
-        kills: 2,
-        totalPrize: 30,
-      }
       // Attempt to add player
       const addPlayer = rumbleRaffle.addPlayer(player1);
       expect(addPlayer).toEqual(null);
@@ -100,9 +64,6 @@ describe('Rumble App', () => {
       expect(rumbleRaffle.allPlayerIds.length).toBe(3);
       expect(rumbleRaffle.totalPlayers).toBe(3);
       expect(rumbleRaffle.allPlayers).toEqual(defaultAllPlayersObj);
-      // no prize changes
-      expect(rumbleRaffle.totalPrize).toEqual(rumbleRaffle.entryPrice * 3);
-      expect(rumbleRaffle.prizes).toEqual(expectedPrizesObj);
     })
   })
 
@@ -134,15 +95,6 @@ describe('Rumble App', () => {
     })
 
     test('removes the player and calls the setPlayers function', () => {
-      const expectedPrizesObj = {
-        altSplit: 1.7999999999999998,
-        creatorSplit: 0.01,
-        firstPlace: 10,
-        secondPlace: 3,
-        thirdPlace: 1,
-        kills: 2,
-        totalPrize: 20,
-      }
       expect(rumbleRaffle.allPlayerIds.length).toBe(3);
       expect(rumbleRaffle.allPlayers).toEqual(defaultAllPlayersObj);
       // Remove the player
@@ -150,20 +102,8 @@ describe('Rumble App', () => {
       expect(returnedVal).toEqual([player2, player3])
       expect(rumbleRaffle.allPlayerIds.length).toBe(2);
       expect(rumbleRaffle.allPlayers).toEqual({ 2: player2, 3: player3 });
-      // check the prize changes
-      expect(rumbleRaffle.totalPrize).toEqual(rumbleRaffle.entryPrice * 2);
-      expect(rumbleRaffle.prizes).toEqual(expectedPrizesObj);
     })
     test('cannot remove a player if the game has already started', () => {
-      const expectedPrizesObj = {
-        altSplit: 2.6999999999999997,
-        creatorSplit: 0.01,
-        firstPlace: 15,
-        secondPlace: 4.5,
-        thirdPlace: 1.5,
-        kills: 2,
-        totalPrize: 30,
-      }
       expect(rumbleRaffle.allPlayerIds.length).toBe(3);
       expect(rumbleRaffle.allPlayers).toEqual(defaultAllPlayersObj);
       // Set game started to true
@@ -173,9 +113,6 @@ describe('Rumble App', () => {
       expect(returnedVal).toEqual(null)
       expect(rumbleRaffle.allPlayerIds.length).toBe(3);
       expect(rumbleRaffle.allPlayers).toEqual(defaultAllPlayersObj);
-      // check that prizes did NOT change
-      expect(rumbleRaffle.totalPrize).toEqual(rumbleRaffle.entryPrice * 3);
-      expect(rumbleRaffle.prizes).toEqual(expectedPrizesObj);
     })
   })
 
@@ -194,10 +131,6 @@ describe('Rumble App', () => {
     test('getAllPlayers returns the correct data', () => {
       const allPlayers = rumbleRaffle.getAllPlayers();
       expect(allPlayers).toEqual([player1, player2, player3])
-    })
-
-    test('getPrizes returns the prizes', () => {
-      expect(rumbleRaffle.getPrizes()).toBe(rumbleRaffle.prizes);
     })
 
     test('getActivityLog returns the activity logs', () => {
@@ -257,7 +190,6 @@ describe('Rumble App', () => {
     test('restartGame resets all the correct variables', () => {
       rumbleRaffle.gameActivityLogs = [{}, {}] as any;
       rumbleRaffle.gameKills = { 1: 1 };
-      rumbleRaffle.gamePayouts = null as any;
       rumbleRaffle.gameRunnerUps = ['123', '1423'] as any;
       rumbleRaffle.gameStarted = true;
       rumbleRaffle.gameWinner = { id: '1234', name: 'todd' };
@@ -269,7 +201,6 @@ describe('Rumble App', () => {
 
       expect(rumbleRaffle.gameActivityLogs).toEqual([]);
       expect(rumbleRaffle.gameKills).toEqual({});
-      expect(rumbleRaffle.gamePayouts).toEqual(initialGamePayouts);
       expect(rumbleRaffle.gameRunnerUps).toEqual([]);
       expect(rumbleRaffle.gameStarted).toEqual(false);
       expect(rumbleRaffle.gameWinner).toEqual(null);
@@ -484,7 +415,6 @@ describe('Rumble App', () => {
     };
     const rumbleRaffle = new RumbleApp(setup);
     const calculateTotalKillCountsSpy = jest.spyOn((rumbleRaffle as any), 'calculateTotalKillCounts').mockImplementation();
-    const calculatePayoutsSpy = jest.spyOn((rumbleRaffle as any), 'calculatePayouts').mockImplementation();
     // We set players slain as 1, 2 (they died in that order)
     rumbleRaffle.playersSlainIds = [player1.id, player2.id];
 
@@ -498,12 +428,10 @@ describe('Rumble App', () => {
     expect(winnerLog.runnerUps).toEqual([player2, player1]);
     expect(winnerLog.runnerUpIds).toEqual(['2', '1']);
 
-    // Calls the calculate total kill count and calculate payouts
+    // Calls the calculate total kill count
     expect(calculateTotalKillCountsSpy).toBeCalled();
-    expect(calculatePayoutsSpy).toBeCalled();
 
     calculateTotalKillCountsSpy.mockClear();
-    calculatePayoutsSpy.mockClear();
   });
 
   describe('calculateTotalKillCounts works correctly', () => {
@@ -532,37 +460,4 @@ describe('Rumble App', () => {
 
     expect(rumbleRaffle.gameKills).toEqual({ '1': 2, '2': 7, '3': 1 });
   });
-
-  describe('calculatePayouts works correctly', () => {
-    const setup: SetupType = {
-      ...defaultSetup,
-      activities: TEST_ACTIVITIES,
-      initialPlayers: defaultInitialPlayers,
-    };
-    const expectedPrizesObj = {
-      altSplit: 1,
-      creatorSplit: 2,
-      firstPlace: 3,
-      secondPlace: 4,
-      thirdPlace: 5,
-      kills: 6,
-      totalPrize: 100,
-    }
-    const rumbleRaffle = new RumbleApp(setup);
-    rumbleRaffle.prizes = expectedPrizesObj;
-    rumbleRaffle.gameKills = { '1': 1, '2': 2, '3': 3 };
-
-    (rumbleRaffle as any).calculatePayouts();
-
-    expect(rumbleRaffle.gamePayouts).toEqual({
-      altSplit: 1,
-      creatorSplit: 2,
-      kills: { '1': 6, '2': 12, '3': 18 },
-      remainder: 49,
-      secondPlace: 4,
-      thirdPlace: 5,
-      total: 100,
-      winner: 3
-    });
-  })
 })

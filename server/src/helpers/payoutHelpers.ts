@@ -1,5 +1,5 @@
-import { PrizePayouts, GameEndType, PrizeSplitType } from "@rumble-raffle-dao/rumble/types";
-import { definitions, RoomDataType, PayoutsOmitId, PayoutTemplateType } from '@rumble-raffle-dao/types'
+import { GameEndType } from "@rumble-raffle-dao/rumble/types";
+import { definitions, RoomDataType, PayoutsOmitId, PayoutTemplateType, PrizePayouts, PrizeSplitType } from '@rumble-raffle-dao/types'
 
 export const selectPrizeSplitFromParams = (params: definitions['room_params']): PrizeSplitType => ({
   altSplit: params.prize_alt_split,
@@ -134,3 +134,76 @@ const getKillPayout = (id: string, gamePayouts: PrizePayouts) => gamePayouts.kil
  */
 const getKillNotes = (killCount: number, killPayout: number) => killCount > 0 ? `Total kill payout: ${killPayout}. Total kill count: ${killCount}.` : '';
 
+
+
+/**
+ * UNSURE IF WE NEED THIS EVEN
+ * Numbers are percentages. 10 => 10%, etc.
+ * Percentages must be in numbers 0-100 and added together must total 100.
+ * 
+ * Defaults: 
+ * 20% - for kills
+ * 50% - 1st place winner
+ * 15% - 2nd place
+ * 5% - 3rd place
+ * 9% - to stakers
+ * 1% - to RumbleRaffleDAO
+ */
+ const defaultPrizeSplit: PrizeSplitType = {
+  kills: 20,
+  thirdPlace: 5,
+  secondPlace: 15,
+  firstPlace: 50,
+  altSplit: 9,
+  creatorSplit: 1,
+}
+
+const calculatePayouts = (prizes, gameKills) => {
+  /**
+   * Since people can die in a pve round, there will be leftover prize money.
+   * Remaining prize money will be given out to the altSplit.
+   */
+  let prizeRemainder = prizes.totalPrize;
+  const payouts: PrizePayouts = {
+    altSplit: 0,
+    creatorSplit: 0,
+    winner: 0,
+    secondPlace: 0,
+    thirdPlace: 0,
+    kills: {},
+    remainder: 0,
+    total: prizes.totalPrize,
+  };
+
+  // Rumble Raffles split
+  payouts.creatorSplit = prizes.creatorSplit;
+  prizeRemainder -= prizes.creatorSplit;
+
+  // Alt split
+  payouts.altSplit = prizes.altSplit;
+  prizeRemainder -= prizes.altSplit;
+
+  // First place prize
+  payouts.winner = prizes.firstPlace
+  prizeRemainder -= prizes.firstPlace
+
+  // Second place prize
+  payouts.secondPlace = prizes.secondPlace
+  prizeRemainder -= prizes.secondPlace
+
+  // Third place prize
+  payouts.thirdPlace = prizes.thirdPlace
+  prizeRemainder -= prizes.thirdPlace
+
+  // Loop through all the kills
+  Object.keys(gameKills).forEach(playerId => {
+    const killPay = (prizes.kills * gameKills[playerId])
+    // only add them if payout is greater than 0
+    killPay > 0 && (payouts.kills[playerId] = killPay)
+    prizeRemainder -= killPay;
+  })
+
+  // The leftover winnings remaining.
+  payouts.remainder = prizeRemainder;
+  return payouts;
+}
