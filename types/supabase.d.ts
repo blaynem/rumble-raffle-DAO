@@ -780,8 +780,6 @@ export interface paths {
           created_by?: parameters["rowFilter.rooms.created_by"];
           /** If the game has completed showing to the users. */
           game_completed?: parameters["rowFilter.rooms.game_completed"];
-          /** Total prize purse depending on amount of players when game starts. */
-          total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
           /** Array of winners by their publicAddress in users table. */
           winners?: parameters["rowFilter.rooms.winners"];
@@ -845,8 +843,6 @@ export interface paths {
           created_by?: parameters["rowFilter.rooms.created_by"];
           /** If the game has completed showing to the users. */
           game_completed?: parameters["rowFilter.rooms.game_completed"];
-          /** Total prize purse depending on amount of players when game starts. */
-          total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
           /** Array of winners by their publicAddress in users table. */
           winners?: parameters["rowFilter.rooms.winners"];
@@ -874,8 +870,6 @@ export interface paths {
           created_by?: parameters["rowFilter.rooms.created_by"];
           /** If the game has completed showing to the users. */
           game_completed?: parameters["rowFilter.rooms.game_completed"];
-          /** Total prize purse depending on amount of players when game starts. */
-          total_prize_purse?: parameters["rowFilter.rooms.total_prize_purse"];
           contract_id?: parameters["rowFilter.rooms.contract_id"];
           /** Array of winners by their publicAddress in users table. */
           winners?: parameters["rowFilter.rooms.winners"];
@@ -904,6 +898,7 @@ export interface paths {
           public_address?: parameters["rowFilter.users.public_address"];
           created_at?: parameters["rowFilter.users.created_at"];
           nonce?: parameters["rowFilter.users.nonce"];
+          /** The users desired name. */
           name?: parameters["rowFilter.users.name"];
           updated_at?: parameters["rowFilter.users.updated_at"];
           user_id?: parameters["rowFilter.users.user_id"];
@@ -961,6 +956,7 @@ export interface paths {
           public_address?: parameters["rowFilter.users.public_address"];
           created_at?: parameters["rowFilter.users.created_at"];
           nonce?: parameters["rowFilter.users.nonce"];
+          /** The users desired name. */
           name?: parameters["rowFilter.users.name"];
           updated_at?: parameters["rowFilter.users.updated_at"];
           user_id?: parameters["rowFilter.users.user_id"];
@@ -982,6 +978,7 @@ export interface paths {
           public_address?: parameters["rowFilter.users.public_address"];
           created_at?: parameters["rowFilter.users.created_at"];
           nonce?: parameters["rowFilter.users.nonce"];
+          /** The users desired name. */
           name?: parameters["rowFilter.users.name"];
           updated_at?: parameters["rowFilter.users.updated_at"];
           user_id?: parameters["rowFilter.users.user_id"];
@@ -1337,11 +1334,6 @@ export interface definitions {
      */
     game_completed: boolean;
     /**
-     * Format: numeric
-     * @description Total prize purse depending on amount of players when game starts.
-     */
-    total_prize_purse?: number;
-    /**
      * Format: character varying
      * @description Note:
      * This is a Foreign Key to `contracts.contract_address`.<fk table='contracts' column='contract_address'/>
@@ -1373,7 +1365,10 @@ export interface definitions {
     created_at?: string;
     /** Format: character varying */
     nonce: string;
-    /** Format: text */
+    /**
+     * Format: text
+     * @description The users desired name.
+     */
     name: string;
     /**
      * Format: timestamp with time zone
@@ -1647,11 +1642,6 @@ export interface parameters {
    * @description If the game has completed showing to the users.
    */
   "rowFilter.rooms.game_completed": string;
-  /**
-   * Format: numeric
-   * @description Total prize purse depending on amount of players when game starts.
-   */
-  "rowFilter.rooms.total_prize_purse": string;
   /** Format: character varying */
   "rowFilter.rooms.contract_id": string;
   /**
@@ -1672,7 +1662,10 @@ export interface parameters {
   "rowFilter.users.created_at": string;
   /** Format: character varying */
   "rowFilter.users.nonce": string;
-  /** Format: text */
+  /**
+   * Format: text
+   * @description The users desired name.
+   */
   "rowFilter.users.name": string;
   /** Format: timestamp with time zone */
   "rowFilter.users.updated_at": string;

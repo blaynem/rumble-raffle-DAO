@@ -27,7 +27,6 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
       return;
     }
     const { data: activities } = await getAllActivities();
-    const prizeSplit: SetupType['prizeSplit'] = selectPrizeSplitFromParams(roomData.params);
     // RumbleApp expects players = {id, name}
     // TODO: This will potentially be limited to only 1000 results.
     // We need to assure there aren't more than that before starting.
@@ -46,12 +45,11 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
     const params: SetupType['params'] = {
       chanceOfPve: roomData.params.pve_chance,
       chanceOfRevive: roomData.params.revive_chance,
-      entryPrice: roomData.params.entry_fee
     }
 
     // TODO: Store this giant blob somewhere so we can go over the files later.
     // Autoplay the game
-    const finalGameData = await createGame({ activities, params, prizeSplit, initialPlayers: initialPlayers as any });
+    const finalGameData = await createGame({ activities, params, initialPlayers: initialPlayers as any });
 
     // Parse the package's activity log to a more usable format to send to client
     const parsedActivityLog = parseActivityLogForClient(finalGameData.gameActivityLogs, roomData.players);
@@ -76,7 +74,6 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
     const updateRoomSubmit = await client.from<definitions['rooms']>('rooms')
       .update({
         game_started: true,
-        total_prize_purse: finalGameData.gamePayouts.total,
         winners: parsedActivityLog.winners.map(winner => winner.public_address)
       })
       .match({ id: roomData.id })

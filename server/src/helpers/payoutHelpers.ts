@@ -1,5 +1,5 @@
 import { GameEndType } from "@rumble-raffle-dao/rumble/types";
-import { definitions, RoomDataType, PayoutsOmitId, PayoutTemplateType, PrizePayouts, PrizeSplitType } from '@rumble-raffle-dao/types'
+import { definitions, RoomDataType, PayoutsOmitId, PayoutTemplateType, PrizePayouts, PrizeSplitType, PrizeValuesType } from '@rumble-raffle-dao/types'
 
 export const selectPrizeSplitFromParams = (params: definitions['room_params']): PrizeSplitType => ({
   altSplit: params.prize_alt_split,
@@ -29,7 +29,7 @@ export const payoutTemplate = ({ room, public_address, payment_amount, payment_r
  * Helper function to get the notes of a payout.
  */
 export const payoutNotesTemplate = (
-  { id, gameKills, gamePayouts }: { id: string; gameKills: GameEndType['gameKills']; gamePayouts: GameEndType['gamePayouts'] },
+  { id, gameKills, gamePayouts }: { id: string; gameKills: GameEndType['gameKills']; gamePayouts: PrizePayouts },
   extraNotes?: string
 ) => `${getKillNotes(getKillCount(id, gameKills), getKillPayout(id, gamePayouts))}${extraNotes ? ` ${extraNotes}` : ''}`;
 
@@ -38,8 +38,11 @@ export const payoutNotesTemplate = (
  */
 export const selectPayoutFromGameData = (
   room: RoomDataType,
-  { gameWinner, gameRunnerUps, gameKills, gamePayouts }: GameEndType
+  { gameWinner, gameRunnerUps, gameKills }: GameEndType
 ): PayoutsOmitId[] => {
+  // Calculates the room payouts
+  const gamePayouts = calculatePayouts(room, gameKills);
+
   const payouts: PayoutsOmitId[] = [];
   // Create winner payout object
   const winnerPayout: PayoutsOmitId = payoutTemplate({
@@ -134,31 +137,35 @@ const getKillPayout = (id: string, gamePayouts: PrizePayouts) => gamePayouts.kil
  */
 const getKillNotes = (killCount: number, killPayout: number) => killCount > 0 ? `Total kill payout: ${killPayout}. Total kill count: ${killCount}.` : '';
 
-
-
 /**
- * UNSURE IF WE NEED THIS EVEN
- * Numbers are percentages. 10 => 10%, etc.
- * Percentages must be in numbers 0-100 and added together must total 100.
- * 
- * Defaults: 
- * 20% - for kills
- * 50% - 1st place winner
- * 15% - 2nd place
- * 5% - 3rd place
- * 9% - to stakers
- * 1% - to RumbleRaffleDAO
+ * Maps to the prize split data
  */
- const defaultPrizeSplit: PrizeSplitType = {
-  kills: 20,
-  thirdPlace: 5,
-  secondPlace: 15,
-  firstPlace: 50,
-  altSplit: 9,
-  creatorSplit: 1,
+const mapToPrizeSplitData = (params: definitions['room_params']) => ({
+  altSplit: params.prize_alt_split,
+  creatorSplit: params.prize_creator,
+  entryFee: params.entry_fee,
+  firstPlace: params.prize_first,
+  kills: params.prize_kills,
+  secondPlace: params.prize_second,
+  thirdPlace: params.prize_third,
+})
+
+const calculatePrizeSplit = (prizeSplit: PrizeSplitType, totalPlayers: number): PrizeValuesType => {
+  const totalPrize = 12;
+  return {
+    altSplit: totalPrize * (prizeSplit.altSplit / 100),
+    creatorSplit: (prizeSplit.creatorSplit / 100),
+    firstPlace: totalPrize * (prizeSplit.firstPlace / 100),
+    secondPlace: totalPrize * (prizeSplit.secondPlace / 100),
+    thirdPlace: totalPrize * (prizeSplit.thirdPlace / 100),
+    kills: (totalPrize * (prizeSplit.kills / 100)) / totalPlayers,
+    totalPrize,
+  }
 }
 
-const calculatePayouts = (prizes, gameKills) => {
+const calculatePayouts = (roomData: RoomDataType, gameKills: GameEndType['gameKills']): PrizePayouts => {
+  // Get all the prizes.
+  const prizes: PrizeValuesType = calculatePrizeSplit(mapToPrizeSplitData(roomData.params), roomData.players.length);
   /**
    * Since people can die in a pve round, there will be leftover prize money.
    * Remaining prize money will be given out to the altSplit.
