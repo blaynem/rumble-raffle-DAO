@@ -130,6 +130,13 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
   - Sockets data needs to be encoded from server side somehow
 - Testing:
 
+## Database
+
+- Rooms
+  - rooms should really only have the `id`, `slug`, `params_id`. The rest of the info should be inside of `room_params`. This allows us to always use the same url, and allow external hardlinks like `rumbleraffle.com/room/fancybirds` so they can have their own specific rooms if needed. then we simply switch out the `params_id` when a new game is going to be started.
+    - `payouts` table would need to change `room_id` to be based on `room_params` table instead
+    - `game_round_logs` table would need to change `room_id` to be based on `room_params` table instead
+
 ## Rumble Package
 
 - Start Game

@@ -422,6 +422,30 @@ const CreatePage = () => {
                 <div className="mb-20">
                   <h4 className={headerClass}>Payment Information</h4>
                   <div className="grid grid-cols-7 gap-6">
+                    {/* ENTRY COST */}
+                    <div className="col-span-7 grid grid-cols-7 gap-6">
+                      <div className="col-span-6 md:col-span-2 sm:col-span-3">
+                        <label htmlFor="entry-fee" className={labelClass}>
+                          Entry Fee
+                        </label>
+                        <div className="flex">
+                          <span className={spanClass}>
+                            {selectedContract ? selectedContract.symbol : ''}
+                          </span>
+                          <Field
+                            type="number"
+                            name="entry_fee"
+                            id="entry-fee"
+                            className={fieldClass}
+                            placeholder="10"
+                          />
+                        </div>
+                        <ErrorMessage name="entry_fee" >
+                          {msg => customErrorColors(msg)}
+                        </ErrorMessage>
+                      </div>
+                      <div className="col-span-6 md:col-span-4 sm:col-span-4 w-full" />
+                    </div>
                     {/* CONTRACT NETWORK */}
                     <div className="col-span-7 md:col-span-2 sm:col-span-4">
                       <label htmlFor="contract-network" className={labelClass}>
@@ -458,46 +482,26 @@ const CreatePage = () => {
                       <button
                         type="button"
                         onClick={() => fetchContractData(setValues, values)}
-                        className="overflow-hidden uppercase place-self-end h-14 py-4 px-6 border-2 dark:border-rumbleBgLight border-rumbleBgDark dark:bg-rumbleBgDark bg-rumbleBgLight dark:text-rumbleNone dark:hover:bg-rumbleSecondary dark:hover:border-rumbleSecondary hover:bg-rumblePrimary hover:border-rumblePrimary hover:text-rumbleNone text-rumbleOutline font-medium"
+                        className="truncate uppercase place-self-end h-14 py-4 px-6 border-2 dark:border-rumbleBgLight border-rumbleBgDark dark:bg-rumbleBgDark bg-rumbleBgLight dark:text-rumbleNone dark:hover:bg-rumbleSecondary dark:hover:border-rumbleSecondary hover:bg-rumblePrimary hover:border-rumblePrimary hover:text-rumbleNone text-rumbleOutline font-medium"
                       >
                         {contractDetailsLoading ? "Loading..." : "Fetch Contract Data"}
                       </button>
                     </div>
-                    {/* ENTRY COST */}
+                    {/* TOKEN INFORMATION */}
                     {!selectedContract ?
                       <div className='col-span-7'>Please fetch contract data before continuing.</div>
                       :
-                      <div className="col-span-7 grid grid-cols-6 gap-6">
-                        <div className="col-span-6 md:col-span-2 sm:col-span-3">
-                          <label htmlFor="entry-fee" className={labelClass}>
-                            Entry Fee
-                          </label>
-                          <div className="flex">
-                            <span className={spanClass}>
-                              {selectedContract.symbol}
-                            </span>
-                            <Field
-                              type="number"
-                              name="entry_fee"
-                              id="entry-fee"
-                              className={fieldClass}
-                              placeholder="10"
-                            />
-                          </div>
-                          <ErrorMessage name="entry_fee" >
-                            {msg => customErrorColors(msg)}
-                          </ErrorMessage>
-                        </div>
-                        <div className="col-span-6 md:col-span-2 sm:col-span-3">
-                          <p className={labelClass}>
-                            Token Information
-                          </p>
-                          <p className={labelClass}>Name: <span className='font-normal'>{selectedContract.name}</span></p>
-                          <p className={labelClass}>Symbol: <span className='font-normal'>{selectedContract.symbol}</span></p>
-                          <p className={labelClass}>Decimal: <span className='font-normal'>{selectedContract.decimals}</span></p>
-                          <p className={labelClass}>Chain Id: <span className='font-normal'>{selectedContract.chain_id}</span></p>
-                        </div>
+                      // <div className="col-span-7 grid grid-cols-6 gap-6">
+                      <div className="col-span-6 md:col-span-2 sm:col-span-3">
+                        <p className={labelClass}>
+                          Token Information
+                        </p>
+                        <p className={labelClass}>Name: <span className='font-normal'>{selectedContract.name}</span></p>
+                        <p className={labelClass}>Symbol: <span className='font-normal'>{selectedContract.symbol}</span></p>
+                        <p className={labelClass}>Decimal: <span className='font-normal'>{selectedContract.decimals}</span></p>
+                        <p className={labelClass}>Chain Id: <span className='font-normal'>{selectedContract.chain_id}</span></p>
                       </div>
+                      // </div>
                     }
                   </div>
                 </div>
