@@ -1,6 +1,7 @@
 import { addMethod, object, string, number } from 'yup';
 
 // TODO: Convert this to typescript.
+// TODO: Replace prize split here since entire game is FREEE
 
 addMethod(object, 'assurePrizeSplitTotal', function (errorMessage) {
   return this.test('test-prize-split-total', errorMessage, function (prize_split) {

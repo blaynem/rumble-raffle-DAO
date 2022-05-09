@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { createContainer } from 'unstated-next'
 import { authenticate } from '../lib/wallet'
-import { definitions, PlayerAndPrizeSplitType, SupabaseUserType } from '@rumble-raffle-dao/types'
+import { definitions, PlayerAndRoomInfoType, SupabaseUserType } from '@rumble-raffle-dao/types'
 import { ethers } from 'ethers';
 let RaffleSmartContracts;
 if (process.env.NODE_ENV === 'development') {
@@ -124,7 +124,7 @@ const useContainer = () => {
     })
   }
 
-  const payEntryFee = async (contractDetails: PlayerAndPrizeSplitType['roomInfo']['contract'], amount: string): Promise<{ paid: boolean; error: any; }> => {
+  const payEntryFee = async (contractDetails: PlayerAndRoomInfoType['roomInfo']['contract'], amount: string): Promise<{ paid: boolean; error: any; }> => {
     if (amount === "0") {
       return { paid: true, error: null }
     }

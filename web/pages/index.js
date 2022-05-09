@@ -76,8 +76,6 @@ const DisplayRooms = () => {
               <Link href={`/room/${room?.params?.slug}`}>
                 <a className='truncate'>{room?.params?.slug}</a>
               </Link>
-              {/* No payments yet, so no need for this. */}
-              {/* <div>{room?.params?.entry_fee} {room?.params?.contract.symbol}</div> */}
             </li>
           ))}
         </ul>
@@ -93,8 +91,6 @@ const DisplayRooms = () => {
               <Link href={`/room/${room?.params?.slug}`}>
                 <a className='truncate'>{room?.params?.slug}</a>
               </Link>
-              {/* No payments yet, so no need for this. */}
-              {/* <div>{room?.params?.entry_fee === 0 ? 'FREE' : `${room?.params?.entry_fee} ${room?.params?.contract.symbol}`}</div> */}
             </li>
           ))}
         </ul>

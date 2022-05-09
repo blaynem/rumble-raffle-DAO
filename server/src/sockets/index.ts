@@ -3,7 +3,7 @@ import availableRoomsData from '../helpers/roomRumbleData';
 import { definitions } from '@rumble-raffle-dao/types'
 import { CLEAR_GAME, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, START_GAME, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { addPlayer } from "../helpers/addPlayer";
-import { getPlayersAndPrizeSplit } from "../helpers/getPlayersAndPrizeSplit";
+import { getPlayersAndRoomInfo } from "../helpers/getPlayersAndRoomInfo";
 import { getVisibleGameStateForClient } from "../helpers/getVisibleGameStateForClient";
 import startGame from "./startGame";
 import clearGame from "./clearGame";
@@ -41,8 +41,8 @@ function joinRoom(roomSlug: string) {
     }
     this.join(roomSlug);
     console.log(`User with ID: ${this.id} joined room: ${roomSlug}`);
-    const playersAndPrizeSplit = getPlayersAndPrizeSplit(roomSlug);
-    io.to(this.id).emit(UPDATE_PLAYER_LIST, playersAndPrizeSplit);
+    const playersAndRoomInfo = getPlayersAndRoomInfo(roomSlug);
+    io.to(this.id).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
     if (roomData.game_started) {
       const { visibleRounds, winners } = getVisibleGameStateForClient(roomData, gameState);
       // Limit this to whatever current logs are being shown.
@@ -66,8 +66,8 @@ async function joinGame(data: { playerData: definitions["users"]; roomSlug: stri
       io.to(this.id).emit(JOIN_GAME_ERROR, error);
       return;
     }
-    const playersAndPrizeSplit = getPlayersAndPrizeSplit(data.roomSlug);
-    io.in(data.roomSlug).emit(UPDATE_PLAYER_LIST, playersAndPrizeSplit);
+    const playersAndRoomInfo = getPlayersAndRoomInfo(data.roomSlug);
+    io.in(data.roomSlug).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
   } catch (error) {
     console.error('Server: joinGame', 'error')
   }

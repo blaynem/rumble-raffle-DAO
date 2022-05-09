@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
-import { EntireGameLog, PlayerAndPrizeSplitType, RoomDataType, SupabaseUserType } from "@rumble-raffle-dao/types";
+import { EntireGameLog, PlayerAndRoomInfoType, RoomDataType, SupabaseUserType } from "@rumble-raffle-dao/types";
 import { GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
@@ -46,9 +46,8 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
   const { user, payEntryFee } = useWallet()
   const { preferences } = usePreferences();
   const router = useRouter()
-  const [entrants, setEntrants] = useState([] as PlayerAndPrizeSplitType['allPlayers']);
-  const [prizes, setPrizes] = useState({} as PlayerAndPrizeSplitType['prizeSplit']);
-  const [roomInfo, setRoomInfo] = useState({} as PlayerAndPrizeSplitType['roomInfo']);
+  const [entrants, setEntrants] = useState([] as PlayerAndRoomInfoType['allPlayers']);
+  const [roomInfo, setRoomInfo] = useState({} as PlayerAndRoomInfoType['roomInfo']);
   const [activityLogRounds, setActivityLogRounds] = useState([] as EntireGameLog['rounds']);
   const [activityLogWinners, setActivityLogWinners] = useState([] as EntireGameLog['winners']);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -152,10 +151,9 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
      * - On initial join of room
      * - Any time a "user"" is converted to a "player"
      */
-    socket.on(UPDATE_PLAYER_LIST, (data: PlayerAndPrizeSplitType) => {
+    socket.on(UPDATE_PLAYER_LIST, (data: PlayerAndRoomInfoType) => {
       console.log('---UPDATE_PLAYER_LIST');
       data.allPlayers !== null && setEntrants([...data.allPlayers]);
-      data.prizeSplit !== null && setPrizes(data.prizeSplit);
       data.roomInfo !== null && setRoomInfo(data.roomInfo);
     });
   }, [])
@@ -194,7 +192,8 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
     if (user) {
       // Clear error message.
       setErrorMessage(null);
-      const { paid, error } = await payEntryFee(roomInfo.contract, roomInfo.params.entry_fee.toString());
+      // There is currently no entry fees
+      const { paid, error } = await payEntryFee(roomInfo.contract, '0');
       if (error) {
         setErrorMessage(error)
         console.error('Join Click:', error);

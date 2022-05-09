@@ -7,7 +7,6 @@ export default async function pastrooms(req: NextApiRequest, res: NextApiRespons
     id,
     params: params_id (
       slug,
-      entry_fee,
       contract: contract_id (
         contract_address, name, symbol
       )

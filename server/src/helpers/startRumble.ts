@@ -5,12 +5,11 @@ import { getAllActivities } from "../routes/api/activities";
 import { createGame } from "./createRumble";
 import { getGameDataFromDb } from "./getGameDataFromDb";
 import { parseActivityLogForClient, parseActivityLogForDbPut } from "./parseActivityLogs";
-import { selectPrizeSplitFromParams, selectPayoutFromGameData } from "./payoutHelpers";
-import availableRoomsData from "./roomRumbleData";
+import { selectPayoutFromGameData } from "./payoutHelpers";
 
 /**
  * Starting a rumble will:
- * - Get all players, and prizeSplit from params
+ * - Get all players, and room info from params
  * - fetch all activities to play
  * - create the game and play it
  * 

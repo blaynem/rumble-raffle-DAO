@@ -1,14 +1,12 @@
 import { definitions } from "./supabase";
-import { PrizeSplitType } from "@rumble-raffle-dao/rumble";
 
-// All players, the prize split, and the necessary room info
-export type PlayerAndPrizeSplitType = {
+// All players, and the necessary room info
+export type PlayerAndRoomInfoType = {
   allPlayers: PickFromPlayers[];
-  prizeSplit: PrizeSplitType;
-  // Creator, entryFee, tokenContract, tokenNetwork
+  // Creator, tokenContract, tokenNetwork
   roomInfo: {
     contract: Pick<definitions['contracts'], 'contract_address' | 'network_name' | 'symbol' | 'chain_id'>;
-    params: Pick<definitions['room_params'], 'alt_split_address' | 'created_by' | 'entry_fee' | 'pve_chance' | 'revive_chance'>;
+    params: Pick<definitions['room_params'], 'created_by' | 'pve_chance' | 'revive_chance'>;
   }
 }
 
