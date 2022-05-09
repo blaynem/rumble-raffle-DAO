@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "generate": "npx prisma generate",
-    "push": "npx prisma db push",
+    "push": "npx prisma db push && npx prisma generate",
     "studio": "npx prisma studio",
     "task": "npx ts-node ./tasks/tasksfile.ts"
   },
