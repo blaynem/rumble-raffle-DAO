@@ -10,7 +10,9 @@
     "start": "yarn workspace @rumble-raffle-dao/web start",
     "hardhat-compile": "yarn workspace @rumble-raffle-dao/smart-contracts hardhat-compile",
     "hardhat-node": "yarn workspace @rumble-raffle-dao/smart-contracts hardhat-node",
-    "contract-deploy-local": "yarn workspace @rumble-raffle-dao/smart-contracts contract-deploy-local"
+    "contract-deploy-local": "yarn workspace @rumble-raffle-dao/smart-contracts contract-deploy-local",
+    "prisma-push": "yarn workspace @rumble-raffle-dao/database push",
+    "prisma-generate": "yarn workspace @rumble-raffle-dao/database generate"
   },
   "eslintConfig": {
     "extends": [
