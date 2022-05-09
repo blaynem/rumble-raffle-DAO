@@ -28,6 +28,7 @@
     "tabWidth": 2
   },
   "workspaces": [
+    "database",
     "rumble",
     "server",
     "smart_contracts",

@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider             = "postgresql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+generator js {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+model Player {
+  slug        String   @db.VarChar(100)
+  room_id     String   @id @default(uuid())
+  player      String   @unique @db.VarChar(45) //evm compatible address 
+  //TODO: ^ i think should be userID and not wallet address??
+  time_joined DateTime @updatedAt
+}
+
+model Users {
+  user_id        Int      @db.Integer //this should either be a uuid or the public address
+  public_address String   @unique @db.VarChar(45) //evm compatible address
+  updated_at     DateTime @updatedAt
+  namme          String   @db.VarChar(200)
+  nonce          String   @db.VarChar(24)
+  is_admin       Boolean  @db.Boolean
+}
