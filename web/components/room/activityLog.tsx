@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import LocalDiningOutlinedIcon from '@mui/icons-material/LocalDiningOutlined';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import 'react-popper-tooltip/dist/styles.css';
-import { PickFromPlayers, RoundActivityLog, SingleActivity, SupabaseUserType } from "@rumble-raffle-dao/types";
+import { PickFromPlayers, RoundActivityLog, SingleActivity } from "@rumble-raffle-dao/types";
 import { ClickToCopyPopper } from '../Popper';
 import { Prisma } from '.prisma/client';
 

@@ -1,4 +1,4 @@
-import { SupabaseUserType, ToastTypes } from '@rumble-raffle-dao/types';
+import { ToastTypes } from '@rumble-raffle-dao/types';
 import { ErrorMessage, Field, Form, Formik, FormikHelpers } from 'formik';
 import Head from 'next/head'
 import { useState } from 'react';
@@ -15,7 +15,7 @@ type SettingsTypes = {
 const customErrorColors = (msg: string) => <div className='text-base h-10 text-red-600 py-2'>{msg}</div>
 
 const pageTitle = `Settings`
-export default function PageIndex(props: { user: SupabaseUserType }) {
+export default function PageIndex() {
   const { user, updateName } = useWallet();
   const { preferences } = usePreferences();
 

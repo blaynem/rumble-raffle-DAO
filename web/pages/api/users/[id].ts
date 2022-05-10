@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { withSessionRoute } from '../../../lib/with-session';
-import prisma from '../../../client-temp';
+import prisma from '../../../client';
 
 interface ExtendedNextAPIRequest extends NextApiRequest {
   query: {

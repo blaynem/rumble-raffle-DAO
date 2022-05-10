@@ -1,5 +1,5 @@
 import React from 'react';
-import { PickFromPlayers, SupabaseUserType } from "@rumble-raffle-dao/types";
+import { PickFromPlayers } from "@rumble-raffle-dao/types";
 import { ClickToCopyPopper } from '../Popper';
 import { Prisma } from '.prisma/client';
 

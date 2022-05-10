@@ -3,7 +3,7 @@ import { recoverPersonalSignature } from 'eth-sig-util'
 import { bufferToHex } from 'ethereumjs-util'
 import { withSessionRoute } from '../../lib/with-session'
 import { NONCE_MESSAGE } from '../../lib/constants'
-import prisma from '../../client-temp';
+import prisma from '../../client';
 
 async function auth(req: NextApiRequest, res: NextApiResponse) {
   const { signature, id} = req.body

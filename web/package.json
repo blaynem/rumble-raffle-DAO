@@ -13,7 +13,6 @@
     "@rumble-raffle-dao/rumble": "0.1.0",
     "@rumble-raffle-dao/smart-contracts": "0.1.0",
     "@rumble-raffle-dao/types": "0.1.0",
-    "@supabase/supabase-js": "^1.31.1",
     "@tailwindcss/forms": "^0.5.0",
     "dotenv": "^16.0.0",
     "eth-sig-util": "^3.0.1",

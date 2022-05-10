@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import crypto from 'crypto'
 import { faker } from "@faker-js/faker";
-import prisma from '../../client-temp';
+import prisma from '../../client';
 
 // idk fun to have a fake name instead of not.
 const fancyName = () => `${faker.name.jobType().toUpperCase()}-${faker.animal.type().toUpperCase()}-${faker.datatype.number(100)}`

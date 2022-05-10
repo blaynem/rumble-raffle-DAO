@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
-import { EntireGameLog, PlayerAndRoomInfoType, RoomDataType, SupabaseUserType } from "@rumble-raffle-dao/types";
+import { EntireGameLog, PlayerAndRoomInfoType, RoomDataType } from "@rumble-raffle-dao/types";
 import { GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
@@ -10,6 +10,7 @@ import { BASE_API_URL, BASE_WEB_URL } from "../../lib/constants";
 import Entrants from "../../components/room/entrants";
 import { usePreferences } from "../../containers/preferences";
 import { useRouter } from "next/router";
+import { Prisma } from ".prisma/client";
 
 const socket = io(BASE_API_URL);
 
@@ -22,7 +23,7 @@ export type ServerSidePropsType = {
   game_started: boolean;
   roomCreator: string;
   roomSlug: string;
-  user: SupabaseUserType;
+  user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>;
 }
 
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }): Promise<{ props: ServerSidePropsType }> => {

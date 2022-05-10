@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { withSessionSsr } from '../../lib/with-session';
-import { RoomDataType, SupabaseUserType } from "@rumble-raffle-dao/types";
+import { RoomDataType } from "@rumble-raffle-dao/types";
 import { DisplayActivityLogs, DisplayKillCount, DisplayWinners } from "../../components/room/activityLog";
 import { useWallet } from '../../containers/wallet'
 import { BASE_WEB_URL } from "../../lib/constants";
 import Entrants from "../../components/room/entrants";
 import { usePreferences } from "../../containers/preferences";
 import router from "next/router";
+import { Prisma } from ".prisma/client";
 
 export type ServerSidePropsType = {
-  user: SupabaseUserType;
+  user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>;
   roomData: RoomDataType;
   error: any;
 }
