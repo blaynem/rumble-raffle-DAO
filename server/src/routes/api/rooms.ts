@@ -1,9 +1,9 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { definitions, OmegaRoomInterface, RoomDataType } from '@rumble-raffle-dao/types';
-import client from '../../client';
+import { RoomDataType } from '@rumble-raffle-dao/types';
 import { addNewRoomToMemory } from '../../helpers/roomRumbleData';
 import { getGameDataFromDb } from '../../helpers/getGameDataFromDb';
+import prisma from '../../client-temp';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
@@ -16,36 +16,37 @@ const jsonParser = bodyParser.json()
 router.post('/create', jsonParser, async (req: any, res: any) => {
   try {
     const { contract, user, ...restReqBody } = req.body;
-    const { data: userData, error: userError } = await client.from<definitions['users']>('users').select('is_admin').eq('public_address', user.public_address)
+    const userData = await prisma.users.findUnique({ where: { id: user.id } })
     // If they aren't an admin, we say no.
-    if (!userData[0]?.is_admin) {
+    if (!userData?.is_admin) {
       res.status(401).json({ error: 'Only admin may create rooms at this time.' })
       return;
     }
     const contract_id = contract.contract_address;
-    const created_by = user.public_address;
-    // Insert room_param
-    const { data: roomParamsData, error: roomParamsError } = await client.from<definitions['room_params']>('room_params').insert({
+    const created_by = user.id;
+
+    const paramsBody = {
       ...restReqBody,
       created_by,
       contract_id
-    });
-    if (roomParamsError) {
-      res.status(res.statusCode).json({ error: roomParamsError });
-      return;
     }
-    // Insert Rooms
-    const { id: roomParamId } = roomParamsData[0];
-    const { data, error } = await client.from<definitions['rooms']>('rooms').insert({
-      params_id: roomParamId,
-      slug: restReqBody.slug,
-      created_by,
-      contract_id
+    // Insert room_param
+    const data = await prisma.rooms.upsert({
+      where: { slug: restReqBody.slug },
+      // If a room with the given slug hasn't been created, we create the room + the RoomParams as well
+      create: {
+        slug: restReqBody.slug,
+        Params: {
+          create: paramsBody
+        }
+      },
+      // If the room has been created already, then we are creating a new RoomParams to use
+      update: {
+        Params: {
+          create: paramsBody
+        }
+      }
     })
-    if (error) {
-      res.status(res.statusCode).json({ error });
-      return;
-    }
     // If room is created, we add it to memory.
     const roomData: RoomDataType = {
       created_by,
@@ -53,10 +54,10 @@ router.post('/create', jsonParser, async (req: any, res: any) => {
       gameData: null,
       game_completed: false,
       game_started: false,
-      id: data[0].id,
-      params: roomParamsData[0],
+      id: data.id,
+      params: paramsBody,
       players: [],
-      slug: data[0].slug,
+      slug: restReqBody.slug,
     };
     addNewRoomToMemory(roomData);
     res.json({ data });

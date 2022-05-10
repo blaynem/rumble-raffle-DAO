@@ -1,6 +1,6 @@
 import { SetupType } from "@rumble-raffle-dao/rumble/types";
-import { EntireGameLog, definitions } from "@rumble-raffle-dao/types";
-import client from "../client";
+import { EntireGameLog } from "@rumble-raffle-dao/types";
+import prisma from "../client-temp";
 import { getAllActivities } from "../routes/api/activities";
 import { createGame } from "./createRumble";
 import { getGameDataFromDb } from "./getGameDataFromDb";
@@ -31,14 +31,25 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
     // We need to assure there aren't more than that before starting.
     // Get all current players in case we missed someone in the db when it's started.
     // Or in case they changed their name and we don't see it.
-    const { data } = await client.from<definitions['players'] & { users: definitions['users'] }>('players')
-      .select(`users ( public_address ,name)`)
-      .eq('room_id', roomData.id);
+
+    const data = await prisma.players.findMany({
+      where: {
+        room_id: roomData.id
+      },
+      select: {
+        User: {
+          select: {
+            id: true,
+            name: true,
+          }
+        }
+      }
+    })
 
     // Map the data to what rumble expects
-    const initialPlayers = data.map(({ users }) => ({
-      id: users.public_address,
-      name: users.name
+    const initialPlayers = data.map(({ User }) => ({
+      id: User.id,
+      name: User.name
     }))
 
     const params: SetupType['params'] = {
@@ -55,30 +66,40 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
 
     // Parse the activity log to store it to the db better
     const activitiesInGame = parseActivityLogForDbPut(parsedActivityLog, roomData);
-    const activityLogSubmit = await client.from<definitions['game_round_logs']>('game_round_logs')
-      .insert(activitiesInGame)
-    if (activityLogSubmit.error) {
-      console.error(activityLogSubmit.error);
-    }
+    const activityLogSubmit = await prisma.gameRoundLogs.createMany({
+      data: activitiesInGame
+    })
+    // if (activityLogSubmit.error) {
+    //   console.error(activityLogSubmit.error);
+    // }
 
     // Calculate payout info
     const payoutInfo = selectPayoutFromGameData(roomData, finalGameData);
     // Submit all payouts to db
-    const payoutSubmit = await client.from<definitions['payouts']>('payouts')
-      .insert(payoutInfo);
-    if (payoutSubmit.error) {
-      console.error(payoutSubmit.error);
-    }
+    const payoutSubmit = await prisma.payouts.createMany({
+      data: payoutInfo
+    })
+    // if (payoutSubmit.error) {
+    //   console.error(payoutSubmit.error);
+    // }
+
     // Update the rooms
-    const updateRoomSubmit = await client.from<definitions['rooms']>('rooms')
-      .update({
-        game_started: true,
-        winners: parsedActivityLog.winners.map(winner => winner.public_address)
-      })
-      .match({ id: roomData.id })
-    if (updateRoomSubmit.error) {
-      console.error(updateRoomSubmit.error);
-    }
+    const updateRoomSubmit = await prisma.rooms.update({
+      where: {
+        id: roomData.id,
+      },
+      data: {
+        Params: {
+          update: {
+            game_started: true,
+            winners: parsedActivityLog.winners.map(winner => winner.id)
+          }
+        }
+      }
+    })
+    // if (updateRoomSubmit.error) {
+    //   console.error(updateRoomSubmit.error);
+    // }
     // Set the game started to true.
     roomData.game_started = true;
 

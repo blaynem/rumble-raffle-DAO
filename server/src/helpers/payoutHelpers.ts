@@ -22,16 +22,14 @@ type BetaPayoutTypes = {
 export const payoutTemplate = ({ room, public_address, payment_amount, payment_reason, notes }: PayoutTemplateType): PayoutsOmitId => ({
   public_address,
   payment_amount,
-  payment_token_address: room.contract.contract_address,
-  payment_token_network_name: room.contract.network_name,
-  payment_token_symbol: room.contract.symbol,
-  room_id: room.id,
   payment_reason,
   notes,
   // These are not done until a later time.
   payment_completed: false,
   payment_completed_at: null,
   payment_transaction_hash: null,
+  room_id: room.id,
+  payment_contract_id: room.contract.contract_address
 })
 
 /**

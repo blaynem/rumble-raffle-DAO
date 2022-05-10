@@ -1,7 +1,7 @@
-import { definitions } from "@rumble-raffle-dao/types";
+import { Prisma } from ".prisma/client";
 import { GAME_COMPLETED, GAME_START_COUNTDOWN, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER } from "@rumble-raffle-dao/types/constants";
 import { Server } from "socket.io";
-import client from "../client";
+import prisma from "../client-temp";
 import { getVisibleGameStateForClient } from "../helpers/getVisibleGameStateForClient";
 import availableRoomsData from "../helpers/roomRumbleData";
 import { startRumble } from "../helpers/startRumble";
@@ -29,13 +29,14 @@ const dripGameDataOnDelay = (io: Server, roomSlug: string) => {
         gameState.gameCompleted = true;
         gameState.showWinners = true;
         // Update the rooms completed state to true.
-        const updateRoomSubmit = await client.from<definitions['rooms']>('rooms')
-        .update({ game_completed: true })
-        .match({ id: roomData.id })
+        const updateRoomSubmit = await prisma.rooms.update({
+          where: { id: roomData.id },
+          data: { Params: { update: { game_completed: true } } }
+        })
         // Log any errors from changing game to completed
-        if (updateRoomSubmit.error) {
-          console.error('drip game data: game_completed = true', updateRoomSubmit.error);
-        }
+        // if (updateRoomSubmit.error) {
+        //   console.error('drip game data: game_completed = true', updateRoomSubmit.error);
+        // }
         // delete the game state from the server
         delete availableRoomsData[roomSlug];
       }
@@ -69,18 +70,21 @@ const dripGameDataOnDelay = (io: Server, roomSlug: string) => {
  * TODO:
  * - Display all players who earned a prize on a screen somewhere.
  */
-async function startGame(io: Server, data: { playerData: definitions["users"]; roomSlug: string }) {
+async function startGame(io: Server, data: { playerData: Prisma.UsersCreateInput; roomSlug: string }) {
   try {
     const { roomData, gameState } = availableRoomsData[data.roomSlug];
     // Check if they're an admin.
-    const { data: userData, error: userError } = await client.from<definitions['users']>('users').select('is_admin').eq('public_address', data.playerData?.public_address)
+    const userData = await prisma.users.findUnique({
+      where: { id: data.playerData?.id },
+      select: { is_admin: true }
+    })
     // If they aren't an admin, we do nothing.
-    if (!userData[0].is_admin) {
+    if (!userData.is_admin) {
       return;
     }
     // Only let the room owner start the game.
-    if (data.playerData?.public_address !== roomData.created_by) {
-      console.warn(`${data.playerData?.public_address} tried to start a game they are not the owner of.`);
+    if (data.playerData?.id !== roomData.created_by) {
+      console.warn(`${data.playerData?.id} tried to start a game they are not the owner of.`);
       return;
     }
     // Game already started, do nothing about it.

@@ -3,13 +3,13 @@ generator client {
 }
 
 datasource db {
-  provider             = "postgresql"
-  url                  = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
   // referentialIntegrity = "prisma"
 }
 
 generator js {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
   // previewFeatures = ["referentialIntegrity"]
 }
 
@@ -120,7 +120,7 @@ model Rooms {
   id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   created_at DateTime @default(dbgenerated("now()"))
   updated_at DateTime @default(dbgenerated("now()")) @updatedAt
-  slug       String   @db.VarChar(100)
+  slug       String   @unique @db.VarChar(100)
 
   // Has Relations
   params_id String @db.Uuid
@@ -131,12 +131,12 @@ model Rooms {
 
 model Users {
   /// Users public address
-  id             String   @id @unique @db.VarChar(45) // evm compatible address
-  name           String   @db.VarChar(200)
-  is_admin       Boolean  @default(false) @db.Boolean
-  nonce          String   @db.VarChar(24)
-  created_at     DateTime @default(dbgenerated("now()"))
-  updated_at     DateTime @default(dbgenerated("now()")) @updatedAt
+  id         String   @id @unique @db.VarChar(45) // evm compatible address
+  name       String   @db.VarChar(200)
+  is_admin   Boolean  @default(false) @db.Boolean
+  nonce      String   @db.VarChar(24)
+  created_at DateTime @default(dbgenerated("now()"))
+  updated_at DateTime @default(dbgenerated("now()")) @updatedAt
 
   // Opposite Relations
   RoomParams RoomParams[]

@@ -1,4 +1,5 @@
 import { definitions } from "./supabase";
+import { Prisma } from '.prisma/client'
 
 // All players, and the necessary room info
 export type PlayerAndRoomInfoType = {
@@ -46,7 +47,7 @@ export type GameState = {
 }
 
 // Payouts type omitting the id
-export type PayoutsOmitId = Omit<definitions["payouts"], 'id'>;
+export type PayoutsOmitId = Omit<Prisma.PayoutsGroupByOutputType, 'id' | 'created_at' | '_count' | '_avg' | '_sum' | '_min' | '_max'>
 
 /**
  * Used for creating payouts
