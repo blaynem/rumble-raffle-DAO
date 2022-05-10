@@ -2,24 +2,24 @@ import Web3 from 'web3'
 import { NONCE_MESSAGE } from './constants'
 
 let web3 = undefined
-export const getCookie = ({ public_address, signature }) =>
+export const getCookie = ({ id, signature }) =>
   fetch(`/api/auth`, {
-    body: JSON.stringify({ public_address, signature }),
+    body: JSON.stringify({ id, signature }),
     headers: {
       'Content-Type': 'application/json'
     },
     method: 'POST'
   }).then(response => response.json())
 
-export const handleSignMessage = async ({ public_address, nonce }) => {
+export const handleSignMessage = async ({ id, nonce }) => {
   try {
     const signature = await web3.eth.personal.sign(
       `${NONCE_MESSAGE} ${nonce}`,
-      public_address,
+      id,
       '' // MetaMask will ignore the password argument here
     )
 
-    return { public_address, signature }
+    return { id, signature }
   } catch (err) {
     console.log('--errr', err);
     throw new Error('You need to sign the message to be able to log in.')
@@ -54,7 +54,7 @@ export const authenticate = async onLoggedIn => {
   }
 
   const public_address = coinbase.toLowerCase()
-  fetch(`/api/users?public_address=${public_address}`)
+  fetch(`/api/users?id=${public_address}`)
     .then(response => response.json())
     // Popup MetaMask confirmation modal to sign message
     .then(handleSignMessage)

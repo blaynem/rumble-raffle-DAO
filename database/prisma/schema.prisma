@@ -5,12 +5,12 @@ generator client {
 datasource db {
   provider             = "postgresql"
   url                  = env("DATABASE_URL")
-  referentialIntegrity = "prisma"
+  // referentialIntegrity = "prisma"
 }
 
 generator js {
   provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
+  // previewFeatures = ["referentialIntegrity"]
 }
 
 model Activities {
@@ -70,7 +70,7 @@ model Payouts {
   payment_transaction_hash String
   // Has Relations
   room_id                  String        @db.Uuid
-  payment_contract_id      String        @db.Uuid
+  payment_contract_id      String        @db.VarChar(45)
 
   // Define Relations
   RoomParams      RoomParams @relation(fields: [room_id], references: [id])
@@ -82,7 +82,7 @@ model Players {
   time_joined DateTime @default(dbgenerated("now()"))
   // Has Relations
   room_id     String   @db.Uuid
-  player      String   @db.Uuid
+  player      String   @db.VarChar(45) // evm compatible address
 
   // Define Relations
   RoomParams RoomParams @relation(fields: [room_id], references: [id])
@@ -102,8 +102,8 @@ model RoomParams {
   game_completed Boolean? @default(false)
   winners        String[]
   // Has Relations
-  created_by     String   @db.Uuid
-  contract_id    String   @db.Uuid
+  created_by     String   @db.VarChar(45) // evm compatible address
+  contract_id    String   @db.VarChar(45)
 
   // Define Relations
   Creator  Users     @relation(fields: [created_by], references: [id])
@@ -120,7 +120,7 @@ model Rooms {
   id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   created_at DateTime @default(dbgenerated("now()"))
   updated_at DateTime @default(dbgenerated("now()")) @updatedAt
-  slug       String  @db.VarChar(100)
+  slug       String   @db.VarChar(100)
 
   // Has Relations
   params_id String @db.Uuid
@@ -131,12 +131,12 @@ model Rooms {
 
 model Users {
   /// Users public address
-  id         String   @id @unique @db.VarChar(45) // evm compatible address
-  name       String  @db.VarChar(200)
-  is_admin   Boolean  @default(false) @db.Boolean
-  nonce      String  @db.VarChar(24)
-  created_at DateTime @default(dbgenerated("now()"))
-  updated_at DateTime @default(dbgenerated("now()")) @updatedAt
+  id             String   @id @unique @db.VarChar(45) // evm compatible address
+  name           String   @db.VarChar(200)
+  is_admin       Boolean  @default(false) @db.Boolean
+  nonce          String   @db.VarChar(24)
+  created_at     DateTime @default(dbgenerated("now()"))
+  updated_at     DateTime @default(dbgenerated("now()")) @updatedAt
 
   // Opposite Relations
   RoomParams RoomParams[]
