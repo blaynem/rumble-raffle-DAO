@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { createContainer } from 'unstated-next'
 import { authenticate } from '../lib/wallet'
-import { definitions, PlayerAndRoomInfoType, SupabaseUserType } from '@rumble-raffle-dao/types'
+import { definitions, PlayerAndRoomInfoType } from '@rumble-raffle-dao/types'
 import { ethers } from 'ethers';
 let RaffleSmartContracts;
 if (process.env.NODE_ENV === 'development') {
@@ -11,6 +11,7 @@ if (process.env.NODE_ENV === 'development') {
 import Web3 from 'web3'
 import { fetchPolygonContractABI } from '../pages/api/contracts'
 import useSWR from 'swr'
+import { Prisma } from '.prisma/client';
 
 
 const createEthereumContract = (address, abi) => {
@@ -90,7 +91,7 @@ const checkChain = async (chainId) => {
 }
 
 const useContainer = () => {
-  const { data: user, mutate: mutateUser } = useSWR<SupabaseUserType>('/api/user')
+  const { data: user, mutate: mutateUser } = useSWR<Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>>('/api/user')
 
   useEffect(() => {
     if (window !== undefined) {
@@ -98,7 +99,7 @@ const useContainer = () => {
       // We check if the metamask address is the same as the cookie. if not,
       // we reset the user state so they have to re login
       web3.eth.getCoinbase().then(coinbase => {
-        if (coinbase !== user?.public_address) {
+        if (coinbase !== user?.id) {
           mutateUser(undefined);
         }
       });

@@ -60,7 +60,7 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
   let nextRoundInterval: NodeJS.Timer;
   // console.log('------RumbleRoom', { entrants, prizes, activityLogRounds, activityLogWinners, user, roomInfo });
 
-  const isRoomCreator = roomCreator === user?.public_address;
+  const isRoomCreator = roomCreator === user?.id;
 
   useEffect(() => {
     setDarkMode(preferences?.darkMode);
@@ -206,7 +206,7 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
     }
   }
 
-  const alreadyJoined = entrants.findIndex(entrant => entrant.public_address === user?.public_address) >= 0;
+  const alreadyJoined = entrants.findIndex(entrant => entrant.id === user?.id) >= 0;
 
   // TODO: Redirect them to home if there is no room shown?
   if (!activeRoom) {

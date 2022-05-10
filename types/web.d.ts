@@ -57,7 +57,7 @@ export interface CreateRoomValues {
     prize_third: string;
     prize_creator: string;
   }
-  user: SupabaseUserType
+  user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>
   slug: string,
 }
 

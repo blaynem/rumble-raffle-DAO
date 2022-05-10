@@ -75,7 +75,8 @@ const CreatePage = () => {
   const [contractDetailsLoading, setContractDetailsLoading] = useState(false);
   const [selectedContract, setSelectedContract] = useState(null as GetPolyContractReturnType);
 
-  if (!user || !user.public_address) {
+  console.log(user);
+  if (!user || !user.id) {
     return <AlternativeMessage message="You must login before creating a room." />
   }
 

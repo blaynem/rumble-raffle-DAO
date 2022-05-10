@@ -18,7 +18,7 @@ const Nav = () => {
 
   useEffect(() => {
     setDarkMode(preferences?.darkMode);
-    setLoggedIn(!!user?.public_address);
+    setLoggedIn(!!user?.id);
   }, [preferences?.darkMode, user]);
 
   const userNavigation = [
@@ -48,7 +48,7 @@ const Nav = () => {
                   </button>
                   <Menu.Button className="dark:bg-rumbleSecondary bg-rumblePrimary text-rumbleNone border-l-2 dark:border-rumbleNone border-rumbleOutline px-6 py-4 focus:outline-none focus:ring-2 focus:ring-rumbleSecondary">
                     <span className="sr-only">Open user menu</span>
-                    {loggedIn ? <WalletAddress address={user?.public_address} /> : <WalletConnector />}
+                    {loggedIn ? <WalletAddress address={user?.id} /> : <WalletConnector />}
                   </Menu.Button>
                 </div>
                 <Transition

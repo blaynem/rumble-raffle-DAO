@@ -77,7 +77,7 @@ export type PayoutTemplateType = {
 /**
  * We only want to send these fields back to players.
  */
-export type PickFromPlayers = Pick<definitions["users"], "public_address" | "name">
+export type PickFromPlayers = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name'>
 
 // Used for creating rooms
 export type RoomDataType = {

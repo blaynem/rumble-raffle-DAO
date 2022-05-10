@@ -4,6 +4,7 @@ import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import 'react-popper-tooltip/dist/styles.css';
 import { PickFromPlayers, RoundActivityLog, SingleActivity, SupabaseUserType } from "@rumble-raffle-dao/types";
 import { ClickToCopyPopper } from '../Popper';
+import { Prisma } from '.prisma/client';
 
 const replaceActivityDescPlaceholders = (activity: SingleActivity): (string | JSX.Element)[] => {
   const matchPlayerNumber = /(PLAYER_\d+)/ // matches PLAYER_0, PLAYER_12, etc
@@ -14,7 +15,7 @@ const replaceActivityDescPlaceholders = (activity: SingleActivity): (string | JS
       const index = Number(part.replace('PLAYER_', ''))
       // Gets the name of the player.
       const player = activity.participants[index]
-      return <ClickToCopyPopper key={i} boldText text={player.name} popperText={player.public_address} />
+      return <ClickToCopyPopper key={i} boldText text={player.name} popperText={player.id} />
     }
     return part;
   })
@@ -46,7 +47,7 @@ const DisplayRound = ({ logs, publicAddress }: { logs: RoundActivityLog; publicA
   /**
    * Returns true if the play is present in the array
    */
-  const containsUser = (participants: PickFromPlayers[]) => participants.findIndex(p => p?.public_address === publicAddress) > -1;
+  const containsUser = (participants: PickFromPlayers[]) => participants.findIndex(p => p?.id === publicAddress) > -1;
   return (
     <div key={logs.round_counter} className='w-full'>
       <h3 className='ml-4 border-l-2 dark:border-l-rumbleNone/40 border-l-black text-lg dark:text-rumbleSecondary text-rumblePrimary uppercase font-medium py-2 px-9'>
@@ -67,7 +68,7 @@ const DisplayRound = ({ logs, publicAddress }: { logs: RoundActivityLog; publicA
   )
 }
 
-export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; user: SupabaseUserType }) => {
+export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'> }) => {
   const placementMessage = [
     'Congratulations! 1st place goes to',
     '2nd place',
@@ -80,12 +81,12 @@ export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; 
       </h3>
       <ul>
         {winners.slice(0,3).map((winner, i) => (
-          <Fragment key={winner.public_address}>
+          <Fragment key={winner.id}>
             {i > 0 && <ActivityBreak />}
             <ActivityListItem
               icon={EmojiEventsOutlinedIcon}
-              description={[placementMessage[i], ' ', <ClickToCopyPopper key={winner.public_address} boldText text={winner.name} popperText={winner.public_address} />, '.']}
-              highlight={winner.public_address === user?.public_address}
+              description={[placementMessage[i], ' ', <ClickToCopyPopper key={winner.id} boldText text={winner.name} popperText={winner.id} />, '.']}
+              highlight={winner.id === user?.id}
             />
           </Fragment>
         )
@@ -95,16 +96,16 @@ export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; 
   )
 }
 
-export const DisplayActivityLogs = ({ allActivities, user }: { allActivities: RoundActivityLog[]; user: SupabaseUserType; }) => {
+export const DisplayActivityLogs = ({ allActivities, user }: { allActivities: RoundActivityLog[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>; }) => {
   return <>
-    {allActivities.map((logs, i) => <DisplayRound key={`${logs.round_counter}-${i}`} logs={logs} publicAddress={user?.public_address} />)}
+    {allActivities.map((logs, i) => <DisplayRound key={`${logs.round_counter}-${i}`} logs={logs} publicAddress={user?.id} />)}
   </>
 }
 
-const DisplayEntrantKills = ({ count, entrant: { public_address, name }, user }: { count: number; entrant: PickFromPlayers; user: SupabaseUserType }) => (
-  <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${public_address === user?.public_address ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>
+const DisplayEntrantKills = ({ count, entrant: { id, name }, user }: { count: number; entrant: PickFromPlayers; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'> }) => (
+  <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${id === user?.id ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>
     <div className='flex justify-between'>
-      <ClickToCopyPopper text={name} popperText={public_address} truncate/>
+      <ClickToCopyPopper text={name} popperText={id} truncate/>
       <div>{count}</div>
     </div>
   </li>
@@ -118,24 +119,24 @@ const calcKillCounts = (rounds: RoundActivityLog[]) => {
       if (activity.kill_count === null) {
         return;
       }
-      Object.keys(activity.kill_count).forEach(publicAddress => {
-        if (killCounts[publicAddress]) {
-          killCounts[publicAddress] += activity.kill_count[publicAddress]
+      Object.keys(activity.kill_count).forEach(id => {
+        if (killCounts[id]) {
+          killCounts[id] += activity.kill_count[id]
         } else {
-          activity.kill_count[publicAddress] > 0 && (killCounts[publicAddress] = activity.kill_count[publicAddress]);
+          activity.kill_count[id] > 0 && (killCounts[id] = activity.kill_count[id]);
         }
       })
     })
   })
 
   const killCountArr = Object.keys(killCounts)
-    .map(public_address => ({ public_address, count: killCounts[public_address] }))
+    .map(id => ({ id, count: killCounts[id] }))
     .sort((a, b) => b.count - a.count);
 
   return killCountArr;
 }
 
-export const DisplayKillCount = ({ entrants, rounds, user }: { entrants: PickFromPlayers[]; rounds: RoundActivityLog[]; user: SupabaseUserType; }) => {
+export const DisplayKillCount = ({ entrants, rounds, user }: { entrants: PickFromPlayers[]; rounds: RoundActivityLog[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>; }) => {
   return (
     <div className="mb-8 w-80 py-6 pl-6 border-2 dark:border-rumbleNone border-rumbleOutline">
       <div className="dark:text-rumbleSecondary text-rumblePrimary uppercase text-lg font-medium leading-7 mb-2">Kill Count</div>
@@ -145,8 +146,8 @@ export const DisplayKillCount = ({ entrants, rounds, user }: { entrants: PickFro
             <li className="mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal">No kills yet.</li>
             :
             calcKillCounts(rounds).map(player => {
-              const entrant = entrants.find(e => e.public_address === player.public_address)
-              return <DisplayEntrantKills key={player?.public_address} count={player.count} entrant={entrant} user={user} />
+              const entrant = entrants.find(e => e.id === player.id)
+              return <DisplayEntrantKills key={player?.id} count={player.count} entrant={entrant} user={user} />
             })
         }
       </ul>

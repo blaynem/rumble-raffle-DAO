@@ -37,13 +37,13 @@ export default function PageIndex(props: { user: SupabaseUserType }) {
   }
 
   const handleSubmit = async (values: SettingsTypes) => {
-    return await fetch(`/api/users/${user.public_address}`, {
+    return await fetch(`/api/users/${user.id}`, {
       method: 'POST',
       body: JSON.stringify(values)
     }).then(res => res.json())
   }
 
-  if (!user || !user.public_address) {
+  if (!user || !user.id) {
     return (
       <div className={`text-center ${preferences?.darkMode ? 'dark' : 'light'}`}>
         <div className='dark:bg-black bg-rumbleBgLight w-full mx-auto py-8 px-6 lg:px-[15%] md:px-[10%] sm:px-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark"' style={{ height: 'calc(100vh - 58px)' }}>
