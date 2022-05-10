@@ -130,7 +130,7 @@ export type RoundsType = {
 
 // Type used to initialize the server with any / all rooms available.
 export type OmegaRoomInterface = {
-  players: PickFromUsers[];
+  players: PickFromPlayers[];
   params: definitions['room_params'];
   contract: definitions['contracts'];
   game_activities: RoundsType[];

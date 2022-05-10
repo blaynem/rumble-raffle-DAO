@@ -19,30 +19,30 @@ winners
 
 const InitializeServer = async () => {
   try {
-    const tempData = await prisma.rooms.findMany({
-      where: { Params: { game_completed: false } },
-      select: {
-        id: true,
-        slug: true,
-        Params: {
-          include: {
-            GameLogs: true,
-            Contract: true,
-          },
-          select: {
-            pve_chance: true,
-            revive_chance: true,
-            winners: true,
-            game_started: true,
-            game_completed: true,
-            created_by: true,
-            Players: {
-              select: { User: { select: { id: true, name: true }} }
-            },
-          }
-        }
-      }
-    })
+    // const tempData = await prisma.rooms.findMany({
+    //   where: { Params: { game_completed: false } },
+    //   select: {
+    //     id: true,
+    //     slug: true,
+    //     Params: {
+    //       include: {
+    //         GameLogs: true,
+    //         Contract: true,
+    //       },
+    //       select: {
+    //         pve_chance: true,
+    //         revive_chance: true,
+    //         winners: true,
+    //         game_started: true,
+    //         game_completed: true,
+    //         created_by: true,
+    //         Players: {
+    //           select: { User: { select: { id: true, name: true }} }
+    //         },
+    //       }
+    //     }
+    //   }
+    // })
     const { data, error } = await client.from<OmegaRoomInterface>('rooms')
       .select(omegaFetch)
       .eq('game_completed', false)

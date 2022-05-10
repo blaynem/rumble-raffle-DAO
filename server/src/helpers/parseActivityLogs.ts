@@ -14,7 +14,7 @@ export const parseActivityLogForClient = (gameActivityLogs: GameEndType['gameAct
     // If winner is in round, that means its the WinnerLog.
     if ('winner' in round) {
       [round.winner, ...round.runnerUps]
-        .forEach(player => winners.push({ ...player, public_address: player.id }))
+        .forEach(player => winners.push({ ...player, id: player.id }))
       return;
     };
     const activities: SingleActivity[] = round.activityLog.map(({ activity, activityId, participants, killCount }, index) => ({
@@ -22,7 +22,7 @@ export const parseActivityLogForClient = (gameActivityLogs: GameEndType['gameAct
       description: activity.description,
       environment: activity.environment,
       id: activityId,
-      participants: participants.map(player => gamePlayers.find(p => p.public_address === player)),
+      participants: participants.map(player => gamePlayers.find(p => p.id === player)),
       kill_count: killCount as any,
     }));
     const roundLog: RoundActivityLog = {
@@ -44,7 +44,7 @@ export const parseActivityLogForDbPut = (gameLog: EntireGameLog, room: RoomDataT
     round.activities.forEach((item, index) => {
       const activityInRound: GameRoundLogsOmitId = {
         room_id: room.id,
-        players: item.participants.map(player => player.public_address),
+        players: item.participants.map(player => player.id),
         activity_id: item.id,
         players_remaining: round.players_remaining,
         round_counter: round.round_counter,

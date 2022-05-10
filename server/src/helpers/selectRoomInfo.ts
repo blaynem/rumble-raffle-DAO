@@ -1,4 +1,4 @@
-import { OmegaRoomInterface, RoomDataType, EntireGameLog, PickFromUsers, RoundActivityLog, RoundsType, SingleActivity } from "@rumble-raffle-dao/types";
+import { OmegaRoomInterface, RoomDataType, EntireGameLog, PickFromUsers, RoundActivityLog, RoundsType, SingleActivity, PickFromPlayers } from "@rumble-raffle-dao/types";
 
 /**
  * Finds the player by the publicAddress and returns the player object.
@@ -6,7 +6,7 @@ import { OmegaRoomInterface, RoomDataType, EntireGameLog, PickFromUsers, RoundAc
  * @param players - all players of the game
  * @returns {PickFromUsers} {public_address, name}
  */
- const findPlayerByPubAddress = (pubAddress: string, players: PickFromUsers[]): PickFromUsers => players.find(player => player.public_address === pubAddress)
+ const findPlayerByPubAddress = (pubAddress: string, players: PickFromPlayers[]): PickFromPlayers => players.find(player => player.id === pubAddress)
 
  /**
   * Gets the kill count of a player
@@ -38,7 +38,7 @@ import { OmegaRoomInterface, RoomDataType, EntireGameLog, PickFromUsers, RoundAc
  * @param players - All players that participated in the game
  * @returns {EntireGameLog['rounds']} rounds played in the given game
  */
- const getRoundsData = (allGameActivities: RoundsType[], players: PickFromUsers[]): EntireGameLog['rounds'] => {
+ const getRoundsData = (allGameActivities: RoundsType[], players: PickFromPlayers[]): EntireGameLog['rounds'] => {
   const rounds: EntireGameLog['rounds'] = []
   // Set a temporary round object
   let tempRoundObj: RoundActivityLog = {

@@ -7,6 +7,7 @@ import { getPlayersAndRoomInfo } from "../helpers/getPlayersAndRoomInfo";
 import { getVisibleGameStateForClient } from "../helpers/getVisibleGameStateForClient";
 import startGame from "./startGame";
 import clearGame from "./clearGame";
+import { Prisma } from ".prisma/client";
 
 let io: Server;
 let roomSocket: Socket;
@@ -58,7 +59,7 @@ function joinRoom(roomSlug: string) {
  * On Join Game we want to:
  * - Do things
  */
-async function joinGame(data: { playerData: definitions["users"]; roomSlug: string }) {
+async function joinGame(data: { playerData: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>; roomSlug: string }) {
   try {
     // Will error if the player is already added to the game.
     const { error } = await addPlayer(data.roomSlug, data.playerData);
