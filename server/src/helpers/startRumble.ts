@@ -1,6 +1,6 @@
 import { SetupType } from "@rumble-raffle-dao/rumble/types";
 import { EntireGameLog } from "@rumble-raffle-dao/types";
-import prisma from "../client-temp";
+import prisma from "../client";
 import { getAllActivities } from "../routes/api/activities";
 import { createGame } from "./createRumble";
 import { getGameDataFromDb } from "./getGameDataFromDb";
@@ -20,8 +20,8 @@ import { selectPayoutFromGameData } from "./payoutHelpers";
  */
 export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
   try {
-    const {data: [roomData], error} = await getGameDataFromDb(roomSlug);
-    if (!roomData || roomData.game_completed || roomData.game_started) {
+    const {data: roomData, error} = await getGameDataFromDb(roomSlug);
+    if (!roomData || roomData.params.game_completed || roomData.params.game_started) {
       console.log('---startRumble--ERROR', roomSlug);
       return;
     }
@@ -34,7 +34,7 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
 
     const data = await prisma.players.findMany({
       where: {
-        room_id: roomData.id
+        room_id: roomData.room.id
       },
       select: {
         User: {
@@ -86,7 +86,7 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
     // Update the rooms
     const updateRoomSubmit = await prisma.rooms.update({
       where: {
-        id: roomData.id,
+        id: roomData.room.id,
       },
       data: {
         Params: {
@@ -101,7 +101,7 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
     //   console.error(updateRoomSubmit.error);
     // }
     // Set the game started to true.
-    roomData.game_started = true;
+    roomData.params.game_started = true;
 
     return parsedActivityLog;
   } catch (error) {

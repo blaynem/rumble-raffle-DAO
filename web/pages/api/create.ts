@@ -1,6 +1,14 @@
+import { Prisma } from '.prisma/client';
 import { NextApiRequest, NextApiResponse } from 'next'
 import { BASE_API_URL } from '../../lib/constants';
 import createRoomSchema from '../../lib/schemaValidations/createRoom';
+
+interface CreateRoom {
+  slug: Prisma.RoomsCreateInput['slug']
+  params: Omit<Prisma.RoomParamsCreateInput, 'Creator' | 'Contract'>
+  contract_address: Prisma.ContractsCreateInput['contract_address']
+  createdBy: Prisma.UsersCreateInput['id']
+}
 
 export default async function createRumble(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -8,21 +16,19 @@ export default async function createRumble(req: NextApiRequest, res: NextApiResp
     await createRoomSchema.validate(req.body, { abortEarly: false })
 
     // Need to convert these strings to numbers.
-    const { prize_split, entry_fee, pve_chance, revive_chance, ...restParsed } = JSON.parse(req.body);
-    const paramsToNumbers = {
-      ...restParsed,
-      entry_fee: parseInt(entry_fee, 10),
-      pve_chance: parseInt(pve_chance, 10),
-      revive_chance: parseInt(revive_chance, 10),
-      prize_kills: parseInt(prize_split.prize_kills, 10),
-      prize_alt_split: parseInt(prize_split.prize_alt_split, 10),
-      prize_first: parseInt(prize_split.prize_first, 10),
-      prize_second: parseInt(prize_split.prize_second, 10),
-      prize_third: parseInt(prize_split.prize_third, 10),
-      prize_creator: parseInt(prize_split.prize_creator, 10),
+    const { createdBy, contract_address, pve_chance, revive_chance, slug } = JSON.parse(req.body);
+
+    const createRoomObj: CreateRoom = {
+      slug: slug,
+      contract_address: contract_address,
+      createdBy: createdBy,
+      params: {
+        pve_chance: parseInt(pve_chance, 10),
+        revive_chance: parseInt(revive_chance, 10),
+      },
     }
 
-    const stringedBody = JSON.stringify(paramsToNumbers)
+    const stringedBody = JSON.stringify(createRoomObj)
     // Make the fetch
     const { data, error } = await fetch(`${BASE_API_URL}/api/rooms/create`, {
       body: stringedBody,

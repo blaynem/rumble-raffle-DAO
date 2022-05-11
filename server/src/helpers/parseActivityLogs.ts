@@ -37,13 +37,13 @@ export const parseActivityLogForClient = (gameActivityLogs: GameEndType['gameAct
   };
 }
 
-export const parseActivityLogForDbPut = (gameLog: EntireGameLog, room: RoomDataType): GameRoundLogsOmitId[] => {
+export const parseActivityLogForDbPut = (gameLog: EntireGameLog, data: RoomDataType): GameRoundLogsOmitId[] => {
   const allActivitiesInGame: GameRoundLogsOmitId[] = [];
 
   gameLog.rounds.forEach(round => {
     round.activities.forEach((item, index) => {
       const activityInRound: GameRoundLogsOmitId = {
-        room_id: room.id,
+        room_id: data.room.id,
         players: item.participants.map(player => player.id),
         activity_id: item.id,
         players_remaining: round.players_remaining,

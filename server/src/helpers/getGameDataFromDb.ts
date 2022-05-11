@@ -1,33 +1,49 @@
-import { RoomDataType, OmegaRoomInterface } from "@rumble-raffle-dao/types";
-import client from "../client";
+import { RoomDataType } from "@rumble-raffle-dao/types";
+import prisma from "../client";
 import { selectRoomInfo } from "./selectRoomInfo";
 
-const omegaFetch = `
-id,
-players:users!players(public_address, name),
-params:params_id(*),
-slug,
-contract:contract_id(*),
-game_started,
-game_completed,
-created_by,
-game_activities: game_round_logs(*, activity:activity_id(*)),
-winners
-`
-
-export const getGameDataFromDb = async (slug: string): Promise<{ data: RoomDataType[]; error: any; }> => {
+export const getGameDataFromDb = async (slug: string): Promise<{ data: RoomDataType | null; error: any; }> => {
   try {
-    const { data, error } = await client.from<OmegaRoomInterface>('rooms').select(omegaFetch).eq('slug', slug)
-    if (error) {
-      return { data: [], error: error }
+    const data = await prisma.rooms.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        slug: true,
+        params_id: true,
+        Params: {
+          select: {
+            id: true,
+            pve_chance: true,
+            revive_chance: true,
+            winners: true,
+            game_started: true,
+            game_completed: true,
+            created_by: true,
+            Players: {
+              select: { User: { select: { id: true, name: true } } }
+            },
+            GameLogs: {
+              include: {
+                Activity: true
+              }
+            },
+          }
+        }
+      }
+    })
+
+    const { Params: { Players, GameLogs, ...restParams }, ...restRoomData } = data
+    const roomInfo: RoomDataType = {
+      room: restRoomData,
+      params: restParams,
+      players: Players.map(player => player.User),
+      gameLogs: GameLogs
     }
-    if (data.length < 1) {
-      return { data: [], error: null }
-    }
-    const roomToAdd = selectRoomInfo(data[0])
-    return { data: [roomToAdd], error: null }
+    const roomToAdd = selectRoomInfo(roomInfo)
+    console.log(roomToAdd);
+    return { data: roomToAdd, error: null }
   } catch (error) {
     console.error('Server: Fetch by slug', error);
-    return { data: [], error: error }
+    return { data: null, error: error }
   }
 }

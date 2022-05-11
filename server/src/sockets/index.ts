@@ -1,12 +1,11 @@
 import { Server, Socket } from "socket.io";
 import availableRoomsData from '../helpers/roomRumbleData';
-import { definitions } from '@rumble-raffle-dao/types'
 import { CLEAR_GAME, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, START_GAME, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { addPlayer } from "../helpers/addPlayer";
 import { getPlayersAndRoomInfo } from "../helpers/getPlayersAndRoomInfo";
 import { getVisibleGameStateForClient } from "../helpers/getVisibleGameStateForClient";
 import startGame from "./startGame";
-import clearGame from "./clearGame";
+// import clearGame from "./clearGame";
 import { Prisma } from ".prisma/client";
 
 let io: Server;
@@ -23,7 +22,7 @@ export const initRoom = (sio: Server, socket: Socket) => {
   // join_game will enter a player into a game.
   roomSocket.on(JOIN_GAME, joinGame);
   roomSocket.on(START_GAME, (args) => startGame(io, args))
-  roomSocket.on(CLEAR_GAME, (args) => clearGame(io, args))
+  // roomSocket.on(CLEAR_GAME, (args) => clearGame(io, args))
 }
 
 /**
@@ -44,7 +43,7 @@ function joinRoom(roomSlug: string) {
     console.log(`User with ID: ${this.id} joined room: ${roomSlug}`);
     const playersAndRoomInfo = getPlayersAndRoomInfo(roomSlug);
     io.to(this.id).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
-    if (roomData.game_started) {
+    if (roomData.params.game_started) {
       const { visibleRounds, winners } = getVisibleGameStateForClient(roomData, gameState);
       // Limit this to whatever current logs are being shown.
       io.to(this.id).emit(UPDATE_ACTIVITY_LOG_ROUND, visibleRounds);

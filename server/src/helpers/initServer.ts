@@ -1,57 +1,38 @@
 import { addNewRoomToMemory } from "./roomRumbleData";
-import client from "../client";
-import { OmegaRoomInterface } from '@rumble-raffle-dao/types';
-import { selectRoomInfo } from "./selectRoomInfo";
-import prisma from "../client-temp";
-
-const omegaFetch = `
-id,
-players:users!players(public_address, name),
-params:params_id(*),
-slug,
-contract:contract_id(*),
-game_started,
-game_completed,
-created_by,
-game_activities: game_round_logs(*, activity:activity_id(*)),
-winners
-`
+import { RoomDataType } from '@rumble-raffle-dao/types';
+import prisma from "../client";
 
 const InitializeServer = async () => {
   try {
-    // const tempData = await prisma.rooms.findMany({
-    //   where: { Params: { game_completed: false } },
-    //   select: {
-    //     id: true,
-    //     slug: true,
-    //     Params: {
-    //       include: {
-    //         GameLogs: true,
-    //         Contract: true,
-    //       },
-    //       select: {
-    //         pve_chance: true,
-    //         revive_chance: true,
-    //         winners: true,
-    //         game_started: true,
-    //         game_completed: true,
-    //         created_by: true,
-    //         Players: {
-    //           select: { User: { select: { id: true, name: true }} }
-    //         },
-    //       }
-    //     }
-    //   }
-    // })
-    const { data, error } = await client.from<OmegaRoomInterface>('rooms')
-      .select(omegaFetch)
-      .eq('game_completed', false)
-    if (error) {
-      console.error('---error', error);
-      return;
-    }
+    const data = await prisma.rooms.findMany({
+      where: { Params: { game_completed: false } },
+      select: {
+        id: true,
+        slug: true,
+        params_id: true,
+        Params: {
+          select: {
+            id: true,
+            pve_chance: true,
+            revive_chance: true,
+            winners: true,
+            game_started: true,
+            game_completed: true,
+            created_by: true,
+            Players: {
+              select: { User: { select: { id: true, name: true } } }
+            },
+          }
+        }
+      }
+    })
     data.forEach(room => {
-      const roomToAdd = selectRoomInfo(room)
+      const { Params: { Players, ...restParams }, ...restRoomData } = room
+      const roomToAdd: RoomDataType = {
+        room: restRoomData,
+        params: restParams,
+        players: Players.map(player => player.User)
+      }
       addNewRoomToMemory(roomToAdd);
     })
   } catch (error) {

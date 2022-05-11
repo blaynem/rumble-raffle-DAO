@@ -1,6 +1,5 @@
 import { Prisma } from ".prisma/client";
-import { PostgrestError } from "@supabase/supabase-js";
-import prisma from "../client-temp";
+import prisma from "../client";
 import availableRoomsData from "./roomRumbleData";
 
 /**
@@ -19,7 +18,7 @@ export const addPlayer = async (
   playerData: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>
 ): Promise<{
   data?: Pick<Prisma.PlayersGroupByOutputType, 'room_id' | 'slug' | 'player' | 'time_joined'>;
-  error?: PostgrestError | string;
+  error?: any | string;
 }> => {
   const { roomData } = availableRoomsData[roomSlug];
   if (!roomData) {
@@ -30,7 +29,7 @@ export const addPlayer = async (
   }
 
   const data = await prisma.players.create({
-    data: { room_id: roomData.id, player: playerData.id, slug: roomSlug }
+    data: { room_id: roomData.room.id, player: playerData.id, slug: roomSlug }
   })
   // if (error) {
   //   // If error, we return the error.

@@ -1,6 +1,6 @@
 import { SetupType, ActivityTypes } from '@rumble-raffle-dao/rumble/types';
 import express from 'express';
-import prisma from '../../client-temp';
+import prisma from '../../client';
 
 const router = express.Router();
 

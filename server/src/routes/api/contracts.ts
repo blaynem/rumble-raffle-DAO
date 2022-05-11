@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import prisma from '../../client-temp';
+import prisma from '../../client';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()

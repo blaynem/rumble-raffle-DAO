@@ -1,68 +1,102 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { RoomDataType } from '@rumble-raffle-dao/types';
-import { addNewRoomToMemory } from '../../helpers/roomRumbleData';
 import { getGameDataFromDb } from '../../helpers/getGameDataFromDb';
-import prisma from '../../client-temp';
+import prisma from '../../client';
+import { Prisma } from '.prisma/client';
+import { addNewRoomToMemory } from '../../helpers/roomRumbleData';
+import { RoomDataType } from '@rumble-raffle-dao/types';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
+
+// {
+// 	"createdBy": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+// 	"params": {
+// 		"pve_chance": 12,
+// 		"revive_chance": 3
+// 	},
+// 	"slug": "TestRoom",
+// 	"contract_address": "0x8f06208951E202d30769f50FAec22AEeC7621BE2"
+// }
+
+interface CreateRoom {
+  slug: Prisma.RoomsCreateInput['slug']
+  params: Omit<Prisma.RoomParamsCreateInput, 'Creator' | 'Contract'>
+  contract_address: Prisma.ContractsCreateInput['contract_address']
+  createdBy: Prisma.UsersCreateInput['id']
+}
+
+interface RequestBody extends express.Request {
+  body: CreateRoom
+}
 
 /**
  * Flow of creating a room
  * - Create `room_params` entry
  * - Create `room` entry
  */
-router.post('/create', jsonParser, async (req: any, res: any) => {
+router.post('/create', jsonParser, async (req: RequestBody, res: express.Response) => {
   try {
-    const { contract, user, ...restReqBody } = req.body;
-    const userData = await prisma.users.findUnique({ where: { id: user.id } })
+    const { slug, params, contract_address, createdBy } = req.body;
+    const userData = await prisma.users.findUnique({ where: { id: createdBy } })
     // If they aren't an admin, we say no.
     if (!userData?.is_admin) {
       res.status(401).json({ error: 'Only admin may create rooms at this time.' })
       return;
     }
-    const contract_id = contract.contract_address;
-    const created_by = user.id;
 
-    const paramsBody = {
-      ...restReqBody,
-      created_by,
-      contract_id
-    }
-    // Insert room_param
-    const data = await prisma.rooms.upsert({
-      where: { slug: restReqBody.slug },
-      // If a room with the given slug hasn't been created, we create the room + the RoomParams as well
-      create: {
-        slug: restReqBody.slug,
-        Params: {
-          create: paramsBody
+    const dataToChange = {
+      Params: {
+        create: {
+          ...params,
+          Creator: {
+            connect: {
+              id: createdBy
+            }
+          },
+          Contract: {
+            connect: {
+              contract_address
+            }
+          }
         }
+      }
+    }
+    // Difference between the `update` and `create` here is only the `slug`.
+    const roomData = await prisma.rooms.upsert({
+      where: {
+        slug,
       },
-      // If the room has been created already, then we are creating a new RoomParams to use
       update: {
+        ...dataToChange
+      },
+      create: {
+        slug,
+        ...dataToChange
+      },
+      include: {
         Params: {
-          create: paramsBody
+          include: {
+            Contract: true,
+          }
         }
       }
     })
-    // If room is created, we add it to memory.
-    const roomData: RoomDataType = {
-      created_by,
-      contract: contract,
-      gameData: null,
-      game_completed: false,
-      game_started: false,
-      id: data.id,
-      params: paramsBody,
+
+    
+    const {Params: { Contract, ...restParams }, ...restRoomData } = roomData
+    const mapRoomData: RoomDataType = {
+      room: restRoomData,
+      params: restParams,
+      contract: Contract,
       players: [],
-      slug: restReqBody.slug,
-    };
-    addNewRoomToMemory(roomData);
-    res.json({ data });
+    }
+
+    addNewRoomToMemory(mapRoomData);
+    res.json({ data: roomData });
   } catch (error) {
     console.error('Server: /rooms/create', error);
+    res.status(400).json({ error: 'Something went wrong when creating the room.' })
   }
 })
 

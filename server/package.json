@@ -4,14 +4,13 @@
   "private": true,
   "main": "index.ts",
   "scripts": {
-    "server": "NODE_ENV=development ts-node-dev index.ts",
+    "server": "NODE_ENV=development ts-node-dev --respawn --transpile-only --exit-child --watch src index.ts",
     "start": "NODE_ENV=production ts-node-dev index.ts"
   },
   "dependencies": {
     "@rumble-raffle-dao/rumble": "0.1.0",
     "@rumble-raffle-dao/smart-contracts": "0.1.0",
     "@rumble-raffle-dao/types": "0.1.0",
-    "@supabase/supabase-js": "^1.31.1",
     "body-parser": "^1.19.2",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",

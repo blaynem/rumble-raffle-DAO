@@ -81,7 +81,7 @@ model Players {
   slug        String   @db.VarChar()
   time_joined DateTime @default(dbgenerated("now()"))
   // Has Relations
-  room_id     String   @db.Uuid
+  room_id     String   @db.Uuid /// Is actually the room_params id, not rooms.
   player      String   @db.VarChar(45) // evm compatible address
 
   // Define Relations
@@ -94,8 +94,8 @@ model Players {
 
 model RoomParams {
   id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  pve_chance     Int?
-  revive_chance  Int?
+  pve_chance     Int
+  revive_chance  Int
   created_at     DateTime @default(dbgenerated("now()"))
   updated_at     DateTime @default(dbgenerated("now()")) @updatedAt
   game_started   Boolean? @default(false)

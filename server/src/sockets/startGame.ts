@@ -1,7 +1,7 @@
 import { Prisma } from ".prisma/client";
 import { GAME_COMPLETED, GAME_START_COUNTDOWN, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER } from "@rumble-raffle-dao/types/constants";
 import { Server } from "socket.io";
-import prisma from "../client-temp";
+import prisma from "../client";
 import { getVisibleGameStateForClient } from "../helpers/getVisibleGameStateForClient";
 import availableRoomsData from "../helpers/roomRumbleData";
 import { startRumble } from "../helpers/startRumble";
@@ -30,7 +30,7 @@ const dripGameDataOnDelay = (io: Server, roomSlug: string) => {
         gameState.showWinners = true;
         // Update the rooms completed state to true.
         const updateRoomSubmit = await prisma.rooms.update({
-          where: { id: roomData.id },
+          where: { id: roomData.room.id },
           data: { Params: { update: { game_completed: true } } }
         })
         // Log any errors from changing game to completed
@@ -83,12 +83,12 @@ async function startGame(io: Server, data: { playerData: Prisma.UsersCreateInput
       return;
     }
     // Only let the room owner start the game.
-    if (data.playerData?.id !== roomData.created_by) {
+    if (data.playerData?.id !== roomData.params.created_by) {
       console.warn(`${data.playerData?.id} tried to start a game they are not the owner of.`);
       return;
     }
     // Game already started, do nothing about it.
-    if (!roomData || roomData.game_started || roomData.game_completed || roomData.players.length < 1) {
+    if (!roomData || roomData.params.game_started || roomData.params.game_completed || roomData.players.length < 1) {
       console.log('---startGame--ERROR', data.roomSlug);
       return;
     }
