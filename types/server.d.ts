@@ -83,14 +83,14 @@ export interface RoomDataType {
   room: Pick<Prisma.RoomsGroupByOutputType, 'id' | 'slug' | 'params_id'>
   params: Pick<Prisma.RoomParamsGroupByOutputType, 'game_completed' | 'game_started' | 'id' | 'pve_chance' | 'revive_chance' | 'winners' | 'created_by'>
   players: PickFromPlayers[]
-  gameLogs?: (
+  gameLogs: (
     Pick<Prisma.GameRoundLogsGroupByOutputType, 'activity_id' | 'round_counter' | 'activity_order' | 'participants' | 'players_remaining'>
     & {
       Activity: Pick<Prisma.ActivitiesGroupByOutputType, 'activityLoser' | 'activityWinner' | 'killCounts' | 'environment' | 'amountOfPlayers' | 'description'>
     }
   )[]
-  contract?: Omit<Prisma.ContractsGroupByOutputType, '_count' | '_min' | '_max' | '_avg' | '_sum'>
-  gameData?: EntireGameLog | null;
+  contract: Omit<Prisma.ContractsGroupByOutputType, '_count' | '_min' | '_max' | '_avg' | '_sum' | 'created_at' | 'updated_at'>
+  gameData: EntireGameLog | null;
 }
 
 // Used for a single round within a game

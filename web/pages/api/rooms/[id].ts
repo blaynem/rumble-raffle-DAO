@@ -8,9 +8,9 @@ export default async function fetchRooms(req: NextApiRequest, res: NextApiRespon
     res.status(404).json({ error })
     return;
   }
-  if (data.length > 0) {
+  if (data !== null) {
     res.status(200).json({ data, error: null })
     return;
   }
-  res.status(404).json({ error: 'There are no rooms matching this slug.', data: [] })
+  res.status(404).json({ error: 'There are no rooms matching this slug.', data: null })
 }

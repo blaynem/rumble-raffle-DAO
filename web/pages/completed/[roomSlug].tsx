@@ -21,7 +21,7 @@ export const getServerSideProps = withSessionSsr(async ({ req, query }): Promise
   return {
     props: {
       user: user || null,
-      roomData: data.length > 0 ? data[0] : null,
+      roomData: data,
       error
     }
   }
@@ -38,13 +38,13 @@ const RumbleRoom = ({ roomData, error }: ServerSidePropsType) => {
 
   useEffect(() => {
     // If the game hasn't been completed, push them there.
-    if (!roomData.game_completed) {
-      router.push(`/room/${roomData.slug}`);
+    if (!roomData.params.game_completed) {
+      router.push(`/room/${roomData.room.slug}`);
       return;
     }
   })
 
-  if (error || !roomData.game_completed) {
+  if (error || !roomData.params.game_completed) {
     return (
       <div className={`${darkMode ? 'dark' : 'light'}`} >
         <div className="flex justify-center dark:bg-rumbleOutline bg-rumbleBgLight" style={{ height: 'calc(100vh - 58px)' }}>

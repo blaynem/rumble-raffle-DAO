@@ -28,15 +28,14 @@ export type ServerSidePropsType = {
 
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }): Promise<{ props: ServerSidePropsType }> => {
   const { user } = req.session
-  const { data }: { data: RoomDataType[] } = await fetch(`${BASE_WEB_URL}/api/rooms/${query.roomSlug}`).then(res => res.json())
+  const { data }: { data: RoomDataType } = await fetch(`${BASE_WEB_URL}/api/rooms/${query.roomSlug}`).then(res => res.json())
   
-  const roomData = data[0];
   return {
     props: {
-      activeRoom: data.length > 0,
-      game_completed: roomData?.game_completed || null,
-      game_started: roomData?.game_started || null,
-      roomCreator: roomData?.created_by || null,
+      activeRoom: data !== null,
+      game_completed: data?.params.game_completed || null,
+      game_started: data?.params.game_started || null,
+      roomCreator: data?.params.created_by || null,
       roomSlug: query.roomSlug,
       user: user || null,
     }

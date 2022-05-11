@@ -90,6 +90,8 @@ router.post('/create', jsonParser, async (req: RequestBody, res: express.Respons
       params: restParams,
       contract: Contract,
       players: [],
+      gameData: null,
+      gameLogs: []
     }
 
     addNewRoomToMemory(mapRoomData);

@@ -27,20 +27,26 @@ export const getGameDataFromDb = async (slug: string): Promise<{ data: RoomDataT
                 Activity: true
               }
             },
+            Contract: true
           }
         }
       }
     })
 
-    const { Params: { Players, GameLogs, ...restParams }, ...restRoomData } = data
+    if (data === null) {
+      return { data: null, error: null }
+    }
+
+    const { Params: { Players, GameLogs, Contract, ...restParams }, ...restRoomData } = data
     const roomInfo: RoomDataType = {
       room: restRoomData,
       params: restParams,
       players: Players.map(player => player.User),
-      gameLogs: GameLogs
+      gameLogs: GameLogs,
+      gameData: null,
+      contract: Contract
     }
     const roomToAdd = selectRoomInfo(roomInfo)
-    console.log(roomToAdd);
     return { data: roomToAdd, error: null }
   } catch (error) {
     console.error('Server: Fetch by slug', error);

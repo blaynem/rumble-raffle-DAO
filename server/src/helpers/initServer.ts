@@ -22,16 +22,20 @@ const InitializeServer = async () => {
             Players: {
               select: { User: { select: { id: true, name: true } } }
             },
+            Contract: true
           }
         }
       }
     })
     data.forEach(room => {
-      const { Params: { Players, ...restParams }, ...restRoomData } = room
+      const { Params: { Players, Contract, ...restParams }, ...restRoomData } = room
       const roomToAdd: RoomDataType = {
         room: restRoomData,
         params: restParams,
-        players: Players.map(player => player.User)
+        players: Players.map(player => player.User),
+        contract: Contract,
+        gameData: null,
+        gameLogs: []
       }
       addNewRoomToMemory(roomToAdd);
     })
