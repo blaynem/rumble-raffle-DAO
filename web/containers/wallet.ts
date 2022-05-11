@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { createContainer } from 'unstated-next'
 import { authenticate } from '../lib/wallet'
-import { definitions, PlayerAndRoomInfoType } from '@rumble-raffle-dao/types'
+import { PlayerAndRoomInfoType } from '@rumble-raffle-dao/types'
 import { ethers } from 'ethers';
 let RaffleSmartContracts;
 if (process.env.NODE_ENV === 'development') {
@@ -23,7 +23,7 @@ const createEthereumContract = (address, abi) => {
   return transactionsContract;
 };
 
-const getContractDetails = async (contractDetails: Pick<definitions['contracts'], 'chain_id' | 'contract_address'>) => {
+const getContractDetails = async (contractDetails: Pick<Prisma.ContractsGroupByOutputType, 'chain_id' | 'contract_address'>) => {
   let rumbleContractAddress = process.env.RUMBLE_CONTRACT_ADDRESS;
   let rumbleContract;
   let tokenContract;
@@ -156,7 +156,7 @@ const useContainer = () => {
   }
 
   
-  const payWinners = async (contractDetails: Pick<definitions['contracts'], 'chain_id' | 'contract_address'>, payments: {
+  const payWinners = async (contractDetails: Pick<Prisma.ContractsGroupByOutputType, 'chain_id' | 'contract_address'>, payments: {
     public_address: string;
     amount: string;
     token_address: string;

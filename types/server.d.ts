@@ -1,4 +1,3 @@
-import { definitions } from "./supabase";
 import { Prisma } from '.prisma/client'
 
 // All players, and the necessary room info
@@ -6,8 +5,8 @@ export type PlayerAndRoomInfoType = {
   allPlayers: PickFromPlayers[];
   // Creator, tokenContract, tokenNetwork
   roomInfo: {
-    contract: Pick<definitions['contracts'], 'contract_address' | 'network_name' | 'symbol' | 'chain_id'>;
-    params: Pick<definitions['room_params'], 'created_by' | 'pve_chance' | 'revive_chance'>;
+    contract: Pick<Prisma.ContractsGroupByOutputType, 'contract_address' | 'network_name' | 'symbol' | 'chain_id'>;
+    params: Pick<Prisma.RoomParamsGroupByOutputType, 'created_by' | 'pve_chance' | 'revive_chance'>;
   }
 }
 
@@ -68,11 +67,11 @@ export type PayoutTemplateType = {
   /**
    * Reason for the payment
    */
-  payment_reason: definitions['payouts']['payment_reason'];
+  payment_reason: Prisma.PayoutsGroupByOutputType['payment_reason'];
   /**
    * Notes to help determine reason later
    */
-  notes: definitions['payouts']['notes']
+  notes: Prisma.PayoutsGroupByOutputType['notes']
 }
 
 /**
@@ -103,7 +102,7 @@ export type RoundsType = (
 )
 
 // All of the game_round_logs types, omitting the id
-export type GameRoundLogsOmitId = Omit<definitions['game_round_logs'], 'id'>
+export type GameRoundLogsOmitId = Omit<Prisma.GameRoundLogsGroupByOutputType, 'id' | 'created_at' | '_count' | '_avg' | '_sum' | '_min' | '_max'>
 
 // The entire games log.
 export type EntireGameLog = {

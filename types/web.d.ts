@@ -1,4 +1,3 @@
-import { definitions } from "./supabase";
 
 export type PolygonscanResponseType = {
   status: string;
@@ -60,6 +59,3 @@ export interface CreateRoomValues {
   user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>
   slug: string,
 }
-
-// Used to pick the name, nonce, and public_address
-export type SupabaseUserType = Pick<definitions['users'], 'name' | 'nonce' | 'public_address' | 'is_admin'>

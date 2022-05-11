@@ -24,13 +24,10 @@ export const getAllActivities = async () => {
     const pveData = await prisma.activities.findMany({ where: { environment: 'PVE' } })
     const pvpData = await prisma.activities.findMany({ where: { environment: 'PVP' } })
     const reviveData = await prisma.activities.findMany({ where: { environment: 'REVIVE' } })
-    // const { data: pveData, error: pveError } = await client.from<definitions['activities']>('activities').select(`*`).eq('environment', 'PVE')
-    // const { data: pvpData, error: pvpError } = await client.from<definitions['activities']>('activities').select(`*`).eq('environment', 'PVP')
-    // const { data: reviveData, error: reviveError } = await client.from<definitions['activities']>('activities').select(`*`).eq('environment', 'REVIVE')
     // if (pveError || pvpError || reviveError) {
     //   error = 'Error when fetching activities tables.'
     // }
-    // Type casting this because number[] are returning as unknown[] from definitions.
+    // Type casting this because number[] are returning as unknown[] from supabase.
     const data: SetupType['activities'] = {
       PVE: pveData as ActivityTypes[],
       PVP: pvpData as ActivityTypes[],

@@ -44,7 +44,7 @@ export const parseActivityLogForDbPut = (gameLog: EntireGameLog, data: RoomDataT
     round.activities.forEach((item, index) => {
       const activityInRound: GameRoundLogsOmitId = {
         room_id: data.room.id,
-        players: item.participants.map(player => player.id),
+        participants: item.participants.map(player => player.id),
         activity_id: item.id,
         players_remaining: round.players_remaining,
         round_counter: round.round_counter,

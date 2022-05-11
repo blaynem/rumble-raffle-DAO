@@ -1,7 +1,7 @@
-import { definitions } from "@rumble-raffle-dao/types";
+import client from "../client";
+// import { definitions } from "@rumble-raffle-dao/types";
 // import { UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER } from "@rumble-raffle-dao/types/constants";
 // import { Server } from "socket.io";
-// import client from "../client";
 // import availableRoomsData, { defaultGameState } from "../helpers/roomRumbleData";
 
 // //TODO: MUST ADD THE LOGS BACK TO THE availableRoomsData CUZ OTHERWISE THINGS KILL
