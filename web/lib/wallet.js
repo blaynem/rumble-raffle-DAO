@@ -3,7 +3,7 @@ import { NONCE_MESSAGE } from './constants'
 
 let web3 = undefined
 export const getCookie = ({ id, signature }) =>
-  fetch(`/api/auth`, {
+  fetch(`/api/auth/login`, {
     body: JSON.stringify({ id, signature }),
     headers: {
       'Content-Type': 'application/json'
@@ -58,7 +58,7 @@ export const authenticate = async onLoggedIn => {
     .then(response => response.json())
     // Popup MetaMask confirmation modal to sign message
     .then(handleSignMessage)
-    // Send signature to backend on the /auth route to get cookie
+    // Send signature to backend on the /auth/login route to get cookie
     .then(getCookie)
     // Pass accessToken back to parent component (to save it in cookies)
     .then(onLoggedIn)

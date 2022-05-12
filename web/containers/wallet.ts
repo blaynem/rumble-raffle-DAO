@@ -90,17 +90,25 @@ const checkChain = async (chainId) => {
   }
 }
 
+const emptyUserObj = {
+  id: null,
+  name: null,
+  nonce: null,
+  is_admin: false,
+}
+
 const useContainer = () => {
-  const { data: user, mutate: mutateUser } = useSWR<Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>>('/api/user')
+  const { data: user, mutate: mutateUser } = useSWR<Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>>('/api/auth/user')
 
   useEffect(() => {
     if (window !== undefined) {
       const web3 = new Web3((window as any).ethereum)
       // We check if the metamask address is the same as the cookie. if not,
       // we reset the user state so they have to re login
-      web3.eth.getCoinbase().then(coinbase => {
+      web3.eth.getCoinbase().then(async coinbase => {
         if (coinbase !== user?.id) {
-          mutateUser(undefined);
+          await fetch(`/api/auth/logout`);
+          mutateUser(emptyUserObj);
         }
       });
     }
@@ -110,18 +118,19 @@ const useContainer = () => {
     mutateUser({...user, name});
   }
 
-  const logout = () => {
-    mutateUser(undefined);
+  const logout = async () => {
+    await fetch(`/api/auth/logout`);
+    mutateUser(emptyUserObj);
   }
 
   const doAuth = () => {
-    authenticate((authResponse) => {
+    authenticate((userCookie) => {
       // If there's an error, let's display it.
-      if (authResponse?.error) {
-        window.alert(authResponse?.error);
+      if (userCookie?.error) {
+        window.alert(userCookie?.error);
         return;
       }
-      mutateUser(authResponse)
+      mutateUser(userCookie)
     })
   }
 

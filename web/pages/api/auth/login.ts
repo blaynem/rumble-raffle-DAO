@@ -1,12 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { recoverPersonalSignature } from 'eth-sig-util'
 import { bufferToHex } from 'ethereumjs-util'
-import { withSessionRoute } from '../../lib/with-session'
-import { NONCE_MESSAGE } from '../../lib/constants'
-import prisma from '../../client';
+import { withSessionRoute } from '../../../lib/with-session'
+import { NONCE_MESSAGE } from '../../../lib/constants'
+import prisma from '../../../client';
 
 async function auth(req: NextApiRequest, res: NextApiResponse) {
-  const { signature, id} = req.body
+  const { signature, id } = req.body
   if (!signature || !id) {
     return res.status(400).json({ error: 'Request should have signature and id (public_address)' })
   }
@@ -45,9 +45,11 @@ async function auth(req: NextApiRequest, res: NextApiResponse) {
   // The signature verification is successful if the address found with
   // sigUtil.recoverPersonalSignature matches the initial public_address
   if (address.toLowerCase() === id.toLowerCase()) {
-    // return user
+    // sets the user object on ironsession
     req.session.user = user
+    // Saves the session and sets the cookie header to be sent once the response is sent.
     await req.session.save()
+    // returns user cookie details
     res.status(200).json(user)
   } else {
     res.status(401).json({
