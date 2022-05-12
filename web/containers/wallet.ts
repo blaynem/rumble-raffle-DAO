@@ -106,7 +106,8 @@ const useContainer = () => {
       // We check if the metamask address is the same as the cookie. if not,
       // we reset the user state so they have to re login
       web3.eth.getCoinbase().then(async coinbase => {
-        if (coinbase !== user?.id) {
+        const userCookie = (await fetch(`/api/auth/user`).then(res => res.json()));
+        if (coinbase !== userCookie?.id) {
           await fetch(`/api/auth/logout`);
           mutateUser(emptyUserObj);
         }

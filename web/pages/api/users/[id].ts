@@ -44,6 +44,7 @@ async function usersHandler(req: ExtendedNextAPIRequest, res: NextApiResponse<Re
     //   res.status(401).json({ error: 'Something went wrong in updating the user.' })
     // }
 
+    // Update the ironsession user data
     req.session.user = user
     await req.session.save()
 
