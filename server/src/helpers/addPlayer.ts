@@ -17,7 +17,7 @@ export const addPlayer = async (
   roomSlug: string,
   playerData: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>
 ): Promise<{
-  data?: Pick<Prisma.PlayersGroupByOutputType, 'room_id' | 'slug' | 'player' | 'time_joined'>;
+  data?: Pick<Prisma.PlayersGroupByOutputType, 'room_params_id' | 'slug' | 'player' | 'time_joined'>;
   error?: any | string;
 }> => {
   const { roomData } = availableRoomsData[roomSlug];
@@ -28,8 +28,9 @@ export const addPlayer = async (
     return { error: 'reached max players' }
   }
 
+  console.log(roomData);
   const data = await prisma.players.create({
-    data: { room_id: roomData.room.id, player: playerData.id, slug: roomSlug }
+    data: { room_params_id: roomData.room.params_id, player: playerData.id, slug: roomSlug }
   })
   // if (error) {
   //   // If error, we return the error.

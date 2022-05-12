@@ -18,7 +18,7 @@ model Activities {
   description     String
   amountOfPlayers Int
   activityLoser   Int[]
-  killCounts      Int[]
+  killCounts      Decimal[]
   created_at      DateTime    @default(dbgenerated("now()"))
   environment     Environment
   activityWinner  Int[]
@@ -51,11 +51,11 @@ model GameRoundLogs {
   participants      String[]
   // Has Relations
   activity_id       String   @db.Uuid
-  room_id           String   @db.Uuid
+  room_params_id    String   @db.Uuid
 
   // Define Relations
   Activity   Activities @relation(fields: [activity_id], references: [id])
-  RoomParams RoomParams @relation(fields: [room_id], references: [id])
+  RoomParams RoomParams @relation(fields: [room_params_id], references: [id])
 }
 
 model Payouts {
@@ -66,30 +66,30 @@ model Payouts {
   notes                    String
   created_at               DateTime      @default(dbgenerated("now()"))
   payment_completed        Boolean       @default(false)
-  payment_completed_at     DateTime      @updatedAt
-  payment_transaction_hash String
+  payment_completed_at     DateTime?     @updatedAt
+  payment_transaction_hash String?
   // Has Relations
-  room_id                  String        @db.Uuid
+  room_params_id           String        @db.Uuid
   payment_contract_id      String        @db.VarChar(45)
 
   // Define Relations
-  RoomParams      RoomParams @relation(fields: [room_id], references: [id])
+  RoomParams      RoomParams @relation(fields: [room_params_id], references: [id])
   PaymentContract Contracts  @relation(fields: [payment_contract_id], references: [contract_address])
 }
 
 model Players {
-  slug        String   @db.VarChar()
-  time_joined DateTime @default(dbgenerated("now()"))
+  slug           String   @db.VarChar()
+  time_joined    DateTime @default(dbgenerated("now()"))
   // Has Relations
-  room_id     String   @db.Uuid /// Is actually the room_params id, not rooms.
-  player      String   @db.VarChar(45) // evm compatible address
+  room_params_id String   @db.Uuid /// Is actually the room_params id, not rooms.
+  player         String   @db.VarChar(45) // evm compatible address
 
   // Define Relations
-  RoomParams RoomParams @relation(fields: [room_id], references: [id])
+  RoomParams RoomParams @relation(fields: [room_params_id], references: [id])
   User       Users      @relation(fields: [player], references: [id])
 
-  @@id([room_id, player])
-  @@unique([room_id, player])
+  @@id([room_params_id, player])
+  @@unique([room_params_id, player])
 }
 
 model RoomParams {

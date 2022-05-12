@@ -58,16 +58,17 @@ function joinRoom(roomSlug: string) {
  * On Join Game we want to:
  * - Do things
  */
-async function joinGame(data: { playerData: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>; roomSlug: string }) {
+async function joinGame(joinData: { playerData: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>; roomSlug: string }) {
   try {
     // Will error if the player is already added to the game.
-    const { error } = await addPlayer(data.roomSlug, data.playerData);
+    const { data, error } = await addPlayer(joinData.roomSlug, joinData.playerData);
+
     if (error) {
       io.to(this.id).emit(JOIN_GAME_ERROR, error);
       return;
     }
-    const playersAndRoomInfo = getPlayersAndRoomInfo(data.roomSlug);
-    io.in(data.roomSlug).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
+    const playersAndRoomInfo = getPlayersAndRoomInfo(joinData.roomSlug);
+    io.in(joinData.roomSlug).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
   } catch (error) {
     console.error('Server: joinGame', 'error')
   }

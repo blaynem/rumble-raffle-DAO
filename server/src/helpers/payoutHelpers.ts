@@ -28,7 +28,7 @@ export const payoutTemplate = ({ room, public_address, payment_amount, payment_r
   payment_completed: false,
   payment_completed_at: null,
   payment_transaction_hash: null,
-  room_id: room.room.id,
+  room_params_id: room.room.params_id,
   payment_contract_id: room.contract.contract_address
 })
 

@@ -34,7 +34,7 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
 
     const data = await prisma.players.findMany({
       where: {
-        room_id: roomData.room.id
+        room_params_id: roomData.room.params_id
       },
       select: {
         User: {
