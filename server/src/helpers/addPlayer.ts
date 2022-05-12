@@ -28,7 +28,6 @@ export const addPlayer = async (
     return { error: 'reached max players' }
   }
 
-  console.log(roomData);
   const data = await prisma.players.create({
     data: { room_params_id: roomData.room.params_id, player: playerData.id, slug: roomSlug }
   })

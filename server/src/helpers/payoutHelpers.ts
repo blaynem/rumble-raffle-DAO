@@ -52,7 +52,6 @@ export const selectPayoutFromGameData = (
 
   const payouts: PayoutsOmitId[] = [];
   // Create winner payout object
-  console.log({ gameWinner, gameRunnerUps, gameKills });
   const winnerPayout: PayoutsOmitId = payoutTemplate({
     public_address: gameWinner.id,
     room,

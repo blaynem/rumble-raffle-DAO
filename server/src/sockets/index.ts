@@ -15,8 +15,6 @@ export const initRoom = (sio: Server, socket: Socket) => {
   io = sio;
   roomSocket = socket;
 
-  console.log(`User Connected: ${roomSocket.id}`);
-
   // join_room only enters a socket room. It doesn't enter the user into a game.
   roomSocket.on(JOIN_ROOM, joinRoom);
   // join_game will enter a player into a game.
@@ -40,7 +38,6 @@ function joinRoom(roomSlug: string) {
       return;
     }
     this.join(roomSlug);
-    console.log(`User with ID: ${this.id} joined room: ${roomSlug}`);
     const playersAndRoomInfo = getPlayersAndRoomInfo(roomSlug);
     io.to(this.id).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
     if (roomData.params.game_started) {

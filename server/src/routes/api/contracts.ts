@@ -10,7 +10,6 @@ const jsonParser = bodyParser.json()
  * - Add the contract data..?
  */
 router.post('/:id', jsonParser, async (req: any, res: any) => {
-  console.log('---req.body', req.body);
   // Insert contract
   const data = prisma.contracts.create({
     data: {
