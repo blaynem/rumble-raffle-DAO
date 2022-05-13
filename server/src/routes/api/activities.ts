@@ -1,3 +1,4 @@
+import { Activities, Prisma } from '.prisma/client';
 import { SetupType, ActivityTypes } from '@rumble-raffle-dao/rumble/types';
 import express from 'express';
 import prisma from '../../client';
@@ -18,6 +19,9 @@ router.get('/', async (req: any, res: any) => {
   res.json({ data });
 })
 
+// Need to conver the decimal of the killCount in the database to a number for the rumble package.
+const convertKillCountToNum = (data: Activities): ActivityTypes => ({ ...data, killCounts: data.killCounts.map(k => k.toNumber()) });
+
 export const getAllActivities = async () => {
   let error: string;
   try {
@@ -27,11 +31,10 @@ export const getAllActivities = async () => {
     // if (pveError || pvpError || reviveError) {
     //   error = 'Error when fetching activities tables.'
     // }
-    // Type casting this because number[] are returning as unknown[] from supabase.
     const data: SetupType['activities'] = {
-      PVE: pveData as ActivityTypes[],
-      PVP: pvpData as ActivityTypes[],
-      REVIVE: reviveData as ActivityTypes[]
+      PVE: pveData.map(convertKillCountToNum),
+      PVP: pvpData.map(convertKillCountToNum),
+      REVIVE: reviveData.map(convertKillCountToNum)
     }
     return { data, error };
   } catch (err) {

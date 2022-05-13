@@ -1,7 +1,6 @@
 import { Prisma } from ".prisma/client";
 import { GameEndType } from "@rumble-raffle-dao/rumble/types";
 import { RoomDataType, PayoutsOmitId, PayoutTemplateType, PrizePayouts } from '@rumble-raffle-dao/types'
-import Decimal from "decimal.js";
 
 type BetaPayoutTypes = {
   WINNER: number;
@@ -118,7 +117,7 @@ const calculatePayouts = (gameKills: GameEndType['gameKills']): PrizePayouts => 
   };
 
   // First place prize
-  payouts.winner.add(BETA_PAYOUTS_VARS.WINNER)
+  payouts.winner = new Prisma.Decimal(BETA_PAYOUTS_VARS.WINNER)
   tempTotal.add(BETA_PAYOUTS_VARS.WINNER)
   
   // Loop through all the kills

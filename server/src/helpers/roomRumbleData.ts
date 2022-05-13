@@ -8,7 +8,7 @@ export const defaultGameState = {
   gameCompleted: false,
   roundCounter: 0,
   showWinners: false,
-  waitTime: 2,
+  waitTime: 15,
 };
 
 const getGameState = (data: RoomDataType): GameState => {
