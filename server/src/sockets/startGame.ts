@@ -38,7 +38,7 @@ const dripGameDataOnDelay = (io: Server, roomSlug: string) => {
         //   console.error('drip game data: game_completed = true', updateRoomSubmit.error);
         // }
         // delete the game state from the server
-        delete availableRoomsData[roomSlug];
+        // delete availableRoomsData[roomSlug];
       }
 
       // We get the visible game state to spit out to the client.
@@ -94,6 +94,8 @@ async function startGame(io: Server, data: { playerData: Prisma.UsersCreateInput
     }
     const gameData = await startRumble(data.roomSlug);
     roomData.gameData = gameData;
+    // Set the local game start state to true.
+    roomData.params.game_started = true;
     // Start emitting the game events to the players on a delay.
     dripGameDataOnDelay(io, data.roomSlug);
     io.in(data.roomSlug).emit(GAME_START_COUNTDOWN, gameState.waitTime);
