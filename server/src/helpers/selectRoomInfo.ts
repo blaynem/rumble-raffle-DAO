@@ -1,3 +1,4 @@
+import { Prisma } from ".prisma/client";
 import { RoomDataType, EntireGameLog, RoundActivityLog, RoundsType, SingleActivity, PickFromPlayers } from "@rumble-raffle-dao/types";
 
 /**
@@ -14,13 +15,14 @@ import { RoomDataType, EntireGameLog, RoundActivityLog, RoundsType, SingleActivi
   * @param players - array of players joined the activity
   * @returns 
   */
- const getKillCountsFromPlayers = (killCounts: number[], players: string[]): { [playerId: string]: number } => {
+ const getKillCountsFromPlayers = (killCounts: Prisma.Decimal[], players: string[]): { [playerId: string]: Prisma.Decimal } => {
    if (killCounts === null) {
      return null;
    }
+  //  const killCountConverted = killCounts.map(count => count.toNumber());
    return killCounts?.reduce((
-     acc: { [playerId: string]: number },
-     curr: number,
+     acc: { [playerId: string]: Prisma.Decimal },
+     curr: Prisma.Decimal,
      index
    ) => {
      const public_address = players[index] as string;
@@ -73,7 +75,7 @@ import { RoomDataType, EntireGameLog, RoundActivityLog, RoundsType, SingleActivi
       description: round.Activity.description,
       environment: round.Activity.environment,
       id: round.activity_id,
-      kill_count: getKillCountsFromPlayers(round.Activity.killCounts as number[], round.participants as string[]),
+      kill_count: getKillCountsFromPlayers(round.Activity.killCounts, round.participants),
       participants: round.participants.map((pubAdd: string) => findPlayerByPubAddress(pubAdd, players))
     }
     // Update the players_remaining

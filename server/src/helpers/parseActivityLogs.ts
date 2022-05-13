@@ -1,5 +1,17 @@
-import { GameEndType } from '@rumble-raffle-dao/rumble/types';
+import { Prisma } from '.prisma/client';
+import { ActivityLogType, GameEndType } from '@rumble-raffle-dao/rumble/types';
 import {GameRoundLogsOmitId, EntireGameLog, SingleActivity, RoundActivityLog, PickFromPlayers, RoomDataType} from '@rumble-raffle-dao/types';
+
+/**
+ * The Rumble killCount type = { [playerId: string]: number }
+ * while the Activity log kill_count type = { [playerId: string]: Decimal }
+ * We must map through those.
+ */
+const mapRumbleKillCountToDecimals = (killCount: ActivityLogType['killCount']): SingleActivity['kill_count'] => {
+  const tempObj: SingleActivity['kill_count'] = {};
+  Object.entries(killCount).map(([key, val]) => tempObj[key] = new Prisma.Decimal(val));
+  return tempObj;
+}
 
 /**
  * Parse the activity log that comes back from the Rumble game to a more readable view for the client.
@@ -23,7 +35,7 @@ export const parseActivityLogForClient = (gameActivityLogs: GameEndType['gameAct
       environment: activity.environment,
       id: activityId,
       participants: participants.map(player => gamePlayers.find(p => p.id === player)),
-      kill_count: killCount as any,
+      kill_count: mapRumbleKillCountToDecimals(killCount),
     }));
     const roundLog: RoundActivityLog = {
       activities,

@@ -62,7 +62,7 @@ model Payouts {
   id                       String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   payment_reason           PaymentReason
   public_address           String        @db.VarChar(45) //evm compatible address 
-  payment_amount           Int
+  payment_amount           Decimal       @db.Decimal(10, 2)
   notes                    String
   created_at               DateTime      @default(dbgenerated("now()"))
   payment_completed        Boolean       @default(false)

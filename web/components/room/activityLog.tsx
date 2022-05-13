@@ -80,7 +80,7 @@ export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; 
         Winner
       </h3>
       <ul>
-        {winners.slice(0,3).map((winner, i) => (
+        {winners.slice(0, 3).map((winner, i) => (
           <Fragment key={winner.id}>
             {i > 0 && <ActivityBreak />}
             <ActivityListItem
@@ -105,7 +105,7 @@ export const DisplayActivityLogs = ({ allActivities, user }: { allActivities: Ro
 const DisplayEntrantKills = ({ count, entrant: { id, name }, user }: { count: number; entrant: PickFromPlayers; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'> }) => (
   <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${id === user?.id ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>
     <div className='flex justify-between'>
-      <ClickToCopyPopper text={name} popperText={id} truncate/>
+      <ClickToCopyPopper text={name} popperText={id} truncate />
       <div>{count}</div>
     </div>
   </li>
@@ -120,10 +120,12 @@ const calcKillCounts = (rounds: RoundActivityLog[]) => {
         return;
       }
       Object.keys(activity.kill_count).forEach(id => {
+        // These come through as strings for some reason. So we safely convert them to a number.
+        const killCountNumber = new Prisma.Decimal(activity.kill_count[id]).toNumber();
         if (killCounts[id]) {
-          killCounts[id] += activity.kill_count[id]
+          killCounts[id] += killCountNumber
         } else {
-          activity.kill_count[id] > 0 && (killCounts[id] = activity.kill_count[id]);
+          killCountNumber > 0 && (killCounts[id] = killCountNumber);
         }
       })
     })

@@ -40,6 +40,7 @@ function joinRoom(roomSlug: string) {
     this.join(roomSlug);
     const playersAndRoomInfo = getPlayersAndRoomInfo(roomSlug);
     io.to(this.id).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
+    // If a player joins the room and a game is already started, we should show them the current game state.
     if (roomData.params.game_started) {
       const { visibleRounds, winners } = getVisibleGameStateForClient(roomData, gameState);
       // Limit this to whatever current logs are being shown.

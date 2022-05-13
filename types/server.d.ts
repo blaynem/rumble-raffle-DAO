@@ -63,7 +63,7 @@ export type PayoutTemplateType = {
   /**
    * Payment amount 
    */
-  payment_amount: number;
+  payment_amount: Prisma.PayoutsGroupByOutputType['payment_amount'];
   /**
    * Reason for the payment
    */
@@ -132,19 +132,19 @@ export type SingleActivity = {
   /**
    * Description of the activity that happens. Ex: "PLAYER_0 drank infected water and died."
    */
-  description: ActivitiesGroupByOutputType['description'];
+  description: Prisma.ActivitiesGroupByOutputType['description'];
   /**
    * Whether it is PVE, PVP, or REVIVE 
    */
-  environment: ActivitiesGroupByOutputType['environment']
+  environment: Prisma.ActivitiesGroupByOutputType['environment']
   /**
    * Id of the activity
    */
-  id: ActivitiesGroupByOutputType['id'];
+  id: Prisma.ActivitiesGroupByOutputType['id'];
   /**
    * Kill count for each activity
    */
-  kill_count: { [playerId: string]: number }
+  kill_count: { [playerId: string]: Prisma.Decimal }
   /**
    * Participants of the activity
    */

@@ -1,5 +1,7 @@
+import { Prisma } from ".prisma/client";
 import { GameEndType } from "@rumble-raffle-dao/rumble/types";
 import { RoomDataType, PayoutsOmitId, PayoutTemplateType, PrizePayouts } from '@rumble-raffle-dao/types'
+import Decimal from "decimal.js";
 
 type BetaPayoutTypes = {
   WINNER: number;
@@ -45,7 +47,7 @@ export const payoutNotesTemplate = (
  */
 export const selectPayoutFromGameData = (
   room: RoomDataType,
-  { gameWinner, gameRunnerUps, gameKills }: GameEndType
+  { gameWinner, gameKills }: GameEndType
 ): PayoutsOmitId[] => {
   // Calculates the room payouts
   const gamePayouts = calculatePayouts(gameKills);
@@ -55,40 +57,12 @@ export const selectPayoutFromGameData = (
   const winnerPayout: PayoutsOmitId = payoutTemplate({
     public_address: gameWinner.id,
     room,
-    payment_amount: gamePayouts.winner + getKillPayout(gameWinner.id, gamePayouts),
+    payment_amount: gamePayouts.winner.add(getKillPayout(gameWinner.id, gamePayouts)),
     payment_reason: 'winner',
     notes: payoutNotesTemplate({ id: gameWinner.id, gameKills, gamePayouts }, `Winner payout: ${gamePayouts.winner}.`)
   });
   // Push the object to the payouts.
   payouts.push(winnerPayout);
-
-  // Only pay the 2nd place runner up if necessary
-  if (BETA_PAYOUTS_VARS.RUNNER_UPS[0] > 0 && gameRunnerUps[0]) {
-    // Create second place payout object
-    const secondPlacePayout: PayoutsOmitId = payoutTemplate({
-      public_address: gameRunnerUps[0].id,
-      room,
-      payment_amount: gamePayouts.secondPlace + getKillPayout(gameRunnerUps[0].id, gamePayouts),
-      payment_reason: 'second',
-      notes: payoutNotesTemplate({ id: gameRunnerUps[0].id, gameKills, gamePayouts }, `2nd place payout: ${gamePayouts.secondPlace}.`)
-    });
-    // Push the second place object to the payouts.
-    payouts.push(secondPlacePayout);
-  }
-
-  // Only pay the 3rd place runner up if necessary
-  if (BETA_PAYOUTS_VARS.RUNNER_UPS[1] > 0 && gameRunnerUps[1]) {
-    // Create third place payout object
-    const thidPlacePayout: PayoutsOmitId = payoutTemplate({
-      public_address: gameRunnerUps[1].id,
-      room,
-      payment_amount: gamePayouts.thirdPlace + getKillPayout(gameRunnerUps[1].id, gamePayouts),
-      payment_reason: 'third',
-      notes: payoutNotesTemplate({ id: gameRunnerUps[1].id, gameKills, gamePayouts }, `3rd place payout: ${gamePayouts.thirdPlace}.`)
-    });
-    // Push the third place object to the payouts.
-    payouts.push(thidPlacePayout);
-  }
 
   const listOfWinners = payouts.map(obj => obj.public_address);
   // Filter all of the winners / runnerups out of the kill payouts list.
@@ -107,7 +81,7 @@ export const selectPayoutFromGameData = (
   })
 
   // Filter so we only add payouts when there is one.
-  return payouts.filter(payout => payout.payment_amount > 0);
+  return payouts.filter(payout => payout.payment_amount.toNumber() > 0);
 }
 
 /**
@@ -124,7 +98,7 @@ const getKillCount = (id: string, gameKills: GameEndType['gameKills']) => gameKi
  * @param gamePayouts 
  * @returns 
  */
-const getKillPayout = (id: string, gamePayouts: PrizePayouts) => gamePayouts.kills[id] || 0;
+const getKillPayout = (id: string, gamePayouts: PrizePayouts): Prisma.Decimal => gamePayouts.kills[id] || new Prisma.Decimal(0);
 
 /**
  * Helper function to create the kill notes for to save for a player.
@@ -132,32 +106,27 @@ const getKillPayout = (id: string, gamePayouts: PrizePayouts) => gamePayouts.kil
  * @param killPayout - total amount paid out for kills
  * @returns kill notes
  */
-const getKillNotes = (killCount: number, killPayout: number) => killCount > 0 ? `Total kill payout: ${killPayout}. Total kill count: ${killCount}.` : '';
+const getKillNotes = (killCount: number, killPayout: Prisma.Decimal) => killCount > 0 ? `Total kill payout: ${killPayout}. Total kill count: ${killCount}.` : '';
 
 
 const calculatePayouts = (gameKills: GameEndType['gameKills']): PrizePayouts => {
-  let tempTotal = 0;
+  let tempTotal = new Prisma.Decimal(0);
   const payouts: PrizePayouts = {
-    altSplit: 0,
-    creatorSplit: 0,
-    winner: 0,
-    secondPlace: 0,
-    thirdPlace: 0,
+    winner: new Prisma.Decimal(0),
     kills: {},
-    remainder: 0,
-    total: 0,
+    total: new Prisma.Decimal(0),
   };
 
   // First place prize
-  payouts.winner = BETA_PAYOUTS_VARS.WINNER
-  tempTotal += BETA_PAYOUTS_VARS.WINNER
+  payouts.winner.add(BETA_PAYOUTS_VARS.WINNER)
+  tempTotal.add(BETA_PAYOUTS_VARS.WINNER)
   
   // Loop through all the kills
   Object.keys(gameKills).forEach(playerId => {
     const killPay = (BETA_PAYOUTS_VARS.KILLS * gameKills[playerId])
     // only add them if payout is greater than 0
-    killPay > 0 && (payouts.kills[playerId] = killPay)
-    tempTotal += killPay;
+    killPay > 0 && (payouts.kills[playerId] = new Prisma.Decimal(killPay))
+    tempTotal.add(killPay);
   })
 
   payouts.total = tempTotal;
