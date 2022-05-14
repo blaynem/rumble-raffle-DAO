@@ -1,10 +1,12 @@
 import React, { Fragment } from 'react';
-import LocalDiningOutlinedIcon from '@mui/icons-material/LocalDiningOutlined';
+import LocalHospitalOutlined from '@mui/icons-material/LocalHospitalOutlined';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
+import Swords from 'tabler-icons-react/dist/icons/swords';
 import 'react-popper-tooltip/dist/styles.css';
 import { PickFromPlayers, RoundActivityLog, SingleActivity } from "@rumble-raffle-dao/types";
 import { ClickToCopyPopper } from '../Popper';
 import { Prisma } from '.prisma/client';
+import HikingOutlined from '@mui/icons-material/HikingOutlined';
 
 const replaceActivityDescPlaceholders = (activity: SingleActivity): (string | JSX.Element)[] => {
   const matchPlayerNumber = /(PLAYER_\d+)/ // matches PLAYER_0, PLAYER_12, etc
@@ -31,15 +33,26 @@ const ActivityBreak = () => (<li className='ml-4 h-4 border-l-2 dark:border-l-ru
 const ActivityListItem = ({ description, highlight, icon }: { icon: any; description: (string | JSX.Element)[]; highlight: boolean; }) => (
   <li className='ml-2 flex text-lg relative'>
     <span className="self-center pr-4">
-      {React.createElement(icon, { className: 'h-5 w-5 dark:fill-rumbleNone fill-rumbleOutline block' })}
+      {icon}
     </span>
     <span className={`p-2 font-light dark:text-rumbleNone ${highlight ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>{description}</span>
   </li>
 )
 
+const getActivityIcon = (activity: SingleActivity) => {
+  const { environment } = activity
+  const iconClass = 'h-5 w-5 dark:stroke-rumbleNone block'
+  if (environment === 'REVIVE') {
+    return <LocalHospitalOutlined className={iconClass} />;
+  }
+  if (environment === 'PVE') {
+    return <HikingOutlined className={iconClass} />;
+  }
+  return <Swords className={iconClass}/>;
+}
 
 const DisplayActivity = ({ activity, containsUser }: { activity: SingleActivity; containsUser: boolean; }) => {
-  return <ActivityListItem icon={LocalDiningOutlinedIcon} highlight={containsUser} description={replaceActivityDescPlaceholders(activity)} />
+  return <ActivityListItem icon={getActivityIcon(activity)} highlight={containsUser} description={replaceActivityDescPlaceholders(activity)} />
 }
 
 
@@ -84,7 +97,7 @@ export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; 
           <Fragment key={winner.id}>
             {i > 0 && <ActivityBreak />}
             <ActivityListItem
-              icon={EmojiEventsOutlinedIcon}
+              icon={<EmojiEventsOutlinedIcon className='h-5 w-5 dark:fill-rumbleNone fill-rumbleOutline block' />}
               description={[placementMessage[i], ' ', <ClickToCopyPopper key={winner.id} boldText text={winner.name} popperText={winner.id} />, '.']}
               highlight={winner.id === user?.id}
             />
