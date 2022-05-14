@@ -8,6 +8,9 @@ import { ClickToCopyPopper } from '../Popper';
 import { Prisma } from '.prisma/client';
 import HikingOutlined from '@mui/icons-material/HikingOutlined';
 
+const iconClass = 'h-5 w-5 dark:stroke-rumbleNone block'
+const iconClassMui = 'h-5 w-5 dark:fill-rumbleNone fill-rumbleOutline block'
+
 const replaceActivityDescPlaceholders = (activity: SingleActivity): (string | JSX.Element)[] => {
   const matchPlayerNumber = /(PLAYER_\d+)/ // matches PLAYER_0, PLAYER_12, etc
   const parts = activity.description.split(matchPlayerNumber);
@@ -41,12 +44,11 @@ const ActivityListItem = ({ description, highlight, icon }: { icon: any; descrip
 
 const getActivityIcon = (activity: SingleActivity) => {
   const { environment } = activity
-  const iconClass = 'h-5 w-5 dark:stroke-rumbleNone block'
   if (environment === 'REVIVE') {
-    return <LocalHospitalOutlined className={iconClass} />;
+    return <LocalHospitalOutlined className={iconClassMui} />;
   }
   if (environment === 'PVE') {
-    return <HikingOutlined className={iconClass} />;
+    return <HikingOutlined className={iconClassMui} />;
   }
   return <Swords className={iconClass}/>;
 }
@@ -97,7 +99,7 @@ export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; 
           <Fragment key={winner.id}>
             {i > 0 && <ActivityBreak />}
             <ActivityListItem
-              icon={<EmojiEventsOutlinedIcon className='h-5 w-5 dark:fill-rumbleNone fill-rumbleOutline block' />}
+              icon={<EmojiEventsOutlinedIcon className={iconClassMui} />}
               description={[placementMessage[i], ' ', <ClickToCopyPopper key={winner.id} boldText text={winner.name} popperText={winner.id} />, '.']}
               highlight={winner.id === user?.id}
             />
