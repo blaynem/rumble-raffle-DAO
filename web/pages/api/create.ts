@@ -1,22 +1,19 @@
-import { Prisma } from '.prisma/client';
+import { CreateRoom } from '@rumble-raffle-dao/types';
 import { NextApiRequest, NextApiResponse } from 'next'
 import { BASE_API_URL } from '../../lib/constants';
-import createRoomSchema from '../../lib/schemaValidations/createRoom';
 
-interface CreateRoom {
-  slug: Prisma.RoomsCreateInput['slug']
-  params: Omit<Prisma.RoomParamsCreateInput, 'Creator' | 'Contract'>
-  contract_address: Prisma.ContractsCreateInput['contract_address']
-  createdBy: Prisma.UsersCreateInput['id']
+export interface CreateRoomBody {
+  slug: string;
+  contract_address: string;
+  createdBy: string;
+  pve_chance: string;
+  revive_chance: string;
 }
 
 export default async function createRumble(req: NextApiRequest, res: NextApiResponse) {
   try {
-    // Attempt to validate the body
-    await createRoomSchema.validate(req.body, { abortEarly: false })
-
     // Need to convert these strings to numbers.
-    const { createdBy, contract_address, pve_chance, revive_chance, slug } = JSON.parse(req.body);
+    const { createdBy, contract_address, pve_chance, revive_chance, slug } = JSON.parse(req.body) as CreateRoomBody;
 
     const createRoomObj: CreateRoom = {
       slug: slug,

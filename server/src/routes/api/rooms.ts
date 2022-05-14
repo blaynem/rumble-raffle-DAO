@@ -2,9 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { getGameDataFromDb } from '../../helpers/getGameDataFromDb';
 import prisma from '../../client';
-import { Prisma } from '.prisma/client';
 import { addNewRoomToMemory } from '../../helpers/roomRumbleData';
-import { RoomDataType } from '@rumble-raffle-dao/types';
+import { CreateRoom, RoomDataType } from '@rumble-raffle-dao/types';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
@@ -19,13 +18,6 @@ const jsonParser = bodyParser.json()
 // 	"contract_address": "0x8f06208951E202d30769f50FAec22AEeC7621BE2"
 // }
 
-interface CreateRoom {
-  slug: Prisma.RoomsCreateInput['slug']
-  params: Omit<Prisma.RoomParamsCreateInput, 'Creator' | 'Contract'>
-  contract_address: Prisma.ContractsCreateInput['contract_address']
-  createdBy: Prisma.UsersCreateInput['id']
-}
-
 interface RequestBody extends express.Request {
   body: CreateRoom
 }
@@ -38,11 +30,13 @@ interface RequestBody extends express.Request {
 router.post('/create', jsonParser, async (req: RequestBody, res: express.Response) => {
   try {
     const { slug, params, contract_address, createdBy } = req.body;
+    if (!createdBy) {
+      throw('You must be logged in to create a room.');
+    }
     const userData = await prisma.users.findUnique({ where: { id: createdBy } })
     // If they aren't an admin, we say no.
     if (!userData?.is_admin) {
-      res.status(401).json({ error: 'Only admin may create rooms at this time.' })
-      return;
+      throw('Only admin may create rooms at this time.');
     }
 
     const dataToChange = {
@@ -98,7 +92,15 @@ router.post('/create', jsonParser, async (req: RequestBody, res: express.Respons
     res.json({ data: roomData });
   } catch (error) {
     console.error('Server: /rooms/create', error);
-    res.status(400).json({ error: 'Something went wrong when creating the room.' })
+    if (typeof error === 'string') {
+      res.status(400).json({ error })
+      return;
+    }
+    if (error?.code === 'P2009') {
+      res.status(400).json({ error: 'Missing a required value to create a room.' })
+      return;
+    }
+    res.status(400).json({ error: 'Something went wrong with the request' })
   }
 })
 

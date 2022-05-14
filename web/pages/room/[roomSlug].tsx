@@ -9,7 +9,6 @@ import { useWallet } from '../../containers/wallet'
 import { BASE_API_URL, BASE_WEB_URL } from "../../lib/constants";
 import Entrants from "../../components/room/entrants";
 import { usePreferences } from "../../containers/preferences";
-import { useRouter } from "next/router";
 import { Prisma } from ".prisma/client";
 
 const socket = io(BASE_API_URL);
@@ -36,11 +35,11 @@ export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest })
   }
 })
 
-const RumbleRoom = ({ activeRoom, roomData, ...rest }: ServerSidePropsType) => {
+const RumbleRoom = ({ activeRoom, roomData }: ServerSidePropsType) => {
   const { user, payEntryFee } = useWallet()
   const { preferences } = usePreferences();
-  const [entrants, setEntrants] = useState([] as PlayerAndRoomInfoType['allPlayers']);
-  const [roomInfo, setRoomInfo] = useState({} as PlayerAndRoomInfoType['roomInfo']);
+  const [entrants, setEntrants] = useState(roomData.players as PlayerAndRoomInfoType['allPlayers']);
+  const [roomInfo, setRoomInfo] = useState(roomData as PlayerAndRoomInfoType['roomInfo']);
   const [activityLogRounds, setActivityLogRounds] = useState([] as EntireGameLog['rounds']);
   const [activityLogWinners, setActivityLogWinners] = useState([] as EntireGameLog['winners']);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -62,7 +61,7 @@ const RumbleRoom = ({ activeRoom, roomData, ...rest }: ServerSidePropsType) => {
 
   useEffect(() => {
     // If this isn't in a useEffect it doesn't always catch in the rerenders.
-    setCalcHeight(isRoomCreator ? 'calc(100vh - 108px)' : 'calc(100vh - 58px)');
+    setCalcHeight(isRoomCreator ? 'calc(100vh - 108px)' : 'calc(100vh - 58px)');``
   }, [])
 
   // Countdown for the GAME to start

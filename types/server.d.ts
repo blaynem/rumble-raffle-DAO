@@ -150,3 +150,10 @@ export type SingleActivity = {
    */
   participants: PickFromPlayers[];
 }
+
+export interface CreateRoom {
+  slug: Prisma.RoomsCreateInput['slug']
+  params: Omit<Prisma.RoomParamsCreateInput, 'Creator' | 'Contract'>
+  contract_address: Prisma.ContractsCreateInput['contract_address']
+  createdBy: Prisma.UsersCreateInput['id']
+}
