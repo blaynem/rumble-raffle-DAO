@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { withSessionSsr } from '../lib/with-session';
 import { EntireGameLog, PlayerAndRoomInfoType, RoomDataType } from "@rumble-raffle-dao/types";
 import { DEFAULT_GAME_ROOM, GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io from "socket.io-client";
@@ -9,37 +8,18 @@ import { useWallet } from '../containers/wallet'
 import { BASE_API_URL, BASE_WEB_URL } from "../lib/constants";
 import Entrants from "../components/room/entrants";
 import { usePreferences } from "../containers/preferences";
-import { Prisma } from ".prisma/client";
 
 const socket = io(BASE_API_URL);
 
 const buttonClass = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out border-r-2 hover:bg-rumbleSecondary focus:bg-rumbleSecondary"
 const buttonDisabled = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out border-r-2 pointer-events-none opacity-60"
 
-export type ServerSidePropsType = {
-  activeRoom: boolean;
-  roomData: RoomDataType;
-  user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>;
-}
-
-export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }): Promise<{ props: ServerSidePropsType }> => {
-  const { user } = req.session
-  const { data }: { data: RoomDataType } = await fetch(`${BASE_WEB_URL}/api/rooms/${DEFAULT_GAME_ROOM}`).then(res => res.json())
-
-  return {
-    props: {
-      activeRoom: data !== null,
-      roomData: data,
-      user: user || null,
-    }
-  }
-})
-
-const RumbleRoom = ({ activeRoom, roomData }: ServerSidePropsType) => {
+const RumbleRoom = () => {
   const { user, payEntryFee } = useWallet()
   const { preferences } = usePreferences();
-  const [entrants, setEntrants] = useState(roomData.players as PlayerAndRoomInfoType['allPlayers']);
-  const [roomInfo, setRoomInfo] = useState(roomData as PlayerAndRoomInfoType['roomInfo']);
+  const [isRoomLoading, setRoomLoading] = useState(false);
+  const [roomData, setRoomData] = useState(null as RoomDataType);
+  const [entrants, setEntrants] = useState([] as PlayerAndRoomInfoType['allPlayers']);
   const [activityLogRounds, setActivityLogRounds] = useState([] as EntireGameLog['rounds']);
   const [activityLogWinners, setActivityLogWinners] = useState([] as EntireGameLog['winners']);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -48,11 +28,26 @@ const RumbleRoom = ({ activeRoom, roomData }: ServerSidePropsType) => {
   const [calcHeight, setCalcHeight] = useState('calc(100vh - 58px)');
   const [darkMode, setDarkMode] = useState(false);
 
+  useEffect(() => {
+    setRoomLoading(true);
+    const fetchData = async () => {
+      const { data }: { data: RoomDataType } = await fetch(`${BASE_WEB_URL}/api/rooms/${DEFAULT_GAME_ROOM}`).then(res => res.json())
+      setRoomData(data);
+      setEntrants(data.players);
+      setRoomLoading(false);
+    }
+
+    fetchData();
+  }, [])
+
+  // Room is active if there's room data and the data isn't loading.
+  const activeRoom = !isRoomLoading && roomData !== null;
+
   let gameStartInterval: NodeJS.Timer;
   let nextRoundInterval: NodeJS.Timer;
 
   // isRoomCreator used to show the admin panel.
-  const isRoomCreator = roomData?.params?.created_by === user?.id && !roomData.params.game_completed;
+  const isRoomCreator = roomData?.params?.created_by === user?.id && !roomData?.params?.game_completed;
   const roomSlug = roomData?.room?.slug;
 
   useEffect(() => {
@@ -62,7 +57,7 @@ const RumbleRoom = ({ activeRoom, roomData }: ServerSidePropsType) => {
   useEffect(() => {
     // If this isn't in a useEffect it doesn't always catch in the rerenders.
     setCalcHeight(isRoomCreator ? 'calc(100vh - 108px)' : 'calc(100vh - 58px)'); ``
-  }, [])
+  }, [isRoomCreator])
 
   // Countdown for the GAME to start
   useEffect(() => {
@@ -143,7 +138,6 @@ const RumbleRoom = ({ activeRoom, roomData }: ServerSidePropsType) => {
     socket.on(UPDATE_PLAYER_LIST, (data: PlayerAndRoomInfoType) => {
       console.log('---UPDATE_PLAYER_LIST');
       data.allPlayers !== null && setEntrants([...data.allPlayers]);
-      data.roomInfo !== null && setRoomInfo(data.roomInfo);
     });
   }, [])
 
@@ -177,14 +171,14 @@ const RumbleRoom = ({ activeRoom, roomData }: ServerSidePropsType) => {
       // clean up sockets
       socket.disconnect()
     }
-  }, [roomData.room.slug]);
+  }, [roomData?.room?.slug]);
 
   const onJoinClick = async () => {
     if (user) {
       // Clear error message.
       setErrorMessage(null);
       // There is currently no entry fees
-      const { paid, error } = await payEntryFee(roomInfo.contract, '0');
+      const { paid, error } = await payEntryFee(roomData.contract, '0');
       if (error) {
         setErrorMessage(error)
         console.error('Join Click:', error);
@@ -218,8 +212,7 @@ const RumbleRoom = ({ activeRoom, roomData }: ServerSidePropsType) => {
     (roomData?.params?.game_started && !roomData?.params?.game_completed) &&
     (timeToNextRoundStart === null && timeToGameStart === null)
 
-  // TODO: Redirect them to home if there is no room shown?
-  if (!activeRoom) {
+  if (!isRoomLoading && !activeRoom) {
     return (
       <div className={`${darkMode ? 'dark' : 'light'}`} >
         <div className="flex justify-center dark:bg-rumbleOutline bg-rumbleBgLight" style={{ height: 'calc(100vh - 58px)' }}>
@@ -277,7 +270,7 @@ const RumbleRoom = ({ activeRoom, roomData }: ServerSidePropsType) => {
               <button className={canJoinGame ? buttonClass : buttonDisabled} onClick={canJoinGame ? onJoinClick : null}>Join Game</button>
               {errorMessage && <p className="mt-4 text-red-600">Error: {errorMessage}</p>}
             </div>
-            <Entrants entrants={entrants} user={user} />
+            <Entrants loading={isRoomLoading} entrants={entrants} user={user} />
             <DisplayKillCount entrants={entrants} rounds={activityLogRounds} user={user} />
           </div>
           {/* Right Side */}

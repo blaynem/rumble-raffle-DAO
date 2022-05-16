@@ -30,7 +30,7 @@ const Nav = () => {
   ]
 
   const dropdownNavigation = [
-    { name: 'Settings', href: '/settings' },
+    { name: 'Settings', onClick: () => router.push('/settings') },
     { name: 'Sign out', onClick: () => logout() }
   ]
 
@@ -90,8 +90,7 @@ const Nav = () => {
                       <Menu.Item key={item.name}>
                         {({ active }) => (
                           <button
-                            {...(true && { onClick: item.onClick })}
-                            onClick={() => router.push(item.href)}
+                            onClick={item.onClick}
                             href={item.href}
                             className={classNames(
                               active ? 'bg-gray-200 cursor-pointer' : '',
