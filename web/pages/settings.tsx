@@ -123,12 +123,3 @@ export default function PageIndex() {
     </div>
   )
 }
-
-export const getServerSideProps = withSessionSsr(({ req }) => {
-  const user = req?.session?.user
-  return {
-    props: {
-      ...(user && { user })
-    }
-  }
-})

@@ -54,12 +54,17 @@ const Nav = () => {
                     onClick={() => router.push(item.href)}
                     key={item.name}
                     href={item.href}
-                    className='px-4 py-2 uppercase hover:bg-gray-200 font-medium text-xl dark:text-rumbleSecondary text-rumblePrimary'
+                    className='px-4 py-2 uppercase hover:bg-gray-200 font-medium text-xl dark:text-rumbleNone text-rumbleOutline'
                   >
                     {item.name}
                   </button>
                 ))}
               </div>
+              <p className='px-4 py-2 uppercase font-medium text-xl dark:text-rumbleNone text-rumbleOutline'>
+                <span className="dark:text-rumbleSecondary text-rumblePrimary">((</span>
+                Beta
+                <span className="dark:text-rumbleSecondary text-rumblePrimary">))</span>
+              </p>
               {/* Profile dropdown */}
               <Menu as="div" className="relative">
                 <div>

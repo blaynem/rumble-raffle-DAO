@@ -53,7 +53,7 @@ export default function PageIndex() {
           <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Sounds heckin great, how do I play?</h2>
           <p className='dark:text-rumbleNone text-rumbleOutline'>Heck yeah! It's as simple as 123.</p>
           <ol className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
-            <li>1. Connect your MetaMask and signing the message.</li>
+            <li>1. Connect your MetaMask and Sign the message.</li>
             <li>2. Click <Link href={DEFAULT_ROOM_URL}><a className="uppercase dark:text-rumbleSecondary text-rumblePrimary">Play</a></Link>.</li>
             <li>3. Click "Join Game".</li>
           </ol>
