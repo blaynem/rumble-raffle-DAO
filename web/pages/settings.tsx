@@ -6,7 +6,6 @@ import ToastMessage from '../components/toast';
 import { usePreferences } from '../containers/preferences';
 import { useWallet } from '../containers/wallet';
 import userSettingsSchema from '../lib/schemaValidations/userSettings';
-import { withSessionSsr } from '../lib/with-session';
 
 type SettingsTypes = {
   name: string;
