@@ -5,12 +5,15 @@ import { useWallet } from '../containers/wallet'
 import { usePreferences } from '../containers/preferences'
 import WalletAddress from './wallet-address'
 import EmojiEventsOutlinedIcon from '@mui/icons-material/ContrastOutlined';
+import { DEFAULT_ROOM_URL } from '@rumble-raffle-dao/types/constants'
+import { useRouter } from 'next/router'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 const Nav = () => {
+  const router = useRouter();
   const { user, logout } = useWallet()
   const { preferences, setDarkmode } = usePreferences();
   const [darkMode, setDarkMode] = useState(false);
@@ -21,7 +24,12 @@ const Nav = () => {
     setLoggedIn(!!user?.id);
   }, [preferences?.darkMode, user]);
 
-  const userNavigation = [
+  const navigation = [
+    { name: 'Home', href: '/' },
+    { name: 'Play', href: DEFAULT_ROOM_URL },
+  ]
+
+  const dropdownNavigation = [
     { name: 'Settings', href: '/settings' },
     { name: 'Sign out', onClick: () => logout() }
   ]
@@ -39,7 +47,19 @@ const Nav = () => {
       >
         {({ open }) => (
           <>
-            <div className="max-w-full mx-auto flex items-center justify-end">
+            <div className="max-w-full mx-auto flex items-center justify-between">
+              <div className="flex md:ml-8 sm:ml-2">
+                {navigation.map(item => (
+                  <button
+                    onClick={() => router.push(item.href)}
+                    key={item.name}
+                    href={item.href}
+                    className='px-4 py-2 uppercase hover:bg-gray-200 font-medium text-xl dark:text-rumbleSecondary text-rumblePrimary'
+                  >
+                    {item.name}
+                  </button>
+                ))}
+              </div>
               {/* Profile dropdown */}
               <Menu as="div" className="relative">
                 <div>
@@ -60,20 +80,21 @@ const Nav = () => {
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Menu.Items className="bg-rumbleBgLight text-rumbleOutline origin-top-right absolute mt-0.5 z-10 right-0 w-48 shadow-lg ring-2 ring-rumbleOutline py-1 focus:outline-none">
-                    {userNavigation.map(item => (
+                  <Menu.Items className="bg-rumbleBgLight text-rumbleOutline origin-top-right absolute mt-0.5 z-10 right-0 w-48 shadow-lg ring-2 ring-rumbleOutline focus:outline-none">
+                    {dropdownNavigation.map(item => (
                       <Menu.Item key={item.name}>
                         {({ active }) => (
-                          <a
+                          <button
                             {...(true && { onClick: item.onClick })}
+                            onClick={() => router.push(item.href)}
                             href={item.href}
                             className={classNames(
-                              active ? 'bg-gray-100 cursor-pointer' : '',
-                              'block py-2 px-4 text-sm text-gray-700 cursor-pointer'
+                              active ? 'bg-gray-200 cursor-pointer' : '',
+                              'text-left w-full py-2 px-4 text-sm text-gray-700 cursor-pointer'
                             )}
                           >
                             {item.name}
-                          </a>
+                          </button>
                         )}
                       </Menu.Item>
                     ))}

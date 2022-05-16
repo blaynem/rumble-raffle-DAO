@@ -1,8 +1,8 @@
 import Head from 'next/head'
-import { withSessionSsr } from '../lib/with-session'
 import { usePreferences } from '../containers/preferences';
 import { useEffect, useState } from 'react';
 import Link from 'next/link'
+import { DEFAULT_ROOM_URL, DISCORD_LINK } from '@rumble-raffle-dao/types/constants';
 
 /**
  * TODO:
@@ -10,7 +10,7 @@ import Link from 'next/link'
  */
 
 const pageTitle = `Rumble Raffle DAO`
-export default function PageIndex(props) {
+export default function PageIndex() {
   const { preferences } = usePreferences();
 
   const [darkMode, setDarkMode] = useState(false);
@@ -27,83 +27,41 @@ export default function PageIndex(props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="p-8 dark:bg-black bg-rumbleBgLight w-full overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 58px)' }}>
-        <h1 className='uppercase font-medium mt-6 mb-12 text-2xl text-center dark:text-rumbleNone text-rumbleOutline'>Welcome to Rumble Raffle!</h1>
-        <DisplayRooms />
+        <h1 className='uppercase font-medium mt-6 mb-12 text-2xl text-center dark:text-rumbleSecondary text-rumblePrimary'>Welcome to Rumble Raffle!</h1>
+        <section className='md:px-40 sm:px-8'>
+          <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>What the heck is this?</h2>
+          <p className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
+            Rumble Raffle is a completely randomized, free to play game where players fight to the <span className='dark:text-rumbleSecondary text-rumblePrimary'>(</span>simulated<span className='dark:text-rumbleSecondary text-rumblePrimary'>)</span> death to earn RUMBLE Tokens. The more players you kill, the more RUMBLE tokens you earn.
+          </p>
+
+          <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>What the heck are those?</h2>
+          <p className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
+            RUMBLE Tokens are a cryptocurrency that are used to purchase and upgrade Weapon NFTs.
+          </p>
+
+          <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Why the heck would I want that?</h2>
+          <p className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
+            The higher rarity Weapon you hold, the more RUMBLE tokens you can acquire in a single game. Holding higher rarity weapons could lead to special rewards / raffle opportunities in the future!
+          </p>
+
+          <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>What the heck is the catch?</h2>
+          <p className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
+            There is none. We saw how much people enjoyed playing raffle type games in discord, and figured why not create a similar experience that allows complete ownership of the items you earn.
+            In the future we'll be implementing exciting features with higher risks, and even greater rewards.
+          </p>
+
+          <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Sounds heckin great, how do I play?</h2>
+          <p className='dark:text-rumbleNone text-rumbleOutline'>Heck yeah! It's as simple as 123.</p>
+          <ol className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
+            <li>1. Connect your MetaMask and signing the message.</li>
+            <li>2. Click <Link href={DEFAULT_ROOM_URL}><a className="uppercase dark:text-rumbleSecondary text-rumblePrimary">Play</a></Link>.</li>
+            <li>3. Click "Join Game".</li>
+          </ol>
+
+          <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Where the heck can I learn more?</h2>
+          <p className='dark:text-rumbleNone text-rumbleOutline'>The best place for information will be the discord which can be found <a rel="noreferrer noopener" target="_blank" href={DISCORD_LINK} className="uppercase dark:text-rumbleSecondary text-rumblePrimary">here</a>.</p>
+        </section>
       </div>
     </div>
   )
 }
-
-const DisplayRooms = () => {
-  const [availableRooms, setAvailableRooms] = useState([]);
-  const [pastRooms, setPastRooms] = useState([]);
-  const [availableRoomsError, setAvailableRoomsError] = useState(null);
-  const [pastRoomsError, setPastRoomsError] = useState(null);
-
-  useEffect(async () => {
-    const { data: availableRooms, error: availableRoomsError } = await fetch('/api/availablerooms').then(res => res.json());
-    const { data: pastRooms, error: pastRoomsError } = await fetch('/api/pastrooms').then(res => res.json());
-
-    // Past Rooms
-    if (pastRoomsError) {
-      setPastRoomsError('Unable to fetch availableRooms.');
-      setPastRooms([]);
-      return;
-    }
-    setPastRoomsError(null);
-    setPastRooms(pastRooms);
-
-    // Available Rooms
-    if (availableRoomsError) {
-      setAvailableRoomsError('Unable to fetch availableRooms.');
-      setAvailableRooms([]);
-      return;
-    }
-    setAvailableRoomsError(null);
-    setAvailableRooms(availableRooms);
-  }, []);
-
-  return (
-    <div>
-      <div className="mb-8 w-80 p-6 border-2 dark:border-rumbleNone border-rumbleOutline">
-        <div className="flex mb-2">
-          <div className="mr-2 dark:text-rumbleSecondary text-rumblePrimary uppercase text-lg font-medium leading-7">Available Rooms:</div>
-          <div className="dark:text-rumbleNone uppercase text-lg font-medium leading-7">{availableRooms.length}</div>
-        </div>
-        <ul>
-          {availableRooms.map(room => (
-            <li key={room.id} className="mb-2 dark:text-rumbleNone text-rumbleOutline text-base font-normal opacity-60 grid grid-cols-2 gap-2">
-              <Link href={`/room/${room?.params?.slug}`}>
-                <a className='truncate'>{room?.params?.slug}</a>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="mb-8 w-80 p-6 border-2 dark:border-rumbleNone border-rumbleOutline">
-        <div className="flex mb-2">
-          <div className="mr-2 dark:text-rumbleSecondary text-rumblePrimary uppercase text-lg font-medium leading-7">Completed Rooms:</div>
-          <div className="dark:text-rumbleNone uppercase text-lg font-medium leading-7">{pastRooms.length}</div>
-        </div>
-        <ul>
-          {pastRooms.map(room => (
-            <li key={room.id} className="mb-2 dark:text-rumbleNone text-rumbleOutline text-base font-normal opacity-60 grid grid-cols-2 gap-2">
-              <Link href={`/room/${room?.params?.slug}`}>
-                <a className='truncate'>{room?.params?.slug}</a>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  )
-}
-
-export const getServerSideProps = withSessionSsr(({ req }) => {
-  const user = req?.session?.user
-  return {
-    props: {
-      ...(user && { user })
-    }
-  }
-})
