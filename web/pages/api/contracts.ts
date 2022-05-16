@@ -119,7 +119,7 @@ export default async function getContractsData(
         network_name,
       }
       // We attempt to save it in our db.
-      const data = await fetch(`${BASE_API_URL}/api/contracts/${contract_address}`, {
+      await fetch(`${BASE_API_URL}/api/contracts/${contract_address}`, {
         body: JSON.stringify(postBody),
         headers: {
           'Content-Type': 'application/json'

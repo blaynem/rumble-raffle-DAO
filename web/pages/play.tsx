@@ -56,7 +56,7 @@ const RumbleRoom = () => {
 
   useEffect(() => {
     // If this isn't in a useEffect it doesn't always catch in the rerenders.
-    setCalcHeight(isRoomCreator ? 'calc(100vh - 108px)' : 'calc(100vh - 58px)'); ``
+    setCalcHeight(isRoomCreator ? 'calc(100vh - 108px)' : 'calc(100vh - 58px)');
   }, [isRoomCreator])
 
   // Countdown for the GAME to start

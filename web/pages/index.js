@@ -1,8 +1,8 @@
 import Head from 'next/head'
 import { usePreferences } from '../containers/preferences';
 import { useEffect, useState } from 'react';
-import Link from 'next/link'
 import { DEFAULT_ROOM_URL, DISCORD_LINK } from '@rumble-raffle-dao/types/constants';
+import { useRouter } from 'next/router';
 
 /**
  * TODO:
@@ -12,6 +12,7 @@ import { DEFAULT_ROOM_URL, DISCORD_LINK } from '@rumble-raffle-dao/types/constan
 const pageTitle = `Rumble Raffle DAO`
 export default function PageIndex() {
   const { preferences } = usePreferences();
+  const router = useRouter();
 
   const [darkMode, setDarkMode] = useState(false);
 
@@ -47,15 +48,15 @@ export default function PageIndex() {
           <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>What the heck is the catch?</h2>
           <p className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
             There is none. We saw how much people enjoyed playing raffle type games in discord, and figured why not create a similar experience that allows complete ownership of the items you earn.
-            In the future we'll be implementing exciting features with higher risks, and even greater rewards.
+            In the future we&apos;ll be implementing exciting features with higher risks, and even greater rewards.
           </p>
 
           <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Sounds heckin great, how do I play?</h2>
-          <p className='dark:text-rumbleNone text-rumbleOutline'>Heck yeah! It's as simple as 123.</p>
+          <p className='dark:text-rumbleNone text-rumbleOutline'>Heck yeah! It&apos;s as simple as 123.</p>
           <ol className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
             <li>1. Connect your MetaMask and Sign the message.</li>
-            <li>2. Click <Link href={DEFAULT_ROOM_URL}><a className="uppercase dark:text-rumbleSecondary text-rumblePrimary">Play</a></Link>.</li>
-            <li>3. Click "Join Game".</li>
+            <li>2. Click <button onClick={() => router.push(DEFAULT_ROOM_URL)} className="uppercase dark:text-rumbleSecondary text-rumblePrimary">Play</button>.</li>
+            <li>3. Click &quot;Join Game&quot;.</li>
           </ol>
 
           <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Where the heck can I learn more?</h2>

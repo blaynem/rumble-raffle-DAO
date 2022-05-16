@@ -10,6 +10,7 @@ import { useWallet } from '../containers/wallet';
 import { BASE_WEB_URL } from '../lib/constants';
 import { CreateRoomBody } from './api/create';
 
+// eslint-disable-next-line
 const onSuccessSlugUrlMessage = (slug: string) => <Link href={`/room/${slug}`}><a className="inline-flex items-center dark:text-rumbleNone text-rumbleOutline">{`${BASE_WEB_URL}/room/${slug}`}</a></Link>
 
 const Create = () => {

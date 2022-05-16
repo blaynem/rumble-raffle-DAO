@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /**
  * This file was created before we switched up the model in how we play. Keeping it here for now because it might come in handy in the future.
  */
