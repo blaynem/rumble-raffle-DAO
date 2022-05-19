@@ -1,6 +1,7 @@
 import { CreateRoom } from '@rumble-raffle-dao/types';
 import { NextApiRequest, NextApiResponse } from 'next'
 import { BASE_API_URL } from '../../lib/constants';
+import { withSessionRoute } from '../../lib/with-session';
 
 export interface CreateRoomBody {
   slug: string;
@@ -10,8 +11,9 @@ export interface CreateRoomBody {
   revive_chance: string;
 }
 
-export default async function createRumble(req: NextApiRequest, res: NextApiResponse) {
+async function createRumble(req: NextApiRequest, res: NextApiResponse) {
   try {
+    console.log(req.session.user)
     // Need to convert these strings to numbers.
     const { createdBy, contract_address, pve_chance, revive_chance, slug } = JSON.parse(req.body) as CreateRoomBody;
 
@@ -30,7 +32,8 @@ export default async function createRumble(req: NextApiRequest, res: NextApiResp
     const { data, error } = await fetch(`${BASE_API_URL}/api/rooms/create`, {
       body: stringedBody,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        signature: req.session.user.signature
       },
       method: 'POST'
     }).then(res => res.json())
@@ -43,3 +46,5 @@ export default async function createRumble(req: NextApiRequest, res: NextApiResp
     res.status(400).json({ error })
   }
 }
+
+export default withSessionRoute(createRumble);

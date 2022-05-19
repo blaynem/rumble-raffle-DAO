@@ -4,6 +4,8 @@ import { getGameDataFromDb } from '../../helpers/getGameDataFromDb';
 import prisma from '../../client';
 import { addNewRoomToMemory } from '../../helpers/roomRumbleData';
 import { CreateRoom, RoomDataType } from '@rumble-raffle-dao/types';
+import verifySignature from '../../utils/verifySignature';
+import { LOGIN_MESSAGE } from '@rumble-raffle-dao/types/constants';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
@@ -30,6 +32,12 @@ interface RequestBody extends express.Request {
 router.post('/create', jsonParser, async (req: RequestBody, res: express.Response) => {
   try {
     const { slug, params, contract_address, createdBy } = req.body;
+
+    const validatedSignature = verifySignature(createdBy, req.headers.signature as string, LOGIN_MESSAGE)
+    if (!validatedSignature) {
+      throw new Error('Signature validation failed.');
+    }
+
     if (!createdBy) {
       throw('You must be logged in to create a room.');
     }
