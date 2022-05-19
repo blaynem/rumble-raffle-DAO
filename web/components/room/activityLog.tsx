@@ -83,7 +83,7 @@ const DisplayRound = ({ logs, publicAddress }: { logs: RoundActivityLog; publicA
   )
 }
 
-export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'> }) => {
+export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => {
   const placementMessage = [
     'Congratulations! 1st place goes to',
     '2nd place',
@@ -111,13 +111,13 @@ export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; 
   )
 }
 
-export const DisplayActivityLogs = ({ allActivities, user }: { allActivities: RoundActivityLog[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>; }) => {
+export const DisplayActivityLogs = ({ allActivities, user }: { allActivities: RoundActivityLog[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>; }) => {
   return <>
     {allActivities.map((logs, i) => <DisplayRound key={`${logs.round_counter}-${i}`} logs={logs} publicAddress={user?.id} />)}
   </>
 }
 
-const DisplayEntrantKills = ({ count, entrant: { id, name }, user }: { count: number; entrant: PickFromPlayers; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'> }) => (
+const DisplayEntrantKills = ({ count, entrant: { id, name }, user }: { count: number; entrant: PickFromPlayers; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => (
   <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${id === user?.id ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>
     <div className='flex justify-between'>
       <ClickToCopyPopper text={name} popperText={id} truncate />
@@ -153,7 +153,7 @@ const calcKillCounts = (rounds: RoundActivityLog[]) => {
   return killCountArr;
 }
 
-export const DisplayKillCount = ({ entrants, rounds, user }: { entrants: PickFromPlayers[]; rounds: RoundActivityLog[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>; }) => {
+export const DisplayKillCount = ({ entrants, rounds, user }: { entrants: PickFromPlayers[]; rounds: RoundActivityLog[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>; }) => {
   return (
     <div className="mb-8 w-80 py-6 pl-6 border-2 dark:border-rumbleNone border-rumbleOutline">
       <div className="dark:text-rumbleSecondary text-rumblePrimary uppercase text-lg font-medium leading-7 mb-2">Kill Count</div>

@@ -56,7 +56,7 @@ function joinRoom(roomSlug: string) {
  * On Join Game we want to:
  * - Do things
  */
-async function joinGame(joinData: { playerData: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>; roomSlug: string }) {
+async function joinGame(joinData: { playerData: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>; roomSlug: string }) {
   try {
     // Will error if the player is already added to the game.
     const { data, error } = await addPlayer(joinData.roomSlug, joinData.playerData);

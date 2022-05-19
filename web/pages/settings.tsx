@@ -5,7 +5,9 @@ import { useState } from 'react';
 import ToastMessage from '../components/toast';
 import { usePreferences } from '../containers/preferences';
 import { useWallet } from '../containers/wallet';
+import { SETTINGS_MESSAGE } from '../lib/constants';
 import userSettingsSchema from '../lib/schemaValidations/userSettings';
+import { handleSignMessage } from '../lib/wallet';
 
 type SettingsTypes = {
   name: string;
@@ -36,10 +38,20 @@ export default function PageIndex() {
   }
 
   const handleSubmit = async (values: SettingsTypes) => {
-    return await fetch(`/api/users/${user.id}`, {
-      method: 'POST',
-      body: JSON.stringify(values)
-    }).then(res => res.json())
+    try {
+      const { signature } = await handleSignMessage({ id: user.id, message: SETTINGS_MESSAGE })
+
+      return await fetch(`/api/users/${user.id}`, {
+        method: 'POST',
+        body: JSON.stringify(values),
+        headers: {
+          signature,
+        }
+      }).then(res => res.json())
+    } catch (err) {
+      console.error('Change settings error:', err);
+      return { error: err?.message || 'Something went wrong when saving settings.'}
+    }
   }
 
   if (!user || !user.id) {
@@ -64,7 +76,7 @@ export default function PageIndex() {
         validationSchema={userSettingsSchema}
         onSubmit={(values, { setSubmitting }: FormikHelpers<SettingsTypes>) => {
           handleSubmit(values).then((res) => {
-            if (res.error) {
+            if (res?.error) {
               setSubmitting(false);
               handleSetToast({ type: 'ERROR', message: res.error || 'There was an error saving the settings.' });
               return;

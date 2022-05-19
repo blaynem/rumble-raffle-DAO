@@ -15,7 +15,7 @@ import availableRoomsData from "./roomRumbleData";
  */
 export const addPlayer = async (
   roomSlug: string,
-  playerData: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>
+  playerData: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>
 ): Promise<{
   data?: Pick<Prisma.PlayersGroupByOutputType, 'room_params_id' | 'slug' | 'player' | 'time_joined'>;
   error?: any | string;

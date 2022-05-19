@@ -132,9 +132,8 @@ model Rooms {
 model Users {
   /// Users public address
   id         String   @id @unique @db.VarChar(45) // evm compatible address
-  name       String   @db.VarChar(200)
+  name       String   @unique @db.VarChar(200)
   is_admin   Boolean  @default(false) @db.Boolean
-  nonce      String   @db.VarChar(24)
   created_at DateTime @default(dbgenerated("now()"))
   updated_at DateTime @default(dbgenerated("now()")) @updatedAt
 

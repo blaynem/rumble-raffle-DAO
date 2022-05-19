@@ -1,20 +1,13 @@
 import Web3 from 'web3'
-import { NONCE_MESSAGE } from './constants'
+import { LOGIN_MESSAGE } from './constants'
 
 let web3 = undefined
-export const getCookie = ({ id, signature }) =>
-  fetch(`/api/auth/login`, {
-    body: JSON.stringify({ id, signature }),
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    method: 'POST'
-  }).then(response => response.json())
 
-export const handleSignMessage = async ({ id, nonce }) => {
+export const handleSignMessage = async ({ id, message }) => {
   try {
+    web3 = new Web3((window as any).ethereum)
     const signature = await web3.eth.personal.sign(
-      `${NONCE_MESSAGE} ${nonce}`,
+      message,
       id,
       '' // MetaMask will ignore the password argument here
     )
@@ -28,7 +21,7 @@ export const handleSignMessage = async ({ id, nonce }) => {
 
 export const authenticate = async onLoggedIn => {
   // Check if MetaMask is installed
-  if (!window.ethereum) {
+  if (!(window as any).ethereum) {
     window.alert('Please install MetaMask first.')
     return
   }
@@ -36,11 +29,11 @@ export const authenticate = async onLoggedIn => {
   if (!web3) {
     try {
       // Request account access if needed
-      await window.ethereum.enable()
+      await (window as any).ethereum.enable()
 
       // We don't know window.web3 version, so we use our own instance of Web3
       // with the injected provider given by MetaMask
-      web3 = new Web3(window.ethereum)
+      web3 = new Web3((window as any).ethereum)
     } catch (error) {
       window.alert('You need to allow MetaMask.')
       return
@@ -54,15 +47,24 @@ export const authenticate = async onLoggedIn => {
   }
 
   const public_address = coinbase.toLowerCase()
-  fetch(`/api/users?id=${public_address}`)
-    .then(response => response.json())
+
+  try {
     // Popup MetaMask confirmation modal to sign message
-    .then(handleSignMessage)
-    // Send signature to backend on the /auth/login route to get cookie
-    .then(getCookie)
-    // Pass accessToken back to parent component (to save it in cookies)
-    .then(onLoggedIn)
-    .catch(err => {
-      window.alert(err)
+    const { signature } = await handleSignMessage({ id: public_address, message: LOGIN_MESSAGE })
+
+    fetch(`/api/auth/login`, {
+      body: JSON.stringify({ id: public_address, signature }),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'POST'
     })
+      // fire the onLoggedIn callback
+      .then(onLoggedIn)
+      .catch(err => {
+        window.alert(err)
+      })
+  } catch (err) {
+    console.error("authenticate error", err)
+  }
 }

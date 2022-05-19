@@ -1,3 +1,4 @@
+import { Prisma } from '.prisma/client'
 
 export type PolygonscanResponseType = {
   status: string;
@@ -56,6 +57,6 @@ export interface CreateRoomValues {
     prize_third: string;
     prize_creator: string;
   }
-  user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>
+  user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>
   slug: string,
 }

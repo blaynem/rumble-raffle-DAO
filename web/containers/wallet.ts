@@ -50,7 +50,7 @@ const getContractDetails = async (contractDetails: Pick<Prisma.ContractsGroupByO
     const tokenAbi = await fetchPolygonContractABI(tokenAddress);
     tokenContract = createEthereumContract(tokenAddress, tokenAbi.contractABI);
   }
-  
+
   console.log('Token Contract:', tokenContract);
   let tokenDecimals: number = await tokenContract.decimals();
   tokenDecimals.toString();
@@ -93,12 +93,11 @@ const checkChain = async (chainId) => {
 const emptyUserObj = {
   id: null,
   name: null,
-  nonce: null,
   is_admin: false,
 }
 
 const useContainer = () => {
-  const { data: user, mutate: mutateUser } = useSWR<Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>>('/api/auth/user')
+  const { data: user, mutate: mutateUser } = useSWR<Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>>('/api/auth/user')
 
   useEffect(() => {
     if (window !== undefined) {
@@ -116,7 +115,7 @@ const useContainer = () => {
   }, [])
 
   const updateName = (name: string) => {
-    mutateUser({...user, name});
+    mutateUser({ ...user, name });
   }
 
   const logout = async () => {
@@ -131,7 +130,7 @@ const useContainer = () => {
         window.alert(userCookie?.error);
         return;
       }
-      mutateUser(userCookie)
+      mutateUser();
     })
   }
 
@@ -165,7 +164,7 @@ const useContainer = () => {
     }
   }
 
-  
+
   const payWinners = async (contractDetails: Pick<Prisma.ContractsGroupByOutputType, 'chain_id' | 'contract_address'>, payments: {
     public_address: string;
     amount: string;

@@ -19,7 +19,7 @@ const buttonDisabled = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumble
 export type ServerSidePropsType = {
   activeRoom: boolean;
   roomData: RoomDataType;
-  user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>;
+  user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>;
 }
 
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }): Promise<{ props: ServerSidePropsType }> => {

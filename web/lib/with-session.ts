@@ -19,6 +19,6 @@ export function withSessionSsr(handler) {
 
 declare module 'iron-session' {
   interface IronSessionData {
-    user?: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'nonce'>
+    user?: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>
   }
 }
