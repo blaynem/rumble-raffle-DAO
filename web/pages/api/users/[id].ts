@@ -49,10 +49,11 @@ async function usersHandler(req: ExtendedNextAPIRequest, res: NextApiResponse<Us
         })
 
         // Update the ironsession user data
-        req.session.user = user
+        req.session.user = { ...req.session.user, ...user }
         await req.session.save()
 
-        res.status(200).json(user);
+        // Everything handled via session, no need to pass data back
+        res.status(200).json({});
         return;
       } catch (e) {
         console.error('users/id error:', e)

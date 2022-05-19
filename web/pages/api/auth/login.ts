@@ -28,6 +28,9 @@ async function auth(req: NextApiRequest, res: NextApiResponse) {
       },
       create: {
         id, name: fancyName()
+      },
+      select: {
+        id: true, is_admin: true, name: true
       }
     })
 
@@ -41,11 +44,11 @@ async function auth(req: NextApiRequest, res: NextApiResponse) {
       return null
     }
     // sets the user object on ironsession
-    req.session.user = user
+    req.session.user = { ...user, signature }
     // Saves the session and sets the cookie header to be sent once the response is sent.
     await req.session.save()
-    // returns user cookie details
-    res.status(200).json(user)
+    // don't need to return any data, as it's stored in the cookies
+    res.status(200).json({})
   } else {
     res.status(401).json({
       error: 'Signature verification failed'
