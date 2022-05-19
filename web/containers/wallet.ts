@@ -9,7 +9,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 import Web3 from 'web3'
-import { fetchPolygonContractABI } from '../pages/api/contracts'
+import { fetchPolygonContractABI } from '../lib/contractHelpers';
 import useSWR from 'swr'
 import { Prisma } from '.prisma/client';
 

@@ -1,10 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { withSessionRoute } from '../../../lib/with-session';
 import prisma from '../../../client';
-import { bufferToHex } from 'ethereumjs-util';
-import { recoverPersonalSignature } from 'eth-sig-util';
 import { SETTINGS_MESSAGE } from '../../../lib/constants';
 import { Prisma } from '.prisma/client';
+import { verifySignature } from '../../../lib/wallet';
 
 interface ExtendedNextAPIRequest extends NextApiRequest {
   query: {
@@ -30,14 +29,9 @@ async function usersHandler(req: ExtendedNextAPIRequest, res: NextApiResponse<Us
       return res.status(400).json({ error: 'Request should have signature and id' })
     }
 
-    // Recover the address from signature
-    const msgBufferHex = bufferToHex(Buffer.from(SETTINGS_MESSAGE, 'utf8'))
-    const address = recoverPersonalSignature({
-      data: msgBufferHex,
-      sig: signature as string,
-    })
+    const signatureVerified = verifySignature(id, signature as string, SETTINGS_MESSAGE);
 
-    if (address.toLowerCase() === id.toLowerCase()) {
+    if (signatureVerified) {
       try {
         const trimmedName = name.trim();
         const user = await prisma.users.update({
