@@ -1,17 +1,16 @@
 import { Server, Socket } from "socket.io";
 import availableRoomsData from '../helpers/roomRumbleData';
-import { CLEAR_GAME, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, START_GAME, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, START_GAME, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { addPlayer } from "../helpers/addPlayer";
 import { getPlayersAndRoomInfo } from "../helpers/getPlayersAndRoomInfo";
 import { getVisibleGameStateForClient } from "../helpers/getVisibleGameStateForClient";
 import startGame from "./startGame";
-// import clearGame from "./clearGame";
-import { Prisma } from ".prisma/client";
+import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, IronSessionUserData } from "@rumble-raffle-dao/types";
 
-let io: Server;
-let roomSocket: Socket;
+let io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
+let roomSocket: Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
 
-export const initRoom = (sio: Server, socket: Socket) => {
+export const initRoom = (sio: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>, socket: Socket) => {
   io = sio;
   roomSocket = socket;
 
@@ -19,8 +18,7 @@ export const initRoom = (sio: Server, socket: Socket) => {
   roomSocket.on(JOIN_ROOM, joinRoom);
   // join_game will enter a player into a game.
   roomSocket.on(JOIN_GAME, joinGame);
-  roomSocket.on(START_GAME, (args) => startGame(io, args))
-  // roomSocket.on(CLEAR_GAME, (args) => clearGame(io, args))
+  roomSocket.on(START_GAME, (user, roomSlug) => startGame(io, user, roomSlug))
 }
 
 /**
@@ -56,17 +54,17 @@ function joinRoom(roomSlug: string) {
  * On Join Game we want to:
  * - Do things
  */
-async function joinGame(joinData: { playerData: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>; roomSlug: string }) {
+async function joinGame(user: IronSessionUserData, roomSlug: string) {
   try {
     // Will error if the player is already added to the game.
-    const { data, error } = await addPlayer(joinData.roomSlug, joinData.playerData);
+    const { data, error } = await addPlayer(roomSlug, user);
 
     if (error) {
       io.to(this.id).emit(JOIN_GAME_ERROR, error);
       return;
     }
-    const playersAndRoomInfo = getPlayersAndRoomInfo(joinData.roomSlug);
-    io.in(joinData.roomSlug).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
+    const playersAndRoomInfo = getPlayersAndRoomInfo(roomSlug);
+    io.in(roomSlug).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
   } catch (error) {
     console.error('Server: joinGame', 'error')
   }

@@ -27,3 +27,7 @@ export const UPDATE_PLAYER_LIST = 'update_player_list'
 
 export const DEFAULT_ROOM_URL = '/play';
 export const DEFAULT_GAME_ROOM = 'DEFAULT';
+
+/** MESSAGES SIGNED WITH ETH TOOLS */
+export const LOGIN_MESSAGE = 'I am ready to rumble!'
+export const SETTINGS_MESSAGE = 'Changing user settings'

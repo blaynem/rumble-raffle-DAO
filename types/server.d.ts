@@ -157,3 +157,5 @@ export interface CreateRoom {
   contract_address: Prisma.ContractsCreateInput['contract_address']
   createdBy: Prisma.UsersCreateInput['id']
 }
+
+export type IronSessionUserData = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> & { signature: string; };

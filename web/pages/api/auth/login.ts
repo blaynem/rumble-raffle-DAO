@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { withSessionRoute } from '../../../lib/with-session'
-import { LOGIN_MESSAGE } from '../../../lib/constants'
 import prisma from '../../../client';
 import faker from '@faker-js/faker'
 import { verifySignature } from '../../../lib/wallet'
+import { LOGIN_MESSAGE } from '@rumble-raffle-dao/types/constants';
 
 // idk fun to have a fake name instead of not.
 const fancyName = () => `${faker.name.jobType().toUpperCase()}-${faker.animal.type().toUpperCase()}-${faker.datatype.number(100)}`

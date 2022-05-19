@@ -1,11 +1,11 @@
 import { ToastTypes } from '@rumble-raffle-dao/types';
+import { SETTINGS_MESSAGE } from '@rumble-raffle-dao/types/constants';
 import { ErrorMessage, Field, Form, Formik, FormikHelpers } from 'formik';
 import Head from 'next/head'
 import { useState } from 'react';
 import ToastMessage from '../components/toast';
 import { usePreferences } from '../containers/preferences';
 import { useWallet } from '../containers/wallet';
-import { SETTINGS_MESSAGE } from '../lib/constants';
 import userSettingsSchema from '../lib/schemaValidations/userSettings';
 import { handleSignMessage } from '../lib/wallet';
 
@@ -50,7 +50,7 @@ export default function PageIndex() {
       }).then(res => res.json())
     } catch (err) {
       console.error('Change settings error:', err);
-      return { error: err?.message || 'Something went wrong when saving settings.'}
+      return { error: err?.message || 'Something went wrong when saving settings.' }
     }
   }
 

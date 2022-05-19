@@ -9,5 +9,3 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 export {BASE_API_URL, BASE_WEB_URL};
-export const LOGIN_MESSAGE = 'I am ready to rumble!'
-export const SETTINGS_MESSAGE = 'Changing user settings'

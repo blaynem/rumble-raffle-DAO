@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { createContainer } from 'unstated-next'
 import { authenticate } from '../lib/wallet'
-import { PlayerAndRoomInfoType } from '@rumble-raffle-dao/types'
+import { IronSessionUserData, PlayerAndRoomInfoType } from '@rumble-raffle-dao/types'
 import { ethers } from 'ethers';
 let RaffleSmartContracts;
 if (process.env.NODE_ENV === 'development') {
@@ -90,14 +90,8 @@ const checkChain = async (chainId) => {
   }
 }
 
-const emptyUserObj = {
-  id: null,
-  name: null,
-  is_admin: false,
-}
-
 const useContainer = () => {
-  const { data: user, mutate: mutateUser } = useSWR<Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>>('/api/auth/user')
+  const { data: user, mutate: mutateUser } = useSWR<IronSessionUserData>('/api/auth/user')
 
   useEffect(() => {
     if (window !== undefined) {
@@ -108,19 +102,19 @@ const useContainer = () => {
         const userCookie = (await fetch(`/api/auth/user`).then(res => res.json()));
         if (coinbase !== userCookie?.id) {
           await fetch(`/api/auth/logout`);
-          mutateUser(emptyUserObj);
+          mutateUser();
         }
       });
     }
   }, [])
 
   const updateName = (name: string) => {
-    mutateUser({ ...user, name });
+    mutateUser();
   }
 
   const logout = async () => {
     await fetch(`/api/auth/logout`);
-    mutateUser(emptyUserObj);
+    mutateUser();
   }
 
   const doAuth = () => {

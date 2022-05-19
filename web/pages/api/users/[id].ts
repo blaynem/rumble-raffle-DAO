@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { withSessionRoute } from '../../../lib/with-session';
 import prisma from '../../../client';
-import { SETTINGS_MESSAGE } from '../../../lib/constants';
 import { Prisma } from '.prisma/client';
 import { verifySignature } from '../../../lib/wallet';
+import { SETTINGS_MESSAGE } from '@rumble-raffle-dao/types/constants';
 
 interface ExtendedNextAPIRequest extends NextApiRequest {
   query: {

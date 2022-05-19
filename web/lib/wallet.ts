@@ -1,7 +1,7 @@
+import { LOGIN_MESSAGE } from '@rumble-raffle-dao/types/constants'
 import { recoverPersonalSignature } from 'eth-sig-util'
 import { bufferToHex } from 'ethereumjs-util'
 import Web3 from 'web3'
-import { LOGIN_MESSAGE } from './constants'
 
 let web3 = undefined
 
