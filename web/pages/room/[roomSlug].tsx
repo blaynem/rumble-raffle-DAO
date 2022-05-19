@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
-import { EntireGameLog, PlayerAndRoomInfoType, RoomDataType } from "@rumble-raffle-dao/types";
+import { ClientToServerEvents, EntireGameLog, PlayerAndRoomInfoType, RoomDataType, ServerToClientEvents } from "@rumble-raffle-dao/types";
 import { GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
-import io from "socket.io-client";
+import io, { Socket } from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
 import { DisplayActivityLogs, DisplayKillCount, DisplayWinners } from "../../components/room/activityLog";
 import { useWallet } from '../../containers/wallet'
@@ -11,7 +11,7 @@ import Entrants from "../../components/room/entrants";
 import { usePreferences } from "../../containers/preferences";
 import { Prisma } from ".prisma/client";
 
-const socket = io(BASE_API_URL);
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
 
 const buttonClass = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out border-r-2 hover:bg-rumbleSecondary focus:bg-rumbleSecondary"
 const buttonDisabled = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out border-r-2 pointer-events-none opacity-60"
@@ -177,7 +177,7 @@ const RumbleRoom = ({ activeRoom, roomData }: ServerSidePropsType) => {
       // clean up sockets
       socket.disconnect()
     }
-  }, [roomData.room.slug]);
+  }, [activeRoom, roomData?.room?.slug]);
 
   const onJoinClick = async () => {
     if (user) {
@@ -191,7 +191,7 @@ const RumbleRoom = ({ activeRoom, roomData }: ServerSidePropsType) => {
         return;
       }
       if (paid) {
-        socket.emit(JOIN_GAME, { playerData: user, roomSlug });
+        socket.emit(JOIN_GAME, user, roomSlug);
       }
       // todo: remove join game click
     }
