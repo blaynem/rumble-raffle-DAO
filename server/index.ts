@@ -5,7 +5,7 @@ import { Server } from "socket.io";
 
 import initServer from './src/helpers/initServer';
 import { initRoom } from './src/sockets';
-import {BASE_WEB_URL} from './constants';
+import {CORS_BASE_WEB_URL} from './constants';
 
 /**
  * TODO:
@@ -31,7 +31,7 @@ app.use((err: any, req: any, res: any, next: any) => {
 
 const io = new Server(server, {
   cors: {
-    origin: BASE_WEB_URL,
+    origin: CORS_BASE_WEB_URL,
     methods: ["GET", "POST"],
     credentials: true
   }
