@@ -1,7 +1,4 @@
-export * from './server';
-export * from './web';
-export * from './prizeSplit';
+export * from './src';
 import * as constants from './constants';
-export * from './sockets';
 
 export { constants }
