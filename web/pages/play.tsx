@@ -47,7 +47,10 @@ const RumbleRoom = () => {
   let nextRoundInterval: NodeJS.Timer;
 
   // isRoomCreator used to show the admin panel.
-  const isRoomCreator = roomData?.params?.created_by === user?.id && !roomData?.params?.game_completed;
+  const isRoomCreator = user?.id !== undefined
+    && roomData?.params?.created_by === user?.id
+    && !roomData?.params?.game_completed;
+
   const roomSlug = roomData?.room?.slug;
 
   useEffect(() => {

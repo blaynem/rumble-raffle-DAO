@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { usePreferences } from '../containers/preferences';
 import { useEffect, useState } from 'react';
-import { DEFAULT_ROOM_URL, DISCORD_LINK } from '@rumble-raffle-dao/types/constants';
+import { DEFAULT_ROOM_URL, DISCORD_LINK, TWITTER_HANDLE, TWITTER_LINK, WHITE_PAPER_GIST } from '@rumble-raffle-dao/types/constants';
 import { useRouter } from 'next/router';
 
 /**
@@ -60,7 +60,12 @@ export default function PageIndex() {
           </ol>
 
           <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Where the heck can I learn more?</h2>
-          <p className='dark:text-rumbleNone text-rumbleOutline'>The best place for information will be the discord which can be found <a rel="noreferrer noopener" target="_blank" href={DISCORD_LINK} className="uppercase dark:text-rumbleSecondary text-rumblePrimary">here</a>.</p>
+          <p className='dark:text-rumbleNone text-rumbleOutline'>The best place to find more information would either be the discord, or the white paper. You can also reach us on twitter.</p>
+          <ol className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
+            <li>Discord Link: <a rel="noreferrer noopener" target="_blank" href={DISCORD_LINK} className="uppercase dark:text-rumbleSecondary text-rumblePrimary">here</a></li>
+            <li>White Paper Link: <a rel="noreferrer noopener" target="_blank" href={WHITE_PAPER_GIST} className="uppercase dark:text-rumbleSecondary text-rumblePrimary">here</a></li>
+            <li>Twitter: <a rel="noreferrer noopener" target="_blank" href={TWITTER_LINK} className="uppercase dark:text-rumbleSecondary text-rumblePrimary">{TWITTER_HANDLE}</a></li>
+          </ol>
         </section>
       </div>
     </div>

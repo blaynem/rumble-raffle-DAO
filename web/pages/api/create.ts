@@ -32,7 +32,7 @@ async function createRumble(req: NextApiRequest, res: NextApiResponse) {
       body: stringedBody,
       headers: {
         'Content-Type': 'application/json',
-        signature: req.session.user.signature
+        signature: req.session?.user?.signature
       },
       method: 'POST'
     }).then(res => res.json())
@@ -42,7 +42,7 @@ async function createRumble(req: NextApiRequest, res: NextApiResponse) {
     }
     res.status(200).json({ data })
   } catch (error) {
-    res.status(400).json({ error })
+    res.status(400).json({ error: "There was an error." })
   }
 }
 

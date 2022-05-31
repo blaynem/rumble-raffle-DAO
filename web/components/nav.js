@@ -5,7 +5,7 @@ import { useWallet } from '../containers/wallet'
 import { usePreferences } from '../containers/preferences'
 import WalletAddress from './wallet-address'
 import EmojiEventsOutlinedIcon from '@mui/icons-material/ContrastOutlined';
-import { DEFAULT_ROOM_URL } from '@rumble-raffle-dao/types/constants'
+import { DEFAULT_ROOM_URL, WHITE_PAPER_GIST } from '@rumble-raffle-dao/types/constants'
 import { useRouter } from 'next/router'
 
 function classNames(...classes) {
@@ -86,6 +86,13 @@ const Nav = () => {
                   leaveTo="transform opacity-0 scale-95"
                 >
                   <Menu.Items className="bg-rumbleBgLight text-rumbleOutline origin-top-right absolute mt-0.5 z-10 right-0 w-48 shadow-lg ring-2 ring-rumbleOutline focus:outline-none">
+                    <Menu.Item>
+                      <a target="_blank" rel="noreferrer noopener" href={WHITE_PAPER_GIST}>
+                        <button className='hover:bg-gray-200 text-left w-full py-2 px-4 text-sm text-gray-700 cursor-pointer'>
+                          White Paper
+                        </button>
+                      </a>
+                    </Menu.Item>
                     {dropdownNavigation.map(item => (
                       <Menu.Item key={item.name}>
                         {({ active }) => (

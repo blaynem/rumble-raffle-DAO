@@ -1,5 +1,7 @@
 # **Rumble Raffle White Paper**
 
+*Note: Please keep in mind this is all a work in progress and all things are subject to change.*
+
 Welcome to Rumble Raffle.
 
 A free to play, completely random game where you can earn RUMBLE tokens. Create and upgrade weapons to use in battle in order to earn more RUMBLE tokens. Reroll your weapons to get the perfect secondary stats!
@@ -95,7 +97,7 @@ Rumble Tokens are a reward earned by:
 
 ### **How Many Tokens are there?**
 
-TBD. Dogecoin has 100 Billion tokens. FNC has 1 Billion. 
+TBD. Likely 1 Billion.
 
 ### **Tokenomics**
 

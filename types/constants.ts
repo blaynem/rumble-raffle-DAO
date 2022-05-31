@@ -4,6 +4,7 @@
 export const DISCORD_LINK = 'https://discord.gg/5Bn8VKzHKB';
 export const TWITTER_LINK = 'https://twitter.com/RumbleRaffle';
 export const TWITTER_HANDLE = '@RumbleRaffle';
+export const WHITE_PAPER_GIST = 'https://gist.github.com/blaynem/3543a364317f209a69f697bb2befad76';
 
 /** CONTRACT VARS */
 export const ALCHEMY_BASE_URL_POLYGON = 'https://polygon-mainnet.g.alchemy.com/v2';
