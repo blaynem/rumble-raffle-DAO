@@ -1,8 +1,8 @@
-let BASE_WEB_URL;
+let CORS_BASE_WEB_URL;
 if (process.env.NODE_ENV === 'development') {
-  BASE_WEB_URL = 'http://localhost:3000'
+  CORS_BASE_WEB_URL = 'http://localhost:3000'
 } else {
-  BASE_WEB_URL = 'https://rumble-raffle-dao-iota.vercel.app'
+  CORS_BASE_WEB_URL = ['https://www.rumbleraffle.com', 'https://beta.rumbleraffle.com']
 }
 
-export {BASE_WEB_URL};
+export {CORS_BASE_WEB_URL};
