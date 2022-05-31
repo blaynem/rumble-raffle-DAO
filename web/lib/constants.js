@@ -1,11 +1,13 @@
+import { BASE_API_URL_DEV, BASE_API_URL_PROD, BASE_WEB_URL_DEV, BASE_WEB_URL_PROD } from "@rumble-raffle-dao/types/constants";
+
 let BASE_API_URL;
 let BASE_WEB_URL;
 if (process.env.NODE_ENV === 'development') {
-  BASE_API_URL = 'http://localhost:3001';
-  BASE_WEB_URL = 'http://localhost:3000'
+  BASE_API_URL = BASE_API_URL_DEV
+  BASE_WEB_URL = BASE_WEB_URL_DEV
 } else {
-  BASE_API_URL = 'https://rumble-raffle-dao.herokuapp.com'
-  BASE_WEB_URL = 'https://rumble-raffle-dao-iota.vercel.app'
+  BASE_API_URL = BASE_API_URL_PROD
+  BASE_WEB_URL = BASE_WEB_URL_PROD
 }
 
-export {BASE_API_URL, BASE_WEB_URL};
+export { BASE_API_URL, BASE_WEB_URL };
