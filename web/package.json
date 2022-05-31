@@ -13,6 +13,7 @@
     "@rumble-raffle-dao/rumble": "0.1.0",
     "@rumble-raffle-dao/smart-contracts": "0.1.0",
     "@rumble-raffle-dao/types": "0.1.0",
+    "decimal.js": "^10.3.1",
     "dotenv": "^16.0.0",
     "eth-sig-util": "^3.0.1",
     "ethereumjs-util": "^7.1.4",
