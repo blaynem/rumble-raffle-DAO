@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // referentialIntegrity = "prisma"
+}
+
+generator js {
+  provider = "prisma-client-js"
+  // previewFeatures = ["referentialIntegrity"]
+}
+
+model Activities {
+  id              String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  description     String
+  amountOfPlayers Int
+  activityLoser   Int[]
+  killCounts      Decimal[]
+  created_at      DateTime    @default(dbgenerated("now()"))
+  environment     Environment
+  activityWinner  Int[]
+
+  // Opposite Relations
+  GameLogs GameRoundLogs[]
+}
+
+model Contracts {
+  contract_address String   @id @db.VarChar(45) //evm compatible address 
+  chain_id         Int
+  created_at       DateTime @default(dbgenerated("now()"))
+  updated_at       DateTime @default(dbgenerated("now()")) @updatedAt
+  name             String
+  symbol           String
+  decimals         String
+  network_name     String
+
+  // Opposite Relations
+  roomParams RoomParams[]
+  Payouts    Payouts[]
+}
+
+model GameRoundLogs {
+  id                String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  round_counter     Int
+  players_remaining Int
+  activity_order    Int
+  created_at        DateTime @default(dbgenerated("now()"))
+  participants      String[]
+  // Has Relations
+  activity_id       String   @db.Uuid
+  room_params_id    String   @db.Uuid
+
+  // Define Relations
+  Activity   Activities @relation(fields: [activity_id], references: [id])
+  RoomParams RoomParams @relation(fields: [room_params_id], references: [id])
+}
+
+model Payouts {
+  id                       String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  payment_reason           PaymentReason
+  public_address           String        @db.VarChar(45) //evm compatible address 
+  payment_amount           Decimal       @db.Decimal(10, 2)
+  notes                    String
+  created_at               DateTime      @default(dbgenerated("now()"))
+  payment_completed        Boolean       @default(false)
+  payment_completed_at     DateTime?     @updatedAt
+  payment_transaction_hash String?
+  // Has Relations
+  room_params_id           String        @db.Uuid
+  payment_contract_id      String        @db.VarChar(45)
+
+  // Define Relations
+  RoomParams      RoomParams @relation(fields: [room_params_id], references: [id])
+  PaymentContract Contracts  @relation(fields: [payment_contract_id], references: [contract_address])
+}
+
+model Players {
+  slug           String   @db.VarChar()
+  time_joined    DateTime @default(dbgenerated("now()"))
+  // Has Relations
+  room_params_id String   @db.Uuid /// Is actually the room_params id, not rooms.
+  player         String   @db.VarChar(45) // evm compatible address
+
+  // Define Relations
+  RoomParams RoomParams @relation(fields: [room_params_id], references: [id])
+  User       Users      @relation(fields: [player], references: [id])
+
+  @@id([room_params_id, player])
+  @@unique([room_params_id, player])
+}
+
+model RoomParams {
+  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  pve_chance     Int
+  revive_chance  Int
+  created_at     DateTime @default(dbgenerated("now()"))
+  updated_at     DateTime @default(dbgenerated("now()")) @updatedAt
+  game_started   Boolean? @default(false)
+  game_completed Boolean? @default(false)
+  winners        String[]
+  // Has Relations
+  created_by     String   @db.VarChar(45) // evm compatible address
+  contract_id    String   @db.VarChar(45)
+
+  // Define Relations
+  Creator  Users     @relation(fields: [created_by], references: [id])
+  Contract Contracts @relation(fields: [contract_id], references: [contract_address])
+
+  // Opposite Relation
+  Rooms    Rooms[]
+  Payouts  Payouts[]
+  Players  Players[]
+  GameLogs GameRoundLogs[]
+}
+
+model Rooms {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  created_at DateTime @default(dbgenerated("now()"))
+  updated_at DateTime @default(dbgenerated("now()")) @updatedAt
+  slug       String   @unique @db.VarChar(100)
+
+  // Has Relations
+  params_id String @db.Uuid
+
+  // Define Relations
+  Params RoomParams @relation(fields: [params_id], references: [id])
+}
+
+model Users {
+  /// Users public address
+  id         String   @id @unique @db.VarChar(45) // evm compatible address
+  name       String   @unique @db.VarChar(200)
+  is_admin   Boolean  @default(false) @db.Boolean
+  created_at DateTime @default(dbgenerated("now()"))
+  updated_at DateTime @default(dbgenerated("now()")) @updatedAt
+
+  // Opposite Relations
+  RoomParams RoomParams[]
+  Players    Players[]
+}
+
+enum PaymentReason {
+  winner
+  second
+  third
+  kills
+  alt_split
+  creator_split
+}
+
+enum Environment {
+  PVP
+  PVE
+  REVIVE
+}

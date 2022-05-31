@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { createContainer } from 'unstated-next'
 import { authenticate } from '../lib/wallet'
-import { definitions, PlayerAndPrizeSplitType, SupabaseUserType } from '@rumble-raffle-dao/types'
+import { IronSessionUserData, PlayerAndRoomInfoType } from '@rumble-raffle-dao/types'
 import { ethers } from 'ethers';
 let RaffleSmartContracts;
 if (process.env.NODE_ENV === 'development') {
@@ -9,8 +9,9 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 import Web3 from 'web3'
-import { fetchPolygonContractABI } from '../pages/api/contracts'
+import { fetchPolygonContractABI } from '../lib/contractHelpers';
 import useSWR from 'swr'
+import { Prisma } from '.prisma/client';
 
 
 const createEthereumContract = (address, abi) => {
@@ -22,7 +23,7 @@ const createEthereumContract = (address, abi) => {
   return transactionsContract;
 };
 
-const getContractDetails = async (contractDetails: Pick<definitions['contracts'], 'chain_id' | 'contract_address'>) => {
+const getContractDetails = async (contractDetails: Pick<Prisma.ContractsGroupByOutputType, 'chain_id' | 'contract_address'>) => {
   let rumbleContractAddress = process.env.RUMBLE_CONTRACT_ADDRESS;
   let rumbleContract;
   let tokenContract;
@@ -49,7 +50,7 @@ const getContractDetails = async (contractDetails: Pick<definitions['contracts']
     const tokenAbi = await fetchPolygonContractABI(tokenAddress);
     tokenContract = createEthereumContract(tokenAddress, tokenAbi.contractABI);
   }
-  
+
   console.log('Token Contract:', tokenContract);
   let tokenDecimals: number = await tokenContract.decimals();
   tokenDecimals.toString();
@@ -90,41 +91,44 @@ const checkChain = async (chainId) => {
 }
 
 const useContainer = () => {
-  const { data: user, mutate: mutateUser } = useSWR<SupabaseUserType>('/api/user')
+  const { data: user, mutate: mutateUser } = useSWR<IronSessionUserData>('/api/auth/user')
 
   useEffect(() => {
     if (window !== undefined) {
       const web3 = new Web3((window as any).ethereum)
       // We check if the metamask address is the same as the cookie. if not,
       // we reset the user state so they have to re login
-      web3.eth.getCoinbase().then(coinbase => {
-        if (coinbase !== user?.public_address) {
-          mutateUser(undefined);
+      web3.eth.getCoinbase().then(async coinbase => {
+        const userCookie = (await fetch(`/api/auth/user`).then(res => res.json()));
+        if (coinbase !== userCookie?.id) {
+          await fetch(`/api/auth/logout`);
+          mutateUser();
         }
       });
     }
   }, [])
 
   const updateName = (name: string) => {
-    mutateUser({...user, name});
+    mutateUser();
   }
 
-  const logout = () => {
-    mutateUser(undefined);
+  const logout = async () => {
+    await fetch(`/api/auth/logout`);
+    mutateUser();
   }
 
   const doAuth = () => {
-    authenticate((authResponse) => {
+    authenticate((userCookie) => {
       // If there's an error, let's display it.
-      if (authResponse?.error) {
-        window.alert(authResponse?.error);
+      if (userCookie?.error) {
+        window.alert(userCookie?.error);
         return;
       }
-      mutateUser(authResponse)
+      mutateUser();
     })
   }
 
-  const payEntryFee = async (contractDetails: PlayerAndPrizeSplitType['roomInfo']['contract'], amount: string): Promise<{ paid: boolean; error: any; }> => {
+  const payEntryFee = async (contractDetails: PlayerAndRoomInfoType['roomInfo']['contract'], amount: string): Promise<{ paid: boolean; error: any; }> => {
     if (amount === "0") {
       return { paid: true, error: null }
     }
@@ -154,8 +158,8 @@ const useContainer = () => {
     }
   }
 
-  
-  const payWinners = async (contractDetails: Pick<definitions['contracts'], 'chain_id' | 'contract_address'>, payments: {
+
+  const payWinners = async (contractDetails: Pick<Prisma.ContractsGroupByOutputType, 'chain_id' | 'contract_address'>, payments: {
     public_address: string;
     amount: string;
     token_address: string;

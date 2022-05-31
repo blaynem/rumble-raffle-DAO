@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { ActivitiesObjType, PlayerType, PrizeValuesType, PrizeSplitType, ActivityTypes, allPlayersObj, ActivityLogType, RoundActivityLogType, WinnerLogType, GameEndType, PrizePayouts, RumbleInterface, GameActivityLogsType } from './types';
-import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, doesEventOccur, getRandomNumber } from './common';
-import { RumbleRaffleInterface, SetupType } from './types/rumble';
+import type { ActivitiesObjType, PlayerType, ActivityTypes, allPlayersObj, ActivityLogType, RoundActivityLogType, WinnerLogType, GameEndType, RumbleInterface, GameActivityLogsType } from '../types';
+import { doActivity, pickActivity, getAmtRandomItemsFromArr, getPlayersFromIds, doesEventOccur, getRandomNumber } from '../common';
+import { RumbleRaffleInterface, SetupType } from '../types/rumble';
 
 /**
  * TODO:
@@ -13,27 +13,6 @@ import { RumbleRaffleInterface, SetupType } from './types/rumble';
  * 
  */
 
-/**
- * Numbers are percentages. 10 => 10%, etc.
- * Percentages must be in numbers 0-100 and added together must total 100.
- * 
- * Defaults: 
- * 20% - for kills
- * 50% - 1st place winner
- * 15% - 2nd place
- * 5% - 3rd place
- * 9% - to stakers
- * 1% - to RumbleRaffleDAO
- */
-const defaultPrizeSplit: PrizeSplitType = {
-  kills: 20,
-  thirdPlace: 5,
-  secondPlace: 15,
-  firstPlace: 50,
-  altSplit: 9,
-  creatorSplit: 1,
-}
-
 const defaultGameActivities: ActivitiesObjType = {
   PVE: [],
   PVP: [],
@@ -43,25 +22,12 @@ const defaultGameActivities: ActivitiesObjType = {
 const defaultParams: SetupType['params'] = {
   chanceOfPve: 30,
   chanceOfRevive: 5,
-  entryPrice: 10
 }
 
 export const defaultSetup: SetupType = {
   activities: defaultGameActivities,
   params: defaultParams,
   initialPlayers: [],
-  prizeSplit: defaultPrizeSplit,
-}
-
-export const initialGamePayouts: PrizePayouts = {
-  altSplit: 0,
-  creatorSplit: 0,
-  winner: 0,
-  secondPlace: 0,
-  thirdPlace: 0,
-  kills: {},
-  remainder: 0,
-  total: 0,
 }
 
 const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterface {
@@ -70,21 +36,16 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
   // Values for setting up the rumble environment
   chanceOfPve: number;
   chanceOfRevive: number;
-  entryPrice: number;
   maxActivitiesPerRound: number;
-  prizes: PrizeValuesType;
-  prizeSplit: PrizeSplitType;
 
   // Values used before game starts
   allPlayers: allPlayersObj;
   allPlayerIds: string[];
   totalPlayers: number;
-  totalPrize: number;
 
   // Values used when game in play
   gameActivityLogs: GameActivityLogsType;
   gameKills: { [playerId: string]: number };
-  gamePayouts: PrizePayouts;
   gameRunnerUps: PlayerType[];
   gameStarted: boolean;
   gameWinner: PlayerType | null;
@@ -98,30 +59,17 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
     // Defining the params of the game
     this.chanceOfPve = setup.params.chanceOfPve;
     this.chanceOfRevive = setup.params.chanceOfRevive;
-    this.entryPrice = setup.params.entryPrice;
-    this.prizeSplit = setup.prizeSplit;
 
     this.maxActivitiesPerRound = 2;
-    this.prizes = {
-      altSplit: 0,
-      creatorSplit: 0,
-      firstPlace: 0,
-      secondPlace: 0,
-      thirdPlace: 0,
-      kills: 0,
-      totalPrize: 0,
-    };
 
     // Used before starting
     this.allPlayers = {};
     this.allPlayerIds = [];
     this.totalPlayers = 0;
-    this.totalPrize = 0;
 
     // Used during play
     this.gameActivityLogs = [];
     this.gameKills = {};
-    this.gamePayouts = initialGamePayouts;
     this.gameRunnerUps = [];
     this.gameStarted = false;
     this.gameWinner = null;
@@ -135,7 +83,6 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
    * Initiates the class
    */
   init(setup: SetupType) {
-    this.validatePrizeSplit();
     this.addInitialPlayers(setup.initialPlayers);
   }
   /**
@@ -152,7 +99,6 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
     this.allPlayerIds = allPlayerIds;
     this.allPlayers = allPlayers;
 
-    // Update all the prize values.
     return this.setPlayers();
   }
   /**
@@ -203,12 +149,11 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
     return this.setPlayers();
   }
   /**
-   * Sets the total amount of players and calls setPrize values.
+   * Sets the total amount of players.
    * @returns All the players
    */
   private setPlayers(): PlayerType[] {
     this.totalPlayers = this.allPlayerIds.length;
-    this.setPrizeValues()
 
     return getPlayersFromIds(this.allPlayerIds, this.allPlayers)
   }
@@ -219,23 +164,6 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
    */
   getAllPlayers(): PlayerType[] {
     return getPlayersFromIds(this.allPlayerIds, this.allPlayers)
-  }
-  /**
-   * Sets the prize values based on the predetermined prize split.
-   */
-  private setPrizeValues() {
-    const totalPrize = this.totalPlayers * this.entryPrice;
-    const prizes = this.calculatePrizeSplit(totalPrize, this.totalPlayers);
-
-    this.prizes = prizes;
-    this.totalPrize = totalPrize;
-  }
-  /**
-   * Getter for the prize information.
-   * @returns all prizes
-   */
-  getPrizes(): PrizeValuesType {
-    return this.prizes;
   }
   /**
    * Getter for the activity logs.
@@ -268,7 +196,6 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
         gameActivityLogs: this.gameActivityLogs,
         allPlayers: this.allPlayers,
         gameKills: this.gameKills,
-        gamePayouts: this.gamePayouts,
         gameRunnerUps: this.gameRunnerUps,
         gameWinner: this.gameWinner,
         roundCounter: this.roundCounter,
@@ -310,7 +237,6 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
   restartGame(): Promise<GameEndType> {
     this.gameActivityLogs = [];
     this.gameKills = {};
-    this.gamePayouts = initialGamePayouts;
     this.gameRunnerUps = [];
     this.gameStarted = false;
     this.gameWinner = null;
@@ -480,8 +406,6 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
 
     // Set this.gameKills
     this.calculateTotalKillCounts();
-    // Set this.gamePayouts
-    this.calculatePayouts();
   }
 
   /**
@@ -508,60 +432,6 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
     })
 
     this.gameKills = totalKillCount;
-  }
-
-  /**
-   * Calculates the payouts for kills, placements, etc.
-   * Called by setGameWinner
-   */
-  private calculatePayouts() {
-    /**
-     * Since people can die in a pve round, there will be leftover prize money.
-     * Remaining prize money will be given out to the altSplit.
-     */
-    let prizeRemainder = this.prizes.totalPrize;
-    const payouts: PrizePayouts = {
-      altSplit: 0,
-      creatorSplit: 0,
-      winner: 0,
-      secondPlace: 0,
-      thirdPlace: 0,
-      kills: {},
-      remainder: 0,
-      total: this.prizes.totalPrize,
-    };
-
-    // Rumble Raffles split
-    payouts.creatorSplit = this.prizes.creatorSplit;
-    prizeRemainder -= this.prizes.creatorSplit;
-
-    // Alt split
-    payouts.altSplit = this.prizes.altSplit;
-    prizeRemainder -= this.prizes.altSplit;
-
-    // First place prize
-    payouts.winner = this.prizes.firstPlace
-    prizeRemainder -= this.prizes.firstPlace
-
-    // Second place prize
-    payouts.secondPlace = this.prizes.secondPlace
-    prizeRemainder -= this.prizes.secondPlace
-
-    // Third place prize
-    payouts.thirdPlace = this.prizes.thirdPlace
-    prizeRemainder -= this.prizes.thirdPlace
-
-    // Loop through all the kills
-    Object.keys(this.gameKills).forEach(playerId => {
-      const killPay = (this.prizes.kills * this.gameKills[playerId])
-      // only add them if payout is greater than 0
-      killPay > 0 && (payouts.kills[playerId] = killPay)
-      prizeRemainder -= killPay;
-    })
-
-    // The leftover winnings remaining.
-    payouts.remainder = prizeRemainder;
-    this.gamePayouts = payouts;
   }
   /**
    * Getter for the game winner and runner ups.
@@ -604,30 +474,6 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
    */
   getPlayerById(id: string): PlayerType {
     return this.allPlayers[id];
-  }
-
-  // todo: PrizeValuesType should actually be using the PrizePayouts. As it's returning the actual amount of coin, not a percentage
-  private calculatePrizeSplit(totalPrize: number, totalPlayers: number): PrizeValuesType {
-    this.validatePrizeSplit();
-
-    return {
-      altSplit: totalPrize * (this.prizeSplit.altSplit / 100),
-      creatorSplit: (this.prizeSplit.creatorSplit / 100),
-      firstPlace: totalPrize * (this.prizeSplit.firstPlace / 100),
-      secondPlace: totalPrize * (this.prizeSplit.secondPlace / 100),
-      thirdPlace: totalPrize * (this.prizeSplit.thirdPlace / 100),
-      kills: (totalPrize * (this.prizeSplit.kills / 100)) / totalPlayers,
-      totalPrize,
-    }
-  }
-  /**
-   * Helper function to validate whether the prizeSplit totals to 100 or not.
-   */
-  private validatePrizeSplit() {
-    const total = Object.values(this.prizeSplit).reduce((acc, curr) => curr += acc, 0);
-    if (total !== 100) {
-      throw new Error("Prize split totals must equal exactly 100.");
-    }
   }
 }
 

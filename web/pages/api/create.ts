@@ -1,33 +1,38 @@
+import { CreateRoom } from '@rumble-raffle-dao/types';
 import { NextApiRequest, NextApiResponse } from 'next'
 import { BASE_API_URL } from '../../lib/constants';
-import createRoomSchema from '../../lib/schemaValidations/createRoom';
+import { withSessionRoute } from '../../lib/with-session';
 
-export default async function createRumble(req: NextApiRequest, res: NextApiResponse) {
+export interface CreateRoomBody {
+  slug: string;
+  contract_address: string;
+  createdBy: string;
+  pve_chance: string;
+  revive_chance: string;
+}
+
+async function createRumble(req: NextApiRequest, res: NextApiResponse) {
   try {
-    // Attempt to validate the body
-    await createRoomSchema.validate(req.body, { abortEarly: false })
-
     // Need to convert these strings to numbers.
-    const { prize_split, entry_fee, pve_chance, revive_chance, ...restParsed } = JSON.parse(req.body);
-    const paramsToNumbers = {
-      ...restParsed,
-      entry_fee: parseInt(entry_fee, 10),
-      pve_chance: parseInt(pve_chance, 10),
-      revive_chance: parseInt(revive_chance, 10),
-      prize_kills: parseInt(prize_split.prize_kills, 10),
-      prize_alt_split: parseInt(prize_split.prize_alt_split, 10),
-      prize_first: parseInt(prize_split.prize_first, 10),
-      prize_second: parseInt(prize_split.prize_second, 10),
-      prize_third: parseInt(prize_split.prize_third, 10),
-      prize_creator: parseInt(prize_split.prize_creator, 10),
+    const { createdBy, contract_address, pve_chance, revive_chance, slug } = JSON.parse(req.body) as CreateRoomBody;
+
+    const createRoomObj: CreateRoom = {
+      slug: slug,
+      contract_address: contract_address,
+      createdBy: createdBy,
+      params: {
+        pve_chance: parseInt(pve_chance, 10),
+        revive_chance: parseInt(revive_chance, 10),
+      },
     }
 
-    const stringedBody = JSON.stringify(paramsToNumbers)
+    const stringedBody = JSON.stringify(createRoomObj)
     // Make the fetch
     const { data, error } = await fetch(`${BASE_API_URL}/api/rooms/create`, {
       body: stringedBody,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        signature: req.session?.user?.signature
       },
       method: 'POST'
     }).then(res => res.json())
@@ -37,6 +42,8 @@ export default async function createRumble(req: NextApiRequest, res: NextApiResp
     }
     res.status(200).json({ data })
   } catch (error) {
-    res.status(400).json({ error })
+    res.status(400).json({ error: "There was an error." })
   }
 }
+
+export default withSessionRoute(createRumble);

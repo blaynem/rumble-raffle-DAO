@@ -65,6 +65,18 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 ## Web
 
+- Make this work with complete free version for now.
+  - How Rumble Raffle works page
+  - Activities
+    - Add some more activities, damn!
+  - Rooms
+    - Different icons for pvp, pve, revive
+  - Create Page
+    - Remove contract requirement unless there is an entryFee piece
+  - Weapons Page
+    - Buy weapon
+    - Upgrade weapon
+
 - General:
   - Users can switch between metamask accounts, so we should constantly check for those changes
     - ex: `web3.eth.accounts[0];`
@@ -118,6 +130,13 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
   - Sockets data needs to be encoded from server side somehow
 - Testing:
 
+## Database
+
+- Rooms
+  - rooms should really only have the `id`, `slug`, `params_id`. The rest of the info should be inside of `room_params`. This allows us to always use the same url, and allow external hardlinks like `rumbleraffle.com/room/fancybirds` so they can have their own specific rooms if needed. then we simply switch out the `params_id` when a new game is going to be started.
+    - `payouts` table would need to change `room_id` to be based on `room_params` table instead
+    - `game_round_logs` table would need to change `room_id` to be based on `room_params` table instead
+
 ## Rumble Package
 
 - Start Game
@@ -144,41 +163,8 @@ Tab 4: Run `yarn contract-deploy-local` to deploy the local contracts.
 
 - There are some.. just haven't found them yet.
 
-
-# Game Modes
-
-**DEATHROLL APP**
-  - In WoW we would deathroll our gold. How it works:
-    - Challenge someone to deathroll of x value. you'd type `/roll x` and it would randomly pick a number between 1 and x.
-    - Ex: "I challenge you to roll of `50,000` coins"
-    - Person who started the game would type `/roll 500000`
-    - the console would spit out random number `Blah rolled: 34562`
-    - You repeat this until the last person rolls `1`. That person would then owe the other person the `50,000`
-
-**HIGH ROLLER**
-  - You would set the game to go off of `10,000`
-  - 20 people agree to roll `/roll 10000` each
-  - The person who rolled the lowest then owes the person who rolled the highest, the difference between theyre rolls.
-  - ex: Person1 rolls `120` Person2 rolls `9450`. Person 1 then pays `9450 -120` to Person 2.
-
-
 # Extra Ideas
 
 **Discord bot implementation**
   - Just displays a message of where the link is to view / pay
   - Then shows the same messages as the website does inside the discord server.
-
-**Different designs for different coins?**
-  - Allows it to be tailored towards the individuals branding
-
-**END OF WEEK TOURNEY**
-  - At the end of the week, all the remainder money goes into a prize pool. Anyone who has played this week will be automatically entered into this massive raffle and then paid out how we determine. (This sounds like it's easily manipulated though by entering different raffles or something. Still good for hype.)
-
-# Extra Ideas
-
-## Profile Pictures
-- Rumble Raffle specific PFPs based on what you own?
-  - Weapons, armor, helmet (they do nothing. Just for flexing)
-- External NFT PFPs (different options)
-    1. Show the NFT
-    2. Implement weapon layers or a "serum" similar to BAYC that could be used to add weapons to your NFT?

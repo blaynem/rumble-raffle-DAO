@@ -1,7 +1,4 @@
-require('dotenv').config();
-import { createClient } from '@supabase/supabase-js'
+import { PrismaClient } from '@rumble-raffle-dao/database';
+const prisma = new PrismaClient()
 
-export default createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_KEY
-)
+export default prisma;

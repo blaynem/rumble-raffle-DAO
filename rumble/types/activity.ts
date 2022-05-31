@@ -1,4 +1,4 @@
-import { allPlayersObj, PlayerType, PrizePayouts } from "."
+import { allPlayersObj, PlayerType } from "."
 
 /**
  * Typings for the activities type PVE, PVP, and REVIVE object.
@@ -90,8 +90,6 @@ export type GameEndType = {
   allPlayers: allPlayersObj
   // Total kills in the game
   gameKills: {[playerId: string]: number};
-  // Payouts for the game;
-  gamePayouts: PrizePayouts;
   // The entire list of participants, excluding the winner, ordered by their placement.
   gameRunnerUps: PlayerType[] | null;
   // The game winner.

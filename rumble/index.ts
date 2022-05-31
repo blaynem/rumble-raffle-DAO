@@ -1,4 +1,4 @@
-import Rumble from './rumble'
+import Rumble from './src/rumble'
 export * from './types';
 
 

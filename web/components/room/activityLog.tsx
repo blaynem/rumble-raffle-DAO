@@ -1,9 +1,15 @@
 import React, { Fragment } from 'react';
-import LocalDiningOutlinedIcon from '@mui/icons-material/LocalDiningOutlined';
+import LocalHospitalOutlined from '@mui/icons-material/LocalHospitalOutlined';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
+import Swords from 'tabler-icons-react/dist/icons/swords';
 import 'react-popper-tooltip/dist/styles.css';
-import { PickFromPlayers, RoundActivityLog, SingleActivity, SupabaseUserType } from "@rumble-raffle-dao/types";
+import { PickFromPlayers, RoundActivityLog, SingleActivity } from "@rumble-raffle-dao/types";
 import { ClickToCopyPopper } from '../Popper';
+import { Prisma } from '.prisma/client';
+import HikingOutlined from '@mui/icons-material/HikingOutlined';
+
+const iconClass = 'h-5 w-5 dark:stroke-rumbleNone block'
+const iconClassMui = 'h-5 w-5 dark:fill-rumbleNone fill-rumbleOutline block'
 
 const replaceActivityDescPlaceholders = (activity: SingleActivity): (string | JSX.Element)[] => {
   const matchPlayerNumber = /(PLAYER_\d+)/ // matches PLAYER_0, PLAYER_12, etc
@@ -14,7 +20,7 @@ const replaceActivityDescPlaceholders = (activity: SingleActivity): (string | JS
       const index = Number(part.replace('PLAYER_', ''))
       // Gets the name of the player.
       const player = activity.participants[index]
-      return <ClickToCopyPopper key={i} boldText text={player.name} popperText={player.public_address} />
+      return <ClickToCopyPopper key={i} boldText text={player.name} popperText={player.id} />
     }
     return part;
   })
@@ -30,15 +36,25 @@ const ActivityBreak = () => (<li className='ml-4 h-4 border-l-2 dark:border-l-ru
 const ActivityListItem = ({ description, highlight, icon }: { icon: any; description: (string | JSX.Element)[]; highlight: boolean; }) => (
   <li className='ml-2 flex text-lg relative'>
     <span className="self-center pr-4">
-      {React.createElement(icon, { className: 'h-5 w-5 dark:fill-rumbleNone fill-rumbleOutline block' })}
+      {icon}
     </span>
     <span className={`p-2 font-light dark:text-rumbleNone ${highlight ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>{description}</span>
   </li>
 )
 
+const getActivityIcon = (activity: SingleActivity) => {
+  const { environment } = activity
+  if (environment === 'REVIVE') {
+    return <LocalHospitalOutlined className={iconClassMui} />;
+  }
+  if (environment === 'PVE') {
+    return <HikingOutlined className={iconClassMui} />;
+  }
+  return <Swords className={iconClass}/>;
+}
 
 const DisplayActivity = ({ activity, containsUser }: { activity: SingleActivity; containsUser: boolean; }) => {
-  return <ActivityListItem icon={LocalDiningOutlinedIcon} highlight={containsUser} description={replaceActivityDescPlaceholders(activity)} />
+  return <ActivityListItem icon={getActivityIcon(activity)} highlight={containsUser} description={replaceActivityDescPlaceholders(activity)} />
 }
 
 
@@ -46,7 +62,7 @@ const DisplayRound = ({ logs, publicAddress }: { logs: RoundActivityLog; publicA
   /**
    * Returns true if the play is present in the array
    */
-  const containsUser = (participants: PickFromPlayers[]) => participants.findIndex(p => p?.public_address === publicAddress) > -1;
+  const containsUser = (participants: PickFromPlayers[]) => participants.findIndex(p => p?.id === publicAddress) > -1;
   return (
     <div key={logs.round_counter} className='w-full'>
       <h3 className='ml-4 border-l-2 dark:border-l-rumbleNone/40 border-l-black text-lg dark:text-rumbleSecondary text-rumblePrimary uppercase font-medium py-2 px-9'>
@@ -67,7 +83,7 @@ const DisplayRound = ({ logs, publicAddress }: { logs: RoundActivityLog; publicA
   )
 }
 
-export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; user: SupabaseUserType }) => {
+export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => {
   const placementMessage = [
     'Congratulations! 1st place goes to',
     '2nd place',
@@ -79,13 +95,13 @@ export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; 
         Winner
       </h3>
       <ul>
-        {winners.slice(0,3).map((winner, i) => (
-          <Fragment key={winner.public_address}>
+        {winners.slice(0, 3).map((winner, i) => (
+          <Fragment key={winner.id}>
             {i > 0 && <ActivityBreak />}
             <ActivityListItem
-              icon={EmojiEventsOutlinedIcon}
-              description={[placementMessage[i], ' ', <ClickToCopyPopper key={winner.public_address} boldText text={winner.name} popperText={winner.public_address} />, '.']}
-              highlight={winner.public_address === user?.public_address}
+              icon={<EmojiEventsOutlinedIcon className={iconClassMui} />}
+              description={[placementMessage[i], ' ', <ClickToCopyPopper key={winner.id} boldText text={winner.name} popperText={winner.id} />, '.']}
+              highlight={winner.id === user?.id}
             />
           </Fragment>
         )
@@ -95,16 +111,16 @@ export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; 
   )
 }
 
-export const DisplayActivityLogs = ({ allActivities, user }: { allActivities: RoundActivityLog[]; user: SupabaseUserType; }) => {
+export const DisplayActivityLogs = ({ allActivities, user }: { allActivities: RoundActivityLog[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>; }) => {
   return <>
-    {allActivities.map((logs, i) => <DisplayRound key={`${logs.round_counter}-${i}`} logs={logs} publicAddress={user?.public_address} />)}
+    {allActivities.map((logs, i) => <DisplayRound key={`${logs.round_counter}-${i}`} logs={logs} publicAddress={user?.id} />)}
   </>
 }
 
-const DisplayEntrantKills = ({ count, entrant: { public_address, name }, user }: { count: number; entrant: PickFromPlayers; user: SupabaseUserType }) => (
-  <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${public_address === user?.public_address ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>
+const DisplayEntrantKills = ({ count, entrant: { id, name }, user }: { count: number; entrant: PickFromPlayers; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => (
+  <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${id === user?.id ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>
     <div className='flex justify-between'>
-      <ClickToCopyPopper text={name} popperText={public_address} truncate/>
+      <ClickToCopyPopper text={name} popperText={id} truncate />
       <div>{count}</div>
     </div>
   </li>
@@ -118,24 +134,26 @@ const calcKillCounts = (rounds: RoundActivityLog[]) => {
       if (activity.kill_count === null) {
         return;
       }
-      Object.keys(activity.kill_count).forEach(publicAddress => {
-        if (killCounts[publicAddress]) {
-          killCounts[publicAddress] += activity.kill_count[publicAddress]
+      Object.keys(activity.kill_count).forEach(id => {
+        // These come through as strings for some reason. So we safely convert them to a number.
+        const killCountNumber = new Prisma.Decimal(activity.kill_count[id]).toNumber();
+        if (killCounts[id]) {
+          killCounts[id] += killCountNumber
         } else {
-          activity.kill_count[publicAddress] > 0 && (killCounts[publicAddress] = activity.kill_count[publicAddress]);
+          killCountNumber > 0 && (killCounts[id] = killCountNumber);
         }
       })
     })
   })
 
   const killCountArr = Object.keys(killCounts)
-    .map(public_address => ({ public_address, count: killCounts[public_address] }))
+    .map(id => ({ id, count: killCounts[id] }))
     .sort((a, b) => b.count - a.count);
 
   return killCountArr;
 }
 
-export const DisplayKillCount = ({ entrants, rounds, user }: { entrants: PickFromPlayers[]; rounds: RoundActivityLog[]; user: SupabaseUserType; }) => {
+export const DisplayKillCount = ({ entrants, rounds, user }: { entrants: PickFromPlayers[]; rounds: RoundActivityLog[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>; }) => {
   return (
     <div className="mb-8 w-80 py-6 pl-6 border-2 dark:border-rumbleNone border-rumbleOutline">
       <div className="dark:text-rumbleSecondary text-rumblePrimary uppercase text-lg font-medium leading-7 mb-2">Kill Count</div>
@@ -145,8 +163,8 @@ export const DisplayKillCount = ({ entrants, rounds, user }: { entrants: PickFro
             <li className="mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal">No kills yet.</li>
             :
             calcKillCounts(rounds).map(player => {
-              const entrant = entrants.find(e => e.public_address === player.public_address)
-              return <DisplayEntrantKills key={player?.public_address} count={player.count} entrant={entrant} user={user} />
+              const entrant = entrants.find(e => e.id === player.id)
+              return <DisplayEntrantKills key={player?.id} count={player.count} entrant={entrant} user={user} />
             })
         }
       </ul>

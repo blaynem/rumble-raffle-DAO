@@ -1,67 +1,114 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { definitions, OmegaRoomInterface, RoomDataType } from '@rumble-raffle-dao/types';
-import client from '../../client';
-import { addNewRoomToMemory } from '../../helpers/roomRumbleData';
 import { getGameDataFromDb } from '../../helpers/getGameDataFromDb';
+import prisma from '../../client';
+import { addNewRoomToMemory } from '../../helpers/roomRumbleData';
+import { CreateRoom, RoomDataType } from '@rumble-raffle-dao/types';
+import verifySignature from '../../utils/verifySignature';
+import { LOGIN_MESSAGE } from '@rumble-raffle-dao/types/constants';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
+
+// {
+// 	"createdBy": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+// 	"params": {
+// 		"pve_chance": 12,
+// 		"revive_chance": 3
+// 	},
+// 	"slug": "TestRoom",
+// 	"contract_address": "0x8f06208951E202d30769f50FAec22AEeC7621BE2"
+// }
+
+interface RequestBody extends express.Request {
+  body: CreateRoom
+}
 
 /**
  * Flow of creating a room
  * - Create `room_params` entry
  * - Create `room` entry
  */
-router.post('/create', jsonParser, async (req: any, res: any) => {
+router.post('/create', jsonParser, async (req: RequestBody, res: express.Response) => {
   try {
-    const { contract, user, ...restReqBody } = req.body;
-    const { data: userData, error: userError } = await client.from<definitions['users']>('users').select('is_admin').eq('public_address', user.public_address)
+    const { slug, params, contract_address, createdBy } = req.body;
+
+    const validatedSignature = verifySignature(createdBy, req.headers.signature as string, LOGIN_MESSAGE)
+    if (!validatedSignature) {
+      throw new Error('Signature validation failed.');
+    }
+
+    if (!createdBy) {
+      throw('You must be logged in to create a room.');
+    }
+    const userData = await prisma.users.findUnique({ where: { id: createdBy } })
     // If they aren't an admin, we say no.
-    if (!userData[0]?.is_admin) {
-      res.status(401).json({ error: 'Only admin may create rooms at this time.' })
-      return;
+    if (!userData?.is_admin) {
+      throw('Only admin may create rooms at this time.');
     }
-    const contract_id = contract.contract_address;
-    const created_by = user.public_address;
-    // Insert room_param
-    const { data: roomParamsData, error: roomParamsError } = await client.from<definitions['room_params']>('room_params').insert({
-      ...restReqBody,
-      created_by,
-      contract_id
-    });
-    if (roomParamsError) {
-      res.status(res.statusCode).json({ error: roomParamsError });
-      return;
+
+    const dataToChange = {
+      Params: {
+        create: {
+          ...params,
+          Creator: {
+            connect: {
+              id: createdBy
+            }
+          },
+          Contract: {
+            connect: {
+              contract_address
+            }
+          }
+        }
+      }
     }
-    // Insert Rooms
-    const { id: roomParamId } = roomParamsData[0];
-    const { data, error } = await client.from<definitions['rooms']>('rooms').insert({
-      params_id: roomParamId,
-      slug: restReqBody.slug,
-      created_by,
-      contract_id
+    // Difference between the `update` and `create` here is only the `slug`.
+    const roomData = await prisma.rooms.upsert({
+      where: {
+        slug,
+      },
+      update: {
+        ...dataToChange
+      },
+      create: {
+        slug,
+        ...dataToChange
+      },
+      include: {
+        Params: {
+          include: {
+            Contract: true,
+          }
+        }
+      }
     })
-    if (error) {
-      res.status(res.statusCode).json({ error });
-      return;
-    }
-    // If room is created, we add it to memory.
-    const roomData: RoomDataType = {
-      created_by,
-      contract: contract,
-      gameData: null,
-      game_completed: false,
-      game_started: false,
-      id: data[0].id,
-      params: roomParamsData[0],
+
+    
+    const {Params: { Contract, ...restParams }, ...restRoomData } = roomData
+    const mapRoomData: RoomDataType = {
+      room: restRoomData,
+      params: restParams,
+      contract: Contract,
       players: [],
-      slug: data[0].slug,
-    };
-    addNewRoomToMemory(roomData);
-    res.json({ data });
+      gameData: null,
+      gameLogs: []
+    }
+
+    addNewRoomToMemory(mapRoomData);
+    res.json({ data: roomData });
   } catch (error) {
     console.error('Server: /rooms/create', error);
+    if (typeof error === 'string') {
+      res.status(400).json({ error })
+      return;
+    }
+    if (error?.code === 'P2009') {
+      res.status(400).json({ error: 'Missing a required value to create a room.' })
+      return;
+    }
+    res.status(400).json({ error: 'Something went wrong with the request' })
   }
 })
 

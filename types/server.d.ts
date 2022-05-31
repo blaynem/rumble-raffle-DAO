@@ -1,14 +1,12 @@
-import { definitions } from "./supabase";
-import { PrizeSplitType } from "@rumble-raffle-dao/rumble";
+import { Prisma } from '.prisma/client'
 
-// All players, the prize split, and the necessary room info
-export type PlayerAndPrizeSplitType = {
+// All players, and the necessary room info
+export type PlayerAndRoomInfoType = {
   allPlayers: PickFromPlayers[];
-  prizeSplit: PrizeSplitType;
-  // Creator, entryFee, tokenContract, tokenNetwork
+  // Creator, tokenContract, tokenNetwork
   roomInfo: {
-    contract: Pick<definitions['contracts'], 'contract_address' | 'network_name' | 'symbol' | 'chain_id'>;
-    params: Pick<definitions['room_params'], 'alt_split_address' | 'created_by' | 'entry_fee' | 'pve_chance' | 'revive_chance'>;
+    contract: Pick<Prisma.ContractsGroupByOutputType, 'contract_address' | 'network_name' | 'symbol' | 'chain_id'>;
+    params: Pick<Prisma.RoomParamsGroupByOutputType, 'created_by' | 'pve_chance' | 'revive_chance'>;
   }
 }
 
@@ -48,7 +46,7 @@ export type GameState = {
 }
 
 // Payouts type omitting the id
-export type PayoutsOmitId = Omit<definitions["payouts"], 'id'>;
+export type PayoutsOmitId = Omit<Prisma.PayoutsGroupByOutputType, 'id' | 'created_at' | '_count' | '_avg' | '_sum' | '_min' | '_max'>
 
 /**
  * Used for creating payouts
@@ -65,80 +63,46 @@ export type PayoutTemplateType = {
   /**
    * Payment amount 
    */
-  payment_amount: number;
+  payment_amount: Prisma.PayoutsGroupByOutputType['payment_amount'];
   /**
    * Reason for the payment
    */
-  payment_reason: definitions['payouts']['payment_reason'];
+  payment_reason: Prisma.PayoutsGroupByOutputType['payment_reason'];
   /**
    * Notes to help determine reason later
    */
-  notes: definitions['payouts']['notes']
+  notes: Prisma.PayoutsGroupByOutputType['notes']
 }
 
 /**
  * We only want to send these fields back to players.
  */
-export type PickFromPlayers = Pick<definitions["users"], "public_address" | "name">
+export type PickFromPlayers = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name'>
 
-// Used for creating rooms
-export type RoomDataType = {
-  /**
-   * Who the room was created by
-   */
-  created_by: definitions['rooms']['created_by']
-  /**
-   * Contract data for the given room
-   */
-  contract: definitions['contracts']
-  /**
-   * Will be null until the game has been played and completed.
-   */
-  gameData?: EntireGameLog | null;
-  /**
-   * True if the game has been completed.
-   */
-  game_completed: definitions['rooms']['game_completed']
-  /**
-   * True if the game has already begun playing.
-   */
-  game_started: definitions['rooms']['game_started'];
-  /**
-   * Id of the given room.
-   */
-  id: string;
-  /**
-   * Players of the given room.
-   */
-  players: PickFromPlayers[];
-  /**
-   * Params of the given room.
-   */
-  params: definitions['room_params'];
-  /**
-   * Slug for the given room.
-   */
-  slug: string;
+export interface RoomDataType {
+  room: Pick<Prisma.RoomsGroupByOutputType, 'id' | 'slug' | 'params_id'>
+  params: Pick<Prisma.RoomParamsGroupByOutputType, 'game_completed' | 'game_started' | 'id' | 'pve_chance' | 'revive_chance' | 'winners' | 'created_by'>
+  players: PickFromPlayers[]
+  gameLogs: (
+    Pick<Prisma.GameRoundLogsGroupByOutputType, 'activity_id' | 'round_counter' | 'activity_order' | 'participants' | 'players_remaining'>
+    & {
+      Activity: Pick<Prisma.ActivitiesGroupByOutputType, 'activityLoser' | 'activityWinner' | 'killCounts' | 'environment' | 'amountOfPlayers' | 'description'>
+    }
+  )[]
+  contract: Omit<Prisma.ContractsGroupByOutputType, '_count' | '_min' | '_max' | '_avg' | '_sum' | 'created_at' | 'updated_at'>
+  gameData: EntireGameLog | null;
 }
 
-// Only get the public_address and name field from users db
-export type PickFromUsers = Pick<definitions['users'], 'public_address' | 'name'>;
-
 // Used for a single round within a game
-export type RoundsType = {
-  activity: definitions['activities']
-} & definitions['game_round_logs']
-
-// Type used to initialize the server with any / all rooms available.
-export type OmegaRoomInterface = {
-  players: PickFromUsers[];
-  params: definitions['room_params'];
-  contract: definitions['contracts'];
-  game_activities: RoundsType[];
-} & Pick<definitions['rooms'], 'id' | 'slug' | 'game_completed' | 'game_started' | 'created_by' | 'winners'>
+export type RoundsType = (
+  Pick<Prisma.GameRoundLogsGroupByOutputType, 'activity_id' | 'round_counter' | 'activity_order' | 'participants' | 'players_remaining'>
+  & {
+    Activity: Pick<Prisma.ActivitiesGroupByOutputType, 'activityLoser' | 'activityWinner' | 'killCounts' | 'environment' | 'amountOfPlayers' | 'description'>
+  }
+)
 
 // All of the game_round_logs types, omitting the id
-export type GameRoundLogsOmitId = Omit<definitions['game_round_logs'], 'id'>
+export type GameRoundLogsOmitId = Omit<Prisma.GameRoundLogsGroupByOutputType, 'id' | 'created_at' | '_count' | '_avg' | '_sum' | '_min' | '_max'>
 
 // The entire games log.
 export type EntireGameLog = {
@@ -168,21 +132,30 @@ export type SingleActivity = {
   /**
    * Description of the activity that happens. Ex: "PLAYER_0 drank infected water and died."
    */
-  description: definitions['activities']['description'];
+  description: Prisma.ActivitiesGroupByOutputType['description'];
   /**
    * Whether it is PVE, PVP, or REVIVE 
    */
-  environment: definitions['activities']['environment']
+  environment: Prisma.ActivitiesGroupByOutputType['environment']
   /**
    * Id of the activity
    */
-  id: definitions['activities']['id'];
+  id: Prisma.ActivitiesGroupByOutputType['id'];
   /**
    * Kill count for each activity
    */
-  kill_count: { [playerId: string]: number }
+  kill_count: { [playerId: string]: Prisma.Decimal }
   /**
    * Participants of the activity
    */
   participants: PickFromPlayers[];
 }
+
+export interface CreateRoom {
+  slug: Prisma.RoomsCreateInput['slug']
+  params: Omit<Prisma.RoomParamsCreateInput, 'Creator' | 'Contract'>
+  contract_address: Prisma.ContractsCreateInput['contract_address']
+  createdBy: Prisma.UsersCreateInput['id']
+}
+
+export type IronSessionUserData = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> & { signature: string; };

@@ -11,13 +11,13 @@ export const defaultGameState = {
   waitTime: 15,
 };
 
-const getGameState = (room: RoomDataType): GameState => {
+const getGameState = (data: RoomDataType): GameState => {
   // If the game has completed from the db, we set it to started here as well
   // Also set the roundCounter to round length in order to show all the rounds.
-  if (room.game_completed) {
+  if (data.params.game_completed) {
     return {
       gameCompleted: true,
-      roundCounter: room.gameData.rounds.length,
+      roundCounter: data.gameData.rounds.length,
       showWinners: true,
       waitTime: defaultGameState.waitTime,
     }
@@ -25,15 +25,15 @@ const getGameState = (room: RoomDataType): GameState => {
   return defaultGameState;
 }
 
-export const addNewRoomToMemory = (room: RoomDataType) => {
-  const slug = room.slug;
+export const addNewRoomToMemory = (data: RoomDataType) => {
+  const slug = data.room.slug;
   const roomData: RoomDataType = {
-    ...room,
-    gameData: room.gameData || null,
+    ...data,
+    gameData: data.gameData || null,
   }
   availableRoomsData[slug] = {
     roomData,
-    gameState: getGameState(room),
+    gameState: getGameState(data),
   };
 }
 

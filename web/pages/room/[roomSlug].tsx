@@ -1,55 +1,45 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
-import { EntireGameLog, PlayerAndPrizeSplitType, RoomDataType, SupabaseUserType } from "@rumble-raffle-dao/types";
+import { ClientToServerEvents, EntireGameLog, PlayerAndRoomInfoType, RoomDataType, ServerToClientEvents } from "@rumble-raffle-dao/types";
 import { GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
-import io from "socket.io-client";
+import io, { Socket } from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
-import DisplayPrizes from "../../components/room/prizes";
 import { DisplayActivityLogs, DisplayKillCount, DisplayWinners } from "../../components/room/activityLog";
 import { useWallet } from '../../containers/wallet'
 import { BASE_API_URL, BASE_WEB_URL } from "../../lib/constants";
 import Entrants from "../../components/room/entrants";
 import { usePreferences } from "../../containers/preferences";
-import { useRouter } from "next/router";
+import { Prisma } from ".prisma/client";
 
-const socket = io(BASE_API_URL);
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
 
 const buttonClass = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out border-r-2 hover:bg-rumbleSecondary focus:bg-rumbleSecondary"
 const buttonDisabled = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out border-r-2 pointer-events-none opacity-60"
 
 export type ServerSidePropsType = {
   activeRoom: boolean;
-  game_completed: boolean;
-  game_started: boolean;
-  roomCreator: string;
-  roomSlug: string;
-  user: SupabaseUserType;
+  roomData: RoomDataType;
+  user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>;
 }
 
 export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest }): Promise<{ props: ServerSidePropsType }> => {
   const { user } = req.session
-  const { data }: { data: RoomDataType[] } = await fetch(`${BASE_WEB_URL}/api/rooms/${query.roomSlug}`).then(res => res.json())
-  
-  const roomData = data[0];
+  const { data }: { data: RoomDataType } = await fetch(`${BASE_WEB_URL}/api/rooms/${query.roomSlug}`).then(res => res.json())
+
   return {
     props: {
-      activeRoom: data.length > 0,
-      game_completed: roomData?.game_completed || null,
-      game_started: roomData?.game_started || null,
-      roomCreator: roomData?.created_by || null,
-      roomSlug: query.roomSlug,
+      activeRoom: data !== null,
+      roomData: data,
       user: user || null,
     }
   }
 })
 
-const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roomSlug, ...rest }: ServerSidePropsType) => {
+const RumbleRoom = ({ activeRoom, roomData }: ServerSidePropsType) => {
   const { user, payEntryFee } = useWallet()
   const { preferences } = usePreferences();
-  const router = useRouter()
-  const [entrants, setEntrants] = useState([] as PlayerAndPrizeSplitType['allPlayers']);
-  const [prizes, setPrizes] = useState({} as PlayerAndPrizeSplitType['prizeSplit']);
-  const [roomInfo, setRoomInfo] = useState({} as PlayerAndPrizeSplitType['roomInfo']);
+  const [entrants, setEntrants] = useState(roomData.players as PlayerAndRoomInfoType['allPlayers']);
+  const [roomInfo, setRoomInfo] = useState(roomData as PlayerAndRoomInfoType['roomInfo']);
   const [activityLogRounds, setActivityLogRounds] = useState([] as EntireGameLog['rounds']);
   const [activityLogWinners, setActivityLogWinners] = useState([] as EntireGameLog['winners']);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -60,22 +50,21 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
 
   let gameStartInterval: NodeJS.Timer;
   let nextRoundInterval: NodeJS.Timer;
-  // console.log('------RumbleRoom', { entrants, prizes, activityLogRounds, activityLogWinners, user, roomInfo });
 
-  const isRoomCreator = roomCreator === user?.public_address;
+  // isRoomCreator used to show the admin panel.
+  const isRoomCreator = user?.id !== undefined
+    && roomData?.params?.created_by === user?.id
+    && !roomData?.params?.game_completed;
+  const roomSlug = roomData?.room?.slug;
 
   useEffect(() => {
     setDarkMode(preferences?.darkMode);
   }, [preferences?.darkMode]);
 
   useEffect(() => {
-    if (game_completed) {
-      router.push(`/completed/${roomSlug}`);
-      return;
-    }
     // If this isn't in a useEffect it doesn't always catch in the rerenders.
     setCalcHeight(isRoomCreator ? 'calc(100vh - 108px)' : 'calc(100vh - 58px)');
-  }, [])
+  })
 
   // Countdown for the GAME to start
   useEffect(() => {
@@ -153,10 +142,9 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
      * - On initial join of room
      * - Any time a "user"" is converted to a "player"
      */
-    socket.on(UPDATE_PLAYER_LIST, (data: PlayerAndPrizeSplitType) => {
+    socket.on(UPDATE_PLAYER_LIST, (data: PlayerAndRoomInfoType) => {
       console.log('---UPDATE_PLAYER_LIST');
       data.allPlayers !== null && setEntrants([...data.allPlayers]);
-      data.prizeSplit !== null && setPrizes(data.prizeSplit);
       data.roomInfo !== null && setRoomInfo(data.roomInfo);
     });
   }, [])
@@ -175,40 +163,62 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
     socket.on('disconnect', (s) => {
       console.log('DISCONNECTED');
       // Attempts to reconnect.
-      if (activeRoom && !game_completed) {
+      if (activeRoom && !roomData.params.game_completed) {
+        // if (activeRoom) {
         // Join a room
-        socket.emit(JOIN_ROOM, roomSlug);
+        socket.emit(JOIN_ROOM, roomData.room.slug);
       }
     })
-    if (activeRoom && !game_completed) {
+    if (activeRoom && !roomData.params.game_completed) {
+      // if (activeRoom) {
       // Join a room
-      socket.emit(JOIN_ROOM, roomSlug);
+      socket.emit(JOIN_ROOM, roomData.room.slug);
     }
     // Return function here is used to cleanup the sockets
     return function cleanup() {
       // clean up sockets
       socket.disconnect()
     }
-  }, [roomSlug]);
+  }, [activeRoom, roomData?.room?.slug]);
 
   const onJoinClick = async () => {
     if (user) {
       // Clear error message.
       setErrorMessage(null);
-      const { paid, error } = await payEntryFee(roomInfo.contract, roomInfo.params.entry_fee.toString());
+      // There is currently no entry fees
+      const { paid, error } = await payEntryFee(roomInfo.contract, '0');
       if (error) {
         setErrorMessage(error)
         console.error('Join Click:', error);
         return;
       }
       if (paid) {
-        socket.emit(JOIN_GAME, { playerData: user, roomSlug });
+        socket.emit(JOIN_GAME, user, roomSlug);
       }
       // todo: remove join game click
     }
   }
 
-  const alreadyJoined = entrants.findIndex(entrant => entrant.public_address === user?.public_address) >= 0;
+  const alreadyJoined = entrants.findIndex(entrant => entrant.id === user?.id) >= 0;
+  /**
+   * Cannot join a game if
+   * - They are not logged in
+   * - They have already joined
+   * - The game has already started.
+   */
+  const canJoinGame = !!user?.id && !alreadyJoined && !roomData?.params?.game_started;
+
+  /**
+   * Show "next round begins shortly" message if:
+   * - activityLogWinners is empty
+   * - The game has started
+   * - The game has NOT completed
+   * - timeToNextRoundStart = null
+   * - timeToGameStart = null
+   */
+  const showNextRoundShortly = activityLogWinners.length === 0 &&
+    (roomData?.params?.game_started && !roomData?.params?.game_completed) &&
+    (timeToNextRoundStart === null && timeToGameStart === null)
 
   // TODO: Redirect them to home if there is no room shown?
   if (!activeRoom) {
@@ -224,6 +234,33 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
     )
   }
 
+  // If game has already been completed, we show them this view instead.
+  // Should refactor this so it all just go
+  if (roomData?.params?.game_completed) {
+    return (
+      <div className={`${darkMode ? 'dark' : 'light'}`}>
+        <div className="dark:bg-black bg-rumbleBgLight overflow-auto sm:overflow-hidden" style={{ height: 'calc(100vh - 58px)' }}>
+          <h2 className="dark:border-rumbleBgLight border-black text-center p-4 text-xl uppercase dark:bg-rumbleSecondary bg-rumblePrimary dark:text-black text-rumbleNone border-b-2">Viewing a past game</h2>
+          <div className="flex flex-col md:flex-row sm:flex-row">
+            {/* Left Side */}
+            <div className="ml-6 lg:ml-20 md:ml-6 sm:ml-6 pr-6 mr-2 pt-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 110px)' }}>
+              <Entrants entrants={roomData.players} user={user} />
+              <DisplayKillCount entrants={roomData.players} rounds={roomData.gameData.rounds} user={user} />
+            </div>
+            {/* Right Side */}
+            <div className="pr-6 lg:pr-20 md:pr-6 sm:pr-6 py-2 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 110px)' }}>
+              <div className="my-4 h-6 text-center dark:text-rumbleNone text-rumbleOutline" />
+              <div className="flex flex-col items-center max-h-full">
+                <DisplayActivityLogs allActivities={roomData.gameData.rounds} user={user} />
+                <DisplayWinners winners={roomData.gameData.winners} user={user} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`${darkMode ? 'dark' : 'light'}`}>
       <div className="dark:bg-black bg-rumbleBgLight overflow-auto sm:overflow-hidden" style={{ height: 'calc(100vh - 58px)' }}>
@@ -236,10 +273,9 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
           <div className="ml-6 lg:ml-20 md:ml-6 sm:ml-6 pr-6 mr-2 pt-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
             <h2 className="mb-8 dark:text-rumbleNone"><span className="font-bold">{user?.name}</span></h2>
             <div className="mb-8">
-              <button className={(!user || alreadyJoined) ? buttonDisabled : buttonClass} onClick={onJoinClick}>{alreadyJoined ? 'Join Game' : 'Join Game'}</button>
+              <button className={canJoinGame ? buttonClass : buttonDisabled} onClick={canJoinGame ? onJoinClick : null}>Join Game</button>
               {errorMessage && <p className="mt-4 text-red-600">Error: {errorMessage}</p>}
             </div>
-            <DisplayPrizes {...prizes} entryFee={roomInfo.params?.entry_fee} entryToken={roomInfo.contract?.symbol} totalEntrants={entrants.length} />
             <Entrants entrants={entrants} user={user} />
             <DisplayKillCount entrants={entrants} rounds={activityLogRounds} user={user} />
           </div>
@@ -248,6 +284,7 @@ const RumbleRoom = ({ activeRoom, game_completed, game_started, roomCreator, roo
             <div className="my-4 h-6 text-center dark:text-rumbleNone text-rumbleOutline">
               {timeToGameStart && <span>Game starts in: {timeToGameStart}</span>}
               {timeToNextRoundStart && <span>Next round begins in: {timeToNextRoundStart}</span>}
+              {showNextRoundShortly && <span>Game in progress, next round beginning shortly.</span>}
             </div>
             <div className="flex flex-col items-center max-h-full">
               <DisplayActivityLogs allActivities={activityLogRounds} user={user} />

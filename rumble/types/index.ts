@@ -1,5 +1,4 @@
 import {RumbleInterface, RumbleRaffleInterface, SetupType} from './rumble';
-import {PrizeValuesType, PrizePayouts, PrizeSplitType} from './prizeSplit';
 import {PlayerType, allPlayersObj} from './player';
 import {
   ActivitiesObjType,
@@ -13,7 +12,6 @@ import {
 
 export type {
   RumbleInterface, RumbleRaffleInterface, SetupType,
-  PrizeValuesType, PrizePayouts, PrizeSplitType,
   PlayerType, allPlayersObj,
   ActivitiesObjType,
   ActivityTypes,

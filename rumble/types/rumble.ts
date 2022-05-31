@@ -1,13 +1,12 @@
-import { ActivityTypes, PrizeValuesType, allPlayersObj, PrizePayouts, PlayerType, GameEndType, PrizeSplitType, ActivitiesObjType, GameActivityLogsType } from ".";
+import { ActivityTypes, allPlayersObj, PlayerType, GameEndType, ActivitiesObjType, GameActivityLogsType } from ".";
 
 /**
  * Constructor typings
  */
 export type SetupType = {
   activities: ActivitiesObjType,
-  params: Pick<RumbleInterface, 'chanceOfPve' | 'chanceOfRevive' | 'entryPrice'>
+  params: Pick<RumbleInterface, 'chanceOfPve' | 'chanceOfRevive'>
   initialPlayers: PlayerType[],
-  prizeSplit: PrizeSplitType,
 }
 
 /**
@@ -38,10 +37,6 @@ export interface RumbleInterface {
    * Default is 5%
    */
   chanceOfRevive: number;
-  // Price in order to join the rumble
-  entryPrice: number;
-  // Prize values that will be given
-  prizes: PrizeValuesType;
   /**
    * The maximum amount of activities a user should be able to participate in each round.
    * Excluding revives.
@@ -57,8 +52,6 @@ export interface RumbleInterface {
   allPlayerIds: string[];
   // Total amount of players
   totalPlayers: number;
-  // Total prize to be split
-  totalPrize: number;
 
   /** ----Values used when game in play--- */
 
@@ -66,8 +59,6 @@ export interface RumbleInterface {
   gameActivityLogs: GameActivityLogsType;
   // Total kills in the game
   gameKills: { [playerId: string]: number };
-  // Payouts for the game;
-  gamePayouts: PrizePayouts;
   // The entire list of participants, excluding the winner, ordered by their placement.
   gameRunnerUps: PlayerType[];
   // Has game already been started.
@@ -114,11 +105,6 @@ export interface RumbleInterface {
    * @returns the game winner and runner ups.
    */
   getGameWinner: () => { winner: PlayerType | null, runnerUps: PlayerType[] | null }
-  /**
-   * Getter for the prize information.
-   * @returns all prizes
-   */
-  getPrizes: () => PrizeValuesType;
   /**
    * Gets the player object by the id
    * @param id - id of player

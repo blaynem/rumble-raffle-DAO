@@ -5,12 +5,15 @@ import { useWallet } from '../containers/wallet'
 import { usePreferences } from '../containers/preferences'
 import WalletAddress from './wallet-address'
 import EmojiEventsOutlinedIcon from '@mui/icons-material/ContrastOutlined';
+import { DEFAULT_ROOM_URL, WHITE_PAPER_GIST } from '@rumble-raffle-dao/types/constants'
+import { useRouter } from 'next/router'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 const Nav = () => {
+  const router = useRouter();
   const { user, logout } = useWallet()
   const { preferences, setDarkmode } = usePreferences();
   const [darkMode, setDarkMode] = useState(false);
@@ -18,11 +21,16 @@ const Nav = () => {
 
   useEffect(() => {
     setDarkMode(preferences?.darkMode);
-    setLoggedIn(!!user?.public_address);
+    setLoggedIn(!!user?.id);
   }, [preferences?.darkMode, user]);
 
-  const userNavigation = [
-    { name: 'Settings', href: '/settings' },
+  const navigation = [
+    { name: 'Home', href: '/' },
+    { name: 'Play', href: DEFAULT_ROOM_URL },
+  ]
+
+  const dropdownNavigation = [
+    { name: 'Settings', onClick: () => router.push('/settings') },
     { name: 'Sign out', onClick: () => logout() }
   ]
 
@@ -39,7 +47,24 @@ const Nav = () => {
       >
         {({ open }) => (
           <>
-            <div className="max-w-full mx-auto flex items-center justify-end">
+            <div className="max-w-full mx-auto flex items-center justify-between">
+              <div className="flex md:ml-8 sm:ml-2">
+                {navigation.map(item => (
+                  <button
+                    onClick={() => router.push(item.href)}
+                    key={item.name}
+                    href={item.href}
+                    className='px-4 py-2 uppercase hover:bg-gray-200 font-medium text-xl dark:text-rumbleNone text-rumbleOutline'
+                  >
+                    {item.name}
+                  </button>
+                ))}
+              </div>
+              <p className='px-4 py-2 uppercase font-medium text-xl dark:text-rumbleNone text-rumbleOutline'>
+                <span className="dark:text-rumbleSecondary text-rumblePrimary">((</span>
+                Beta
+                <span className="dark:text-rumbleSecondary text-rumblePrimary">))</span>
+              </p>
               {/* Profile dropdown */}
               <Menu as="div" className="relative">
                 <div>
@@ -48,7 +73,7 @@ const Nav = () => {
                   </button>
                   <Menu.Button className="dark:bg-rumbleSecondary bg-rumblePrimary text-rumbleNone border-l-2 dark:border-rumbleNone border-rumbleOutline px-6 py-4 focus:outline-none focus:ring-2 focus:ring-rumbleSecondary">
                     <span className="sr-only">Open user menu</span>
-                    {loggedIn ? <WalletAddress address={user?.public_address} /> : <WalletConnector />}
+                    {loggedIn ? <WalletAddress address={user?.id} /> : <WalletConnector />}
                   </Menu.Button>
                 </div>
                 <Transition
@@ -60,20 +85,27 @@ const Nav = () => {
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Menu.Items className="bg-rumbleBgLight text-rumbleOutline origin-top-right absolute mt-0.5 z-10 right-0 w-48 shadow-lg ring-2 ring-rumbleOutline py-1 focus:outline-none">
-                    {userNavigation.map(item => (
+                  <Menu.Items className="bg-rumbleBgLight text-rumbleOutline origin-top-right absolute mt-0.5 z-10 right-0 w-48 shadow-lg ring-2 ring-rumbleOutline focus:outline-none">
+                    <Menu.Item>
+                      <a target="_blank" rel="noreferrer noopener" href={WHITE_PAPER_GIST}>
+                        <button className='hover:bg-gray-200 text-left w-full py-2 px-4 text-sm text-gray-700 cursor-pointer'>
+                          White Paper
+                        </button>
+                      </a>
+                    </Menu.Item>
+                    {dropdownNavigation.map(item => (
                       <Menu.Item key={item.name}>
                         {({ active }) => (
-                          <a
-                            {...(true && { onClick: item.onClick })}
+                          <button
+                            onClick={item.onClick}
                             href={item.href}
                             className={classNames(
-                              active ? 'bg-gray-100 cursor-pointer' : '',
-                              'block py-2 px-4 text-sm text-gray-700 cursor-pointer'
+                              active ? 'bg-gray-200 cursor-pointer' : '',
+                              'text-left w-full py-2 px-4 text-sm text-gray-700 cursor-pointer'
                             )}
                           >
                             {item.name}
-                          </a>
+                          </button>
                         )}
                       </Menu.Item>
                     ))}

@@ -1,4 +1,5 @@
-import { SupabaseUserType, ToastTypes } from '@rumble-raffle-dao/types';
+import { ToastTypes } from '@rumble-raffle-dao/types';
+import { SETTINGS_MESSAGE } from '@rumble-raffle-dao/types/constants';
 import { ErrorMessage, Field, Form, Formik, FormikHelpers } from 'formik';
 import Head from 'next/head'
 import { useState } from 'react';
@@ -6,7 +7,7 @@ import ToastMessage from '../components/toast';
 import { usePreferences } from '../containers/preferences';
 import { useWallet } from '../containers/wallet';
 import userSettingsSchema from '../lib/schemaValidations/userSettings';
-import { withSessionSsr } from '../lib/with-session';
+import { handleSignMessage } from '../lib/wallet';
 
 type SettingsTypes = {
   name: string;
@@ -15,7 +16,7 @@ type SettingsTypes = {
 const customErrorColors = (msg: string) => <div className='text-base h-10 text-red-600 py-2'>{msg}</div>
 
 const pageTitle = `Settings`
-export default function PageIndex(props: { user: SupabaseUserType }) {
+export default function PageIndex() {
   const { user, updateName } = useWallet();
   const { preferences } = usePreferences();
 
@@ -37,13 +38,23 @@ export default function PageIndex(props: { user: SupabaseUserType }) {
   }
 
   const handleSubmit = async (values: SettingsTypes) => {
-    return await fetch(`/api/users/${user.public_address}`, {
-      method: 'POST',
-      body: JSON.stringify(values)
-    }).then(res => res.json())
+    try {
+      const { signature } = await handleSignMessage({ id: user.id, message: SETTINGS_MESSAGE })
+
+      return await fetch(`/api/users/${user.id}`, {
+        method: 'POST',
+        body: JSON.stringify(values),
+        headers: {
+          signature,
+        }
+      }).then(res => res.json())
+    } catch (err) {
+      console.error('Change settings error:', err);
+      return { error: err?.message || 'Something went wrong when saving settings.' }
+    }
   }
 
-  if (!user || !user.public_address) {
+  if (!user || !user.id) {
     return (
       <div className={`text-center ${preferences?.darkMode ? 'dark' : 'light'}`}>
         <div className='dark:bg-black bg-rumbleBgLight w-full mx-auto py-8 px-6 lg:px-[15%] md:px-[10%] sm:px-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark"' style={{ height: 'calc(100vh - 58px)' }}>
@@ -65,7 +76,7 @@ export default function PageIndex(props: { user: SupabaseUserType }) {
         validationSchema={userSettingsSchema}
         onSubmit={(values, { setSubmitting }: FormikHelpers<SettingsTypes>) => {
           handleSubmit(values).then((res) => {
-            if (res.error) {
+            if (res?.error) {
               setSubmitting(false);
               handleSetToast({ type: 'ERROR', message: res.error || 'There was an error saving the settings.' });
               return;
@@ -123,12 +134,3 @@ export default function PageIndex(props: { user: SupabaseUserType }) {
     </div>
   )
 }
-
-export const getServerSideProps = withSessionSsr(({ req }) => {
-  const user = req?.session?.user
-  return {
-    props: {
-      ...(user && { user })
-    }
-  }
-})
