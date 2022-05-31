@@ -7,6 +7,7 @@ import { PickFromPlayers, RoundActivityLog, SingleActivity } from "@rumble-raffl
 import { ClickToCopyPopper } from '../Popper';
 import { Prisma } from '.prisma/client';
 import HikingOutlined from '@mui/icons-material/HikingOutlined';
+import { Decimal } from 'decimal.js';
 
 const iconClass = 'h-5 w-5 dark:stroke-rumbleNone block'
 const iconClassMui = 'h-5 w-5 dark:fill-rumbleNone fill-rumbleOutline block'
@@ -50,7 +51,7 @@ const getActivityIcon = (activity: SingleActivity) => {
   if (environment === 'PVE') {
     return <HikingOutlined className={iconClassMui} />;
   }
-  return <Swords className={iconClass}/>;
+  return <Swords className={iconClass} />;
 }
 
 const DisplayActivity = ({ activity, containsUser }: { activity: SingleActivity; containsUser: boolean; }) => {
@@ -136,7 +137,7 @@ const calcKillCounts = (rounds: RoundActivityLog[]) => {
       }
       Object.keys(activity.kill_count).forEach(id => {
         // These come through as strings for some reason. So we safely convert them to a number.
-        const killCountNumber = new Prisma.Decimal(activity.kill_count[id]).toNumber();
+        const killCountNumber = new Decimal(activity.kill_count[id] as any).toNumber();
         if (killCounts[id]) {
           killCounts[id] += killCountNumber
         } else {
