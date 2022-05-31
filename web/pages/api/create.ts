@@ -13,7 +13,6 @@ export interface CreateRoomBody {
 
 async function createRumble(req: NextApiRequest, res: NextApiResponse) {
   try {
-    console.log(req.session.user)
     // Need to convert these strings to numbers.
     const { createdBy, contract_address, pve_chance, revive_chance, slug } = JSON.parse(req.body) as CreateRoomBody;
 

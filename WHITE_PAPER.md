@@ -4,6 +4,23 @@ Welcome to Rumble Raffle.
 
 A free to play, completely random game where you can earn RUMBLE tokens. Create and upgrade weapons to use in battle in order to earn more RUMBLE tokens. Reroll your weapons to get the perfect secondary stats!
 
+## **Links**
+
+### [Beta Release Information](#beta-release-information)
+- [How It Works](#how-it-works)
+- [Beta Token](#beta-token)
+- [In-game Scenarios](#in-game-scenarios)
+
+### [Full Release Information](#full-release-information)
+- [Token](#rumble-token)
+- [Weapons (NFT)](#weapons)
+- [Discord Integration](#discord-integration)
+- [Future Modes](#future-game-modes)
+
+<br>
+
+# Beta Release Information
+
 ## **How It Works**
 
 It's as simple 1, 2, 3.
@@ -17,6 +34,22 @@ Congratulations, you just entered a completely random raffle where you have the 
 While anyone may join a Rumble Raffle and earn RUMBLE tokens for winning a game, only holders of the Rumble NFTs will earn extra rewards. [See this table for more info.](#weapon-rewards-by-rarity)
 
 *Note: Weapons do not affect the outcome of the game, games winners will always remain completely random. However, you must own a weapon in order to earn special rewards.*
+
+## **Beta Token**
+
+Beta RUMBLE Tokens will be earned for participating in the Rumble Raffle Beta Release.
+
+Beta Tokens Uses:
+- Reward for early adopters
+- Redeemable for Rumble Raffle (Full Release) Tokens and Weapons. (Exchange rate TBD)
+- Helps economic modeling 
+
+Tokens earning table below.
+
+|                    | Join Game  | Kill Reward | Winner Reward |
+| ---                | ---        | ---         | ---           |
+| BETA Token Earned | 1 TOKEN     | 1 TOKEN     | 10 TOKEN      |
+
 
 ## **In-game Scenarios**
 
@@ -45,14 +78,12 @@ PLAYER_0 has risen from the dead. Is that a zombie?
 
 In order to keep Rumble Raffle a fun and exciting experience, we will iterate over the activities that players come across by introducing seasons. With seasons come new and exciting themes. Some examples could be pirates, futuristic, etc.
 
-## **Links**
+<br >
+<br >
 
-- [How It Works](#how-it-works)
-- [Token](#rumble-token)
-- [Weapons (NFT)](#weapons)
-- [Future Modes](#future-game-modes)
+# **Full Release Information**
 
-# **Rumble Token**
+## **Rumble Token**
 
 Rumble Tokens are a reward earned by:
 - Winning a game
@@ -62,40 +93,40 @@ Rumble Tokens are a reward earned by:
 \* *Must hold a Weapon NFT in order to earn reward*
 
 
-## **How Many Tokens are there?**
+### **How Many Tokens are there?**
 
 TBD. Dogecoin has 100 Billion tokens. FNC has 1 Billion. 
 
-## **Tokenomics**
+### **Tokenomics**
 
 TBD.
 
-## **Why would I want Rumble Tokens?**
+### **Why would I want Rumble Tokens?**
 
 1. RUMBLE tokens allow you to purchase and upgrade weapons. By holding a weapon you'll be able to earn increased rewards when participating in a rumble. Weapons will also unlock additional rewards (ex: additional entries to raffles). [Learn about weapons](#weapons).
 2. RUMBLE Tokens can be staked to earn passive income. Stakers will earn 100% of in-game revdis.
 3. RUMBLE Tokens may have more utility in the future that has yet to be determined!
 
 
-## **How are RUMBLE tokens earned?**
+### **How are RUMBLE tokens earned?**
 
 1. Winning games. [See table for more info.](#weapon-rewards-by-rarity)
 2. Getting kills while owning a Weapon (NFT). [See table for more info.](#weapon-rewards-by-rarity)
 3. Staking RUMBLE Token. Stakers will earn 100% of revdis.
 
 
-## **Token Mechanics**
+### **Token Mechanics**
 
 1. Any time a weapon is purchased or upgraded `100%` of the token will be returned to the stakers.
 2. There will be special Rumble Raffles where you can purchase up to 10 additional entries. That fee will go to the prize pool. `70%` of the prize pool will be distributed to the top 3 players, while the remaining `30%` will be returned as revdis. (Definite numbers TBD)
 
 <br>
 
-# **Weapons**
+## **Weapons**
 
 Weapons have **no impact** on games, however there will be many benefits to holding them.
 
-## **Benefits**
+### **Benefits**
 
 While any player may earn 1 RUMBLE token by being the winner, only a Weapon Holder will be able to earn rewards at a heavily increased rate.
 
@@ -108,7 +139,7 @@ While any player may earn 1 RUMBLE token by being the winner, only a Weapon Hold
 4. Complete quests to earn even more rewards. (Quests TBD)
 
 
-### **Weapon Rewards by Rarity**
+#### **Weapon Rewards by Rarity**
 
 Common rarity recieves very little rewards, as we want to incentivize players to participate in more games and ultimately upgrade their weapons.
 
@@ -125,11 +156,11 @@ Shiny Bonus | 2x            | 1.5x                | +10%                      | 
 
 Example: `30%` chance to get paid for a kill. If I get paid for a kill, the next time I make a kill there is a `40%` (`30%` + `10%`) chance that I will get paid once more.
 
-## **How are weapons minted?**
+### **How are weapons minted?**
 
 After the initial minting phase, common weapons will be purchasable for 100 RUMBLE.
 
-## **How are weapons upgraded?**
+### **How are weapons upgraded?**
 
 By paying a fee + burning the previous weapon, players will be able to upgrade the rarity of their weapons. They also have the ability to reroll their weapons stats by paying a certain fee.
 
@@ -148,17 +179,26 @@ Example of costs below, actual costs TBD.
 | **Epic**      | 10k RUMBLE   | 500 RUMBLE  |
 | **Legendary** | 1 M RUMBLE   | 10k RUMBLE  |
 
-## **Where do the fees go?**
+### **Where do the fees go?**
 
 The fees are returned `100%` back to stakers of RUMBLE token.
 
-## **How many weapons can I hold?**
+### **How many weapons can I hold?**
 
 While you are free to collect as many as you like, you will only get rewards for your single highest rarity weapon.
 
-## **Weapon Seasons**
+### **Weapon Seasons**
 
 In order to create an ever evolving ecosystem, every ~6-12 months there may be a new season of weapons. Old weapons may earn heavily reduced rewards, though they may have a future use case.
+
+<br>
+<br>
+
+# **Discord Integration**
+
+Though it will come in a later date, we believe discord integration is an absolute necessity to further energize a community. There is something special about killing your (simulated) friends in ridiculous ways.
+
+The potential to have your community create custom activities unlocks even more entertainment in the Rumble Raffle ecosystem. 
 
 <br>
 <br>
@@ -168,3 +208,9 @@ In order to create an ever evolving ecosystem, every ~6-12 months there may be a
 While the first iteration of Rumble Raffle will mostly be around building a community and ironing out all of these details, our goal is to have much more meaningful game modes in the future.
 
 There will always be the for fun game modes, though we want to raise the stakes. Choose your armor, weapons etc and battle it out. Survivors will receive massive rewards, those who perish will lose it all.
+
+
+Talk about how its still in beta and how you can earn beta tokens
+  - kills = 1m wins = 5, if we select your event to be in the game you get 20 (idk)
+Talk about what those beta tokens give you when the game is released
+  - can buy weapons, are traded for actual FNC, etc

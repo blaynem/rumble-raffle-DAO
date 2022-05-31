@@ -5,10 +5,12 @@
   "description": "Types and constants for Rumble Raffle DAO",
   "main": "index.ts",
   "scripts": {
+    "make": "ts-node activities/index.ts"
   },
   "dependencies": {
     "@rumble-raffle-dao/rumble": "0.1.0",
     "cross-var": "^1.1.0",
-    "dotenv": "^16.0.0"
+    "dotenv": "^16.0.0",
+    "ts-node": "^10.7.0"
   }
 }
