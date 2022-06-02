@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Formik, Field, Form, FormikHelpers, ErrorMessage, FormikTouched } from 'formik';
-import { useWallet } from '../containers/wallet';
+import { useUser } from '../containers/userHook';
 import createRoomSchema from '../lib/schemaValidations/createRoom';
 import ToastMessage from '../components/toast';
 import { GetPolyContractReturnType, CreateRoomValues, ToastTypes } from '@rumble-raffle-dao/types';
@@ -71,7 +71,7 @@ const customErrorColors = (msg: string) => <div className='text-base h-10 text-r
  * - Should auto-fetch contracts on blur instead of requiring them to press a button.
  */
 const CreatePage = () => {
-  const { user } = useWallet()
+  const { user } = useUser()
   const { preferences } = usePreferences();
   // State
   const [toastOpen, setToastOpen] = useState(false);

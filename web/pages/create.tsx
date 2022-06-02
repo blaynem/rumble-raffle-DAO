@@ -6,7 +6,7 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import ToastMessage from '../components/toast';
 import { usePreferences } from '../containers/preferences';
-import { useWallet } from '../containers/wallet';
+import { useUser } from '../containers/userHook';
 import { BASE_WEB_URL } from '../lib/constants';
 import { CreateRoomBody } from './api/create';
 
@@ -14,7 +14,7 @@ import { CreateRoomBody } from './api/create';
 const onSuccessSlugUrlMessage = (slug: string) => <Link href={`/room/${slug}`}><a className="inline-flex items-center dark:text-rumbleNone text-rumbleOutline">{`${BASE_WEB_URL}/room/${slug}`}</a></Link>
 
 const Create = () => {
-  const { user } = useWallet();
+  const { user } = useUser();
   const { preferences } = usePreferences();
   const [slug, setSlug] = useState('');
   const [pve_chance, setPveChance] = useState('');

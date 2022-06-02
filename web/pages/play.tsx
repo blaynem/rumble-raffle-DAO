@@ -4,7 +4,7 @@ import { DEFAULT_GAME_ROOM, GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JO
 import { io, Socket } from "socket.io-client";
 import AdminRoomPanel from "../components/adminRoomPanel";
 import { DisplayActivityLogs, DisplayKillCount, DisplayWinners } from "../components/room/activityLog";
-import { useWallet } from '../containers/wallet'
+import { useUser } from '../containers/userHook'
 import { BASE_API_URL, BASE_WEB_URL } from "../lib/constants";
 import Entrants from "../components/room/entrants";
 import { usePreferences } from "../containers/preferences";
@@ -15,7 +15,7 @@ const buttonClass = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOut
 const buttonDisabled = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out border-r-2 pointer-events-none opacity-60"
 
 const RumbleRoom = () => {
-  const { user } = useWallet()
+  const { user } = useUser()
   const { preferences } = usePreferences();
   const [isRoomLoading, setRoomLoading] = useState(false);
   const [roomData, setRoomData] = useState(null as RoomDataType);

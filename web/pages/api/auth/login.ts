@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { withSessionRoute } from '../../../lib/with-session'
 import prisma from '../../../client';
 import faker from '@faker-js/faker'
-import { verifySignature } from '../../../lib/wallet'
+import { verifySignature } from '../../../lib/authentication'
 import { LOGIN_MESSAGE } from '@rumble-raffle-dao/types/constants';
 
 // idk fun to have a fake name instead of not.
@@ -40,7 +40,7 @@ async function auth(req: NextApiRequest, res: NextApiResponse) {
     }
 
     if (!user) {
-      res.status(404).json({ error: 'Not found' })
+      res.status(404).json({ error: 'Error creating account.' })
       return null
     }
     // sets the user object on ironsession
