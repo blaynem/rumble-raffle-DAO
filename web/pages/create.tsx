@@ -16,9 +16,9 @@ const onSuccessSlugUrlMessage = (slug: string) => <Link href={`/room/${slug}`}><
 const Create = () => {
   const { user } = useUser();
   const { preferences } = usePreferences();
-  const [slug, setSlug] = useState('');
-  const [pve_chance, setPveChance] = useState('');
-  const [revive_chance, setReviveChance] = useState('');
+  const [slug, setSlug] = useState('DEFAULT');
+  const [pve_chance, setPveChance] = useState('30');
+  const [revive_chance, setReviveChance] = useState('7');
   // 0x8f06208951E202d30769f50FAec22AEeC7621BE2 = sFNC, this should be changed, duh
   const [contract_address, setContractAddress] = useState('0x8f06208951E202d30769f50FAec22AEeC7621BE2');
   const [isSubmitting, setSubmitting] = useState(false);
