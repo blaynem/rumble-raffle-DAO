@@ -2,13 +2,13 @@ import { ActivityTypes } from "@rumble-raffle-dao/rumble";
 
 
 const PVE_with_params = [
-  "PLAYER_0 fell head first into XXX",
+  "PLAYER_0 fell head first into XXX, dying immediately.",
 ]
 
 const PVP_with_params = [
-  "PLAYER_0 stuck XXX into PLAYER_1's ear.",
-  "PLAYER_0 climbed a tree and dropped XXX onto PLAYER_1.",
-  "PLAYER_0's throat was slit by PLAYER_1 with XXX",
+  "PLAYER_0 stuck XXX into PLAYER_1's ear. Sounds painful.",
+  "PLAYER_0 climbed a tree and dropped XXX onto PLAYER_1. Their one true weakness.",
+  "PLAYER_0's throat was slit by PLAYER_1 with XXX. Impressive, yet gruesome.",
 ]
 
 const weaponNouns = [
@@ -57,35 +57,32 @@ const fillOutPhraseObj = (message: string, items: string[], obj: Omit<ActivityTy
 
 var fs = require('fs');
 
-const writeToJSON = () => {
-  // const phraseData = fillOutPhraseObj(
-  //   "PLAYER_0 climbed a tree and dropped XXX on PLAYER_1. Their one true weakness.",
-  //   weaponNouns,
-  //   {
-  //     "environment": "PVP",
-  //     "amountOfPlayers": 2,
-  //     "activityWinner": [0],
-  //     "activityLoser": [1],
-  //     "killCounts": [1, 0]
-  //   }
-  // )
-  let things = [];
-  const phraseData: Omit<ActivityTypes, 'id'>[] = things.map(phrase => ({
-    description: phrase,
-    "environment": "PVE",
-    "amountOfPlayers": 1,
-    "activityWinner": null,
-    "activityLoser": [0],
-    "killCounts": null
-  }))
+import activity from './revive';
 
-  fs.readFile('activities.json', 'utf8', function readFileCallback(err, data) {
+const writeToJSON = () => {
+  const phraseData = fillOutPhraseObj(
+    PVE_with_params[0],
+    weaponNouns,
+    {
+      "environment": "PVE",
+      "amountOfPlayers": 1,
+      "activityWinner": undefined,
+      "activityLoser": [0],
+      "killCounts": undefined
+    }
+  )
+  // const phraseData: Omit<ActivityTypes, 'id'>[] = activity.description.map(description => ({
+  //   description,
+  //   ...activity.dataObject,
+  // }))
+
+  fs.readFile('add_activities.json', 'utf8', function readFileCallback(err, data) {
     if (err) {
       console.log('--err', err);
     } else {
       const dataArr = [...JSON.parse(data), ...phraseData]; //now it an object
       const json = JSON.stringify(dataArr); //convert it back to json
-      fs.writeFile('activities.json', json, 'utf8', () => {
+      fs.writeFile('add_activities.json', json, 'utf8', () => {
         console.log('--done writing');
       }); // write it back 
     }

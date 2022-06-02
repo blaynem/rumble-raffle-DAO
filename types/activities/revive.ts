@@ -1,3 +1,5 @@
+import { ActivityTypes } from "@rumble-raffle-dao/rumble"
+
 const REVIVE = [
   "PLAYER_0 was rejected from heaven and placed back on the battlefield once more.",
   "The magic 8-ball says PLAYER_0 gets to come back to life.",
@@ -8,12 +10,12 @@ const REVIVE = [
   "Turns out the magic mushroom PLAYER_0 ate was a 1-Up!"
 ]
 
-const REVIVE_OBJ = {
+const REVIVE_OBJ: Omit<ActivityTypes, 'id' | 'description'> = {
   "environment": "REVIVE",
   "amountOfPlayers": 1,
   "activityWinner": [0],
-  "activityLoser": null,
-  "killCounts": null
+  "activityLoser": undefined,
+  "killCounts": undefined
 }
 
 export default {
