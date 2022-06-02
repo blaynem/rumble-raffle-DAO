@@ -1,12 +1,12 @@
-import { FetchContractReturnType, PlayerAndRoomInfoType, PolygonscanResponseType } from "@rumble-raffle-dao/types";
+import { FetchContractReturnType, PolygonscanResponseType } from "@rumble-raffle-dao/types";
 // import { Prisma } from '.prisma/client';
 // import { ethers } from 'ethers';
 // import Web3 from 'web3'
 
-let RaffleSmartContracts;
-if (process.env.NODE_ENV === 'development') {
-  import('@rumble-raffle-dao/smart-contracts').then(module => RaffleSmartContracts = module);
-}
+// let RaffleSmartContracts;
+// if (process.env.NODE_ENV === 'development') {
+//   import('@rumble-raffle-dao/smart-contracts').then(module => RaffleSmartContracts = module);
+// }
 
 /**
  * Get the abi or sourceCode from a contract.

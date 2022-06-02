@@ -15,7 +15,7 @@ const buttonClass = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOut
 const buttonDisabled = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out border-r-2 pointer-events-none opacity-60"
 
 const RumbleRoom = () => {
-  const { user, payEntryFee } = useWallet()
+  const { user } = useWallet()
   const { preferences } = usePreferences();
   const [isRoomLoading, setRoomLoading] = useState(false);
   const [roomData, setRoomData] = useState(null as RoomDataType);
@@ -180,16 +180,8 @@ const RumbleRoom = () => {
     if (user) {
       // Clear error message.
       setErrorMessage(null);
-      // There is currently no entry fees
-      const { paid, error } = await payEntryFee(roomData.contract, '0');
-      if (error) {
-        setErrorMessage(error)
-        console.error('Join Click:', error);
-        return;
-      }
-      if (paid) {
-        socket.emit(JOIN_GAME, user, roomSlug);
-      }
+      // There is currently no entry fees so just emit the game joined.
+      socket.emit(JOIN_GAME, user, roomSlug);
       // todo: remove join game click
     }
   }

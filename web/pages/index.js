@@ -35,7 +35,7 @@ export default function PageIndex() {
             Rumble Raffle is a completely randomized, free to play game where players fight to the <span className='dark:text-rumbleSecondary text-rumblePrimary'>(</span>simulated<span className='dark:text-rumbleSecondary text-rumblePrimary'>)</span> death to earn RUMBLE Tokens. The more players you kill, the more RUMBLE tokens you earn.
           </p>
           <p className='mb-8 italic dark:text-rumbleNone text-rumbleOutline'>
-            For the <span className="uppercase dark:text-rumbleSecondary text-rumblePrimary">((</span>BETA<span className="uppercase dark:text-rumbleSecondary text-rumblePrimary">))</span> release version, games will happen sporadically. So be sure to visit the discord so you don't miss out.
+            For the <span className="uppercase dark:text-rumbleSecondary text-rumblePrimary">((</span>BETA<span className="uppercase dark:text-rumbleSecondary text-rumblePrimary">))</span> release version, games will happen sporadically. So be sure to visit the discord so you don&apos;t miss out.
           </p>
 
           <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>What the heck are those?</h2>
