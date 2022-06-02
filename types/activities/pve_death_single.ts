@@ -1,3 +1,5 @@
+import { ActivityTypes } from "@rumble-raffle-dao/rumble";
+
 const PVE_DESCRIPTION_DEATHS = [
   "PLAYER_0 was eaten by a snake.",
   "PLAYER_0 was hit with lag and noclipped into a tree.",
@@ -18,12 +20,12 @@ const PVE_DESCRIPTION_DEATHS = [
   "PLAYER_0 found a book to read but the words were so intelligent, it confused them to death.",
 ];
 
-const PVE_OBJECT_DEATHS = {
+const PVE_OBJECT_DEATHS: Omit<ActivityTypes, 'id' | 'description'> = {
   "environment": "PVE",
   "amountOfPlayers": 1,
-  "activityWinner": null,
+  "activityWinner": undefined,
   "activityLoser": [0],
-  "killCounts": null
+  "killCounts": undefined
 }
 
 export default {

@@ -1,9 +1,11 @@
+import bodyParser from 'body-parser';
 import { Activities, Prisma } from '.prisma/client';
 import { SetupType, ActivityTypes } from '@rumble-raffle-dao/rumble/types';
 import express from 'express';
 import prisma from '../../client';
 
 const router = express.Router();
+const jsonParser = bodyParser.json()
 
 /**
  * Gets the room data from the slug
@@ -16,6 +18,16 @@ router.get('/', async (req: any, res: any) => {
     res.status(res.statusCode).json({ error });
     return;
   }
+  res.json({ data });
+})
+
+
+
+router.post('/create', jsonParser, async (req: express.Request, res: express.Response) => {
+  const data = await await prisma.activities.createMany({
+    data: req.body,
+  })
+
   res.json({ data });
 })
 

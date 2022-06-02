@@ -1,3 +1,5 @@
+import { ActivityTypes } from "@rumble-raffle-dao/rumble"
+
 const PVP = [
   "PLAYER_0 made fried chicken out of PLAYER_1.",
   "PLAYER_0 rubbed some dirt into PLAYER_1's eyes.",
@@ -12,7 +14,7 @@ const PVP = [
   "PLAYER_0 baked PLAYER_1 some special brownies that exploded upon consumption.",
 ]
 
-const PVP_OBJ = {
+const PVP_OBJ: Omit<ActivityTypes, 'id' | 'description'> = {
   "environment": "PVP",
   "amountOfPlayers": 2,
   "activityWinner": [0],
