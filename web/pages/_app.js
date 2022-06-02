@@ -4,6 +4,9 @@ import React from 'react'
 import { SWRConfig } from 'swr'
 import Nav from '../components/nav'
 import fetchJson from '../lib/fetchJson';
+import { createClient, WagmiConfig } from 'wagmi';
+
+const wagmiClient = createClient()
 
 function MyApp({ Component, pageProps }) {
   return (
@@ -15,10 +18,12 @@ function MyApp({ Component, pageProps }) {
         },
       }}
     >
-      <ContainerRoot>
-        <Nav />
-        <Component {...pageProps} />
-      </ContainerRoot>
+      <WagmiConfig client={wagmiClient}>
+        <ContainerRoot>
+          <Nav />
+          <Component {...pageProps} />
+        </ContainerRoot>
+      </WagmiConfig>
     </SWRConfig>
   )
 }

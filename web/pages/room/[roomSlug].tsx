@@ -5,7 +5,7 @@ import { GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND
 import io, { Socket } from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
 import { DisplayActivityLogs, DisplayKillCount, DisplayWinners } from "../../components/room/activityLog";
-import { useWallet } from '../../containers/wallet'
+import { useUser } from '../../containers/userHook'
 import { BASE_API_URL, BASE_WEB_URL } from "../../lib/constants";
 import Entrants from "../../components/room/entrants";
 import { usePreferences } from "../../containers/preferences";
@@ -36,7 +36,7 @@ export const getServerSideProps = withSessionSsr(async ({ req, query, ...rest })
 })
 
 const RumbleRoom = ({ activeRoom, roomData }: ServerSidePropsType) => {
-  const { user, payEntryFee } = useWallet()
+  const { user } = useUser()
   const { preferences } = usePreferences();
   const [entrants, setEntrants] = useState(roomData.players as PlayerAndRoomInfoType['allPlayers']);
   const [roomInfo, setRoomInfo] = useState(roomData as PlayerAndRoomInfoType['roomInfo']);
@@ -186,15 +186,15 @@ const RumbleRoom = ({ activeRoom, roomData }: ServerSidePropsType) => {
       // Clear error message.
       setErrorMessage(null);
       // There is currently no entry fees
-      const { paid, error } = await payEntryFee(roomInfo.contract, '0');
-      if (error) {
-        setErrorMessage(error)
-        console.error('Join Click:', error);
-        return;
-      }
-      if (paid) {
-        socket.emit(JOIN_GAME, user, roomSlug);
-      }
+      // const { paid, error } = await payEntryFee(roomInfo.contract, '0');
+      // if (error) {
+      //   setErrorMessage(error)
+      //   console.error('Join Click:', error);
+      //   return;
+      // }
+      // if (paid) {
+      socket.emit(JOIN_GAME, user, roomSlug);
+      // }
       // todo: remove join game click
     }
   }

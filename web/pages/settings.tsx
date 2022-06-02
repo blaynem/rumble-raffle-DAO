@@ -1,13 +1,11 @@
 import { ToastTypes } from '@rumble-raffle-dao/types';
-import { SETTINGS_MESSAGE } from '@rumble-raffle-dao/types/constants';
 import { ErrorMessage, Field, Form, Formik, FormikHelpers } from 'formik';
 import Head from 'next/head'
 import { useState } from 'react';
 import ToastMessage from '../components/toast';
 import { usePreferences } from '../containers/preferences';
-import { useWallet } from '../containers/wallet';
+import { useUser } from '../containers/userHook';
 import userSettingsSchema from '../lib/schemaValidations/userSettings';
-import { handleSignMessage } from '../lib/wallet';
 
 type SettingsTypes = {
   name: string;
@@ -17,7 +15,7 @@ const customErrorColors = (msg: string) => <div className='text-base h-10 text-r
 
 const pageTitle = `Settings`
 export default function PageIndex() {
-  const { user, updateName } = useWallet();
+  const { user, updateName } = useUser();
   const { preferences } = usePreferences();
 
   const [toastOpen, setToastOpen] = useState(false);
@@ -39,13 +37,13 @@ export default function PageIndex() {
 
   const handleSubmit = async (values: SettingsTypes) => {
     try {
-      const { signature } = await handleSignMessage({ id: user.id, message: SETTINGS_MESSAGE })
+      // const { signature } = await handleSignMessage({ id: user.id, message: SETTINGS_MESSAGE })
 
       return await fetch(`/api/users/${user.id}`, {
         method: 'POST',
         body: JSON.stringify(values),
         headers: {
-          signature,
+          // signature,
         }
       }).then(res => res.json())
     } catch (err) {

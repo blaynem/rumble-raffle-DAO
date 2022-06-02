@@ -1,12 +1,12 @@
 import { React, Fragment, useState, useEffect } from 'react'
 import { Menu, Popover, Transition } from '@headlessui/react'
 import WalletConnector from './wallet-connector'
-import { useWallet } from '../containers/wallet'
+import { useUser } from '../containers/userHook'
 import { usePreferences } from '../containers/preferences'
-import WalletAddress from './wallet-address'
 import EmojiEventsOutlinedIcon from '@mui/icons-material/ContrastOutlined';
 import { DEFAULT_ROOM_URL, WHITE_PAPER_GIST } from '@rumble-raffle-dao/types/constants'
 import { useRouter } from 'next/router'
+import { useDisconnect } from 'wagmi'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -14,15 +14,14 @@ function classNames(...classes) {
 
 const Nav = () => {
   const router = useRouter();
-  const { user, logout } = useWallet()
+  const { logout } = useUser()
   const { preferences, setDarkmode } = usePreferences();
   const [darkMode, setDarkMode] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
+  const { disconnect } = useDisconnect()
 
   useEffect(() => {
     setDarkMode(preferences?.darkMode);
-    setLoggedIn(!!user?.id);
-  }, [preferences?.darkMode, user]);
+  }, [preferences?.darkMode]);
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -31,7 +30,12 @@ const Nav = () => {
 
   const dropdownNavigation = [
     { name: 'Settings', onClick: () => router.push('/settings') },
-    { name: 'Sign out', onClick: () => logout() }
+    {
+      name: 'Sign out', onClick: () => {
+        disconnect();
+        logout()
+      }
+    }
   ]
 
   return (
@@ -73,7 +77,7 @@ const Nav = () => {
                   </button>
                   <Menu.Button className="dark:bg-rumbleSecondary bg-rumblePrimary text-rumbleNone border-l-2 dark:border-rumbleNone border-rumbleOutline px-6 py-4 focus:outline-none focus:ring-2 focus:ring-rumbleSecondary">
                     <span className="sr-only">Open user menu</span>
-                    {loggedIn ? <WalletAddress address={user?.id} /> : <WalletConnector />}
+                    <WalletConnector />
                   </Menu.Button>
                 </div>
                 <Transition
