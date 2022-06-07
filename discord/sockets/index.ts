@@ -74,29 +74,27 @@ const replaceActivityDescPlaceholders = (activity: SingleActivity): string => {
   return replaceNames.join('')
 }
 
-const sendActivityLogRound = (channel: TextChannel, round: RoundActivityLog) => {
-  const getAllActivityDesc = round.activities.map(activity => ({
-    environment: activity.environment,
-    description: replaceActivityDescPlaceholders(activity)
-  }))
-  // TODO: Replace these environments with icons
-  const description = getAllActivityDesc.map(d => `${d.environment} | ${d.description}`);
-  const embed = new MessageEmbed()
-    .setColor('#9912B8')
-    .setTitle(`**Round ${round.round_counter + 1}**`)
-    .setDescription(`
-    ${description.join('\n')}
-
-    Players left: ${round.players_remaining}`)
-
-  // Set the currentMessage to this message.
-  channel.send({ embeds: [embed] })
-}
-
-const logRound = (round: RoundActivityLog[]) => {
+const logRound = (rounds: RoundActivityLog[]) => {
   const channel: AnyChannel = client.channels.cache.get(options.channelId) as TextChannel;
-  if (currentRound !== null) {
-    sendActivityLogRound(channel, round[currentRound]);
+  if (gameStarted) {
+    const round = rounds[currentRound];
+
+    const getAllActivityDesc = round.activities?.map(activity => ({
+      environment: activity.environment,
+      description: replaceActivityDescPlaceholders(activity)
+    }))
+    // TODO: Replace these environments with icons
+    const description = getAllActivityDesc.map(d => `${d.environment} | ${d.description}`);
+    const embed = new MessageEmbed()
+      .setColor('#9912B8')
+      .setTitle(`**Round ${round.round_counter + 1}**`)
+      .setDescription(`
+      ${description.join('\n')}
+  
+      Players left: ${round.players_remaining}`)
+  
+    // Set the currentMessage to this message.
+    channel.send({ embeds: [embed] })
     currentRound += 1;
   }
 }

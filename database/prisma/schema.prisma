@@ -136,6 +136,7 @@ model Users {
   is_admin   Boolean  @default(false) @db.Boolean
   created_at DateTime @default(dbgenerated("now()"))
   updated_at DateTime @default(dbgenerated("now()")) @updatedAt
+  discord_id String?
 
   // Opposite Relations
   RoomParams RoomParams[]

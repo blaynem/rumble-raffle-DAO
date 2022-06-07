@@ -1,15 +1,13 @@
-import { ToastTypes } from '@rumble-raffle-dao/types';
+import { ToastTypes, UserSettingsType } from '@rumble-raffle-dao/types';
+import { SETTINGS_MESSAGE } from '@rumble-raffle-dao/types/constants';
 import { ErrorMessage, Field, Form, Formik, FormikHelpers } from 'formik';
 import Head from 'next/head'
 import { useState } from 'react';
+import { useSignMessage } from 'wagmi';
 import ToastMessage from '../components/toast';
 import { usePreferences } from '../containers/preferences';
 import { useUser } from '../containers/userHook';
 import userSettingsSchema from '../lib/schemaValidations/userSettings';
-
-type SettingsTypes = {
-  name: string;
-}
 
 const customErrorColors = (msg: string) => <div className='text-base h-10 text-red-600 py-2'>{msg}</div>
 
@@ -20,6 +18,10 @@ export default function PageIndex() {
 
   const [toastOpen, setToastOpen] = useState(false);
   const [toast, setToast] = useState(null as ToastTypes);
+
+  const { signMessageAsync } = useSignMessage({
+    message: SETTINGS_MESSAGE,
+  })
 
   const headerClass = "mb-2 uppercase leading-7 text-lg font-medium dark:text-rumbleSecondary text-rumblePrimary";
   const fieldClass = 'h-14 dark:focus:ring-rumbleNone focus:ring-rumbleOutline dark:focus:border-rumbleNone focus:border-rumbleOutline dark:bg-rumbleBgDark bg-rumbleNone dark:text-rumbleNone text-rumbleOutline flex-1 block w-full border-none';
@@ -35,15 +37,15 @@ export default function PageIndex() {
     setToastOpen(true)
   }
 
-  const handleSubmit = async (values: SettingsTypes) => {
+  const handleSubmit = async (values: UserSettingsType) => {
     try {
-      // const { signature } = await handleSignMessage({ id: user.id, message: SETTINGS_MESSAGE })
+      const signature = await signMessageAsync();
 
       return await fetch(`/api/users/${user.id}`, {
         method: 'POST',
         body: JSON.stringify(values),
         headers: {
-          // signature,
+          signature,
         }
       }).then(res => res.json())
     } catch (err) {
@@ -70,9 +72,9 @@ export default function PageIndex() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Formik
-        initialValues={{ name: user?.name }}
+        initialValues={{ name: user?.name, discord_id: '' }}
         validationSchema={userSettingsSchema}
-        onSubmit={(values, { setSubmitting }: FormikHelpers<SettingsTypes>) => {
+        onSubmit={(values, { setSubmitting }: FormikHelpers<UserSettingsType>) => {
           handleSubmit(values).then((res) => {
             if (res?.error) {
               setSubmitting(false);
@@ -112,6 +114,23 @@ export default function PageIndex() {
                       />
                     </div>
                     <ErrorMessage name="name" >
+                      {msg => customErrorColors(msg)}
+                    </ErrorMessage>
+                  </div>
+                  <div className="col-span-7 sm:col-span-3">
+                    <label htmlFor="discord-id" className={labelClass}>
+                      Discord Id
+                    </label>
+                    <div className="flex">
+                      <Field
+                        type="text"
+                        name="discord_id"
+                        id="discord-id"
+                        className={fieldClass}
+                        placeholder="JohnDoe#420"
+                      />
+                    </div>
+                    <ErrorMessage name="discord_id" >
                       {msg => customErrorColors(msg)}
                     </ErrorMessage>
                   </div>

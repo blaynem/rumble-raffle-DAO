@@ -60,3 +60,8 @@ export interface CreateRoomValues {
   user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>
   slug: string,
 }
+
+export interface UserSettingsType {
+  name: string;
+  discord_id: string;
+}
