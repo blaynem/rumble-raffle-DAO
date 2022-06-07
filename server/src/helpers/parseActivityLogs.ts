@@ -1,6 +1,6 @@
 import { Prisma } from '.prisma/client';
 import { ActivityLogType, GameEndType } from '@rumble-raffle-dao/rumble/types';
-import {GameRoundLogsOmitId, EntireGameLog, SingleActivity, RoundActivityLog, PickFromPlayers, RoomDataType} from '@rumble-raffle-dao/types';
+import { GameRoundLogsOmitId, EntireGameLog, SingleActivity, RoundActivityLog, PickFromPlayers, RoomDataType } from '@rumble-raffle-dao/types';
 
 /**
  * The Rumble killCount type = { [playerId: string]: number }
@@ -26,7 +26,10 @@ export const parseActivityLogForClient = (gameActivityLogs: GameEndType['gameAct
     // If winner is in round, that means its the WinnerLog.
     if ('winner' in round) {
       [round.winner, ...round.runnerUps]
-        .forEach(player => winners.push({ ...player, id: player.id }))
+        .forEach(player => {
+          const playerData = gamePlayers.find(p => p.id === player.id)
+          winners.push({ ...player, id: player.id, discord_id: playerData.discord_id })
+        })
       return;
     };
     const activities: SingleActivity[] = round.activityLog.map(({ activity, activityId, participants, killCount }, index) => ({

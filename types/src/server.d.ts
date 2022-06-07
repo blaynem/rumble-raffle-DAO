@@ -77,7 +77,7 @@ export type PayoutTemplateType = {
 /**
  * We only want to send these fields back to players.
  */
-export type PickFromPlayers = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name'>
+export type PickFromPlayers = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'discord_id'>
 
 export interface RoomDataType {
   room: Pick<Prisma.RoomsGroupByOutputType, 'id' | 'slug' | 'params_id'>
@@ -158,4 +158,4 @@ export interface CreateRoom {
   createdBy: Prisma.UsersCreateInput['id']
 }
 
-export type IronSessionUserData = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> & { signature: string; };
+export type IronSessionUserData = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'discord_id'> & { signature: string; };

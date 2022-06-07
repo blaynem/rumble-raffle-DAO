@@ -41,6 +41,8 @@ client.once('ready', () => {
 client.on('interactionCreate', async interaction => {
   if (!interaction.isCommand()) return;
 
+  // todo: Block anyone who isn't an admin from doing
+
   const { commandName } = interaction;
 
   if (commandName === 'syncgame') {

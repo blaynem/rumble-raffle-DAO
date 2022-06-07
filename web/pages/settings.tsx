@@ -72,7 +72,7 @@ export default function PageIndex() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Formik
-        initialValues={{ name: user?.name, discord_id: '' }}
+        initialValues={{ name: user?.name, discord_id: user?.discord_id }}
         validationSchema={userSettingsSchema}
         onSubmit={(values, { setSubmitting }: FormikHelpers<UserSettingsType>) => {
           handleSubmit(values).then((res) => {

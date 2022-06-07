@@ -6,6 +6,7 @@ import { createGame } from "./createRumble";
 import { getGameDataFromDb } from "./getGameDataFromDb";
 import { parseActivityLogForClient, parseActivityLogForDbPut } from "./parseActivityLogs";
 import { selectPayoutFromGameData } from "./payoutHelpers";
+import availableRoomsData from "./roomRumbleData";
 
 /**
  * Starting a rumble will:
@@ -41,16 +42,22 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
           select: {
             id: true,
             name: true,
+            discord_id: true
           }
         }
       }
     })
 
+    
     // Map the data to what rumble expects
     const initialPlayers = data.map(({ User }) => ({
       id: User.id,
-      name: User.name
+      name: User.name,
+      discord_id: User.discord_id,
     }))
+    
+    // Overwrite players so we can get any missing pieces.
+    availableRoomsData[roomSlug].roomData.players = initialPlayers;
 
     const params: SetupType['params'] = {
       chanceOfPve: roomData.params.pve_chance,
