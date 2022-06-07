@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import availableRoomsData from '../helpers/roomRumbleData';
-import { JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, START_GAME, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, START_GAME, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { addPlayer } from "../helpers/addPlayer";
 import { getPlayersAndRoomInfo } from "../helpers/getPlayersAndRoomInfo";
 import { getVisibleGameStateForClient } from "../helpers/getVisibleGameStateForClient";
@@ -19,6 +19,8 @@ export const initRoom = (sio: Server<ClientToServerEvents, ServerToClientEvents,
   // join_game will enter a player into a game.
   roomSocket.on(JOIN_GAME, joinGame);
   roomSocket.on(START_GAME, (user, roomSlug) => startGame(io, user, roomSlug))
+  // Get's the player data to discord bot if necessary.
+  roomSocket.on(SYNC_PLAYERS_REQUEST, syncPlayerRoomData)
 }
 
 /**
@@ -68,4 +70,13 @@ async function joinGame(user: IronSessionUserData, roomSlug: string) {
   } catch (error) {
     console.error('Server: joinGame', 'error')
   }
+}
+
+async function syncPlayerRoomData(roomSlug: string) {
+  if (!availableRoomsData[roomSlug]) {
+    io.in(roomSlug).emit(SYNC_PLAYERS_RESPONSE, { error: `Room "${roomSlug}" data doesn't exist.`, data: null, paramsId: null })
+    return
+  }
+  const { roomData } = availableRoomsData[roomSlug];
+  io.in(roomSlug).emit(SYNC_PLAYERS_RESPONSE, { data: roomData?.players, paramsId: roomData?.params.id })
 }

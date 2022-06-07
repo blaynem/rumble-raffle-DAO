@@ -18,7 +18,8 @@ export const getPlayersAndRoomInfo = (roomSlug: string): PlayerAndRoomInfoType =
     params: {
       created_by: roomData.params.created_by,
       pve_chance: roomData.params.pve_chance,
-      revive_chance: roomData.params.revive_chance
+      revive_chance: roomData.params.revive_chance,
+      id: roomData.params.id
     }
   }
   return {

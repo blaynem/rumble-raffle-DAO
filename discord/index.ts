@@ -1,7 +1,9 @@
 require('dotenv').config()
-// Require the necessary discord.js classes
-import { CacheType, Client, CommandInteraction, Intents, Interaction, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
-import { initSockets } from "./sockets";
+import { DEFAULT_GAME_ROOM } from '@rumble-raffle-dao/types/constants';
+import { fetchPlayerRoomData, initSockets } from "./sockets";
+import client from './client';
+import { BASE_WEB_URL } from './constants';
+
 const token = process.env.DISCORD_TOKEN
 
 const RUMBLE_CHANNEL_ID = '983207646821777489';
@@ -11,14 +13,22 @@ interface Options {
    * Id of discord channel that text will be sent to.
    */
   channelId: string;
+  /**
+   * Room name in the database we want to listen to.
+   */
+  roomSlug: string;
+  /**
+   * The URL for the played games.
+   */
+  gameUrl: string;
 }
 
-const options: Options = {
+export const options: Options = {
   channelId: RUMBLE_CHANNEL_ID,
+  roomSlug: DEFAULT_GAME_ROOM,
+  gameUrl: `${BASE_WEB_URL}/play`
 }
 
-// Create a new client instance
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
 // When the client is ready, run this code (only once)
 client.once('ready', () => {
@@ -29,20 +39,18 @@ client.once('ready', () => {
 
 
 client.on('interactionCreate', async interaction => {
-  console.log('--interaction', interaction);
   if (!interaction.isCommand()) return;
 
   const { commandName } = interaction;
 
-  if (commandName === 'ping') {
-    // await interaction.reply('Pong!');
-
+  if (commandName === 'syncgame') {
+    // Syncing current player data to discord
+    await interaction.reply('Game data synced.');
+    fetchPlayerRoomData(options.roomSlug);
   } else if (commandName === 'start') {
-    console.log('--start command');
-    // await interaction.reply(`Server name: ${interaction.guild.name}\nTotal members: ${interaction.guild.memberCount}`);
+    await interaction.reply({ ephemeral: true, content: 'Not implemented yet.'});
   } else if (commandName === 'create') {
-    console.log('--create command');
-    // await interaction.reply(`Your tag: ${interaction.user.tag}\nYour id: ${interaction.user.id}`);
+    await interaction.reply({ ephemeral: true, content: 'Not implemented yet.'});
   }
 });
 

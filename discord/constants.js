@@ -1,10 +1,13 @@
-import { BASE_API_URL_DEV, BASE_API_URL_PROD } from "@rumble-raffle-dao/types/constants";
+import { BASE_API_URL_DEV, BASE_API_URL_PROD, BASE_WEB_URL_DEV, BASE_WEB_URL_PROD } from "@rumble-raffle-dao/types/constants";
 
 let CORS_BASE_WEB_URL;
+let BASE_WEB_URL;
 if (process.env.NODE_ENV === 'development') {
+  BASE_WEB_URL = BASE_WEB_URL_DEV
   CORS_BASE_WEB_URL = BASE_API_URL_DEV
 } else {
+  BASE_WEB_URL = BASE_WEB_URL_PROD
   CORS_BASE_WEB_URL = BASE_API_URL_PROD
 }
 
-export { CORS_BASE_WEB_URL };
+export { CORS_BASE_WEB_URL, BASE_WEB_URL };

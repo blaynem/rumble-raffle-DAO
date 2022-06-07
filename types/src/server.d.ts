@@ -6,7 +6,7 @@ export type PlayerAndRoomInfoType = {
   // Creator, tokenContract, tokenNetwork
   roomInfo: {
     contract: Pick<Prisma.ContractsGroupByOutputType, 'contract_address' | 'network_name' | 'symbol' | 'chain_id'>;
-    params: Pick<Prisma.RoomParamsGroupByOutputType, 'created_by' | 'pve_chance' | 'revive_chance'>;
+    params: Pick<Prisma.RoomParamsGroupByOutputType, 'created_by' | 'pve_chance' | 'revive_chance' | 'id'>;
   }
 }
 
