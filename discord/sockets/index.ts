@@ -134,7 +134,13 @@ Congratulations! 1st place goes to **${winnerData[0]?.discord_id ? tagUser(winne
  */
 const syncPlayerRoomData = ({ data, paramsId, error }: SyncPlayersResponseType) => {
   const channel: AnyChannel = client.channels.cache.get(options.channelId) as TextChannel;
-  const allPlayers = data?.map(player => player.name);
+  const allPlayerData = data?.map(player => ({
+    ...player,
+    discord_id: player.discord_tag && getUserFromUserTag(player.discord_tag)?.id
+  }));
+
+  const allPlayers = allPlayerData.map(player => player.discord_id ? tagUser(player.discord_id) : player.name)
+
   if (error) {
     channel.send(error);
     return;

@@ -7,7 +7,7 @@ import { getUserFromUserTag } from './utils';
 
 const token = process.env.DISCORD_TOKEN
 
-const RUMBLE_CHANNEL_ID = '983207646821777489';
+const RUMBLE_CHANNEL_ID = '984225124582580305';
 const TEST_RUMBLE_CHANNEL_ID = '984191202112987186';
 
 interface Options {
@@ -23,12 +23,17 @@ interface Options {
    * The URL for the played games.
    */
   gameUrl: string;
+  /**
+   * The discord guild id we want to act on
+   */
+  guildId: string;
 }
 
 export const options: Options = {
   channelId: TEST_RUMBLE_CHANNEL_ID,
   roomSlug: DEFAULT_GAME_ROOM,
-  gameUrl: `${BASE_WEB_URL}/play`
+  gameUrl: `${BASE_WEB_URL}/play`,
+  guildId: process.env.GUILD_ID
 }
 
 
@@ -37,7 +42,7 @@ client.once('ready', async () => {
   console.log('Ready!');
 
   // Fetches all the members to add to the cache.
-  await client.guilds.cache.get(process.env.GUILD_ID).members.fetch()
+  await client.guilds.cache.get(options.guildId).members.fetch()
   
   initSockets();
 });
