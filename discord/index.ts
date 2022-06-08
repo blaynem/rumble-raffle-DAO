@@ -3,10 +3,12 @@ import { DEFAULT_GAME_ROOM } from '@rumble-raffle-dao/types/constants';
 import { fetchPlayerRoomData, initSockets } from "./sockets";
 import client from './client';
 import { BASE_WEB_URL } from './constants';
+import { getUserFromUserTag } from './utils';
 
 const token = process.env.DISCORD_TOKEN
 
 const RUMBLE_CHANNEL_ID = '983207646821777489';
+const TEST_RUMBLE_CHANNEL_ID = '984191202112987186';
 
 interface Options {
   /**
@@ -24,16 +26,19 @@ interface Options {
 }
 
 export const options: Options = {
-  channelId: RUMBLE_CHANNEL_ID,
+  channelId: TEST_RUMBLE_CHANNEL_ID,
   roomSlug: DEFAULT_GAME_ROOM,
   gameUrl: `${BASE_WEB_URL}/play`
 }
 
 
 // When the client is ready, run this code (only once)
-client.once('ready', () => {
+client.once('ready', async () => {
   console.log('Ready!');
 
+  // Fetches all the members to add to the cache.
+  await client.guilds.cache.get(process.env.GUILD_ID).members.fetch()
+  
   initSockets();
 });
 
@@ -50,6 +55,8 @@ client.on('interactionCreate', async interaction => {
     await interaction.reply('Game data synced.');
     fetchPlayerRoomData(options.roomSlug);
   } else if (commandName === 'start') {
+    
+    await interaction.reply(`<@${getUserFromUserTag('Blaynem#5926')?.id}>`)
     await interaction.reply({ ephemeral: true, content: 'Not implemented yet.'});
   } else if (commandName === 'create') {
     await interaction.reply({ ephemeral: true, content: 'Not implemented yet.'});

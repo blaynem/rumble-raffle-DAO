@@ -6,6 +6,7 @@ import { CORS_BASE_WEB_URL } from "../constants";
 import { options } from '../index';
 import client from "../client";
 import { AnyChannel, Message, MessageEmbed, TextChannel } from "discord.js";
+import { getUserFromUserTag, tagUser } from "../utils";
 
 const botId = process.env.APP_ID;
 
@@ -92,26 +93,34 @@ const logRound = (rounds: RoundActivityLog[]) => {
       ${description.join('\n')}
   
       Players left: ${round.players_remaining}`)
-  
+
     // Set the currentMessage to this message.
     channel.send({ embeds: [embed] })
     currentRound += 1;
   }
 }
 
-const logWinner = (winners: PickFromPlayers[]) => {
+
+// todo: Tag the winners and runner ups
+const logWinner = async (winners: PickFromPlayers[]) => {
   if (!gameStarted) {
     return;
   }
+  
+  const winnerData = winners.map(winner => ({
+    ...winner,
+    discord_id: winner.discord_tag && getUserFromUserTag(winner.discord_tag)?.id
+  }))
+
   const channel: AnyChannel = client.channels.cache.get(options.channelId) as TextChannel;
   const embed = new MessageEmbed()
     .setColor('#9912B8')
     .setTitle(`**WINNER**`)
     .setDescription(`
-    Congratulations! 1st place goes to **${winners[0].name}**.
+Congratulations! 1st place goes to **${winnerData[0]?.discord_id ? tagUser(winnerData[0].discord_id) : winnerData[0].name}**.
 
-    2nd place **${winners[1].name}**.
-    3rd place **${winners[2].name}**.`)
+2nd place **${winnerData[1]?.discord_id ? tagUser(winnerData[1].discord_id) : winnerData[1].name}**.
+3rd place **${winnerData[2]?.discord_id ? tagUser(winnerData[2].discord_id) : winnerData[2].name}**.`)
 
   // Set the currentMessage to this message.
   channel.send({ embeds: [embed] })
@@ -141,7 +150,13 @@ const syncPlayerRoomData = ({ data, paramsId, error }: SyncPlayersResponseType) 
  * @returns 
  */
 const updatePlayerRoomData = async (data: PlayerAndRoomInfoType) => {
-  const allPlayers = data?.allPlayers?.map(player => player.name);
+  const allPlayerData = data?.allPlayers?.map(player => ({
+    ...player,
+    discord_id: player.discord_tag && getUserFromUserTag(player.discord_tag)?.id
+  }));
+
+  const allPlayers = allPlayerData.map(player => player.discord_id ? tagUser(player.discord_id) : player.name)
+
   const paramsId = data.roomInfo.params.id
   // We check to see if we want to create a new message or can find and older one to edit.
   if (currentMessage === null) {
