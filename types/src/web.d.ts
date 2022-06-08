@@ -63,5 +63,5 @@ export interface CreateRoomValues {
 
 export interface UserSettingsType {
   name: string;
-  discord_id: string;
+  discord_tag: string;
 }

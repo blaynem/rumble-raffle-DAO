@@ -28,7 +28,7 @@ export const parseActivityLogForClient = (gameActivityLogs: GameEndType['gameAct
       [round.winner, ...round.runnerUps]
         .forEach(player => {
           const playerData = gamePlayers.find(p => p.id === player.id)
-          winners.push({ ...player, id: player.id, discord_id: playerData.discord_id })
+          winners.push({ ...player, id: player.id, discord_tag: playerData.discord_tag })
         })
       return;
     };

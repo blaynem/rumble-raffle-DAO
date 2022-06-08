@@ -30,7 +30,7 @@ async function auth(req: NextApiRequest, res: NextApiResponse) {
         id, name: fancyName()
       },
       select: {
-        id: true, is_admin: true, name: true, discord_id: true
+        id: true, is_admin: true, name: true, discord_tag: true
       }
     })
 
