@@ -3,12 +3,15 @@ import { DEFAULT_GAME_ROOM } from '@rumble-raffle-dao/types/constants';
 import { fetchPlayerRoomData, initSockets } from "./sockets";
 import client from './client';
 import { BASE_WEB_URL } from './constants';
-import { getUserFromUserTag } from './utils';
+import { interactionCommands } from './deploy-commands';
+import { MessageEmbed } from 'discord.js';
 
 const token = process.env.DISCORD_TOKEN
 
 const RUMBLE_CHANNEL_ID = '984225124582580305';
 const TEST_RUMBLE_CHANNEL_ID = '984191202112987186';
+
+const ADMINS = ['197743775177506816']
 
 interface Options {
   /**
@@ -43,8 +46,35 @@ client.once('ready', async () => {
 
   // Fetches all the members to add to the cache.
   await client.guilds.cache.get(options.guildId).members.fetch()
-  
+
   initSockets();
+});
+
+/**
+ * These are more so `admin` commands than the `interactionCommands`.
+ * 
+ * Note: Why `/help`?
+ * The only way to do an ephemeral (hidden) message is through the `interactionCommands`.
+ * And since we want to limit what commands are shown to a user, we need to use those methods.
+ */
+const commandInitializer = '!'
+const commands = {
+  SYNC: {
+    adminOnly: true,
+    commandName: 'sync',
+    description: 'Attempts to sync with the server player data. **Note**: Admin only.',
+  },
+}
+
+// Only do these commands if it's based on certain channels. (We'll have both a test / prod bot in the future)
+client.on('messageCreate', async message => {
+  if (message.content.startsWith(commandInitializer)) {
+    if (message.content === `${commandInitializer}${commands.SYNC.commandName}`) {
+      fetchPlayerRoomData(options.roomSlug);
+      message.reply('Game data syncing.');
+      return;
+    }
+  }
 });
 
 
@@ -55,16 +85,48 @@ client.on('interactionCreate', async interaction => {
 
   const { commandName } = interaction;
 
-  if (commandName === 'syncgame') {
-    // Syncing current player data to discord
-    await interaction.reply('Game data synced.');
-    fetchPlayerRoomData(options.roomSlug);
-  } else if (commandName === 'start') {
-    
-    await interaction.reply(`<@${getUserFromUserTag('Blaynem#5926')?.id}>`)
-    await interaction.reply({ ephemeral: true, content: 'Not implemented yet.'});
-  } else if (commandName === 'create') {
-    await interaction.reply({ ephemeral: true, content: 'Not implemented yet.'});
+  // If `JOIN` command is used.
+  if (commandName === interactionCommands.JOIN.commandName) {
+    const embed = new MessageEmbed()
+      .setColor('#4CE3B6')
+      .setTitle('Visit RumbleRaffle site to battle!')
+      .setURL(options.gameUrl)
+      .setDescription(`
+Currently the only way to join a game is by visiting the Rumble Raffle site itself.
+
+It's as simple as **1-2-3**.
+1. Connect your metamask and sign the message, proving you own the account.
+2. Visit the "Play" tab
+3. Click "Join Game"
+  `)
+    await interaction.reply({
+      embeds: [embed],
+      ephemeral: true,
+    });
+  } else if (commandName === interactionCommands.HELP.commandName) {
+    // list all options from the `!commands` 
+    // based on if they are an admin level or not
+    const availableCommands = Object.values(commands)
+      .filter(cmd => {
+        // If it's not an adminOnly command, we let it through.
+        if (!cmd.adminOnly) return true;
+        // TODO: this should be filtered by role instead of a list of admins.
+        return ADMINS.includes(interaction.user.id);
+      })
+      .map(cmd => `\`${commandInitializer}${cmd.commandName}\`: ${cmd.description}`)
+
+    if (availableCommands.length < 1) {
+      await interaction.reply({
+        ephemeral: true,
+        content: `Sorry, no commands are available for your role.`
+      });
+      return;
+    }
+
+    await interaction.reply({
+      ephemeral: true,
+      content: `List of help commands:\n${availableCommands.join('\n')}`
+    });
   }
 });
 

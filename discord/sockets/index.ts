@@ -7,10 +7,11 @@ import { options } from '../index';
 import client from "../client";
 import { AnyChannel, Message, MessageEmbed, TextChannel } from "discord.js";
 import { getUserFromUserTag, tagUser } from "../utils";
+import { interactionCommands } from "../deploy-commands";
 
 const botId = process.env.APP_ID;
 
-const CURRENT_ENTRANTS = 'RUMBLE RAFFLE - CURRENT ENTRANTS';
+const CURRENT_ENTRANTS = 'NEXT RUMBLE BEGINS SHORTLY';
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(CORS_BASE_WEB_URL);
 
@@ -24,6 +25,7 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(CORS_BASE_
 let currentMessage: Message<boolean> = null;
 let currentRound = null;
 let gameStarted = false;
+let currentParamsId = null;
 
 export const initSockets = () => {
   socket.emit(JOIN_ROOM, options.roomSlug);
@@ -56,6 +58,8 @@ export const initSockets = () => {
 }
 
 export const fetchPlayerRoomData = (roomSlug: string) => {
+  // emits the SYNC_PLAYERS_REQUEST
+  // then we listen for the socket.on of SYNC_PLAYERS_RESPONSE
   socket.emit(SYNC_PLAYERS_REQUEST, roomSlug)
 }
 
@@ -121,9 +125,12 @@ Congratulations! 1st place goes to **${winnerData[0]?.discord_id ? tagUser(winne
 
 2nd place **${winnerData[1]?.discord_id ? tagUser(winnerData[1].discord_id) : winnerData[1].name}**.
 3rd place **${winnerData[2]?.discord_id ? tagUser(winnerData[2].discord_id) : winnerData[2].name}**.`)
+  .setFooter(currentParamsId ? currentParamsId : '')
 
   // Set the currentMessage to this message.
-  channel.send({ embeds: [embed] })
+  channel.send({
+    embeds: [embed]
+  })
   // End the games.
   gameStarted = false;
   currentRound = null;
@@ -189,8 +196,9 @@ const updatePlayerRoomData = async (data: PlayerAndRoomInfoType) => {
           if (message.embeds[0]?.footer?.text === paramsId) {
             // If all conditions are met, we don't want to create a new embed.
             createNewEmbed = false;
-            // We also want to set the currentMessage as well
+            // We also want to set the currentMessage and currentParamsId as well
             currentMessage = message;
+            currentParamsId = paramsId;
             break;
           }
         }
@@ -207,11 +215,20 @@ const updatePlayerRoomData = async (data: PlayerAndRoomInfoType) => {
   const receivedEmbed = currentMessage.embeds[0];
   // If we have it, edit it.
   const editEmbed = new MessageEmbed(receivedEmbed)
-    .setDescription(`**Entrants**: ${allPlayers.join(', ')}\n
-    **Total Entrants:** ${allPlayers.length.toString()}`)
+    .setDescription(currentEntrantsDescription(allPlayers))
 
   currentMessage.edit({ embeds: [editEmbed] })
 }
+
+const currentEntrantsDescription = (allPlayers: string[]) => `
+**Entrants**: ${allPlayers.join(', ')}
+
+**Total Entrants:** ${allPlayers.length.toString()}
+
+**Want to join the fight?**: If you see your name above, you're ready to brawl. If not, use the \`/${interactionCommands.JOIN.commandName}\` command.
+
+**Why are some users tagged and others not?** Only players who chose to link their discord account to their player profile are shown above. If you'd like to do the same, visit 'settings' in the Rumble Raffle App.
+`
 
 /**
  * Creates and sends the Current Player Embed message.
@@ -223,12 +240,13 @@ const createAndSendCurrentPlayerEmbed = (channel: TextChannel, allPlayers: strin
     .setColor('#9912B8')
     .setTitle(CURRENT_ENTRANTS)
     .setURL(options.gameUrl)
-    .setDescription(`**Entrants**: ${allPlayers.join(', ')}\n\n**Total Entrants:** ${allPlayers.length.toString()}`)
+    .setDescription(currentEntrantsDescription(allPlayers))
     .setFooter({ text: paramsId })
 
   // Set the currentMessage to this message.
-  channel.send({ embeds: [embed] }).then(msg => {
+  channel.send({ embeds: [embed], content: '@here' }).then(msg => {
     currentMessage = msg;
+    currentParamsId = paramsId
   })
 }
 

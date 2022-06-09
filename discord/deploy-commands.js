@@ -6,10 +6,20 @@ const token = process.env.DISCORD_TOKEN
 const appId = process.env.APP_ID
 const guildId = process.env.GUILD_ID
 
+export const interactionCommands = {
+  JOIN: {
+    commandName: 'join',
+    description: 'Joins the current rumble if possible.'
+  },
+  HELP: {
+    commandName: 'help',
+    description: 'Displays all available commands to the user.'
+  }
+}
+
 const commands = [
-	new SlashCommandBuilder().setName('start').setDescription('Starts the rumble game.'),
-	new SlashCommandBuilder().setName('syncgame').setDescription('Syncs server data with discord bot.'),
-	new SlashCommandBuilder().setName('create').setDescription('Creates a new rumble game.'),
+	new SlashCommandBuilder().setName(interactionCommands.JOIN.commandName).setDescription(interactionCommands.JOIN.description),
+	new SlashCommandBuilder().setName(interactionCommands.HELP.commandName).setDescription(interactionCommands.HELP.description),
 ]
 	.map(command => command.toJSON());
 
