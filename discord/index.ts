@@ -89,14 +89,13 @@ client.on('interactionCreate', async interaction => {
   if (commandName === interactionCommands.JOIN.commandName) {
     const embed = new MessageEmbed()
       .setColor('#4CE3B6')
-      .setTitle('Visit RumbleRaffle site to battle!')
-      .setURL(options.gameUrl)
+      .setTitle('Visit Rumble Raffle site to battle!')
       .setDescription(`
 Currently the only way to join a game is by visiting the Rumble Raffle site itself.
 
 It's as simple as **1-2-3**.
-1. Connect your metamask and sign the message, proving you own the account.
-2. Visit the "Play" tab
+1. Click to visit [RumbleRaffle.com](${options.gameUrl}).
+2. Connect your metamask and sign the message, proving you own the account.
 3. Click "Join Game"
   `)
     await interaction.reply({

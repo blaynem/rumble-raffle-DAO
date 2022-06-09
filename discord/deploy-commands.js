@@ -9,7 +9,7 @@ const guildId = process.env.GUILD_ID
 export const interactionCommands = {
   JOIN: {
     commandName: 'join',
-    description: 'Joins the current rumble if possible.'
+    description: 'Instructions on how to join the rumble.'
   },
   HELP: {
     commandName: 'help',
