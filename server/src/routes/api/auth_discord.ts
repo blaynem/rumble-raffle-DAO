@@ -4,10 +4,22 @@ import prisma from '../../client';
 import verifySignature from '../../utils/verifySignature';
 import { LOGIN_MESSAGE, PATH_VERIFY } from '@rumble-raffle-dao/types/constants';
 import { CORS_BASE_WEB_URL } from '../../../constants';
+import {
+  StoreState,
+  AuthStore,
+  AuthStoreValue,
+  AuthDiscordInitPostBody,
+  AuthDiscordInitPostResponse,
+  AuthDiscordVerifyGetBody,
+  AuthDiscordVerifyGetResponse,
+  AuthDiscordVerifyPostBody,
+  AuthDiscordVerifyPostResponse
+} from '@rumble-raffle-dao/types';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
 
+const TEN_MINUTES = 600000
 const createVerifyLink = (key: string) => `${CORS_BASE_WEB_URL}${PATH_VERIFY}/${key}`;
 
 /**
@@ -20,28 +32,6 @@ const createVerifyLink = (key: string) => `${CORS_BASE_WEB_URL}${PATH_VERIFY}/${
  *  - If sig verifies with address, will update the `discord_id` in database
  */
 
-interface StoreState {
-  [key: string]: AuthStoreValue
-}
-
-type AuthStoreValue = {
-  verify_id: string;
-  discord_id: string;
-  discord_tag: string;
-  expireTime: number;
-}
-
-interface AuthStore {
-  add: (value: AddToStoreValue) => AuthStoreValue;
-  get: (key: string) => AuthStoreValue | null;
-}
-
-type AddToStoreValue = {
-  discord_id: string;
-  discord_tag: string;
-  msToExpire: number;
-}
-
 const Store = (initState: StoreState = {}): AuthStore => {
   const state: StoreState = initState;
   const generateKey = () => (Math.random() + 1).toString(36).substring(7);
@@ -53,15 +43,15 @@ const Store = (initState: StoreState = {}): AuthStore => {
   }
 
   return {
-    add: (value) => {
+    add: (value, msToExpire) => {
       const key = generateKey();
       const newObj: AuthStoreValue = {
         ...value,
         verify_id: key,
-        expireTime: Date.now() + value.msToExpire
+        expireTime: Date.now() + msToExpire
       }
       state[key] = newObj;
-      delayDelete(key, value.msToExpire)
+      delayDelete(key, msToExpire)
       return newObj
     },
     get: (key) => state[key] || null,
@@ -71,31 +61,20 @@ const Store = (initState: StoreState = {}): AuthStore => {
 const authStore = Store();
 
 
-interface AuthDiscordInitPostBody extends express.Request {
-  body: AddToStoreValue
-}
-
-interface AuthDiscordInitPostResponse {
-  data: { verify_link: string } & AuthStoreValue;
-  error?: string;
-}
-
-
-
 /**
  * Starts the auth process by taking in a discord_id, discord_tag and timeToExpire
  * API Response = {verify_id, discord_id, discord_tag, expireTime}
  */
 router.post('/init', jsonParser, async (req: AuthDiscordInitPostBody, res: express.Response<AuthDiscordInitPostResponse>) => {
-  const { discord_id, discord_tag, msToExpire } = req.body;
+  const { discord_id, discord_tag } = req.body;
   // If any of the fields are missing, throw an error
-  if (!discord_id || !discord_tag || !msToExpire) {
+  if (!discord_id || !discord_tag) {
     res.status(400).json({ data: null, error: 'Missing a field' })
     return;
   }
 
   // We add the data to the authStore
-  const data = authStore.add(req.body)
+  const data = authStore.add(req.body, TEN_MINUTES)
   res.json({
     data: {
       ...data,
@@ -104,16 +83,7 @@ router.post('/init', jsonParser, async (req: AuthDiscordInitPostBody, res: expre
   })
 })
 
-interface AuthDiscordVerifyGetBody extends express.Request {
-  params: {
-    verify_id: string;
-  }
-}
 
-interface AuthDiscordVerifyGetResponse {
-  data: AuthStoreValue;
-  error?: string;
-}
 
 // When user visit a certain page, we'll make the api call here.
 router.get('/:verify_id', async (req: AuthDiscordVerifyGetBody, res: express.Response<AuthDiscordVerifyGetResponse>) => {
@@ -122,20 +92,7 @@ router.get('/:verify_id', async (req: AuthDiscordVerifyGetBody, res: express.Res
   res.json({ data })
 })
 
-interface VerifyDiscordId {
-  signature: string;
-  public_address: string;
-  verify_id: string;
-}
 
-interface AuthDiscordVerifyPostBody extends express.Request {
-  body: VerifyDiscordId
-}
-
-interface AuthDiscordVerifyPostResponse {
-  data: string;
-  error?: string;
-}
 
 // Signature will be sent to `/verify`
 router.post('/verify', jsonParser, async (req: AuthDiscordVerifyPostBody, res: express.Response<AuthDiscordVerifyPostResponse>) => {
@@ -174,7 +131,6 @@ router.post('/verify', jsonParser, async (req: AuthDiscordVerifyPostBody, res: e
     console.error('auth_discord err:', err)
     res.status(400).json({ data: null, error: 'There was an error.' })
   }
-
 })
 
 module.exports = router;
