@@ -50,7 +50,7 @@ export default function PageIndex(props: AuthStoreValue) {
       }).then(res => res.json())
 
       setVerifyLoading(false)
-      
+
       if (error) {
         window.alert(error)
         return;
@@ -96,14 +96,16 @@ export default function PageIndex(props: AuthStoreValue) {
 
   if (verifySuccess) {
     return (
-      <div className="p-8 dark:bg-black bg-rumbleBgLight w-full overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 58px)' }}>
-        <h1 className='uppercase font-medium mt-6 mb-12 text-2xl text-center dark:text-rumbleSecondary text-rumblePrimary'>Discord Verification</h1>
-        <section className='md:px-40 sm:px-8'>
-          <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Success!</h2>
-          <p className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
-            Discord verification successful! You may close this page and return back to discord.
-          </p>
-        </section>
+      <div className={`${darkMode ? 'dark' : 'light'}`}>
+        <div className="p-8 dark:bg-black bg-rumbleBgLight w-full overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 58px)' }}>
+          <h1 className='uppercase font-medium mt-6 mb-12 text-2xl text-center dark:text-rumbleSecondary text-rumblePrimary'>Discord Verification</h1>
+          <section className='md:px-40 sm:px-8'>
+            <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Success!</h2>
+            <p className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
+              Discord verification successful! You may close this page and return back to discord.
+            </p>
+          </section>
+        </div>
       </div>
     )
   }
