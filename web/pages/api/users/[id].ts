@@ -23,7 +23,7 @@ export type UsersResponseType = {
 async function usersHandler(req: ExtendedNextAPIRequest, res: NextApiResponse<UsersResponseType>) {
   if (req.method === 'POST') {
     const { id } = req?.query;
-    const { name, discord_tag } = JSON.parse(req?.body) as UserSettingsType;
+    const { name } = JSON.parse(req?.body) as UserSettingsType;
     const { signature } = req.headers;
 
     if (!signature || !id) {
@@ -41,13 +41,11 @@ async function usersHandler(req: ExtendedNextAPIRequest, res: NextApiResponse<Us
           },
           data: {
             name: trimmedName,
-            discord_tag: discord_tag,
           },
           select: {
             id: true,
             name: true,
             is_admin: true,
-            discord_tag: true
           }
         })
 

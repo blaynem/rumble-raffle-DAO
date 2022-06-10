@@ -72,7 +72,7 @@ export default function PageIndex() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Formik
-        initialValues={{ name: user?.name, discord_tag: user?.discord_tag }}
+        initialValues={{ name: user?.name }}
         validationSchema={userSettingsSchema}
         onSubmit={(values, { setSubmitting }: FormikHelpers<UserSettingsType>) => {
           handleSubmit(values).then((res) => {
@@ -114,23 +114,6 @@ export default function PageIndex() {
                       />
                     </div>
                     <ErrorMessage name="name" >
-                      {msg => customErrorColors(msg)}
-                    </ErrorMessage>
-                  </div>
-                  <div className="col-span-7 sm:col-span-3">
-                    <label htmlFor="discord-tag" className={labelClass}>
-                      Discord Tag
-                    </label>
-                    <div className="flex">
-                      <Field
-                        type="text"
-                        name="discord_tag"
-                        id="discord-tag"
-                        className={fieldClass}
-                        placeholder="JohnDoe#420"
-                      />
-                    </div>
-                    <ErrorMessage name="discord_tag" >
                       {msg => customErrorColors(msg)}
                     </ErrorMessage>
                   </div>

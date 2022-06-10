@@ -42,7 +42,7 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
           select: {
             id: true,
             name: true,
-            discord_tag: true
+            discord_id: true
           }
         }
       }
@@ -53,7 +53,7 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
     const initialPlayers = data.map(({ User }) => ({
       id: User.id,
       name: User.name,
-      discord_tag: User.discord_tag,
+      discord_id: User.discord_id,
     }))
     
     // Overwrite players so we can get any missing pieces.

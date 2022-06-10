@@ -133,8 +133,7 @@ router.post(PATH_VERIFY, jsonParser, async (req: AuthDiscordVerifyPostBody, res:
         id: public_address
       },
       data: {
-        discord_tag: discordData.discord_id,
-        // discord_id: discordData.discord_id,
+        discord_id: discordData.discord_id,
       }
     })
     // Finally, we remove the verification id.

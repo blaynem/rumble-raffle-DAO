@@ -113,7 +113,7 @@ const logWinner = async (winners: PickFromPlayers[]) => {
 
   const winnerData = winners.map(winner => ({
     ...winner,
-    discord_id: winner.discord_tag && getUserFromUserTag(winner.discord_tag)?.id
+    discord_id: winner.discord_id
   }))
 
   const channel: AnyChannel = client.channels.cache.get(options.channelId) as TextChannel;
@@ -125,7 +125,7 @@ Congratulations! 1st place goes to **${winnerData[0]?.discord_id ? tagUser(winne
 
 2nd place **${winnerData[1]?.discord_id ? tagUser(winnerData[1].discord_id) : winnerData[1].name}**.
 3rd place **${winnerData[2]?.discord_id ? tagUser(winnerData[2].discord_id) : winnerData[2].name}**.`)
-    .setFooter(currentParamsId ? currentParamsId : '')
+    .setFooter({ text: currentParamsId ? currentParamsId : '' })
 
   // Set the currentMessage to this message.
   channel.send({
@@ -143,7 +143,7 @@ const syncPlayerRoomData = ({ data, paramsId, error }: SyncPlayersResponseType) 
   const channel: AnyChannel = client.channels.cache.get(options.channelId) as TextChannel;
   const allPlayerData = data?.map(player => ({
     ...player,
-    discord_id: player.discord_tag && getUserFromUserTag(player.discord_tag)?.id
+    discord_id: player.discord_id
   }));
 
   const allPlayers = allPlayerData.map(player => player.discord_id ? tagUser(player.discord_id) : player.name)
@@ -165,7 +165,7 @@ const syncPlayerRoomData = ({ data, paramsId, error }: SyncPlayersResponseType) 
 const updatePlayerRoomData = async (data: PlayerAndRoomInfoType) => {
   const allPlayerData = data?.allPlayers?.map(player => ({
     ...player,
-    discord_id: player.discord_tag && getUserFromUserTag(player.discord_tag)?.id
+    discord_id: player.discord_id
   }));
 
   const allPlayers = allPlayerData.map(player => player.discord_id ? tagUser(player.discord_id) : player.name)

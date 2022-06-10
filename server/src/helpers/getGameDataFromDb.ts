@@ -20,7 +20,7 @@ export const getGameDataFromDb = async (slug: string): Promise<{ data: RoomDataT
             game_completed: true,
             created_by: true,
             Players: {
-              select: { User: { select: { id: true, name: true, discord_tag: true } } }
+              select: { User: { select: { id: true, name: true, discord_id: true } } }
             },
             GameLogs: {
               include: {

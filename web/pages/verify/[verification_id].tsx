@@ -73,7 +73,7 @@ export default function PageIndex(props: AuthStoreValue) {
     )
   }
 
-  if (!props.discord_tag) {
+  if (!props.discord_id) {
     return (
       <div className={`${darkMode ? 'dark' : 'light'}`}>
         <Head>
