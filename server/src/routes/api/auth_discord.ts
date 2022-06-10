@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import prisma from '../../client';
 import verifySignature from '../../utils/verifySignature';
-import { LOGIN_MESSAGE, PATH_VERIFY } from '@rumble-raffle-dao/types/constants';
+import { LOGIN_MESSAGE, PATH_VERIFY, PATH_VERIFY_ID, PATH_VERIFY_INIT } from '@rumble-raffle-dao/types/constants';
 import { CORS_BASE_WEB_URL } from '../../../constants';
 import {
   StoreState,
@@ -65,10 +65,10 @@ const authStore = Store();
  * Starts the auth process by taking in a discord_id, discord_tag and timeToExpire
  * API Response = {verify_id, discord_id, discord_tag, expireTime}
  */
-router.post('/init', jsonParser, async (req: AuthDiscordInitPostBody, res: express.Response<AuthDiscordInitPostResponse>) => {
-  const { discord_id, discord_tag } = req.body;
+router.post(PATH_VERIFY_INIT, jsonParser, async (req: AuthDiscordInitPostBody, res: express.Response<AuthDiscordInitPostResponse>) => {
+  const { discord_id } = req.body;
   // If any of the fields are missing, throw an error
-  if (!discord_id || !discord_tag) {
+  if (!discord_id) {
     res.status(400).json({ data: null, error: 'Missing a field' })
     return;
   }
@@ -86,7 +86,7 @@ router.post('/init', jsonParser, async (req: AuthDiscordInitPostBody, res: expre
 
 
 // When user visit a certain page, we'll make the api call here.
-router.get('/:verify_id', async (req: AuthDiscordVerifyGetBody, res: express.Response<AuthDiscordVerifyGetResponse>) => {
+router.get(PATH_VERIFY_ID, async (req: AuthDiscordVerifyGetBody, res: express.Response<AuthDiscordVerifyGetResponse>) => {
   const { verify_id } = req.params;
   const data = authStore.get(verify_id);
   res.json({ data })
@@ -95,7 +95,7 @@ router.get('/:verify_id', async (req: AuthDiscordVerifyGetBody, res: express.Res
 
 
 // Signature will be sent to `/verify`
-router.post('/verify', jsonParser, async (req: AuthDiscordVerifyPostBody, res: express.Response<AuthDiscordVerifyPostResponse>) => {
+router.post(PATH_VERIFY, jsonParser, async (req: AuthDiscordVerifyPostBody, res: express.Response<AuthDiscordVerifyPostResponse>) => {
   const { signature, public_address, verify_id } = req.body
   // If any of the fields are missing, throw an error
   if (!signature || !public_address || !verify_id) {
@@ -122,7 +122,7 @@ router.post('/verify', jsonParser, async (req: AuthDiscordVerifyPostBody, res: e
         id: public_address
       },
       data: {
-        discord_tag: discordData.discord_tag,
+        discord_tag: discordData.discord_id,
         // discord_id: discordData.discord_id,
       }
     })

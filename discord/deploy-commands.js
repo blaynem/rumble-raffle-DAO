@@ -7,10 +7,6 @@ const appId = process.env.APP_ID
 const guildId = process.env.GUILD_ID
 
 export const interactionCommands = {
-  JOIN: {
-    commandName: 'join',
-    description: 'Instructions on how to join the rumble.'
-  },
   HELP: {
     commandName: 'help',
     description: 'Displays all available commands to the user.'
@@ -18,7 +14,6 @@ export const interactionCommands = {
 }
 
 const commands = [
-	new SlashCommandBuilder().setName(interactionCommands.JOIN.commandName).setDescription(interactionCommands.JOIN.description),
 	new SlashCommandBuilder().setName(interactionCommands.HELP.commandName).setDescription(interactionCommands.HELP.description),
 ]
 	.map(command => command.toJSON());

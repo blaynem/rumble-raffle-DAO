@@ -2,18 +2,18 @@ require('dotenv').config()
 import { ServerToClientEvents, ClientToServerEvents, PlayerAndRoomInfoType, SyncPlayersResponseType, RoundActivityLog, SingleActivity, PickFromPlayers } from "@rumble-raffle-dao/types";
 import { GAME_START_COUNTDOWN, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { Socket, io } from "socket.io-client";
-import { CORS_BASE_WEB_URL } from "../constants";
+import { BASE_API_URL } from "../constants";
 import { options } from '../index';
 import client from "../client";
-import { AnyChannel, Message, MessageEmbed, TextChannel } from "discord.js";
+import { AnyChannel, Message, MessageActionRow, MessageButton, MessageEmbed, TextChannel } from "discord.js";
 import { getUserFromUserTag, tagUser } from "../utils";
-import { interactionCommands } from "../deploy-commands";
 
 const botId = process.env.APP_ID;
 
 const CURRENT_ENTRANTS = 'NEXT RUMBLE BEGINS SHORTLY';
+export const JOIN_GAME_BUTTON_ID = 'joinGameId';
 
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(CORS_BASE_WEB_URL);
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
 
 /**
  * We keep track of the message id that way we can edit the message.
@@ -110,7 +110,7 @@ const logWinner = async (winners: PickFromPlayers[]) => {
   if (!gameStarted) {
     return;
   }
-  
+
   const winnerData = winners.map(winner => ({
     ...winner,
     discord_id: winner.discord_tag && getUserFromUserTag(winner.discord_tag)?.id
@@ -125,7 +125,7 @@ Congratulations! 1st place goes to **${winnerData[0]?.discord_id ? tagUser(winne
 
 2nd place **${winnerData[1]?.discord_id ? tagUser(winnerData[1].discord_id) : winnerData[1].name}**.
 3rd place **${winnerData[2]?.discord_id ? tagUser(winnerData[2].discord_id) : winnerData[2].name}**.`)
-  .setFooter(currentParamsId ? currentParamsId : '')
+    .setFooter(currentParamsId ? currentParamsId : '')
 
   // Set the currentMessage to this message.
   channel.send({
@@ -225,7 +225,7 @@ const currentEntrantsDescription = (allPlayers: string[]) => `
 
 **Total Entrants:** ${allPlayers.length.toString()}
 
-**Want to join the fight?**: If you see your name above, you're ready to brawl. If not, use the \`/${interactionCommands.JOIN.commandName}\` command.
+**Want to join the fight?**: If you see your name above, you're ready to brawl. If not, press the 'Join Game' button below.
 
 **Why are some users tagged and others not?** Only players who chose to link their discord account to their player profile are shown above. If you'd like to do the same, visit 'settings' in the Rumble Raffle App.
 `
@@ -243,8 +243,16 @@ const createAndSendCurrentPlayerEmbed = (channel: TextChannel, allPlayers: strin
     .setDescription(currentEntrantsDescription(allPlayers))
     .setFooter({ text: paramsId })
 
+  const button = new MessageButton()
+    .setCustomId(JOIN_GAME_BUTTON_ID)
+    .setLabel('Join Game')
+    .setStyle('PRIMARY');
+
+  const row = new MessageActionRow()
+    .addComponents(button);
+
   // Set the currentMessage to this message.
-  channel.send({ embeds: [embed], content: '@here' }).then(msg => {
+  channel.send({ embeds: [embed], content: '@here', components: [row] }).then(msg => {
     currentMessage = msg;
     currentParamsId = paramsId
   })
