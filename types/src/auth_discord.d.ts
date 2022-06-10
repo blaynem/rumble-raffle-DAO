@@ -13,11 +13,11 @@ export type AuthStoreValue = {
 }
 
 export interface AuthStore {
-  add: (value: AddToStoreValue, msToExpire: number) => AuthStoreValue;
+  add: (value: AuthDiscordInitBody, msToExpire: number) => AuthStoreValue;
   get: (key: string) => AuthStoreValue | null;
 }
 
-export type AddToStoreValue = {
+export type AuthDiscordInitBody = {
   discord_id: string;
   discord_tag: string;
 }
@@ -38,7 +38,7 @@ export interface AuthDiscordVerifyGetResponse {
 /** INIT POST TYPES */
 
 export interface AuthDiscordInitPostBody extends express.Request {
-  body: AddToStoreValue
+  body: AuthDiscordInitBody
 }
 
 export interface AuthDiscordInitPostResponse {

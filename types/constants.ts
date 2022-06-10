@@ -5,6 +5,12 @@ export const BASE_WEB_URL_DEV = 'http://localhost:3000'
 export const BASE_API_URL_PROD = 'https://rumble-raffle-dao.herokuapp.com'
 export const BASE_WEB_URL_PROD = 'https://www.rumbleraffle.com'
 
+/** SERVER API PATHS */
+export const SERVER_BASE_PATH = '/api'
+export const SERVER_ACTIVITIES = '/activities'
+export const SERVER_AUTH_DISCORD = '/auth_discord'
+export const SERVER_ROOMS = '/rooms'
+
 /**Url Paths */
 export const PATH_VERIFY = '/verify'
 
