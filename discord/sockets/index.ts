@@ -6,14 +6,14 @@ import { BASE_API_URL } from "../constants";
 import { options } from '../index';
 import client from "../client";
 import { AnyChannel, Message, MessageActionRow, MessageButton, MessageEmbed, TextChannel } from "discord.js";
-import { getUserFromUserTag, tagUser } from "../utils";
+import { tagUser } from "../utils";
 
 const botId = process.env.APP_ID;
 
 const CURRENT_ENTRANTS = 'NEXT RUMBLE BEGINS SHORTLY';
 export const JOIN_GAME_BUTTON_ID = 'joinGameId';
 
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
+export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
 
 /**
  * We keep track of the message id that way we can edit the message.
@@ -22,7 +22,7 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_U
  * - createNewGame
  * - syncPlayerRoomData
  */
-let currentMessage: Message<boolean> = null;
+export let currentMessage: Message<boolean> = null;
 let currentRound = null;
 let gameStarted = false;
 let currentParamsId = null;

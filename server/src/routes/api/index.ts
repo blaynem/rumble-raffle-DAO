@@ -1,9 +1,10 @@
-import { SERVER_ACTIVITIES, SERVER_AUTH_DISCORD, SERVER_ROOMS } from '@rumble-raffle-dao/types/constants';
+import { SERVER_ACTIVITIES, SERVER_AUTH_DISCORD, SERVER_ROOMS, SERVER_USERS } from '@rumble-raffle-dao/types/constants';
 import express from 'express';
 
 const router = express.Router();
 
 router.use(SERVER_ROOMS, require('./rooms'));
+router.use(SERVER_USERS, require('./users'));
 router.use(SERVER_AUTH_DISCORD, require('./auth_discord'));
 router.use(SERVER_ACTIVITIES, require('./activities').router);
 

@@ -10,6 +10,7 @@ export const SERVER_BASE_PATH = '/api'
 export const SERVER_ACTIVITIES = '/activities'
 export const SERVER_AUTH_DISCORD = '/auth_discord'
 export const SERVER_ROOMS = '/rooms'
+export const SERVER_USERS = '/users'
 
 /** Auth Discord Url Paths */
 export const PATH_VERIFY = '/verify'

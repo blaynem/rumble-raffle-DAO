@@ -159,3 +159,5 @@ export interface CreateRoom {
 }
 
 export type IronSessionUserData = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'discord_id'> & { signature: string; };
+
+export type UserDataFetchByDiscordId = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'discord_id'>

@@ -1,12 +1,12 @@
 require('dotenv').config()
 import fetch from 'node-fetch';
-import { DEFAULT_GAME_ROOM, PATH_VERIFY_INIT, SERVER_AUTH_DISCORD, SERVER_BASE_PATH } from '@rumble-raffle-dao/types/constants';
-import { fetchPlayerRoomData, initSockets, JOIN_GAME_BUTTON_ID } from "./sockets";
+import { DEFAULT_GAME_ROOM, JOIN_GAME, PATH_VERIFY_INIT, SERVER_AUTH_DISCORD, SERVER_BASE_PATH, SERVER_USERS } from '@rumble-raffle-dao/types/constants';
+import { currentMessage, fetchPlayerRoomData, initSockets, JOIN_GAME_BUTTON_ID, socket } from "./sockets";
 import client from './client';
 import { BASE_API_URL, BASE_WEB_URL } from './constants';
 import { interactionCommands } from './deploy-commands';
 import { ButtonInteraction, CacheType, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
-import { AuthDiscordInitBody, AuthDiscordInitPostResponse } from '@rumble-raffle-dao/types';
+import { AuthDiscordInitBody, AuthDiscordInitPostResponse, UserDataFetchByDiscordId } from '@rumble-raffle-dao/types';
 
 const token = process.env.DISCORD_TOKEN
 
@@ -129,6 +129,19 @@ client.on('interactionCreate', async interaction => {
 });
 
 /**
+ * Does the Discord Auth verification fetch
+ */
+const fetchVerifyInit = async (fetchBody: AuthDiscordInitBody) => {
+  return await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_AUTH_DISCORD}${PATH_VERIFY_INIT}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(fetchBody)
+  }).then(res => res.json()) as AuthDiscordInitPostResponse
+}
+
+/**
  * When the user presses the "Join Game" button, this function will fire.
  * 
  * @param interaction - Discords ButtonInteraction type
@@ -138,13 +151,25 @@ const onJoinGamePressed = async (interaction: ButtonInteraction<CacheType>) => {
     discord_id: interaction.user.id,
     discord_tag: `${interaction.user.username}#${interaction.user.discriminator}`
   };
-  const { data: verifyInitData, error } = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_AUTH_DISCORD}${PATH_VERIFY_INIT}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(fetchBody)
-  }).then(res => res.json()) as AuthDiscordInitPostResponse
+
+  // Check if the users discord_id is attached to a users public_address.
+  const userFetch: UserDataFetchByDiscordId = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_USERS}?discord_id=${fetchBody.discord_id}`)
+    .then(res => res.json());
+
+  // If the user fetch comes back with a discord_id
+  if (userFetch?.discord_id) {
+    // join the game through the discord sockets.
+    socket.emit(JOIN_GAME, userFetch, options.roomSlug);
+    // Return a reply that we joined the game.
+    await interaction.reply({
+      ephemeral: true,
+      content: 'You have joined the game.'
+    });
+    return;
+  }
+
+  // Otherwise we start the verification init
+  const { data: verifyInitData, error } = await fetchVerifyInit(fetchBody);
 
   if (error) {
     await interaction.reply({

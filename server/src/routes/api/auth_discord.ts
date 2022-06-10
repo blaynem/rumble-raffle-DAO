@@ -126,8 +126,18 @@ router.post(PATH_VERIFY, jsonParser, async (req: AuthDiscordVerifyPostBody, res:
       res.status(400).json({ data: null, error: 'Verification code expired.' })
       return;
     }
-    // TODO: Add discord_id to database.
 
+    // We first clear all other possible discord_ids.
+    await prisma.users.updateMany({
+      where: {
+        discord_id: discordData.discord_id,
+      },
+      data: {
+        discord_id: null
+      }
+    })
+
+    // We then update the correct public_address with the correct discord_id.
     await prisma.users.update({
       where: {
         id: public_address

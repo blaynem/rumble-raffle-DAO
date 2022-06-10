@@ -19,7 +19,7 @@ export type SyncPlayersResponseType = {
 export interface ClientToServerEvents {
   [SYNC_PLAYERS_REQUEST]: (roomSlug: string) => void;
   [JOIN_ROOM]: (roomSlug: string) => void;
-  [JOIN_GAME]: (user: IronSessionUserData, roomSlug: string) => void;
+  [JOIN_GAME]: (user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'discord_id'>, roomSlug: string) => void;
   [START_GAME]: (user: IronSessionUserData, roomSlug: string) => void;
 }
 
