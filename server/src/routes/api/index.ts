@@ -3,6 +3,7 @@ import express from 'express';
 const router = express.Router();
 
 router.use('/rooms', require('./rooms'));
+router.use('/auth_discord', require('./auth_discord'));
 router.use('/activities', require('./activities').router);
 
 router.use(function(err, req, res, next){

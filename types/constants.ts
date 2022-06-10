@@ -5,6 +5,9 @@ export const BASE_WEB_URL_DEV = 'http://localhost:3000'
 export const BASE_API_URL_PROD = 'https://rumble-raffle-dao.herokuapp.com'
 export const BASE_WEB_URL_PROD = 'https://www.rumbleraffle.com'
 
+/**Url Paths */
+export const PATH_VERIFY = '/verify'
+
 /** External Links */
 export const DISCORD_LINK = 'https://discord.gg/5Bn8VKzHKB';
 export const TWITTER_LINK = 'https://twitter.com/RumbleRaffle';
