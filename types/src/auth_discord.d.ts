@@ -15,6 +15,7 @@ export type AuthStoreValue = {
 export interface AuthStore {
   add: (value: AuthDiscordInitBody, msToExpire: number) => AuthStoreValue;
   get: (key: string) => AuthStoreValue | null;
+  remove: (key: string) => void;
 }
 
 export type AuthDiscordInitBody = {

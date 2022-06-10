@@ -55,6 +55,9 @@ const Store = (initState: StoreState = {}): AuthStore => {
       return newObj
     },
     get: (key) => state[key] || null,
+    remove: (key) => {
+      delete state[key];
+    },
   }
 }
 
@@ -84,7 +87,6 @@ router.post(PATH_VERIFY_INIT, jsonParser, async (req: AuthDiscordInitPostBody, r
 })
 
 
-
 // When user visit a certain page, we'll make the api call here.
 router.get('/:verification_id', async (req: AuthDiscordVerifyGetBody, res: express.Response<AuthDiscordVerifyGetResponse>) => {
   const { verification_id } = req.params;
@@ -93,30 +95,39 @@ router.get('/:verification_id', async (req: AuthDiscordVerifyGetBody, res: expre
 })
 
 
-
 // Signature will be sent to `/verify`
 router.post(PATH_VERIFY, jsonParser, async (req: AuthDiscordVerifyPostBody, res: express.Response<AuthDiscordVerifyPostResponse>) => {
-  const { signature, public_address, verification_id } = req.body
-  // If any of the fields are missing, throw an error
-  if (!signature || !public_address || !verification_id) {
-    res.status(400).json({ data: null, error: 'Missing a field' })
-    return;
-  }
-  const validatedSignature = verifySignature(public_address, signature, LOGIN_MESSAGE)
-
-  // If signature validation fails, error
-  if (!validatedSignature) {
-    res.status(400).json({ data: null, error: 'Signature validation failed.' })
-    return;
-  }
-  // If verification code expires, error
-  const discordData = authStore.get(verification_id);
-  if (discordData === null) {
-    res.status(400).json({ data: null, error: 'Verification code expired.' })
-    return;
-  }
-  // TODO: Add discord_id to database.
   try {
+    const { signature, public_address, verification_id } = req.body
+    // If any of the fields are missing, throw an error
+    if (!signature || !public_address || !verification_id) {
+      res.status(400).json({ data: null, error: 'Missing a field' })
+      return;
+    }
+
+    // If the store comes back with null, then there is no code.
+    if (authStore.get(verification_id) === null) {
+      res.status(400).json({ data: null, error: 'Unable to find verification code.' })
+      return;
+    }
+
+    const { discord_id, discord_tag } = authStore.get(verification_id);
+    const verifyMessage = `Discord Tag: ${discord_tag}\nDiscord Id: ${discord_id}\nVerification Id: ${verification_id}`
+    const validatedSignature = verifySignature(public_address, signature, verifyMessage)
+
+    // If signature validation fails, error
+    if (!validatedSignature) {
+      res.status(400).json({ data: null, error: 'Signature validation failed.' })
+      return;
+    }
+    // If verification code expires, error
+    const discordData = authStore.get(verification_id);
+    if (discordData === null) {
+      res.status(400).json({ data: null, error: 'Verification code expired.' })
+      return;
+    }
+    // TODO: Add discord_id to database.
+
     await prisma.users.update({
       where: {
         id: public_address
@@ -126,6 +137,8 @@ router.post(PATH_VERIFY, jsonParser, async (req: AuthDiscordVerifyPostBody, res:
         // discord_id: discordData.discord_id,
       }
     })
+    // Finally, we remove the verification id.
+    authStore.remove(verification_id);
     res.json({ data: 'Verification successful!' })
   } catch (err) {
     console.error('auth_discord err:', err)
