@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import prisma from '../../client';
 import verifySignature from '../../utils/verifySignature';
-import { LOGIN_MESSAGE, PATH_VERIFY, PATH_VERIFY_ID, PATH_VERIFY_INIT } from '@rumble-raffle-dao/types/constants';
+import { LOGIN_MESSAGE, PATH_VERIFY, PATH_VERIFY_INIT } from '@rumble-raffle-dao/types/constants';
 import { CORS_BASE_WEB_URL } from '../../../constants';
 import {
   StoreState,
@@ -24,9 +24,9 @@ const createVerifyLink = (key: string) => `${CORS_BASE_WEB_URL}${PATH_VERIFY}/${
 
 /**
  * 1. Initial `/api/auth_discord/init` `POST` with params: discord_id, discord_tag, timeToExpire
- *  - returns only the verify_id for url { verify_id: 'abcd1234' }
- * 2. User will then be directed towards the `${BASE_WEB_URL}/verify/${verify_id}` url
- * 3. Upon visiting that page, user will be required to sign a message that will contain params: discord_id, discord_tag, verify_id
+ *  - returns only the verification_id for url { verification_id: 'abcd1234' }
+ * 2. User will then be directed towards the `${BASE_WEB_URL}/verify/${verification_id}` url
+ * 3. Upon visiting that page, user will be required to sign a message that will contain params: discord_id, discord_tag, verification_id
  *  - Signing will `POST` params: `signature`
  * 4. POST to `/api/auth_discord/verify` with params: `signature`
  *  - If sig verifies with address, will update the `discord_id` in database
@@ -47,7 +47,7 @@ const Store = (initState: StoreState = {}): AuthStore => {
       const key = generateKey();
       const newObj: AuthStoreValue = {
         ...value,
-        verify_id: key,
+        verification_id: key,
         expireTime: Date.now() + msToExpire
       }
       state[key] = newObj;
@@ -63,7 +63,7 @@ const authStore = Store();
 
 /**
  * Starts the auth process by taking in a discord_id, discord_tag and timeToExpire
- * API Response = {verify_id, discord_id, discord_tag, expireTime}
+ * API Response = {verification_id, discord_id, discord_tag, expireTime}
  */
 router.post(PATH_VERIFY_INIT, jsonParser, async (req: AuthDiscordInitPostBody, res: express.Response<AuthDiscordInitPostResponse>) => {
   const { discord_id } = req.body;
@@ -78,7 +78,7 @@ router.post(PATH_VERIFY_INIT, jsonParser, async (req: AuthDiscordInitPostBody, r
   res.json({
     data: {
       ...data,
-      verify_link: createVerifyLink(data.verify_id)
+      verify_link: createVerifyLink(data.verification_id)
     }
   })
 })
@@ -86,9 +86,9 @@ router.post(PATH_VERIFY_INIT, jsonParser, async (req: AuthDiscordInitPostBody, r
 
 
 // When user visit a certain page, we'll make the api call here.
-router.get(PATH_VERIFY_ID, async (req: AuthDiscordVerifyGetBody, res: express.Response<AuthDiscordVerifyGetResponse>) => {
-  const { verify_id } = req.params;
-  const data = authStore.get(verify_id);
+router.get('/:verification_id', async (req: AuthDiscordVerifyGetBody, res: express.Response<AuthDiscordVerifyGetResponse>) => {
+  const { verification_id } = req.params;
+  const data = authStore.get(verification_id);
   res.json({ data })
 })
 
@@ -96,9 +96,9 @@ router.get(PATH_VERIFY_ID, async (req: AuthDiscordVerifyGetBody, res: express.Re
 
 // Signature will be sent to `/verify`
 router.post(PATH_VERIFY, jsonParser, async (req: AuthDiscordVerifyPostBody, res: express.Response<AuthDiscordVerifyPostResponse>) => {
-  const { signature, public_address, verify_id } = req.body
+  const { signature, public_address, verification_id } = req.body
   // If any of the fields are missing, throw an error
-  if (!signature || !public_address || !verify_id) {
+  if (!signature || !public_address || !verification_id) {
     res.status(400).json({ data: null, error: 'Missing a field' })
     return;
   }
@@ -110,7 +110,7 @@ router.post(PATH_VERIFY, jsonParser, async (req: AuthDiscordVerifyPostBody, res:
     return;
   }
   // If verification code expires, error
-  const discordData = authStore.get(verify_id);
+  const discordData = authStore.get(verification_id);
   if (discordData === null) {
     res.status(400).json({ data: null, error: 'Verification code expired.' })
     return;

@@ -136,6 +136,7 @@ client.on('interactionCreate', async interaction => {
 const onJoinGamePressed = async (interaction: ButtonInteraction<CacheType>) => {
   const fetchBody: AuthDiscordInitBody = {
     discord_id: interaction.user.id,
+    discord_tag: `${interaction.user.username}#${interaction.user.discriminator}`
   };
   const { data: verifyInitData, error } = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_AUTH_DISCORD}${PATH_VERIFY_INIT}`, {
     method: 'POST',

@@ -6,8 +6,9 @@ export interface StoreState {
 }
 
 export type AuthStoreValue = {
-  verify_id: string;
+  verification_id: string;
   discord_id: string;
+  discord_tag: string;
   expireTime: number;
 }
 
@@ -18,13 +19,14 @@ export interface AuthStore {
 
 export type AuthDiscordInitBody = {
   discord_id: string;
+  discord_tag: string;
 }
 
 /** VERIFY GET TYPES */
 
 export interface AuthDiscordVerifyGetBody extends express.Request {
   params: {
-    verify_id: string;
+    verification_id: string;
   }
 }
 
@@ -49,7 +51,7 @@ export interface AuthDiscordInitPostResponse {
 export interface VerifyDiscordId {
   signature: string;
   public_address: string;
-  verify_id: string;
+  verification_id: string;
 }
 
 export interface AuthDiscordVerifyPostBody extends express.Request {

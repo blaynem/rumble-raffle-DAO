@@ -13,7 +13,6 @@ export const SERVER_ROOMS = '/rooms'
 
 /** Auth Discord Url Paths */
 export const PATH_VERIFY = '/verify'
-export const PATH_VERIFY_ID = '/:verify_id'
 export const PATH_VERIFY_INIT = '/init'
 
 /** External Links */
