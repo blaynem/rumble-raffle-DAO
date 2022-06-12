@@ -1,5 +1,5 @@
 import { Prisma } from '.prisma/client'
-import { GAME_START_COUNTDOWN, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST, JOIN_GAME_ERROR, JOIN_ROOM, JOIN_GAME, START_GAME, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE } from "../constants";
+import { NEW_GAME_CREATED, GAME_START_COUNTDOWN, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST, JOIN_GAME_ERROR, JOIN_ROOM, JOIN_GAME, START_GAME, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE } from "../constants";
 import { EntireGameLog, IronSessionUserData, PickFromPlayers, PlayerAndRoomInfoType } from "./server";
 
 export interface ServerToClientEvents {
@@ -10,6 +10,7 @@ export interface ServerToClientEvents {
   [UPDATE_PLAYER_LIST]: (data: PlayerAndRoomInfoType) => void;
   [JOIN_GAME_ERROR]: (err: any) => void;
   [SYNC_PLAYERS_RESPONSE]: ({ data, paramsId, error }: SyncPlayersResponseType) => void;
+  [NEW_GAME_CREATED]: (roomData: RoomDataType) => void;
 }
 
 export type SyncPlayersResponseType = {

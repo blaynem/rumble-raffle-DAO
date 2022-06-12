@@ -1,12 +1,12 @@
 require('dotenv').config()
-import { ServerToClientEvents, ClientToServerEvents, PlayerAndRoomInfoType, SyncPlayersResponseType, RoundActivityLog, SingleActivity, PickFromPlayers } from "@rumble-raffle-dao/types";
-import { GAME_START_COUNTDOWN, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { ServerToClientEvents, ClientToServerEvents, PlayerAndRoomInfoType, SyncPlayersResponseType, RoundActivityLog, SingleActivity, PickFromPlayers, RoomDataType } from "@rumble-raffle-dao/types";
+import { GAME_START_COUNTDOWN, JOIN_ROOM, NEW_GAME_CREATED, NEXT_ROUND_START_COUNTDOWN, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { Socket, io } from "socket.io-client";
 import { BASE_API_URL } from "../constants";
 import { options } from '../index';
 import client from "../client";
 import { AnyChannel, Message, MessageActionRow, MessageButton, MessageEmbed, TextChannel } from "discord.js";
-import { tagUser } from "../utils";
+import { mapAllPlayersToDiscordId, tagUser } from "../utils";
 
 const botId = process.env.APP_ID;
 
@@ -35,6 +35,13 @@ export const initSockets = () => {
 
   socket.on(UPDATE_ACTIVITY_LOG_WINNER, logWinner);
   socket.on(UPDATE_ACTIVITY_LOG_ROUND, logRound);
+
+  socket.on(NEW_GAME_CREATED, (roomData: RoomDataType) => {
+    const channel: AnyChannel = client.channels.cache.get(options.channelId) as TextChannel;
+    createAndSendCurrentPlayerEmbed(channel, mapAllPlayersToDiscordId(roomData.players), roomData.params.id);
+    currentRound = null;
+    gameStarted = false;
+  });
 
   socket.on(GAME_START_COUNTDOWN, (timeToStart) => {
     const channel: AnyChannel = client.channels.cache.get(options.channelId) as TextChannel;
@@ -146,15 +153,13 @@ const syncPlayerRoomData = ({ data, paramsId, error }: SyncPlayersResponseType) 
     discord_id: player.discord_id
   }));
 
-  const allPlayers = allPlayerData.map(player => player.discord_id ? tagUser(player.discord_id) : player.name)
-
   if (error) {
     channel.send(error);
     return;
   }
 
   // Create and send the current player embed message.
-  createAndSendCurrentPlayerEmbed(channel, allPlayers, paramsId);
+  createAndSendCurrentPlayerEmbed(channel, mapAllPlayersToDiscordId(allPlayerData), paramsId);
 }
 
 /**
@@ -168,7 +173,7 @@ const updatePlayerRoomData = async (data: PlayerAndRoomInfoType) => {
     discord_id: player.discord_id
   }));
 
-  const allPlayers = allPlayerData.map(player => player.discord_id ? tagUser(player.discord_id) : player.name)
+  const allPlayers = mapAllPlayersToDiscordId(allPlayerData)
 
   const paramsId = data.roomInfo.params.id
   // We check to see if we want to create a new message or can find and older one to edit.

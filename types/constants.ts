@@ -28,6 +28,7 @@ export const NETWORK_NAME_POLYGON = 'polygon';
 
 /** SOCKET VARS */
 
+export const NEW_GAME_CREATED = 'new_game_created';
 export const CLEAR_GAME = 'clear_game';
 export const GAME_COMPLETED = 'game_completed';
 export const GAME_START_COUNTDOWN = 'game_start_countdown';

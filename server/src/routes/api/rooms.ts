@@ -5,7 +5,8 @@ import prisma from '../../client';
 import { addNewRoomToMemory } from '../../helpers/roomRumbleData';
 import { CreateRoom, RoomDataType } from '@rumble-raffle-dao/types';
 import verifySignature from '../../utils/verifySignature';
-import { LOGIN_MESSAGE } from '@rumble-raffle-dao/types/constants';
+import { LOGIN_MESSAGE, NEW_GAME_CREATED } from '@rumble-raffle-dao/types/constants';
+import { io } from '../../sockets';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
@@ -39,12 +40,12 @@ router.post('/create', jsonParser, async (req: RequestBody, res: express.Respons
     }
 
     if (!createdBy) {
-      throw('You must be logged in to create a room.');
+      throw ('You must be logged in to create a room.');
     }
     const userData = await prisma.users.findUnique({ where: { id: createdBy } })
     // If they aren't an admin, we say no.
     if (!userData?.is_admin) {
-      throw('Only admin may create rooms at this time.');
+      throw ('Only admin may create rooms at this time.');
     }
 
     const dataToChange = {
@@ -85,8 +86,8 @@ router.post('/create', jsonParser, async (req: RequestBody, res: express.Respons
       }
     })
 
-    
-    const {Params: { Contract, ...restParams }, ...restRoomData } = roomData
+
+    const { Params: { Contract, ...restParams }, ...restRoomData } = roomData
     const mapRoomData: RoomDataType = {
       room: restRoomData,
       params: restParams,
@@ -96,6 +97,9 @@ router.post('/create', jsonParser, async (req: RequestBody, res: express.Respons
       gameLogs: []
     }
 
+    // Emit new game created event to sockets
+    io.to(slug).emit(NEW_GAME_CREATED, mapRoomData)
+    // Add new room to memory
     addNewRoomToMemory(mapRoomData);
     res.json({ data: roomData });
   } catch (error) {
