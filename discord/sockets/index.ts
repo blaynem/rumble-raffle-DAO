@@ -12,6 +12,7 @@ const botId = process.env.APP_ID;
 
 const CURRENT_ENTRANTS = 'NEXT RUMBLE BEGINS SHORTLY';
 export const JOIN_GAME_BUTTON_ID = 'joinGameId';
+export const UNLINK_DISCORD_BUTTON_ID = 'unlinkDiscordId';
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
 

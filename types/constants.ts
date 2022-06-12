@@ -15,6 +15,7 @@ export const SERVER_USERS = '/users'
 /** Auth Discord Url Paths */
 export const PATH_VERIFY = '/verify'
 export const PATH_VERIFY_INIT = '/init'
+export const PATH_UNLINK_DISCORD = '/unlink';
 
 /** External Links */
 export const DISCORD_LINK = 'https://discord.gg/5Bn8VKzHKB';

@@ -1,12 +1,12 @@
 require('dotenv').config()
 import fetch from 'node-fetch';
-import { DEFAULT_GAME_ROOM, JOIN_GAME, PATH_VERIFY_INIT, SERVER_AUTH_DISCORD, SERVER_BASE_PATH, SERVER_USERS } from '@rumble-raffle-dao/types/constants';
-import { currentMessage, fetchPlayerRoomData, initSockets, JOIN_GAME_BUTTON_ID, socket } from "./sockets";
+import { DEFAULT_GAME_ROOM, JOIN_GAME, PATH_UNLINK_DISCORD, PATH_VERIFY_INIT, SERVER_AUTH_DISCORD, SERVER_BASE_PATH, SERVER_USERS } from '@rumble-raffle-dao/types/constants';
+import { currentMessage, fetchPlayerRoomData, initSockets, JOIN_GAME_BUTTON_ID, socket, UNLINK_DISCORD_BUTTON_ID } from "./sockets";
 import client from './client';
 import { BASE_API_URL, BASE_WEB_URL } from './constants';
 import { interactionCommands } from './deploy-commands';
 import { ButtonInteraction, CacheType, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
-import { AuthDiscordInitBody, AuthDiscordInitPostResponse, UserDataFetchByDiscordId } from '@rumble-raffle-dao/types';
+import { AuthDiscordInitBody, AuthDiscordInitPostResponse, AuthDiscordVerifyPostResponse, UserDataFetchByDiscordId } from '@rumble-raffle-dao/types';
 
 const token = process.env.DISCORD_TOKEN
 
@@ -89,6 +89,9 @@ client.on('interactionCreate', async interaction => {
   if (interaction.customId === JOIN_GAME_BUTTON_ID) {
     onJoinGamePressed(interaction)
   }
+  if (interaction.customId === UNLINK_DISCORD_BUTTON_ID) {
+    onUnlinkDiscord(interaction)
+  }
 });
 
 /**
@@ -125,6 +128,21 @@ client.on('interactionCreate', async interaction => {
       ephemeral: true,
       content: `List of help commands:\n${availableCommands.join('\n')}`
     });
+  }
+  if (commandName === interactionCommands.UNLINK.commandName) {
+    const button = new MessageButton()
+      .setCustomId(UNLINK_DISCORD_BUTTON_ID)
+      .setLabel('Unlink Discord')
+      .setStyle('DANGER');
+
+    const row = new MessageActionRow()
+      .addComponents(button);
+
+    interaction.reply({
+      ephemeral: true,
+      content: 'Are you sure you want to unlink your discord id?',
+      components: [row]
+    })
   }
 });
 
@@ -205,6 +223,21 @@ If you do not want to link accounts, it's as simple as **1-2-3**.
     ephemeral: true,
     components: [row]
   });
+}
+
+const onUnlinkDiscord = async (interaction: ButtonInteraction<CacheType>) => {
+  const { data, error } = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_AUTH_DISCORD}${PATH_UNLINK_DISCORD}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ discord_id: interaction.user.id })
+  }).then(res => res.json()) as AuthDiscordVerifyPostResponse
+  if (error) {
+    interaction.update({ content: 'Please let the admins know there was an error.', components: [] });
+    return;
+  }
+  interaction.update({ content: data, components: [] });
 }
 
 // Login to Discord with your client's token

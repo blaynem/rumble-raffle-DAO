@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import prisma from '../../client';
 import verifySignature from '../../utils/verifySignature';
-import { LOGIN_MESSAGE, PATH_VERIFY, PATH_VERIFY_INIT } from '@rumble-raffle-dao/types/constants';
+import { PATH_UNLINK_DISCORD, PATH_VERIFY, PATH_VERIFY_INIT } from '@rumble-raffle-dao/types/constants';
 import { CORS_BASE_WEB_URL } from '../../../constants';
 import {
   StoreState,
@@ -151,6 +151,34 @@ router.post(PATH_VERIFY, jsonParser, async (req: AuthDiscordVerifyPostBody, res:
     res.json({ data: 'Verification successful!' })
   } catch (err) {
     console.error('auth_discord err:', err)
+    res.status(400).json({ data: null, error: 'There was an error.' })
+  }
+})
+
+/**
+ * If a user wants to completely unlink their discord id, we allow them to do so.
+*/
+router.post(PATH_UNLINK_DISCORD, jsonParser, async (req: express.Request<{ body: { discord_id: string; } }>, res: express.Response<AuthDiscordVerifyPostResponse>) => {
+  try {
+    const { discord_id } = req.body
+    // If any of the fields are missing, throw an error
+    if (!discord_id) {
+      res.status(400).json({ data: null, error: '`discord_id` is a required field' })
+      return;
+    }
+
+    // We clear all other possible discord_ids.
+    await prisma.users.updateMany({
+      where: {
+        discord_id,
+      },
+      data: {
+        discord_id: null
+      }
+    })
+    res.json({ data: 'Your discord id has been successfully unlinked.' })
+  } catch (err) {
+    console.error(`auth_discord/${PATH_UNLINK_DISCORD}`, err)
     res.status(400).json({ data: null, error: 'There was an error.' })
   }
 })
