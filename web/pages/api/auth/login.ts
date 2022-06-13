@@ -10,6 +10,7 @@ const fancyName = () => `${faker.name.jobType().toUpperCase()}-${faker.animal.ty
 
 async function auth(req: NextApiRequest, res: NextApiResponse) {
   const { signature, id } = req.body
+  console.log('---login', { signature, id });
   if (!signature || !id) {
     return res.status(400).json({ error: 'Request should have signature and id (public_address)' })
   }

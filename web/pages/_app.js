@@ -3,7 +3,6 @@ import ContainerRoot from '../containers/root'
 import React from 'react'
 import { SWRConfig } from 'swr'
 import Nav from '../components/nav'
-// import fetchJson from '../lib/fetchJson';
 import { createClient, WagmiConfig } from 'wagmi';
 
 const wagmiClient = createClient()
