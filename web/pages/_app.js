@@ -14,7 +14,7 @@ function MyApp({ Component, pageProps }) {
       value={{
         fetcher: fetchJson,
         onError: (err) => {
-          console.error('---SWRConfig fetcher err', err)
+          console.error('---RumbleRaffleErr: SWRConfig', err)
         },
       }}
     >
