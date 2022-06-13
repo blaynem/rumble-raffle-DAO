@@ -87,6 +87,17 @@ const replaceActivityDescPlaceholders = (activity: SingleActivity): string => {
   return replaceNames.join('')
 }
 
+
+const getActivityIcon = (environment: string) => {
+  if (environment === 'REVIVE') {
+    return '🚑'
+  }
+  if (environment === 'PVE') {
+    return '🤼'
+  }
+  return '⚔';
+}
+
 const logRound = (rounds: RoundActivityLog[]) => {
   const channel: AnyChannel = client.channels.cache.get(CONFIG.channelId) as TextChannel;
   if (gameStarted) {
@@ -96,8 +107,8 @@ const logRound = (rounds: RoundActivityLog[]) => {
       environment: activity.environment,
       description: replaceActivityDescPlaceholders(activity)
     }))
-    // TODO: Replace these environments with icons
-    const description = getAllActivityDesc.map(d => `${d.environment} | ${d.description}`);
+
+    const description = getAllActivityDesc.map(d => `${getActivityIcon(d.environment)} | ${d.description}`);
     const embed = new MessageEmbed()
       .setColor('#9912B8')
       .setTitle(`**Round ${round.round_counter + 1}**`)
