@@ -6,7 +6,6 @@ import { withSessionRoute } from '../../../lib/with-session'
  */
 
 async function userRoute(req: NextApiRequest, res: NextApiResponse) {
-  console.log('---userRoute', req.session);
   const user = req.session.user
   if (user) {
     res.json({
