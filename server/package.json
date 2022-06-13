@@ -16,7 +16,6 @@
     "eth-sig-util": "^3.0.1",
     "ethereumjs-util": "^7.1.4",
     "express": "^4.17.3",
-    "iron-session": "^6.0.5",
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.1",
     "ts-node-dev": "^1.1.8",
