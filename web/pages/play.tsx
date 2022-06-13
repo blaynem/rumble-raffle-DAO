@@ -263,7 +263,7 @@ const RumbleRoom = () => {
               {timeToNextRoundStart && <span>Next round begins in: {timeToNextRoundStart}</span>}
               {showNextRoundShortly && <span>Game in progress, next round beginning shortly.</span>}
             </div>
-            <div className="flex flex-col items-center min-h-full pb-24">
+            <div className="flex flex-col items-center pb-12">
               <DisplayActivityLogs allActivities={activityRounds} user={user} />
               {activityWinners.length > 0 && <DisplayWinners winners={activityWinners} user={user} />}
             </div>
