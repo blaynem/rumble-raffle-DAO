@@ -102,7 +102,7 @@ export default function PageIndex(props: AuthStoreValue) {
           <section className='md:px-40 sm:px-8'>
             <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Success!</h2>
             <p className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
-              Discord verification successful! You may close this page and return back to discord.
+              Discord verification successful! You may close this page and return to discord.
             </p>
           </section>
         </div>

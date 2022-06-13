@@ -231,9 +231,9 @@ const currentEntrantsDescription = (allPlayers: string[]) => `
 
 **Total Entrants:** ${allPlayers.length.toString()}
 
-**Want to join the fight?**: If you see your name above, you're ready to brawl. If not, press the 'Join Game' button below.
+**Want to join the fight?** Click the 'Join Game' button below.
 
-**Why are some users tagged and others not?** Only players who chose to link their discord account to their player profile are shown above. If you'd like to do the same, visit 'settings' in the Rumble Raffle App.
+**Why are some users tagged?** Players who chose to link their Rumble Raffle account to their discord id are tagged.
 `
 
 /**

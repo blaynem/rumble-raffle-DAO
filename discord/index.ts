@@ -265,14 +265,13 @@ const onJoinGamePressed = async (interaction: ButtonInteraction<CacheType>) => {
   // todo: Check if they are linked, if so we should either: 1. join the game for them or 2. tell them "already joined"
   const embed = new MessageEmbed()
     .setColor('#4CE3B6')
-    .setTitle('Visit Rumble Raffle site to battle!')
+    .setTitle('Visit Rumble Raffle site to verify!')
     .setDescription(`
-If you would like to link your discord to Rumble Raffle, click the 'Link Discord' button below.
+The easiest way to play Rumble Raffle through Discord is by clicking the button below and linking your account. This allows a single button press to join game in the future!
 
-If you do not want to link accounts, it's as simple as **1-2-3**.
-1. Click to visit [RumbleRaffle.com](${OPTIONS.gameUrl}).
-2. Connect your metamask and sign the message, proving you own the account.
-3. Click "Join Game"
+If you would prefer to not link your account, you can join via the site instead [RumbleRaffle.com](${OPTIONS.gameUrl}).
+
+***Important: Do not share this link.*** *It is unique to your discord_id*
 `)
 
   // Now we set the link
