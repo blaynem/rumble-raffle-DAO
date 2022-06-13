@@ -3,10 +3,8 @@ import { IronSessionUserData } from '@rumble-raffle-dao/types'
 
 import useSWR from 'swr'
 
-const fetcher = url => fetch(url).then(r => r.json())
-
 const useContainer = () => {
-  const { data: user, mutate: mutateUser } = useSWR<IronSessionUserData>('/api/auth/user', fetcher)
+  const { data: user, mutate: mutateUser } = useSWR<IronSessionUserData>('/api/auth/user')
 
   const updateName = (name: string) => {
     mutateUser();
