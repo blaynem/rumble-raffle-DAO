@@ -1,4 +1,5 @@
 require('dotenv').config()
+import http from "http";
 import fetch from 'node-fetch';
 import { JOIN_GAME, PATH_UNLINK_DISCORD, PATH_VERIFY_INIT, SERVER_AUTH_DISCORD, SERVER_BASE_PATH, SERVER_ROOMS, SERVER_USERS } from '@rumble-raffle-dao/types/constants';
 import { fetchPlayerRoomData, initSockets, JOIN_GAME_BUTTON_ID, socket, UNLINK_DISCORD_BUTTON_ID } from "./sockets";
@@ -10,6 +11,10 @@ import { AuthDiscordInitBody, AuthDiscordInitPostResponse, AuthDiscordVerifyPost
 import { CONFIG } from './config';
 
 const token = process.env.DISCORD_TOKEN
+
+const port = process.env.PORT || 3001;
+
+http.createServer().listen(port)
 
 const ADMINS = ['197743775177506816']
 
