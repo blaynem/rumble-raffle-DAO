@@ -40,7 +40,7 @@ export default function PageIndex(props: AuthStoreValue) {
       setVerifyLoading(true);
 
       const signature = await signMessageAsync()
-      const { data, error }: AuthDiscordVerifyPostResponse = await fetch('/api/auth/discord', {
+      const { error }: AuthDiscordVerifyPostResponse = await fetch('/api/auth/discord', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ export default function PageIndex(props: AuthStoreValue) {
       <div className="p-8 dark:bg-black bg-rumbleBgLight w-full overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 58px)' }}>
         <h1 className='uppercase font-medium mt-6 mb-12 text-2xl text-center dark:text-rumbleSecondary text-rumblePrimary'>Discord Verification</h1>
         <section className='md:px-40 sm:px-8'>
-          <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Let's get you verified!</h2>
+          <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Let&apos;s get you verified!</h2>
           <p className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
             Are you {props.discord_tag}?
           </p>
