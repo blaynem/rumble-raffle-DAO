@@ -38,7 +38,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate": "yarn workspace @rumble-raffle-dao/database generate"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.2",
