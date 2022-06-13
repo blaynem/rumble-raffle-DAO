@@ -11,7 +11,7 @@ import verifySignature from "../utils/verifySignature";
 /**
  * Drips out the game data on the selected delay.
  */
-const dripGameDataOnDelay = (io: Server, roomSlug: string) => {
+export const dripGameDataOnDelay = (io: Server, roomSlug: string) => {
   try {
     const { roomData, gameState } = availableRoomsData[roomSlug];
     const interval = setInterval(async () => {

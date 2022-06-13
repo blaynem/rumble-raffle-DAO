@@ -3,7 +3,7 @@ import { ServerToClientEvents, ClientToServerEvents, PlayerAndRoomInfoType, Sync
 import { GAME_START_COUNTDOWN, JOIN_ROOM, NEW_GAME_CREATED, NEXT_ROUND_START_COUNTDOWN, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { Socket, io } from "socket.io-client";
 import { BASE_API_URL } from "../constants";
-import { options } from '../index';
+import { OPTIONS } from '../index';
 import client from "../client";
 import { AnyChannel, Message, MessageActionRow, MessageButton, MessageEmbed, TextChannel } from "discord.js";
 import { mapAllPlayersToDiscordId, tagUser } from "../utils";
@@ -29,7 +29,7 @@ let gameStarted = false;
 let currentParamsId = null;
 
 export const initSockets = () => {
-  socket.emit(JOIN_ROOM, options.roomSlug);
+  socket.emit(JOIN_ROOM, OPTIONS.roomSlug);
 
   socket.on(SYNC_PLAYERS_RESPONSE, syncPlayerRoomData)
   socket.on(UPDATE_PLAYER_LIST, updatePlayerRoomData);
@@ -38,14 +38,14 @@ export const initSockets = () => {
   socket.on(UPDATE_ACTIVITY_LOG_ROUND, logRound);
 
   socket.on(NEW_GAME_CREATED, (roomData: RoomDataType) => {
-    const channel: AnyChannel = client.channels.cache.get(options.channelId) as TextChannel;
+    const channel: AnyChannel = client.channels.cache.get(OPTIONS.channelId) as TextChannel;
     createAndSendCurrentPlayerEmbed(channel, mapAllPlayersToDiscordId(roomData.players), roomData.params.id);
     currentRound = null;
     gameStarted = false;
   });
 
   socket.on(GAME_START_COUNTDOWN, (timeToStart) => {
-    const channel: AnyChannel = client.channels.cache.get(options.channelId) as TextChannel;
+    const channel: AnyChannel = client.channels.cache.get(OPTIONS.channelId) as TextChannel;
     simpleMessageEmbed(channel, `Game starting in **${timeToStart} seconds**.`, 'Prepare for battle!');
     // Set the currentRound to 0, and start the game
     currentRound = 0;
@@ -53,7 +53,7 @@ export const initSockets = () => {
   });
 
   socket.on(NEXT_ROUND_START_COUNTDOWN, (timeToStart) => {
-    const channel: AnyChannel = client.channels.cache.get(options.channelId) as TextChannel;
+    const channel: AnyChannel = client.channels.cache.get(OPTIONS.channelId) as TextChannel;
     simpleMessageEmbed(channel, `Next round starting in **${timeToStart} seconds**.`);
   });
 
@@ -61,7 +61,7 @@ export const initSockets = () => {
   socket.on('disconnect', () => {
     console.log('--DISCORD BOT DISCONNECTED--');
     // Rejoin room on disconnect
-    socket.emit(JOIN_ROOM, options.roomSlug);
+    socket.emit(JOIN_ROOM, OPTIONS.roomSlug);
   });
 }
 
@@ -88,7 +88,7 @@ const replaceActivityDescPlaceholders = (activity: SingleActivity): string => {
 }
 
 const logRound = (rounds: RoundActivityLog[]) => {
-  const channel: AnyChannel = client.channels.cache.get(options.channelId) as TextChannel;
+  const channel: AnyChannel = client.channels.cache.get(OPTIONS.channelId) as TextChannel;
   if (gameStarted) {
     const round = rounds[currentRound];
 
@@ -124,7 +124,7 @@ const logWinner = async (winners: PickFromPlayers[]) => {
     discord_id: winner.discord_id
   }))
 
-  const channel: AnyChannel = client.channels.cache.get(options.channelId) as TextChannel;
+  const channel: AnyChannel = client.channels.cache.get(OPTIONS.channelId) as TextChannel;
   const embed = new MessageEmbed()
     .setColor('#9912B8')
     .setTitle(`**WINNER**`)
@@ -148,7 +148,7 @@ Congratulations! 1st place goes to **${winnerData[0]?.discord_id ? tagUser(winne
  * Useful to sync the player room data to discord if it's been awhile since the last CURRENT ENTRANTS message.
  */
 const syncPlayerRoomData = ({ data, paramsId, error }: SyncPlayersResponseType) => {
-  const channel: AnyChannel = client.channels.cache.get(options.channelId) as TextChannel;
+  const channel: AnyChannel = client.channels.cache.get(OPTIONS.channelId) as TextChannel;
   const allPlayerData = data?.map(player => ({
     ...player,
     discord_id: player.discord_id
@@ -182,7 +182,7 @@ const updatePlayerRoomData = async (data: PlayerAndRoomInfoType) => {
     // We default want to create a new embed.
     let createNewEmbed = true;
     // Get the channel so we can get the last messages.
-    const channel: AnyChannel = client.channels.cache.get(options.channelId) as TextChannel;
+    const channel: AnyChannel = client.channels.cache.get(OPTIONS.channelId) as TextChannel;
     // We check the last 5 messages to see if it was from the same room paramsId.
     const tempMessages = await channel.messages.fetch({ limit: 5 });
     const messages = Array.from(tempMessages).map(i => i[1])
@@ -245,7 +245,7 @@ const createAndSendCurrentPlayerEmbed = (channel: TextChannel, allPlayers: strin
   const embed = new MessageEmbed()
     .setColor('#9912B8')
     .setTitle(CURRENT_ENTRANTS)
-    .setURL(options.gameUrl)
+    .setURL(OPTIONS.gameUrl)
     .setDescription(currentEntrantsDescription(allPlayers))
     .setFooter({ text: paramsId })
 
@@ -279,7 +279,7 @@ export const simpleMessageEmbed = (channel: TextChannel, message: string, title?
   if (title) {
     embed
       .setTitle(title)
-      .setURL(options.gameUrl)
+      .setURL(OPTIONS.gameUrl)
   }
 
   // Set the currentMessage to this message.
