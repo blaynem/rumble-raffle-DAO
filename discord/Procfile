@@ -1,0 +1,1 @@
+web: yarn workspace @rumble-raffle-dao/discord start;

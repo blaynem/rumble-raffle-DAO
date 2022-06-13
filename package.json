@@ -3,18 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "discord": "yarn workspace @rumble-raffle-dao/discord server",
     "server": "yarn workspace @rumble-raffle-dao/server server",
-    "update-types": "yarn workspace @rumble-raffle-dao/types update-types",
     "dev": "yarn workspace @rumble-raffle-dao/web dev",
     "build": "",
     "start": "",
-    "hardhat-compile": "yarn workspace @rumble-raffle-dao/smart-contracts hardhat-compile",
-    "hardhat-node": "yarn workspace @rumble-raffle-dao/smart-contracts hardhat-node",
-    "contract-deploy-local": "yarn workspace @rumble-raffle-dao/smart-contracts contract-deploy-local",
     "prisma-push": "yarn workspace @rumble-raffle-dao/database push",
     "prisma-generate": "yarn workspace @rumble-raffle-dao/database generate"
   },
-  "heroku-prebuild": "yarn prisma-generate",
   "eslintConfig": {
     "extends": [
       "react-app",
