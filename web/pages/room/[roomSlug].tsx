@@ -9,7 +9,7 @@ import { useUser } from '../../containers/userHook'
 import { BASE_API_URL, BASE_WEB_URL } from "../../lib/constants";
 import Entrants from "../../components/room/entrants";
 import { usePreferences } from "../../containers/preferences";
-import { Prisma } from ".prisma/client";
+import { Prisma } from "../../../node_modules/.prisma/client";
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
 

@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { withSessionRoute } from '../../../lib/with-session';
 import prisma from '../../../client';
-import { Prisma } from '.prisma/client';
+import { Prisma } from '../../../../node_modules/.prisma/client';
 import { verifySignature } from '../../../lib/authentication';
 import { SETTINGS_MESSAGE } from '@rumble-raffle-dao/types/constants';
 import { UserSettingsType } from '@rumble-raffle-dao/types';

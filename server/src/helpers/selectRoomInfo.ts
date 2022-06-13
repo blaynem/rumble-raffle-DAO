@@ -1,4 +1,4 @@
-import { Prisma } from ".prisma/client";
+import { Prisma } from "../../../node_modules/.prisma/client";
 import { RoomDataType, EntireGameLog, RoundActivityLog, RoundsType, SingleActivity, PickFromPlayers } from "@rumble-raffle-dao/types";
 
 /**

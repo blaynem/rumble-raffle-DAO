@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser';
-import { Activities, Prisma } from '.prisma/client';
+import { Activities } from '../../../../node_modules/.prisma/client';
 import { SetupType, ActivityTypes } from '@rumble-raffle-dao/rumble/types';
 import express from 'express';
 import prisma from '../../client';

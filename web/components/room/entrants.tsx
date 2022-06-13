@@ -1,7 +1,7 @@
 import React from 'react';
 import { PickFromPlayers } from "@rumble-raffle-dao/types";
 import { ClickToCopyPopper } from '../Popper';
-import { Prisma } from '.prisma/client';
+import { Prisma } from '../../../node_modules/.prisma/client';
 
 const DisplayEntrant = ({ entrant: { id, name }, user }: { entrant: PickFromPlayers; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => (
   <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${id === user?.id ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`} key={id}>

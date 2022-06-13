@@ -1,4 +1,4 @@
-import { Prisma } from ".prisma/client";
+import { Prisma } from "../../../node_modules/.prisma/client";
 import { GameEndType } from "@rumble-raffle-dao/rumble/types";
 import { RoomDataType, PayoutsOmitId, PayoutTemplateType, PrizePayouts } from '@rumble-raffle-dao/types'
 

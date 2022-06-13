@@ -1,4 +1,4 @@
-import { Prisma } from ".prisma/client";
+import { Prisma } from "../../../node_modules/.prisma/client";
 import prisma from "../client";
 import availableRoomsData from "./roomRumbleData";
 

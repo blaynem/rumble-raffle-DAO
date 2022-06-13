@@ -5,7 +5,7 @@ import Swords from 'tabler-icons-react/dist/icons/swords';
 import 'react-popper-tooltip/dist/styles.css';
 import { PickFromPlayers, RoundActivityLog, SingleActivity } from "@rumble-raffle-dao/types";
 import { ClickToCopyPopper } from '../Popper';
-import { Prisma } from '.prisma/client';
+import { Prisma } from '../../../node_modules/.prisma/client';
 import HikingOutlined from '@mui/icons-material/HikingOutlined';
 import { Decimal } from 'decimal.js';
 
@@ -118,10 +118,10 @@ export const DisplayActivityLogs = ({ allActivities, user }: { allActivities: Ro
   </>
 }
 
-const DisplayEntrantKills = ({ count, entrant, user }: { count: number; entrant: PickFromPlayers; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => (
-  <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${entrant?.id === user?.id ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>
+const DisplayEntrantKills = ({ count, entrant: { id, name }, user }: { count: number; entrant: PickFromPlayers; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => (
+  <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${id === user?.id ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>
     <div className='flex justify-between'>
-      <ClickToCopyPopper text={entrant?.name} popperText={entrant?.id} truncate />
+      <ClickToCopyPopper text={name} popperText={id} truncate />
       <div>{count}</div>
     </div>
   </li>
