@@ -1,58 +1,24 @@
 require('dotenv').config()
 import fetch from 'node-fetch';
-import { DEFAULT_GAME_ROOM, JOIN_GAME, PATH_UNLINK_DISCORD, PATH_VERIFY_INIT, SERVER_AUTH_DISCORD, SERVER_BASE_PATH, SERVER_ROOMS, SERVER_USERS } from '@rumble-raffle-dao/types/constants';
+import { JOIN_GAME, PATH_UNLINK_DISCORD, PATH_VERIFY_INIT, SERVER_AUTH_DISCORD, SERVER_BASE_PATH, SERVER_ROOMS, SERVER_USERS } from '@rumble-raffle-dao/types/constants';
 import { fetchPlayerRoomData, initSockets, JOIN_GAME_BUTTON_ID, socket, UNLINK_DISCORD_BUTTON_ID } from "./sockets";
 import client from './client';
-import { BASE_API_URL, BASE_WEB_URL } from './constants';
+import { BASE_API_URL } from './constants';
 import { interactionCommands } from './deploy-commands';
 import { ButtonInteraction, CacheType, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
 import { AuthDiscordInitBody, AuthDiscordInitPostResponse, AuthDiscordVerifyPostResponse, CreateRoom, UserDataFetchByDiscordId } from '@rumble-raffle-dao/types';
+import { CONFIG } from './config';
 
 const token = process.env.DISCORD_TOKEN
 
-const RUMBLE_CHANNEL_ID = '984225124582580305';
-const TEST_RUMBLE_CHANNEL_ID = '984191202112987186';
-
 const ADMINS = ['197743775177506816']
-
-interface Options {
-  /**
-   * Id of discord channel that text will be sent to.
-   */
-  channelId: string;
-  /**
-   * Room name in the database we want to listen to.
-   */
-  roomSlug: string;
-  /**
-   * The URL for the played games.
-   */
-  gameUrl: string;
-  /**
-   * The discord guild id we want to act on
-   */
-  guildId: string;
-  /**
-   * Admins role Id
-   */
-  adminRoleId: string;
-}
-
-export const OPTIONS: Options = {
-  channelId: TEST_RUMBLE_CHANNEL_ID,
-  roomSlug: DEFAULT_GAME_ROOM,
-  gameUrl: `${BASE_WEB_URL}/play`,
-  guildId: process.env.GUILD_ID,
-  adminRoleId: '983206950311452752'
-}
-
 
 // When the client is ready, run this code (only once)
 client.once('ready', async () => {
   console.log('Ready!');
 
   // Fetches all the members to add to the cache.
-  await client.guilds.cache.get(OPTIONS.guildId).members.fetch()
+  await client.guilds.cache.get(CONFIG.guildId).members.fetch()
 
   initSockets();
 });
@@ -89,21 +55,21 @@ client.on('messageCreate', async message => {
   // If the message doesn't start with the initiailizer, example `!`, then we don't care.
   if (message.content.startsWith(commandInitializer)) {
     // If the messages channelId doesn't match the designated options channel, we don't send a message.
-    if (message.channelId !== OPTIONS.channelId) return;
+    if (message.channelId !== CONFIG.channelId) return;
     // If user is not a discord admin, we don't let them send a command.
-    const isDiscordAdmin = message.member.roles.cache.has(OPTIONS.adminRoleId);
+    const isDiscordAdmin = message.member.roles.cache.has(CONFIG.adminRoleId);
     if (!isDiscordAdmin) return;
 
     // SYNC GAME DATA
     if (message.content === `${commandInitializer}${commands.SYNC.commandName}`) {
-      fetchPlayerRoomData(OPTIONS.roomSlug);
+      fetchPlayerRoomData(CONFIG.roomSlug);
       message.reply('Game data syncing.');
       return;
     }
 
     // START GAME
     if (message.content === `${commandInitializer}${commands.START_GAME.commandName}`) {
-      const fetchBody = { discord_id: message.author.id, roomSlug: OPTIONS.roomSlug }
+      const fetchBody = { discord_id: message.author.id, roomSlug: CONFIG.roomSlug }
       const { data, error }: { data: string; error?: string; } = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_ROOMS}/start`, {
         method: 'POST',
         headers: {
@@ -123,7 +89,7 @@ client.on('messageCreate', async message => {
     if (message.content === `${commandInitializer}${commands.CREATE_GAME.commandName}`) {
       const fetchBody: Omit<CreateRoom, 'createdBy'> & { discord_id: string; } = {
         discord_id: message.author.id,
-        slug: OPTIONS.roomSlug,
+        slug: CONFIG.roomSlug,
         contract_address: '0x8f06208951E202d30769f50FAec22AEeC7621BE2', // todo: this is sFNC, CHANGE THIS
         params: {
           pve_chance: 30,
@@ -243,7 +209,7 @@ const onJoinGamePressed = async (interaction: ButtonInteraction<CacheType>) => {
   // If the user fetch comes back with a discord_id
   if (userFetch?.discord_id) {
     // join the game through the discord sockets.
-    socket.emit(JOIN_GAME, userFetch, OPTIONS.roomSlug);
+    socket.emit(JOIN_GAME, userFetch, CONFIG.roomSlug);
     // Return a reply that we joined the game.
     await interaction.reply({
       ephemeral: true,
@@ -269,7 +235,7 @@ const onJoinGamePressed = async (interaction: ButtonInteraction<CacheType>) => {
     .setDescription(`
 The easiest way to play Rumble Raffle through Discord is by clicking the button below and linking your account. This allows a single button press to join game in the future!
 
-If you would prefer to not link your account, you can join via the site instead [RumbleRaffle.com](${OPTIONS.gameUrl}).
+If you would prefer to not link your account, you can join via the site instead [RumbleRaffle.com](${CONFIG.gameUrl}).
 
 ***Important: Do not share this link.*** *It is unique to your discord_id*
 `)
