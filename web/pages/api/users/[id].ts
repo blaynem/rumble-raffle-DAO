@@ -4,6 +4,7 @@ import prisma from '../../../client';
 import { Prisma } from '.prisma/client';
 import { verifySignature } from '../../../lib/authentication';
 import { SETTINGS_MESSAGE } from '@rumble-raffle-dao/types/constants';
+import { UserSettingsType } from '@rumble-raffle-dao/types';
 
 interface ExtendedNextAPIRequest extends NextApiRequest {
   query: {
@@ -22,7 +23,7 @@ export type UsersResponseType = {
 async function usersHandler(req: ExtendedNextAPIRequest, res: NextApiResponse<UsersResponseType>) {
   if (req.method === 'POST') {
     const { id } = req?.query;
-    const { name } = JSON.parse(req?.body);
+    const { name } = JSON.parse(req?.body) as UserSettingsType;
     const { signature } = req.headers;
 
     if (!signature || !id) {
@@ -39,7 +40,7 @@ async function usersHandler(req: ExtendedNextAPIRequest, res: NextApiResponse<Us
             id
           },
           data: {
-            name: trimmedName
+            name: trimmedName,
           },
           select: {
             id: true,

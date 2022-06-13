@@ -5,6 +5,18 @@ export const BASE_WEB_URL_DEV = 'http://localhost:3000'
 export const BASE_API_URL_PROD = 'https://rumble-raffle-dao.herokuapp.com'
 export const BASE_WEB_URL_PROD = 'https://www.rumbleraffle.com'
 
+/** SERVER API PATHS */
+export const SERVER_BASE_PATH = '/api'
+export const SERVER_ACTIVITIES = '/activities'
+export const SERVER_AUTH_DISCORD = '/auth_discord'
+export const SERVER_ROOMS = '/rooms'
+export const SERVER_USERS = '/users'
+
+/** Auth Discord Url Paths */
+export const PATH_VERIFY = '/verify'
+export const PATH_VERIFY_INIT = '/init'
+export const PATH_UNLINK_DISCORD = '/unlink';
+
 /** External Links */
 export const DISCORD_LINK = 'https://discord.gg/5Bn8VKzHKB';
 export const TWITTER_LINK = 'https://twitter.com/RumbleRaffle';
@@ -17,6 +29,7 @@ export const NETWORK_NAME_POLYGON = 'polygon';
 
 /** SOCKET VARS */
 
+export const NEW_GAME_CREATED = 'new_game_created';
 export const CLEAR_GAME = 'clear_game';
 export const GAME_COMPLETED = 'game_completed';
 export const GAME_START_COUNTDOWN = 'game_start_countdown';
@@ -24,6 +37,8 @@ export const JOIN_GAME = 'join_game';
 export const JOIN_GAME_ERROR = 'join_game_error';
 export const JOIN_ROOM = 'join_room';
 export const START_GAME = 'start_game';
+export const SYNC_PLAYERS_REQUEST = 'sync_players_request';
+export const SYNC_PLAYERS_RESPONSE = 'sync_players_response';
 export const NEXT_ROUND_START_COUNTDOWN = 'next_round_start_countdown';
 export const UPDATE_ACTIVITY_LOG_ROUND = 'update_activity_log_round'
 export const UPDATE_ACTIVITY_LOG_WINNER = 'update_activity_log_winner'

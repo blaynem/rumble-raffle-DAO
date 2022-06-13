@@ -23,22 +23,19 @@ const WalletConnector = () => {
       setLoading(loading);
     },
   })
-  const { connect, connectors, isConnected } = useConnect({
-    onConnect: () => signMessage()
-  })
-  // We use this in order to not force the signing of a message after.
-  const { connect: connectNoSign } = useConnect()
+  const { connectAsync, connectors, isConnected } = useConnect({})
 
-  const handleConnect = () => {
+  const handleConnect = async () => {
     // connects with the first connector, which is metamask
-    connect(connectors[0])
+    await connectAsync(connectors[0])
+    signMessage()
   }
   
   // If user is already logged in (via cookie) we make sure to do the auth and connect to metamask.
   useEffect(() => {
     if(user?.id && user?.signature) {
       setLoading(true);
-      !isConnected && connectNoSign(connectors[0])
+      !isConnected && connectAsync(connectors[0])
       doAuth({ public_address: user.id, signature: user.signature })
       setLoading(loading);
     }

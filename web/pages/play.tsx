@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ClientToServerEvents, EntireGameLog, PlayerAndRoomInfoType, RoomDataType, ServerToClientEvents } from "@rumble-raffle-dao/types";
-import { DEFAULT_GAME_ROOM, GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { DEFAULT_GAME_ROOM, GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEW_GAME_CREATED, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { io, Socket } from "socket.io-client";
 import AdminRoomPanel from "../components/adminRoomPanel";
 import { DisplayActivityLogs, DisplayKillCount, DisplayWinners } from "../components/room/activityLog";
@@ -11,8 +11,8 @@ import { usePreferences } from "../containers/preferences";
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
 
-const buttonClass = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out border-r-2 hover:bg-rumbleSecondary focus:bg-rumbleSecondary"
-const buttonDisabled = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out border-r-2 pointer-events-none opacity-60"
+const buttonClass = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out hover:bg-rumbleSecondary focus:bg-rumbleSecondary"
+const buttonDisabled = "inline-block mr-4 px-6 py-4 dark:bg-rumbleNone bg-rumbleOutline dark:text-black text-rumbleNone text-xs uppercase transition duration-150 ease-in-out pointer-events-none opacity-60"
 
 const RumbleRoom = () => {
   const { user } = useUser()
@@ -40,7 +40,10 @@ const RumbleRoom = () => {
     fetchData();
   }, [])
 
-  // Room is active if there's room data and the data isn't loading.
+
+  /**
+   * Room is active if there's room data and the data isn't loading.
+   */
   const activeRoom = !isRoomLoading && roomData !== null;
 
   let gameStartInterval: NodeJS.Timer;
@@ -150,29 +153,33 @@ const RumbleRoom = () => {
       //   setErrorMessage(err)
       // }
     })
+    // On new game created we want to reset all local state
+    socket.on(NEW_GAME_CREATED, (roomData) => {
+      setRoomData(roomData);
+      setEntrants([]);
+      setErrorMessage(null);
+      setActivityLogRounds([]);
+      setActivityLogWinners([]);
+    })
   }, [])
 
   // Any time a user joins or is disconnected
   useEffect(() => {
-    socket.connect();
+    // If we are not connected, we should connect.
+    if (!socket.connected) {
+      socket.connect();
+    }
+    // On disconnect event
     socket.on('disconnect', (s) => {
-      console.log('DISCONNECTED');
       // Attempts to reconnect.
-      if (activeRoom && !roomData.params.game_completed) {
-        // if (activeRoom) {
+      if (activeRoom) {
         // Join a room
-        socket.emit(JOIN_ROOM, roomData.room.slug);
+        socket.emit(JOIN_ROOM, roomData?.room?.slug);
       }
     })
-    if (activeRoom && !roomData.params.game_completed) {
-      // if (activeRoom) {
+    if (activeRoom) {
       // Join a room
-      socket.emit(JOIN_ROOM, roomData.room.slug);
-    }
-    // Return function here is used to cleanup the sockets
-    return function cleanup() {
-      // clean up sockets
-      socket.disconnect()
+      socket.emit(JOIN_ROOM, roomData?.room?.slug);
     }
   }, [activeRoom, roomData?.room?.slug]);
 
@@ -220,35 +227,9 @@ const RumbleRoom = () => {
     )
   }
 
-  // If game has already been completed, we show them this view instead.
-  // Should refactor this so it all just go
-  if (roomData?.params?.game_completed) {
-    return (
-      <div className={`${darkMode ? 'dark' : 'light'}`}>
-        <div className="dark:bg-black bg-rumbleBgLight overflow-auto sm:overflow-hidden" style={{ height: 'calc(100vh - 58px)' }}>
-          <div className="dark:border-rumbleBgLight border-black text-center p-4 uppercase dark:bg-rumbleSecondary bg-rumblePrimary dark:text-black text-rumbleNone border-b-2">
-            <p className="text-xl">Game Over</p>
-            <p className="text-sm">Next game should begin shortly.</p>
-          </div>
-          <div className="flex flex-col md:flex-row sm:flex-row">
-            {/* Left Side */}
-            <div className="ml-6 lg:ml-20 md:ml-6 sm:ml-6 pr-6 mr-2 pt-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 110px)' }}>
-              <Entrants entrants={roomData.players} user={user} />
-              <DisplayKillCount entrants={roomData.players} rounds={roomData.gameData.rounds} user={user} />
-            </div>
-            {/* Right Side */}
-            <div className="pr-6 lg:pr-20 md:pr-6 sm:pr-6 py-2 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 110px)' }}>
-              <div className="my-4 h-6 text-center dark:text-rumbleNone text-rumbleOutline" />
-              <div className="flex flex-col items-center max-h-full">
-                <DisplayActivityLogs allActivities={roomData.gameData.rounds} user={user} />
-                <DisplayWinners winners={roomData.gameData.winners} user={user} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // If the game has not yet been completed, we only want to display what logs would be available.
+  const activityRounds = roomData?.params?.game_completed ? roomData?.gameData?.rounds : activityLogRounds
+  const activityWinners = roomData?.params?.game_completed ? roomData?.gameData?.winners : activityLogWinners
 
   return (
     <div className={`${darkMode ? 'dark' : 'light'}`}>
@@ -256,6 +237,12 @@ const RumbleRoom = () => {
         <div>
           {/* If we don't wrap this, all of the styles break for some reason. I don't even. */}
           {isRoomCreator && <AdminRoomPanel {...{ socket, roomSlug }} />}
+          {roomData?.params?.game_completed && (
+            <div className="dark:border-rumbleBgLight border-black text-center p-4 uppercase dark:bg-rumbleSecondary bg-rumblePrimary dark:text-black text-rumbleNone border-b-2">
+              <p className="text-xl">Game Over</p>
+              <p className="text-sm">Next game should begin shortly.</p>
+            </div>
+          )}
         </div>
         <div className="flex flex-col md:flex-row sm:flex-row">
           {/* Left Side */}
@@ -266,7 +253,7 @@ const RumbleRoom = () => {
               {errorMessage && <p className="mt-4 text-red-600">Error: {errorMessage}</p>}
             </div>
             <Entrants loading={isRoomLoading} entrants={entrants} user={user} />
-            <DisplayKillCount entrants={entrants} rounds={activityLogRounds} user={user} />
+            <DisplayKillCount entrants={entrants} rounds={activityRounds} user={user} />
           </div>
           {/* Right Side */}
           <div className="pr-6 lg:pr-20 md:pr-6 sm:pr-6 py-2 flex-1 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: calcHeight }}>
@@ -276,9 +263,9 @@ const RumbleRoom = () => {
               {timeToNextRoundStart && <span>Next round begins in: {timeToNextRoundStart}</span>}
               {showNextRoundShortly && <span>Game in progress, next round beginning shortly.</span>}
             </div>
-            <div className="flex flex-col items-center max-h-full">
-              <DisplayActivityLogs allActivities={activityLogRounds} user={user} />
-              {activityLogWinners.length > 0 && <DisplayWinners winners={activityLogWinners} user={user} />}
+            <div className="flex flex-col items-center pb-12">
+              <DisplayActivityLogs allActivities={activityRounds} user={user} />
+              {activityWinners.length > 0 && <DisplayWinners winners={activityWinners} user={user} />}
             </div>
           </div>
         </div>

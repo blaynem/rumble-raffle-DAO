@@ -1,24 +1,28 @@
 import { Server, Socket } from "socket.io";
 import availableRoomsData from '../helpers/roomRumbleData';
-import { JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, START_GAME, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, START_GAME, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { addPlayer } from "../helpers/addPlayer";
 import { getPlayersAndRoomInfo } from "../helpers/getPlayersAndRoomInfo";
 import { getVisibleGameStateForClient } from "../helpers/getVisibleGameStateForClient";
 import startGame from "./startGame";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, IronSessionUserData } from "@rumble-raffle-dao/types";
 
-let io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
-let roomSocket: Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
+export let io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
+export let roomSocket: Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
 
 export const initRoom = (sio: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>, socket: Socket) => {
   io = sio;
   roomSocket = socket;
+
+  // TODO: Do any of these (recieved) need to be sockets or can they all be fetches instead?
 
   // join_room only enters a socket room. It doesn't enter the user into a game.
   roomSocket.on(JOIN_ROOM, joinRoom);
   // join_game will enter a player into a game.
   roomSocket.on(JOIN_GAME, joinGame);
   roomSocket.on(START_GAME, (user, roomSlug) => startGame(io, user, roomSlug))
+  // Get's the player data to discord bot if necessary.
+  roomSocket.on(SYNC_PLAYERS_REQUEST, syncPlayerRoomData)
 }
 
 /**
@@ -28,6 +32,7 @@ export const initRoom = (sio: Server<ClientToServerEvents, ServerToClientEvents,
  */
 function joinRoom(roomSlug: string) {
   try {
+    this.join(roomSlug);
     if (!availableRoomsData[roomSlug]) {
       return
     }
@@ -35,7 +40,6 @@ function joinRoom(roomSlug: string) {
     if (!roomData) {
       return;
     }
-    this.join(roomSlug);
     const playersAndRoomInfo = getPlayersAndRoomInfo(roomSlug);
     io.to(this.id).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
     // If a player joins the room and a game is already started, we should show them the current game state.
@@ -68,4 +72,13 @@ async function joinGame(user: IronSessionUserData, roomSlug: string) {
   } catch (error) {
     console.error('Server: joinGame', 'error')
   }
+}
+
+async function syncPlayerRoomData(roomSlug: string) {
+  if (!availableRoomsData[roomSlug]) {
+    io.in(roomSlug).emit(SYNC_PLAYERS_RESPONSE, { error: `Room "${roomSlug}" hasn't been created yet.`, data: null, paramsId: null })
+    return
+  }
+  const { roomData } = availableRoomsData[roomSlug];
+  io.in(roomSlug).emit(SYNC_PLAYERS_RESPONSE, { data: roomData?.players, paramsId: roomData?.params.id })
 }

@@ -6,7 +6,7 @@ export type PlayerAndRoomInfoType = {
   // Creator, tokenContract, tokenNetwork
   roomInfo: {
     contract: Pick<Prisma.ContractsGroupByOutputType, 'contract_address' | 'network_name' | 'symbol' | 'chain_id'>;
-    params: Pick<Prisma.RoomParamsGroupByOutputType, 'created_by' | 'pve_chance' | 'revive_chance'>;
+    params: Pick<Prisma.RoomParamsGroupByOutputType, 'created_by' | 'pve_chance' | 'revive_chance' | 'id'>;
   }
 }
 
@@ -77,7 +77,7 @@ export type PayoutTemplateType = {
 /**
  * We only want to send these fields back to players.
  */
-export type PickFromPlayers = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name'>
+export type PickFromPlayers = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'discord_id'>
 
 export interface RoomDataType {
   room: Pick<Prisma.RoomsGroupByOutputType, 'id' | 'slug' | 'params_id'>
@@ -158,4 +158,6 @@ export interface CreateRoom {
   createdBy: Prisma.UsersCreateInput['id']
 }
 
-export type IronSessionUserData = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> & { signature: string; };
+export type IronSessionUserData = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'discord_id'> & { signature: string; };
+
+export type UserDataFetchByDiscordId = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'discord_id'>

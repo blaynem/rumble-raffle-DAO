@@ -20,7 +20,7 @@ const InitializeServer = async () => {
             game_completed: true,
             created_by: true,
             Players: {
-              select: { User: { select: { id: true, name: true } } }
+              select: { User: { select: { id: true, name: true, discord_id: true } } }
             },
             Contract: true
           }

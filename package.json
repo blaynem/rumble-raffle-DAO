@@ -32,6 +32,7 @@
   },
   "workspaces": [
     "database",
+    "discord",
     "rumble",
     "server",
     "smart_contracts",
