@@ -14,7 +14,7 @@
     "prisma-push": "yarn workspace @rumble-raffle-dao/database push",
     "prisma-generate": "yarn workspace @rumble-raffle-dao/database generate"
   },
-  "postinstall": "prisma-generate",
+  "heroku-prebuild": "yarn prisma-generate",
   "eslintConfig": {
     "extends": [
       "react-app",
