@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { withSessionSsr } from '../../lib/with-session';
 import { ClientToServerEvents, EntireGameLog, PlayerAndRoomInfoType, RoomDataType, ServerToClientEvents } from "@rumble-raffle-dao/types";
-import { GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { GAME_START_COUNTDOWN, JOIN_GAME_ERROR, JOIN_ROOM, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import io, { Socket } from "socket.io-client";
 import AdminRoomPanel from "../../components/adminRoomPanel";
 import { DisplayActivityLogs, DisplayKillCount, DisplayWinners } from "../../components/room/activityLog";
@@ -193,7 +193,10 @@ const RumbleRoom = ({ activeRoom, roomData }: ServerSidePropsType) => {
       //   return;
       // }
       // if (paid) {
-      socket.emit(JOIN_GAME, user, roomSlug);
+      const { data, error } = await fetch(`${BASE_WEB_URL}/api/joinRoom?roomSlug=${roomSlug}`, {
+        method: 'POST'
+      }).then(res => res.json())
+      console.log({ data, error });
       // }
       // todo: remove join game click
     }

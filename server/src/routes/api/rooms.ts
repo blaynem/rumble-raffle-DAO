@@ -3,12 +3,14 @@ import bodyParser from 'body-parser';
 import { getGameDataFromDb } from '../../helpers/getGameDataFromDb';
 import prisma from '../../client';
 import availableRoomsData, { addNewRoomToMemory } from '../../helpers/roomRumbleData';
-import { CreateRoom, RoomDataType } from '@rumble-raffle-dao/types';
+import { CreateRoom, IronSessionUserData, RoomDataType } from '@rumble-raffle-dao/types';
 import verifySignature from '../../utils/verifySignature';
-import { GAME_START_COUNTDOWN, LOGIN_MESSAGE, NEW_GAME_CREATED } from '@rumble-raffle-dao/types/constants';
-import { io } from '../../sockets';
+import { GAME_START_COUNTDOWN, JOIN_GAME_ERROR, LOGIN_MESSAGE, NEW_GAME_CREATED, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from '@rumble-raffle-dao/types/constants';
+import { io, roomSocket } from '../../sockets';
 import { startRumble } from '../../helpers/startRumble';
 import { dripGameDataOnDelay } from '../../sockets/startGame';
+import { getPlayersAndRoomInfo } from '../../helpers/getPlayersAndRoomInfo';
+import { addPlayer } from '../../helpers/addPlayer';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
@@ -27,14 +29,45 @@ interface RequestBody extends express.Request {
   body: CreateRoom & { discord_id?: string; }
 }
 
-interface StartRequest extends express.Request {
+interface JoinGameRequest extends express.Request {
   body: {
-    discord_id: string;
     roomSlug: string;
+    user: IronSessionUserData
   }
 }
 
-router.post('/start', jsonParser, async (req: StartRequest, res: express.Response) => {
+/**
+ * User attempts to join a game via website
+ */
+router.post('/join', jsonParser, async (req: JoinGameRequest, res: express.Response) => {
+  const { roomSlug, user } = req.body;
+  try {
+    // Will error if the player is already added to the game.
+    const { error } = await addPlayer(roomSlug, user);
+
+    if (error) {
+      res.status(400).json({ data: null, error })
+      return;
+    }
+    const playersAndRoomInfo = getPlayersAndRoomInfo(roomSlug);
+    io.in(roomSlug).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
+    res.status(200).json({ data: 'Joined game.' })
+  } catch (error) {
+    console.error('Server: joinGame', error)
+    res.status(400).json({ data: null, error: 'There was an error joining the game.' })
+  }
+});
+
+
+interface StartRoomRequest extends express.Request {
+  body: {
+    discord_id: string;
+    roomSlug: string;
+    user: IronSessionUserData;
+  }
+}
+
+router.post('/start', jsonParser, async (req: StartRoomRequest, res: express.Response) => {
   try {
     const { discord_id, roomSlug } = req.body;
     const { roomData, gameState } = availableRoomsData[roomSlug];

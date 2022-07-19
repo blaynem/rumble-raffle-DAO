@@ -1,9 +1,9 @@
+import fetch from 'node-fetch';
 import { AuthDiscordInitBody, AuthDiscordInitPostResponse, UserDataFetchByDiscordId } from "@rumble-raffle-dao/types";
-import { SERVER_BASE_PATH, SERVER_USERS, JOIN_GAME, PATH_VERIFY_INIT, SERVER_AUTH_DISCORD } from "@rumble-raffle-dao/types/constants";
+import { SERVER_BASE_PATH, SERVER_USERS, PATH_VERIFY_INIT, SERVER_AUTH_DISCORD } from "@rumble-raffle-dao/types/constants";
 import { ButtonInteraction, CacheType, MessageEmbed, MessageButton, MessageActionRow } from "discord.js";
 import { CONFIG } from "../config";
 import { BASE_API_URL } from "../constants";
-import { socket } from "../sockets";
 
 /**
  * Does the Discord Auth verification fetch
@@ -30,13 +30,31 @@ export const onJoinGamePressed = async (interaction: ButtonInteraction<CacheType
   };
 
   // Check if the users discord_id is attached to a users public_address.
-  const userFetch: UserDataFetchByDiscordId = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_USERS}?discord_id=${fetchBody.discord_id}`)
+  const user: UserDataFetchByDiscordId = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_USERS}?discord_id=${fetchBody.discord_id}`)
     .then(res => res.json());
 
   // If the user fetch comes back with a discord_id
-  if (userFetch?.discord_id) {
-    // join the game through the discord sockets.
-    socket.emit(JOIN_GAME, userFetch, CONFIG.roomSlug);
+  if (user?.discord_id) {
+    const body = {
+      roomSlug: CONFIG.roomSlug,
+      user
+    }
+    // attempt to join the game
+    const { error } = await fetch(`${BASE_API_URL}/api/rooms/join`, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'POST',
+      body: JSON.stringify(body)
+    }).then(res => res.json())
+
+    if (error) {
+      // Return a reply that we joined the game.
+      await interaction.reply({
+        ephemeral: true,
+        content: error,
+      });
+    }
     // Return a reply that we joined the game.
     await interaction.reply({
       ephemeral: true,

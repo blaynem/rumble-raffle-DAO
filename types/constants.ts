@@ -33,7 +33,6 @@ export const NEW_GAME_CREATED = 'new_game_created';
 export const CLEAR_GAME = 'clear_game';
 export const GAME_COMPLETED = 'game_completed';
 export const GAME_START_COUNTDOWN = 'game_start_countdown';
-export const JOIN_GAME = 'join_game';
 export const JOIN_GAME_ERROR = 'join_game_error';
 export const JOIN_ROOM = 'join_room';
 export const START_GAME = 'start_game';

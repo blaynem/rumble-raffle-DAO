@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ClientToServerEvents, EntireGameLog, PlayerAndRoomInfoType, RoomDataType, ServerToClientEvents } from "@rumble-raffle-dao/types";
-import { DEFAULT_GAME_ROOM, GAME_START_COUNTDOWN, JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, NEW_GAME_CREATED, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { DEFAULT_GAME_ROOM, GAME_START_COUNTDOWN, JOIN_GAME_ERROR, JOIN_ROOM, NEW_GAME_CREATED, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { io, Socket } from "socket.io-client";
 import AdminRoomPanel from "../components/adminRoomPanel";
 import { DisplayActivityLogs, DisplayKillCount, DisplayWinners } from "../components/room/activityLog";
@@ -188,7 +188,10 @@ const RumbleRoom = () => {
       // Clear error message.
       setErrorMessage(null);
       // There is currently no entry fees so just emit the game joined.
-      socket.emit(JOIN_GAME, user, roomSlug);
+      const { data, error } = await fetch(`${BASE_WEB_URL}/api/joinRoom?roomSlug=${roomSlug}`, {
+        method: 'POST'
+      }).then(res => res.json())
+      console.log({ data, error });
       // todo: remove join game click
     }
   }

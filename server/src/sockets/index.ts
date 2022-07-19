@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import availableRoomsData from '../helpers/roomRumbleData';
-import { JOIN_GAME, JOIN_GAME_ERROR, JOIN_ROOM, START_GAME, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { JOIN_GAME_ERROR, JOIN_ROOM, START_GAME, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { addPlayer } from "../helpers/addPlayer";
 import { getPlayersAndRoomInfo } from "../helpers/getPlayersAndRoomInfo";
 import { getVisibleGameStateForClient } from "../helpers/getVisibleGameStateForClient";
@@ -19,16 +19,14 @@ export const initRoom = (sio: Server<ClientToServerEvents, ServerToClientEvents,
   // join_room only enters a socket room. It doesn't enter the user into a game.
   roomSocket.on(JOIN_ROOM, joinRoom);
   // join_game will enter a player into a game.
-  roomSocket.on(JOIN_GAME, joinGame);
   roomSocket.on(START_GAME, (user, roomSlug) => startGame(io, user, roomSlug))
   // Get's the player data to discord bot if necessary.
   roomSocket.on(SYNC_PLAYERS_REQUEST, syncPlayerRoomData)
 }
 
 /**
- * On joining room we want to:
- * - ??
- * - Return all players and the prize list
+ * A user joins a room when they visit the url.
+ * Note: This is not joining a game, this is simply viewing it.
  */
 function joinRoom(roomSlug: string) {
   try {
@@ -51,26 +49,6 @@ function joinRoom(roomSlug: string) {
     }
   } catch (error) {
     console.error('Server: joinRoom', error)
-  }
-}
-
-/**
- * On Join Game we want to:
- * - Do things
- */
-async function joinGame(user: IronSessionUserData, roomSlug: string) {
-  try {
-    // Will error if the player is already added to the game.
-    const { data, error } = await addPlayer(roomSlug, user);
-
-    if (error) {
-      io.to(this.id).emit(JOIN_GAME_ERROR, error);
-      return;
-    }
-    const playersAndRoomInfo = getPlayersAndRoomInfo(roomSlug);
-    io.in(roomSlug).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
-  } catch (error) {
-    console.error('Server: joinGame', 'error')
   }
 }
 
