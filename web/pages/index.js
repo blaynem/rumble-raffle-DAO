@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
  * - Better error handling on client side so when errors happen we don't blow up the app.
  */
 
-const pageTitle = `Rumble Raffle DAO`
+const pageTitle = `Rumble Raffle`
 export default function PageIndex() {
   const { preferences } = usePreferences();
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function PageIndex() {
     <div className={`${darkMode ? 'dark' : 'light'}`}>
       <Head>
         <title>{pageTitle}</title>
-        <meta name="description" content="Rumble Raffle DAO" />
+        <meta name="description" content="Rumble Raffle. Fight your friends, earn RUMBLE tokens. Join the discord for latest news!" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="p-8 dark:bg-black bg-rumbleBgLight w-full overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark" style={{ height: 'calc(100vh - 58px)' }}>
