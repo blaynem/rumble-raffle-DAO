@@ -1,10 +1,9 @@
 import { Server, Socket } from "socket.io";
 import availableRoomsData from '../helpers/roomRumbleData';
-import { JOIN_GAME_ERROR, JOIN_ROOM, START_GAME, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { JOIN_GAME_ERROR, JOIN_ROOM, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { addPlayer } from "../helpers/addPlayer";
 import { getPlayersAndRoomInfo } from "../helpers/getPlayersAndRoomInfo";
 import { getVisibleGameStateForClient } from "../helpers/getVisibleGameStateForClient";
-import startGame from "./startGame";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, IronSessionUserData } from "@rumble-raffle-dao/types";
 
 export let io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
@@ -19,7 +18,6 @@ export const initRoom = (sio: Server<ClientToServerEvents, ServerToClientEvents,
   // join_room only enters a socket room. It doesn't enter the user into a game.
   roomSocket.on(JOIN_ROOM, joinRoom);
   // join_game will enter a player into a game.
-  roomSocket.on(START_GAME, (user, roomSlug) => startGame(io, user, roomSlug))
   // Get's the player data to discord bot if necessary.
   roomSocket.on(SYNC_PLAYERS_REQUEST, syncPlayerRoomData)
 }

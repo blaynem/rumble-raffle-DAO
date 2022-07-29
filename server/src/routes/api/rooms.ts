@@ -2,13 +2,12 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { getGameDataFromDb } from '../../helpers/getGameDataFromDb';
 import prisma from '../../client';
-import availableRoomsData, { addNewRoomToMemory } from '../../helpers/roomRumbleData';
+import { addNewRoomToMemory } from '../../helpers/roomRumbleData';
 import { CreateRoom, IronSessionUserData, RoomDataType } from '@rumble-raffle-dao/types';
 import verifySignature from '../../utils/verifySignature';
-import { GAME_START_COUNTDOWN, JOIN_GAME_ERROR, LOGIN_MESSAGE, NEW_GAME_CREATED, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from '@rumble-raffle-dao/types/constants';
-import { io, roomSocket } from '../../sockets';
-import { startRumble } from '../../helpers/startRumble';
-import { dripGameDataOnDelay } from '../../sockets/startGame';
+import { LOGIN_MESSAGE, NEW_GAME_CREATED, UPDATE_PLAYER_LIST } from '@rumble-raffle-dao/types/constants';
+import { io } from '../../sockets';
+import { startGame } from '../../gameState/startGame';
 import { getPlayersAndRoomInfo } from '../../helpers/getPlayersAndRoomInfo';
 import { addPlayer } from '../../helpers/addPlayer';
 
@@ -59,18 +58,21 @@ router.post('/join', jsonParser, async (req: JoinGameRequest, res: express.Respo
 });
 
 
-interface StartRoomRequest extends express.Request {
+interface StartRoomDiscordRequest extends express.Request {
   body: {
     discord_id: string;
     roomSlug: string;
-    user: IronSessionUserData;
+    discord_secret: string;
   }
 }
 
-router.post('/start', jsonParser, async (req: StartRoomRequest, res: express.Response) => {
+router.post('/discord_start', jsonParser, async (req: StartRoomDiscordRequest, res: express.Response) => {
   try {
-    const { discord_id, roomSlug } = req.body;
-    const { roomData, gameState } = availableRoomsData[roomSlug];
+    const { discord_id, roomSlug, discord_secret } = req.body;
+
+    if (discord_secret !== process.env.DISCORD_SECRET_PASS) {
+      throw new Error('Discord password not provided.')
+    }
 
     // Check if they're an admin.
     const userData = await prisma.users.findFirst({
@@ -78,25 +80,37 @@ router.post('/start', jsonParser, async (req: StartRoomRequest, res: express.Res
       select: { is_admin: true, id: true }
     })
 
+    await startGame(userData.id, userData.is_admin, roomSlug);
+    res.status(400).json({ data: 'Game started successfully.' })
+  } catch (err) {
+    console.error('api/rooms/start', err)
+    res.status(400).json({ data: null, error: 'There was an error when starting the game.' })
+  }
+})
 
-    // If they aren't an admin, we do nothing.
-    if (!userData?.is_admin) {
-      throw ('Only admins can start games.')
+interface StartRoomWebRequest extends express.Request {
+  body: {
+    roomSlug: string;
+    user: IronSessionUserData;
+  }
+}
+
+router.post('/start', jsonParser, async (req: StartRoomWebRequest, res: express.Response) => {
+  try {
+    const { user, roomSlug } = req.body;
+
+    const verifiedSignature = verifySignature(user.id, user.signature, LOGIN_MESSAGE);
+    if (!verifiedSignature) {
+      throw new Error('Verified signature failed');
     }
 
-    // Only let the room owner start the game.
-    if (userData?.id !== roomData?.params?.created_by) {
-      console.warn(`${userData?.id} tried to start a game they are not the owner of.`);
-      throw (`${userData?.id} tried to start a game they are not the owner of.`)
-    }
+    // Check if they're an admin.
+    const userData = await prisma.users.findUnique({
+      where: { id: user.id },
+      select: { is_admin: true }
+    })
 
-    const gameData = await startRumble(roomSlug);
-    roomData.gameData = gameData;
-    // Set the local game start state to true.
-    roomData.params.game_started = true;
-    // Start emitting the game events to the players on a delay.
-    dripGameDataOnDelay(io, roomSlug);
-    io.in(roomSlug).emit(GAME_START_COUNTDOWN, gameState.waitTime);
+    await startGame(user.id, userData.is_admin, roomSlug);
     res.status(400).json({ data: 'Game started successfully.' })
   } catch (err) {
     console.error('api/rooms/start', err)

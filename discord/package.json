@@ -17,7 +17,7 @@
     "cross-var": "^1.1.0",
     "discord-api-types": "^0.33.2",
     "discord.js": "^13.7.0",
-    "dotenv": "^16.0.0",
+    "dotenv": "^16.0.1",
     "express": "^4.17.3",
     "node-fetch": "2",
     "socket.io": "^4.4.1",

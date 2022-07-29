@@ -75,8 +75,8 @@ client.on('messageCreate', async message => {
 
     // START GAME
     if (message.content === `${commandInitializer}${commands.START_GAME.commandName}`) {
-      const fetchBody = { discord_id: message.author.id, roomSlug: CONFIG.roomSlug }
-      const { data, error }: { data: string; error?: string; } = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_ROOMS}/start`, {
+      const fetchBody = { discord_id: message.author.id, roomSlug: CONFIG.roomSlug, discord_secret: CONFIG.discord_secret }
+      const { data, error }: { data: string; error?: string; } = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_ROOMS}/discord_start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
