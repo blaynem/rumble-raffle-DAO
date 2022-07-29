@@ -14,19 +14,19 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract factory
-  const RumbleRaffle = await hre.ethers.getContractFactory('RumbleRaffle');
-  const Token = await hre.ethers.getContractFactory('Token');
+  // const RumbleRaffle = await hre.ethers.getContractFactory('RumbleRaffle');
+  const RumbleBeta = await hre.ethers.getContractFactory('RumbleBeta');
   
   // We get the contract to deploy
-  const rumbleRaffle = await RumbleRaffle.deploy();
-  const token = await Token.deploy();
+  // const rumbleRaffle = await RumbleRaffle.deploy();
+  const token = await RumbleBeta.deploy(1000000000);
   
   // We wait for it to deploy
-  await rumbleRaffle.deployed();
+  // await rumbleRaffle.deployed();
   await token.deployed();
   
-  console.log("RumbleRaffle deployed to:", rumbleRaffle.address);
-  console.log("Token deployed to:", token.address);
+  // console.log("RumbleRaffle deployed to:", rumbleRaffle.address);
+  console.log("RumbleBeta Token deployed to:", token.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

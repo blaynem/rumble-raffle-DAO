@@ -30,7 +30,11 @@ const coinContracts = {
   'sFNC': {
     name: 'sFNC',
     contract: "0x8f06208951E202d30769f50FAec22AEeC7621BE2"
-  }
+  },
+  'RMBLB': {
+    name: 'sFNC',
+    contract: "0xe7f934c08f64413b98cab9a5bafeb1b21fcf2049"
+  },
 }
 
 const AlternativeMessage = ({ message }: { message: string }) => {

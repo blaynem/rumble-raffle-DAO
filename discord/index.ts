@@ -95,7 +95,7 @@ client.on('messageCreate', async message => {
         discord_secret: CONFIG.discord_secret,
         discord_id: message.author.id,
         slug: CONFIG.roomSlug,
-        contract_address: '0x8f06208951E202d30769f50FAec22AEeC7621BE2', // todo: this is sFNC, CHANGE THIS
+        contract_address: '0xe7f934c08f64413b98cab9a5bafeb1b21fcf2049', // todo: this is sFNC, CHANGE THIS
         params: {
           pve_chance: 30,
           revive_chance: 7
