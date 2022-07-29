@@ -24,8 +24,8 @@ const jsonParser = bodyParser.json()
 // 	"contract_address": "0x8f06208951E202d30769f50FAec22AEeC7621BE2"
 // }
 
-interface RequestBody extends express.Request {
-  body: CreateRoom & { discord_id?: string; }
+interface CreateRoomRequestBody extends express.Request {
+  body: CreateRoom & { discord_id?: string; discord_secret?: string }
 }
 
 interface JoinGameRequest extends express.Request {
@@ -128,14 +128,18 @@ router.post('/start', jsonParser, async (req: StartRoomWebRequest, res: express.
  * - Create `room_params` entry
  * - Create `room` entry
  */
-router.post('/create', jsonParser, async (req: RequestBody, res: express.Response) => {
+router.post('/create', jsonParser, async (req: CreateRoomRequestBody, res: express.Response) => {
   try {
-    const { slug, params, contract_address, discord_id } = req.body;
+    const { slug, params, contract_address, discord_id, discord_secret } = req.body;
     // Overwriting this if creator is from discord
     let { createdBy } = req.body;
 
-    // TODO: FIX THIS!! This is terrible and not good authentication.. lol 
+    // If discord_id is included, then it must have the discord_secret_pass as well
     if (discord_id) {
+      // We check the discord secret pass before going further.
+      if (discord_secret !== process.env.DISCORD_SECRET_PASS) {
+        throw new Error('Discord password not provided.')
+      }
       const userData = await prisma.users.findFirst({ where: { discord_id } })
       // If they aren't an admin, we say no.
       if (!userData?.is_admin) {
@@ -145,6 +149,7 @@ router.post('/create', jsonParser, async (req: RequestBody, res: express.Respons
       // We overwrite createdBy to be the found user from the db.
       createdBy = userData?.id;
     } else {
+      // Otherwise we can verify the signature here.
 
       const validatedSignature = verifySignature(createdBy, req.headers.signature as string, LOGIN_MESSAGE)
       if (!validatedSignature) {

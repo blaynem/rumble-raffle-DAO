@@ -91,7 +91,8 @@ client.on('messageCreate', async message => {
 
     // CREATE GAME
     if (message.content === `${commandInitializer}${commands.CREATE_GAME.commandName}`) {
-      const fetchBody: Omit<CreateRoom, 'createdBy'> & { discord_id: string; } = {
+      const fetchBody: Omit<CreateRoom, 'createdBy'> & { discord_id: string; discord_secret: string; } = {
+        discord_secret: CONFIG.discord_secret,
         discord_id: message.author.id,
         slug: CONFIG.roomSlug,
         contract_address: '0x8f06208951E202d30769f50FAec22AEeC7621BE2', // todo: this is sFNC, CHANGE THIS

@@ -17,7 +17,6 @@ const WalletConnector = () => {
     onSuccess: async (signature, variables) => {
       setLoading(true);
       // Verify signature when sign message succeeds
-      // TODO: Implement use of variables later for signatures
       const public_address = verifyMessage(variables.message, signature)
       await doAuth({ public_address, signature })
       setLoading(loading);
