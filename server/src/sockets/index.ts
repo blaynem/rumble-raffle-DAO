@@ -13,11 +13,8 @@ export const initRoom = (sio: Server<ClientToServerEvents, ServerToClientEvents,
   io = sio;
   roomSocket = socket;
 
-  // TODO: Do any of these (recieved) need to be sockets or can they all be fetches instead?
-
   // join_room only enters a socket room. It doesn't enter the user into a game.
   roomSocket.on(JOIN_ROOM, joinRoom);
-  // join_game will enter a player into a game.
   // Get's the player data to discord bot if necessary.
   roomSocket.on(SYNC_PLAYERS_REQUEST, syncPlayerRoomData)
 }

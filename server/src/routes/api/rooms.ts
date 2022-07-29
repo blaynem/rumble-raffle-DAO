@@ -50,8 +50,13 @@ router.post('/join', jsonParser, async (req: JoinGameRequest, res: express.Respo
     }
     const playersAndRoomInfo = getPlayersAndRoomInfo(roomSlug);
     io.in(roomSlug).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
-    res.status(200).json({ data: 'Joined game.' })
+    res.status(200).json({ data: 'You have joined the game.' })
   } catch (error) {
+    // P2002 = unique constraint, i.e. they already joined
+    if (error?.code === 'P2002') {
+      res.status(200).json({ data: 'Player already joined.' })
+      return;
+    }
     console.error('Server: joinGame', error)
     res.status(400).json({ data: null, error: 'There was an error joining the game.' })
   }

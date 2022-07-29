@@ -40,7 +40,7 @@ export const onJoinGamePressed = async (interaction: ButtonInteraction<CacheType
       user
     }
     // attempt to join the game
-    const { error } = await fetch(`${BASE_API_URL}/api/rooms/join`, {
+    const { data, error } = await fetch(`${BASE_API_URL}/api/rooms/join`, {
       headers: {
         'Content-Type': 'application/json'
       },
@@ -54,11 +54,12 @@ export const onJoinGamePressed = async (interaction: ButtonInteraction<CacheType
         ephemeral: true,
         content: error,
       });
+      return;
     }
     // Return a reply that we joined the game.
     await interaction.reply({
       ephemeral: true,
-      content: 'You have joined the game.'
+      content: data
     });
     return;
   }
@@ -73,7 +74,6 @@ export const onJoinGamePressed = async (interaction: ButtonInteraction<CacheType
     });
   }
 
-  // todo: Check if they are linked, if so we should either: 1. join the game for them or 2. tell them "already joined"
   const embed = new MessageEmbed()
     .setColor('#4CE3B6')
     .setTitle('Visit Rumble Raffle site to verify!')

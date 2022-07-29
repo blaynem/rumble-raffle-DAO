@@ -6,7 +6,7 @@ import { fetchPlayerRoomData, initSockets, JOIN_GAME_BUTTON_ID, UNLINK_DISCORD_B
 import client from './client';
 import { BASE_API_URL } from './constants';
 import { interactionCommands } from './deploy-commands';
-import { MessageActionRow, MessageButton } from 'discord.js';
+import { GuildMember, GuildMemberRoleManager, MessageActionRow, MessageButton } from 'discord.js';
 import { CreateRoom } from '@rumble-raffle-dao/types';
 import { CONFIG } from './config';
 import { onJoinGamePressed, onUnlinkDiscord } from "./api";
@@ -54,8 +54,6 @@ const commands = {
     description: 'Create a new Rumble Raffle game with default parameters. (PVE: 30%, Revive: 7%) **Note**: Admin only.',
   },
 }
-
-// TODO: Block anyone who isn't an admin from doing.
 
 client.on('messageCreate', async message => {
   // If the message doesn't start with the initiailizer, example `!`, then we don't care.
@@ -149,8 +147,10 @@ client.on('interactionCreate', async interaction => {
       .filter(cmd => {
         // If it's not an adminOnly command, we let it through.
         if (!cmd.adminOnly) return true;
-        // TODO: this should be filtered by role instead of a list of admins.
-        return ADMINS.includes(interaction.user.id);
+        // For some reason the _roles isn't being found. So typing this as any for now.
+        const memberRoles = (interaction.member as any)._roles as string[] || [];
+        // Check that the member has admin role
+        return memberRoles.includes(CONFIG.adminRoleId);
       })
       .map(cmd => `\`${commandInitializer}${cmd.commandName}\`: ${cmd.description}`)
 
