@@ -55,8 +55,8 @@ export default function PageIndex() {
           </p>
 
           <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Sounds heckin great, how do I play?</h2>
-          <p className='dark:text-rumbleNone text-rumbleOutline mb-4'>Heck yeah! There's two possible ways. The current easiest way is to join the <a rel="noreferrer noopener" target="_blank" href={DISCORD_LINK} className="dark:text-rumbleSecondary text-rumblePrimary">discord</a> and follow the prompts.</p>
-          <p className='dark:text-rumbleNone text-rumbleOutline'>However if you'd prefer to play via the website, it's as easy as 1, 2, 3.</p>
+          <p className='dark:text-rumbleNone text-rumbleOutline mb-4'>{"Heck yeah! There's two possible ways. The current easiest way is to join the "}<a rel="noreferrer noopener" target="_blank" href={DISCORD_LINK} className="dark:text-rumbleSecondary text-rumblePrimary">discord</a> and follow the prompts.</p>
+          <p className='dark:text-rumbleNone text-rumbleOutline'>{"However if you'd prefer to play via the website, it's as easy as 1, 2, 3."}</p>
           <ol className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
             <li>1. Connect your MetaMask and Sign the message.</li>
             <li>2. Click <button onClick={() => router.push(DEFAULT_ROOM_URL)} className="uppercase dark:text-rumbleSecondary text-rumblePrimary">Play</button>.</li>
