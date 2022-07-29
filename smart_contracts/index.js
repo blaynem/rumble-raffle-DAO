@@ -1,7 +1,7 @@
 import * as RumbleRaffle from './artifacts/contracts/RumbleRaffle.sol/RumbleRaffle.json';
-import * as TestToken from './artifacts/contracts/Token.sol/Token.json';
+import * as RumbleBeta from './artifacts/contracts/RumbleBeta.sol/RumbleBeta.json';
 
 export {
   RumbleRaffle,
-  TestToken
+  RumbleBeta
 }

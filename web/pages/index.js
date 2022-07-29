@@ -32,20 +32,20 @@ export default function PageIndex() {
         <section className='md:px-40 sm:px-8'>
           <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>What the heck is this?</h2>
           <p className='mb-2 dark:text-rumbleNone text-rumbleOutline'>
-            Rumble Raffle is a completely randomized, free to play game where players fight to the <span className='dark:text-rumbleSecondary text-rumblePrimary'>(</span>simulated<span className='dark:text-rumbleSecondary text-rumblePrimary'>)</span> death to earn RUMBLE Tokens. The more players you kill, the more RUMBLE tokens you earn.
+            Rumble Raffle is a completely randomized, free to play game where players fight to the <span className='dark:text-rumbleSecondary text-rumblePrimary'>(</span>simulated<span className='dark:text-rumbleSecondary text-rumblePrimary'>)</span> death to earn RMBLB Tokens. The more players you kill, the more RMBLB tokens you earn.
           </p>
           <p className='mb-8 italic dark:text-rumbleNone text-rumbleOutline'>
-            For the <span className="uppercase dark:text-rumbleSecondary text-rumblePrimary">((</span>BETA<span className="uppercase dark:text-rumbleSecondary text-rumblePrimary">))</span> release version, games will happen sporadically. So be sure to visit the discord so you don&apos;t miss out.
+            For the <span className="uppercase dark:text-rumbleSecondary text-rumblePrimary">((</span>BETA<span className="uppercase dark:text-rumbleSecondary text-rumblePrimary">))</span> release version, games will happen sporadically. So be sure to visit the <a rel="noreferrer noopener" target="_blank" href={DISCORD_LINK} className="dark:text-rumbleSecondary text-rumblePrimary">discord</a> so you don&apos;t miss out.
           </p>
 
           <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>What the heck are those?</h2>
           <p className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
-            RUMBLE Tokens are a cryptocurrency that are used to purchase and upgrade Weapon NFTs.
+            RMBLB Tokens are a cryptocurrency that are used to purchase and upgrade Rumble NFTs.
           </p>
 
           <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Why the heck would I want that?</h2>
           <p className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
-            The higher rarity Weapon you hold, the more RUMBLE tokens you can acquire in a single game. Holding higher rarity weapons could lead to special rewards / raffle opportunities in the future!
+            Holding Rumble NFTs allow you to increase your daily RMBLB earnings cap. Rumble NFT will also be required to participate in new games modes in the future.
           </p>
 
           <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>What the heck is the catch?</h2>
@@ -55,7 +55,8 @@ export default function PageIndex() {
           </p>
 
           <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>Sounds heckin great, how do I play?</h2>
-          <p className='dark:text-rumbleNone text-rumbleOutline'>Heck yeah! It&apos;s as simple as 123.</p>
+          <p className='dark:text-rumbleNone text-rumbleOutline mb-4'>Heck yeah! There's two possible ways. The current easiest way is to join the <a rel="noreferrer noopener" target="_blank" href={DISCORD_LINK} className="dark:text-rumbleSecondary text-rumblePrimary">discord</a> and follow the prompts.</p>
+          <p className='dark:text-rumbleNone text-rumbleOutline'>However if you'd prefer to play via the website, it's as easy as 1, 2, 3.</p>
           <ol className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
             <li>1. Connect your MetaMask and Sign the message.</li>
             <li>2. Click <button onClick={() => router.push(DEFAULT_ROOM_URL)} className="uppercase dark:text-rumbleSecondary text-rumblePrimary">Play</button>.</li>

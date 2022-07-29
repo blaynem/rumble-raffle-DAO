@@ -1,6 +1,6 @@
 generator client {
-  provider      = "prisma-client-js"
-  output = "../node_modules/.prisma/client"
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -12,6 +12,16 @@ datasource db {
 generator js {
   provider = "prisma-client-js"
   // previewFeatures = ["referentialIntegrity"]
+}
+
+model Earnings {
+  player               String   @id @db.VarChar(45) // evm compatible address
+  today_earnings       BigInt   @default(0)
+  max_earnings_per_day BigInt   @default(100)
+  last_reset           DateTime @default(dbgenerated("now()")) @updatedAt
+
+  // Define relations
+  User Users @relation(fields: [player], references: [id])
 }
 
 model Activities {
@@ -142,6 +152,7 @@ model Users {
   // Opposite Relations
   RoomParams RoomParams[]
   Players    Players[]
+  Earnings   Earnings[]
 }
 
 enum PaymentReason {

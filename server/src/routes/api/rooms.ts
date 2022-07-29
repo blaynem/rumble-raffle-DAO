@@ -2,13 +2,14 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { getGameDataFromDb } from '../../helpers/getGameDataFromDb';
 import prisma from '../../client';
-import availableRoomsData, { addNewRoomToMemory } from '../../helpers/roomRumbleData';
-import { CreateRoom, RoomDataType } from '@rumble-raffle-dao/types';
+import { addNewRoomToMemory } from '../../helpers/roomRumbleData';
+import { CreateRoom, IronSessionUserData, RoomDataType } from '@rumble-raffle-dao/types';
 import verifySignature from '../../utils/verifySignature';
-import { GAME_START_COUNTDOWN, LOGIN_MESSAGE, NEW_GAME_CREATED } from '@rumble-raffle-dao/types/constants';
+import { LOGIN_MESSAGE, NEW_GAME_CREATED, UPDATE_PLAYER_LIST } from '@rumble-raffle-dao/types/constants';
 import { io } from '../../sockets';
-import { startRumble } from '../../helpers/startRumble';
-import { dripGameDataOnDelay } from '../../sockets/startGame';
+import { startGame } from '../../gameState/startGame';
+import { getPlayersAndRoomInfo } from '../../helpers/getPlayersAndRoomInfo';
+import { addPlayer } from '../../helpers/addPlayer';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
@@ -20,24 +21,63 @@ const jsonParser = bodyParser.json()
 // 		"revive_chance": 3
 // 	},
 // 	"slug": "TestRoom",
-// 	"contract_address": "0x8f06208951E202d30769f50FAec22AEeC7621BE2"
+// 	"contract_address": "0xe7f934c08f64413b98cab9a5bafeb1b21fcf2049"
 // }
 
-interface RequestBody extends express.Request {
-  body: CreateRoom & { discord_id?: string; }
+interface CreateRoomRequestBody extends express.Request {
+  body: CreateRoom & { discord_id?: string; discord_secret?: string }
 }
 
-interface StartRequest extends express.Request {
+interface JoinGameRequest extends express.Request {
   body: {
-    discord_id: string;
     roomSlug: string;
+    user: IronSessionUserData
   }
 }
 
-router.post('/start', jsonParser, async (req: StartRequest, res: express.Response) => {
+/**
+ * User attempts to join a game via website
+ */
+router.post('/join', jsonParser, async (req: JoinGameRequest, res: express.Response) => {
+  const { roomSlug, user } = req.body;
   try {
-    const { discord_id, roomSlug } = req.body;
-    const { roomData, gameState } = availableRoomsData[roomSlug];
+    // Will error if the player is already added to the game.
+    const { error } = await addPlayer(roomSlug, user);
+
+    if (error) {
+      res.status(400).json({ data: null, error })
+      return;
+    }
+    const playersAndRoomInfo = getPlayersAndRoomInfo(roomSlug);
+    io.in(roomSlug).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
+    res.status(200).json({ data: 'You have joined the game.' })
+  } catch (error) {
+    // P2002 = unique constraint, i.e. they already joined
+    if (error?.code === 'P2002') {
+      res.status(200).json({ data: 'Player already joined.' })
+      return;
+    }
+    console.error('Server: joinGame', error)
+    res.status(400).json({ data: null, error: 'There was an error joining the game.' })
+  }
+});
+
+
+interface StartRoomDiscordRequest extends express.Request {
+  body: {
+    discord_id: string;
+    roomSlug: string;
+    discord_secret: string;
+  }
+}
+
+router.post('/discord_start', jsonParser, async (req: StartRoomDiscordRequest, res: express.Response) => {
+  try {
+    const { discord_id, roomSlug, discord_secret } = req.body;
+
+    if (discord_secret !== process.env.DISCORD_SECRET_PASS) {
+      throw new Error('Discord password not provided.')
+    }
 
     // Check if they're an admin.
     const userData = await prisma.users.findFirst({
@@ -45,25 +85,37 @@ router.post('/start', jsonParser, async (req: StartRequest, res: express.Respons
       select: { is_admin: true, id: true }
     })
 
+    await startGame(userData.id, userData.is_admin, roomSlug);
+    res.status(400).json({ data: 'Game started successfully.' })
+  } catch (err) {
+    console.error('api/rooms/start', err)
+    res.status(400).json({ data: null, error: 'There was an error when starting the game.' })
+  }
+})
 
-    // If they aren't an admin, we do nothing.
-    if (!userData?.is_admin) {
-      throw ('Only admins can start games.')
+interface StartRoomWebRequest extends express.Request {
+  body: {
+    roomSlug: string;
+    user: IronSessionUserData;
+  }
+}
+
+router.post('/start', jsonParser, async (req: StartRoomWebRequest, res: express.Response) => {
+  try {
+    const { user, roomSlug } = req.body;
+
+    const verifiedSignature = verifySignature(user.id, user.signature, LOGIN_MESSAGE);
+    if (!verifiedSignature) {
+      throw new Error('Verified signature failed');
     }
 
-    // Only let the room owner start the game.
-    if (userData?.id !== roomData?.params?.created_by) {
-      console.warn(`${userData?.id} tried to start a game they are not the owner of.`);
-      throw (`${userData?.id} tried to start a game they are not the owner of.`)
-    }
+    // Check if they're an admin.
+    const userData = await prisma.users.findUnique({
+      where: { id: user.id },
+      select: { is_admin: true }
+    })
 
-    const gameData = await startRumble(roomSlug);
-    roomData.gameData = gameData;
-    // Set the local game start state to true.
-    roomData.params.game_started = true;
-    // Start emitting the game events to the players on a delay.
-    dripGameDataOnDelay(io, roomSlug);
-    io.in(roomSlug).emit(GAME_START_COUNTDOWN, gameState.waitTime);
+    await startGame(user.id, userData.is_admin, roomSlug);
     res.status(400).json({ data: 'Game started successfully.' })
   } catch (err) {
     console.error('api/rooms/start', err)
@@ -76,14 +128,18 @@ router.post('/start', jsonParser, async (req: StartRequest, res: express.Respons
  * - Create `room_params` entry
  * - Create `room` entry
  */
-router.post('/create', jsonParser, async (req: RequestBody, res: express.Response) => {
+router.post('/create', jsonParser, async (req: CreateRoomRequestBody, res: express.Response) => {
   try {
-    const { slug, params, contract_address, discord_id } = req.body;
+    const { slug, params, contract_address, discord_id, discord_secret } = req.body;
     // Overwriting this if creator is from discord
     let { createdBy } = req.body;
 
-    // TODO: FIX THIS!! This is terrible and not good authentication.. lol 
+    // If discord_id is included, then it must have the discord_secret_pass as well
     if (discord_id) {
+      // We check the discord secret pass before going further.
+      if (discord_secret !== process.env.DISCORD_SECRET_PASS) {
+        throw new Error('Discord password not provided.')
+      }
       const userData = await prisma.users.findFirst({ where: { discord_id } })
       // If they aren't an admin, we say no.
       if (!userData?.is_admin) {
@@ -93,6 +149,7 @@ router.post('/create', jsonParser, async (req: RequestBody, res: express.Respons
       // We overwrite createdBy to be the found user from the db.
       createdBy = userData?.id;
     } else {
+      // Otherwise we can verify the signature here.
 
       const validatedSignature = verifySignature(createdBy, req.headers.signature as string, LOGIN_MESSAGE)
       if (!validatedSignature) {

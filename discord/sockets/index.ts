@@ -124,7 +124,6 @@ const logRound = (rounds: RoundActivityLog[]) => {
 }
 
 
-// todo: Tag the winners and runner ups
 const logWinner = async (winners: PickFromPlayers[]) => {
   if (!gameStarted) {
     return;

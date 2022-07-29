@@ -18,11 +18,11 @@ export const addPlayer = async (
   playerData: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'discord_id'>
 ): Promise<{
   data?: Pick<Prisma.PlayersGroupByOutputType, 'room_params_id' | 'slug' | 'player' | 'time_joined'>;
-  error?: any | string;
+  error?: string;
 }> => {
   const { roomData } = availableRoomsData[roomSlug];
   if (!roomData) {
-    return;
+    return { error: "Room doesn't exist." };
   }
   if (roomData.players.length > 900) {
     return { error: 'reached max players' }

@@ -5,8 +5,9 @@ import { Server } from "socket.io";
 
 import initServer from './src/helpers/initServer';
 import { initRoom } from './src/sockets';
-import {CORS_BASE_WEB_URL} from './constants';
+import { CORS_BASE_WEB_URL } from './constants';
 
+require('dotenv').config();
 /**
  * TODO:
  * - Error handling on server side so when something errors we don't need to restart the server, that's wack.

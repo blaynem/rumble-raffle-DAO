@@ -1,17 +1,43 @@
-import { IronSessionUserData } from "@rumble-raffle-dao/types";
-import { GAME_COMPLETED, GAME_START_COUNTDOWN, LOGIN_MESSAGE, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER } from "@rumble-raffle-dao/types/constants";
-import { Server } from "socket.io";
+import { GAME_START_COUNTDOWN, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER } from "@rumble-raffle-dao/types/constants";
 import prisma from "../client";
 import { getVisibleGameStateForClient } from "../helpers/getVisibleGameStateForClient";
 import availableRoomsData from "../helpers/roomRumbleData";
 import { startRumble } from "../helpers/startRumble";
-import verifySignature from "../utils/verifySignature";
 
+import { io } from '../sockets';
+
+/**
+ * On Start of game:
+ * - Assure only the game master can start the game
+ * - Send activity log data
+ */
+ export const startGame = async (id: string, is_admin: boolean, roomSlug: string) => {
+  const { roomData, gameState } = availableRoomsData[roomSlug];
+
+  // If they aren't an admin, we do nothing.
+  if (!is_admin) {
+    throw ('Only admins can start games.')
+  }
+
+  // Only let the room owner start the game.
+  if (id !== roomData?.params?.created_by) {
+    console.warn(`${id} tried to start a game they are not the owner of.`);
+    throw (`${id} tried to start a game they are not the owner of.`)
+  }
+
+  const gameData = await startRumble(roomSlug);
+  roomData.gameData = gameData;
+  // Set the local game start state to true.
+  roomData.params.game_started = true;
+  // Start emitting the game events to the players on a delay.
+  dripGameDataOnDelay(roomSlug);
+  io.in(roomSlug).emit(GAME_START_COUNTDOWN, gameState.waitTime);
+}
 
 /**
  * Drips out the game data on the selected delay.
  */
-export const dripGameDataOnDelay = (io: Server, roomSlug: string) => {
+export const dripGameDataOnDelay = (roomSlug: string) => {
   try {
     const { roomData, gameState } = availableRoomsData[roomSlug];
     const interval = setInterval(async () => {
@@ -50,7 +76,6 @@ export const dripGameDataOnDelay = (io: Server, roomSlug: string) => {
       if (gameState.gameCompleted && gameState.showWinners) {
         io.in(roomSlug).emit(UPDATE_ACTIVITY_LOG_ROUND, visibleRounds)
         io.in(roomSlug).emit(UPDATE_ACTIVITY_LOG_WINNER, winners)
-        io.in(roomSlug).emit(GAME_COMPLETED, true);
         clearInterval(interval);
         return;
       }
@@ -63,50 +88,3 @@ export const dripGameDataOnDelay = (io: Server, roomSlug: string) => {
     console.error('Server: dripGameDataOnDelay', error);
   }
 }
-
-/**
- * On Start of game:
- * - Assure only the game master can start the game
- * - Send activity log data
- */
-async function startGame(io: Server, user: IronSessionUserData, roomSlug: string) {
-  try {
-    const { roomData, gameState } = availableRoomsData[roomSlug];
-
-    const verifiedSignature = verifySignature(user.id, user.signature, LOGIN_MESSAGE);
-    if (!verifiedSignature) {
-      throw new Error('Verified signature failed');
-    }
-
-    // Check if they're an admin.
-    const userData = await prisma.users.findUnique({
-      where: { id: user.id },
-      select: { is_admin: true }
-    })
-    // If they aren't an admin, we do nothing.
-    if (!userData.is_admin) {
-      return;
-    }
-    // Only let the room owner start the game.
-    if (user?.id !== roomData.params.created_by) {
-      console.warn(`${user?.id} tried to start a game they are not the owner of.`);
-      return;
-    }
-    // Game already started, do nothing about it.
-    if (!roomData || roomData.params.game_started || roomData.params.game_completed || roomData.players.length < 1) {
-      console.log('---startGame--ERROR', roomSlug);
-      return;
-    }
-    const gameData = await startRumble(roomSlug);
-    roomData.gameData = gameData;
-    // Set the local game start state to true.
-    roomData.params.game_started = true;
-    // Start emitting the game events to the players on a delay.
-    dripGameDataOnDelay(io, roomSlug);
-    io.in(roomSlug).emit(GAME_START_COUNTDOWN, gameState.waitTime);
-  } catch (error) {
-    console.error('Server: startGame', error);
-  }
-}
-
-export default startGame;

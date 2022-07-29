@@ -23,6 +23,10 @@ interface Config {
    * Admins role Id in the discord server
    */
   adminRoleId: string;
+  /**
+   * Discord secret password
+   */
+  discord_secret: string;
 }
 
 const RUMBLE_CHANNEL_ID = '984225124582580305';
@@ -37,4 +41,5 @@ export const CONFIG: Config = {
   gameUrl: `${BASE_WEB_URL}/play`,
   guildId: process.env.GUILD_ID,
   adminRoleId,
+  discord_secret: process.env.DISCORD_SECRET_PASS
 }

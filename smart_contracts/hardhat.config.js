@@ -1,4 +1,7 @@
 require("@nomiclabs/hardhat-waffle");
+require('dotenv').config();
+
+const { API_URL, PRIVATE_KEY, POLYGONSCAN_API_KEY } = process.env;
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -27,3 +30,23 @@ module.exports = {
     },
   },
 };
+// ========= POLYGON NET ===============
+// module.exports = {
+//   solidity: "0.8.4",
+//   defaultNetwork: "matic",
+//   paths: {
+//     artifacts: "artifacts",
+//   },
+//   // etherscan: {
+//   //   apiKey: POLYGONSCAN_API_KEY
+//   // },
+//   networks: {
+//     // hardhat: {
+//     //   chainId: 1337,
+//     // },
+//     matic: {
+//       url: API_URL,
+//       accounts: [PRIVATE_KEY]
+//     }
+//   },
+// };
