@@ -93,3 +93,11 @@ While the perks are still being ironed out, here is a brief overview of the NFT 
 
 1. Holders will have increased daily earnings per NFT they hold.
 2. Only holders will be able to participate in extra game modes to be released.
+
+## To Add
+
+Custom Phrase support (per player)
+  - Rumble: PlayerType obj needs extra properties.
+    - `options`
+      - `winningAction` - action that will be performed upon becoming the rumble winner.
+      - `pvpActions` - actions against other players. note: can have multiple entrants per game.
