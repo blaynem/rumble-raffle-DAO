@@ -3,7 +3,7 @@ import LocalHospitalOutlined from '@mui/icons-material/LocalHospitalOutlined';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import Swords from 'tabler-icons-react/dist/icons/swords';
 import 'react-popper-tooltip/dist/styles.css';
-import { PickFromPlayers, RoundActivityLog, SingleActivity } from "@rumble-raffle-dao/types";
+import { DiscordPlayer, PickFromPlayers, RoundActivityLog, SingleActivity } from "@rumble-raffle-dao/types";
 import { ClickToCopyPopper } from '../Popper';
 import { Prisma } from '.prisma/client';
 import HikingOutlined from '@mui/icons-material/HikingOutlined';
@@ -21,7 +21,16 @@ const replaceActivityDescPlaceholders = (activity: SingleActivity): (string | JS
       const index = Number(part.replace('PLAYER_', ''))
       // Gets the name of the player.
       const player = activity.participants[index]
-      return <ClickToCopyPopper key={i} boldText text={player.name} popperText={player.id} />
+      // We return null in this activity when it's a discord user since we didn't store their id.
+      if (player === null) {
+        return <ClickToCopyPopper key={i} boldText text={"Discord User"} popperText={"Discord id not found."} />
+      }
+      if ((player as DiscordPlayer).id_origin === 'DISCORD') {
+        const discordPlayer = player as DiscordPlayer;
+        return <ClickToCopyPopper key={i} boldText text={discordPlayer.username} popperText={discordPlayer.id} />
+      }
+      const webPlayer = player as PickFromPlayers;
+      return <ClickToCopyPopper key={i} boldText text={webPlayer.name} popperText={webPlayer.id} />
     }
     return part;
   })
@@ -63,7 +72,7 @@ const DisplayRound = ({ logs, publicAddress }: { logs: RoundActivityLog; publicA
   /**
    * Returns true if the play is present in the array
    */
-  const containsUser = (participants: PickFromPlayers[]) => participants.findIndex(p => p?.id === publicAddress) > -1;
+  const containsUser = (participants: (PickFromPlayers | DiscordPlayer)[]) => participants.findIndex(p => p?.id === publicAddress) > -1;
   return (
     <div key={logs.round_counter} className='w-full'>
       <h3 className='ml-4 border-l-2 dark:border-l-rumbleNone/40 border-l-black text-lg dark:text-rumbleSecondary text-rumblePrimary uppercase font-medium py-2 px-9'>
@@ -84,7 +93,7 @@ const DisplayRound = ({ logs, publicAddress }: { logs: RoundActivityLog; publicA
   )
 }
 
-export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => {
+export const DisplayWinners = ({ winners, user }: { winners: (PickFromPlayers | DiscordPlayer)[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => {
   const placementMessage = [
     'Congratulations! 1st place goes to',
     '2nd place',
@@ -101,7 +110,7 @@ export const DisplayWinners = ({ winners, user }: { winners: PickFromPlayers[]; 
             {i > 0 && <ActivityBreak />}
             <ActivityListItem
               icon={<EmojiEventsOutlinedIcon className={iconClassMui} />}
-              description={[placementMessage[i], ' ', <ClickToCopyPopper key={winner.id} boldText text={winner.name} popperText={winner.id} />, '.']}
+              description={[placementMessage[i], ' ', <ClickToCopyPopper key={winner.id} boldText text={(winner as PickFromPlayers)?.name || (winner as DiscordPlayer)?.username} popperText={winner.id} />, '.']}
               highlight={winner.id === user?.id}
             />
           </Fragment>
@@ -118,10 +127,10 @@ export const DisplayActivityLogs = ({ allActivities, user }: { allActivities: Ro
   </>
 }
 
-const DisplayEntrantKills = ({ count, entrant, user }: { count: number; entrant: PickFromPlayers; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => (
+const DisplayEntrantKills = ({ count, entrant, user }: { count: number; entrant: (PickFromPlayers | DiscordPlayer); user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => (
   <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${entrant?.id === user?.id ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`}>
     <div className='flex justify-between'>
-      <ClickToCopyPopper text={entrant?.name} popperText={entrant?.id} truncate />
+      <ClickToCopyPopper text={(entrant as PickFromPlayers)?.name || (entrant as DiscordPlayer)?.username} popperText={entrant?.id} truncate />
       <div>{count}</div>
     </div>
   </li>
@@ -154,7 +163,7 @@ const calcKillCounts = (rounds: RoundActivityLog[]) => {
   return killCountArr;
 }
 
-export const DisplayKillCount = ({ entrants, rounds, user }: { entrants: PickFromPlayers[]; rounds: RoundActivityLog[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>; }) => {
+export const DisplayKillCount = ({ entrants, rounds, user }: { entrants: (PickFromPlayers | DiscordPlayer)[]; rounds: RoundActivityLog[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'>; }) => {
   return (
     <div className="mb-8 w-80 py-6 pl-6 border-2 dark:border-rumbleNone border-rumbleOutline">
       <div className="dark:text-rumbleSecondary text-rumblePrimary uppercase text-lg font-medium leading-7 mb-2">Kill Count</div>

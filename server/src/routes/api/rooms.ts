@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import { getGameDataFromDb } from '../../helpers/getGameDataFromDb';
 import prisma from '../../client';
 import availableRoomsData from '../../gameState/roomRumbleData';
-import { CreateRoom, IronSessionUserData, RoomDataType } from '@rumble-raffle-dao/types';
+import { AllAvailableRoomsType, CreateRoom, IronSessionUserData, RoomDataType, StartRoomDiscordFetchBody } from '@rumble-raffle-dao/types';
 import verifySignature from '../../utils/verifySignature';
 import { LOGIN_MESSAGE, NEW_GAME_CREATED, UPDATE_PLAYER_LIST } from '@rumble-raffle-dao/types/constants';
 import { io } from '../../sockets';
@@ -63,29 +63,22 @@ router.post('/join', jsonParser, async (req: JoinGameRequest, res: express.Respo
 });
 
 
-interface StartRoomDiscordRequest extends express.Request {
-  body: {
-    discord_id: string;
-    roomSlug: string;
-    discord_secret: string;
-  }
-}
-
-router.post('/discord_start', jsonParser, async (req: StartRoomDiscordRequest, res: express.Response) => {
+router.post('/discord_start', jsonParser, async (req: express.Request<StartRoomDiscordFetchBody>, res: express.Response) => {
   try {
-    const { discord_id, roomSlug, discord_secret } = req.body;
+    const { discord_id, roomSlug, discord_secret, players } = req.body as StartRoomDiscordFetchBody;
 
     if (discord_secret !== process.env.DISCORD_SECRET_PASS) {
       throw new Error('Discord password not provided.')
     }
 
-    // Check if they're an admin.
-    const userData = await prisma.users.findFirst({
-      where: { discord_id },
-      select: { is_admin: true, id: true }
-    })
+    // // Add the discord players to the discordPlayers array.
+    const updatedRoomData: AllAvailableRoomsType = {
+      ...availableRoomsData.getRoom(roomSlug),
+      discordPlayers: players.map(p => ({ ...p, id_origin: 'DISCORD' })),
+    }
+    availableRoomsData.updateRoom(roomSlug, updatedRoomData)
 
-    await startGame(userData.id, userData.is_admin, roomSlug);
+    await startGame(true, roomSlug);
     res.status(400).json({ data: 'Game started successfully.' })
   } catch (err) {
     console.error('api/rooms/start', err)
@@ -115,7 +108,7 @@ router.post('/start', jsonParser, async (req: StartRoomWebRequest, res: express.
       select: { is_admin: true }
     })
 
-    await startGame(user.id, userData.is_admin, roomSlug);
+    await startGame(userData.is_admin, roomSlug);
     res.status(400).json({ data: 'Game started successfully.' })
   } catch (err) {
     console.error('api/rooms/start', err)

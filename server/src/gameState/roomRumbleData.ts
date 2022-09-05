@@ -25,7 +25,7 @@ class AvailableRoomsData {
     }
 
     this.rooms.set(slug, {
-      freePlayers: [],
+      discordPlayers: [],
       roomData,
       gameState: this.getGameState(data),
     })

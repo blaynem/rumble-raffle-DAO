@@ -1,5 +1,5 @@
 require('dotenv').config()
-import { ServerToClientEvents, ClientToServerEvents, PlayerAndRoomInfoType, SyncPlayersResponseType, RoundActivityLog, SingleActivity, PickFromPlayers, RoomDataType } from "@rumble-raffle-dao/types";
+import { ServerToClientEvents, ClientToServerEvents, PlayerAndRoomInfoType, SyncPlayersResponseType, RoundActivityLog, SingleActivity, PickFromPlayers, RoomDataType, DiscordPlayer } from "@rumble-raffle-dao/types";
 import { GAME_START_COUNTDOWN, JOIN_ROOM, NEW_GAME_CREATED, NEXT_ROUND_START_COUNTDOWN, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { Socket, io } from "socket.io-client";
 import { BASE_API_URL } from "../constants";
@@ -13,6 +13,7 @@ const botId = process.env.APP_ID;
 const CURRENT_ENTRANTS = 'NEXT RUMBLE BEGINS SHORTLY';
 export const JOIN_GAME_BUTTON_ID = 'joinGameId';
 export const UNLINK_DISCORD_BUTTON_ID = 'unlinkDiscordId';
+export const JOIN_GAME_EMOJI = '⚔';
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
 
@@ -79,8 +80,8 @@ const replaceActivityDescPlaceholders = (activity: SingleActivity): string => {
     if (part.match(matchPlayerNumber)) {
       const index = Number(part.replace('PLAYER_', ''))
       // Gets the name of the player.
-      const player: PickFromPlayers = activity.participants[index]
-      return `**${player.name}**`
+      const player = activity.participants[index]
+      return `**${(player as PickFromPlayers)?.name || (player as DiscordPlayer)?.username}**`
     }
     return part;
   })
@@ -179,10 +180,15 @@ const syncPlayerRoomData = ({ data, paramsId, error }: SyncPlayersResponseType) 
  * @returns 
  */
 const updatePlayerRoomData = async (data: PlayerAndRoomInfoType) => {
-  const allPlayerData = data?.allPlayers?.map(player => ({
-    ...player,
-    discord_id: player.discord_id
-  }));
+  const allPlayerData = data?.allPlayers?.map(player => {
+    if ((player as DiscordPlayer)?.id_origin === 'DISCORD') {
+      return {
+        ...player,
+        discord_id: player.id
+      }
+    }
+    return player;
+  });
 
   const allPlayers = mapAllPlayersToDiscordId(allPlayerData)
 
@@ -251,7 +257,7 @@ const currentEntrantsDescription = (allPlayers: string[]) => `
  * @param channel - The channel to send the embed to
  * @param allPlayers - The players to add to the embed
  */
-const createAndSendCurrentPlayerEmbed = (channel: TextChannel, allPlayers: string[], paramsId: string) => {
+const createAndSendCurrentPlayerEmbed = async (channel: TextChannel, allPlayers: string[], paramsId: string) => {
   const embed = new MessageEmbed()
     .setColor('#9912B8')
     .setTitle(CURRENT_ENTRANTS)
@@ -268,10 +274,11 @@ const createAndSendCurrentPlayerEmbed = (channel: TextChannel, allPlayers: strin
     .addComponents(button);
 
   // Set the currentMessage to this message.
-  channel.send({ embeds: [embed], content: '@here', components: [row] }).then(msg => {
-    currentMessage = msg;
-    currentParamsId = paramsId
-  })
+  const message = await channel.send({ embeds: [embed], content: '@here', components: [row] })
+  currentMessage = message;
+  currentParamsId = paramsId
+
+  currentMessage.react(JOIN_GAME_EMOJI);
 }
 
 

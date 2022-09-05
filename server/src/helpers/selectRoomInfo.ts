@@ -1,5 +1,6 @@
 import { Prisma } from ".prisma/client";
-import { RoomDataType, EntireGameLog, RoundActivityLog, RoundsType, SingleActivity, PickFromPlayers } from "@rumble-raffle-dao/types";
+import { RoomDataType, EntireGameLog, RoundActivityLog, RoundsType, SingleActivity, PickFromPlayers, DiscordPlayer } from "@rumble-raffle-dao/types";
+import availableRoomsData from "../gameState/roomRumbleData";
 
 /**
  * Finds the player by the publicAddress and returns the player object.
@@ -7,31 +8,31 @@ import { RoomDataType, EntireGameLog, RoundActivityLog, RoundsType, SingleActivi
  * @param players - all players of the game
  * @returns public_address, name
  */
- const findPlayerByPubAddress = (pubAddress: string, players: PickFromPlayers[]): PickFromPlayers => players.find(player => player.id === pubAddress)
+const findPlayerById = (pubAddress: string, players: (PickFromPlayers | DiscordPlayer)[]): (PickFromPlayers | DiscordPlayer) => players.find(player => player.id === pubAddress)
 
- /**
-  * Gets the kill count of a player
-  * @param killCounts - array of kill counts for the activity
-  * @param players - array of players joined the activity
-  * @returns 
-  */
- const getKillCountsFromPlayers = (killCounts: Prisma.Decimal[], players: string[]): { [playerId: string]: Prisma.Decimal } => {
-   if (killCounts === null) {
-     return null;
-   }
+/**
+ * Gets the kill count of a player
+ * @param killCounts - array of kill counts for the activity
+ * @param players - array of players joined the activity
+ * @returns 
+ */
+const getKillCountsFromPlayers = (killCounts: Prisma.Decimal[], players: string[]): { [playerId: string]: Prisma.Decimal } => {
+  if (killCounts === null) {
+    return null;
+  }
   //  const killCountConverted = killCounts.map(count => count.toNumber());
-   return killCounts?.reduce((
-     acc: { [playerId: string]: Prisma.Decimal },
-     curr: Prisma.Decimal,
-     index
-   ) => {
-     const public_address = players[index] as string;
-     return {
-       ...acc,
-       [public_address]: curr
-     }
-   }, {})
- }
+  return killCounts?.reduce((
+    acc: { [playerId: string]: Prisma.Decimal },
+    curr: Prisma.Decimal,
+    index
+  ) => {
+    const public_address = players[index] as string;
+    return {
+      ...acc,
+      [public_address]: curr
+    }
+  }, {})
+}
 
 /**
  * Loops through all of the activities played in a given game and merges them together into a
@@ -40,7 +41,7 @@ import { RoomDataType, EntireGameLog, RoundActivityLog, RoundsType, SingleActivi
  * @param players - All players that participated in the game
  * @returns {EntireGameLog['rounds']} rounds played in the given game
  */
- const getRoundsData = (allGameLogs: RoundsType[], players: PickFromPlayers[]): EntireGameLog['rounds'] => {
+const getRoundsData = (allGameLogs: RoundsType[], players: (PickFromPlayers | DiscordPlayer)[]): EntireGameLog['rounds'] => {
   const rounds: EntireGameLog['rounds'] = []
   // Set a temporary round object
   let tempRoundObj: RoundActivityLog = {
@@ -76,7 +77,7 @@ import { RoomDataType, EntireGameLog, RoundActivityLog, RoundsType, SingleActivi
       environment: round.Activity.environment,
       id: round.activity_id,
       kill_count: getKillCountsFromPlayers(round.Activity.killCounts, round.participants),
-      participants: round.participants.map((pubAdd: string) => findPlayerByPubAddress(pubAdd, players))
+      participants: round.participants.map((id: string) => findPlayerById(id, players))
     }
     // Update the players_remaining
     // Note: We don't have an accurate count between each individual activity. Only for round end.
@@ -90,9 +91,15 @@ import { RoomDataType, EntireGameLog, RoundActivityLog, RoundsType, SingleActivi
   return rounds;
 }
 
+/**
+ * Adds the winners and rounds data together to roomInfo.
+ */
 export const selectRoomInfo = (roomInfo: RoomDataType): RoomDataType => {
-  const rounds: EntireGameLog['rounds'] = getRoundsData(roomInfo.gameLogs, roomInfo.players);
-  const winners: EntireGameLog['winners'] = roomInfo.params.winners?.map((pubAddress: string) => findPlayerByPubAddress(pubAddress, roomInfo.players));
+  const discordPlayers = availableRoomsData.getRoom(roomInfo.room.slug)?.discordPlayers || [];
+  const allPlayers = [...roomInfo.players, ...discordPlayers]
+
+  const rounds: EntireGameLog['rounds'] = getRoundsData(roomInfo.gameLogs, allPlayers);
+  const winners: EntireGameLog['winners'] = roomInfo.params.winners?.map((id: string) => findPlayerById(id, allPlayers));
   return {
     ...roomInfo,
     gameData: {

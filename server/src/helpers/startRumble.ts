@@ -1,5 +1,5 @@
 import { SetupType } from "@rumble-raffle-dao/rumble/types";
-import { EntireGameLog } from "@rumble-raffle-dao/types";
+import { DiscordPlayer, EntireGameLog, PickFromPlayers } from "@rumble-raffle-dao/types";
 import prisma from "../client";
 import { getAllActivities } from "../routes/api/activities";
 import { createGame } from "./createRumble";
@@ -10,7 +10,9 @@ import availableRoomsData from "../gameState/roomRumbleData";
 
 /**
  * Starting a rumble will:
- * - Get all players, and room info from params
+ * - Check if any discord players have a user profile
+ * - If we match a discord user to their User, we make sure they are added to Players db table
+ * - From there we get all User Players and merge with discord players
  * - fetch all activities to play
  * - create the game and play it
  * 
@@ -21,47 +23,63 @@ import availableRoomsData from "../gameState/roomRumbleData";
  */
 export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
   try {
-    const {data: roomData, error} = await getGameDataFromDb(roomSlug);
-    if (!roomData || roomData.params.game_completed || roomData.params.game_started) {
-      console.log('---startRumble--ERROR', roomSlug);
-      return;
-    }
-    const { data: activities } = await getAllActivities();
-    // RumbleApp expects players = {id, name}
-    // TODO: This will potentially be limited to only 1000 results.
-    // We need to assure there aren't more than that before starting.
-    // Get all current players in case we missed someone in the db when it's started.
-    // Or in case they changed their name and we don't see it.
-
-    const data = await prisma.players.findMany({
+    const { discordPlayers, roomData: localRoomData } = availableRoomsData.getRoom(roomSlug);
+    // Find all players who joined via discord emoji, who have their discord ID linked to their public address (id)
+    const findDiscordPlayersById = await prisma.users.findMany({
       where: {
-        room_params_id: roomData.room.params_id
+        OR: discordPlayers.map(player => ({ discord_id: player.id }))
       },
       select: {
-        User: {
-          select: {
-            id: true,
-            name: true,
-            discord_id: true
-          }
-        }
+        id: true,
+        name: true,
+        discord_id: true,
       }
     })
-
-    
-    // Map the data to what rumble expects
-    const initialPlayers = data.map(({ User }) => ({
-      id: User.id,
-      name: User.name,
-      discord_id: User.discord_id,
-    }))
-    
-    // We want to overwrite players so we can get any we might be missing
-    // todo: Add the free discord players in here?
-    const updatedRoomData = {
-      ...availableRoomsData.getRoom(roomSlug)
+    // Upsert all found Users to the Players db table.
+    if (findDiscordPlayersById.length > 0) {
+      // Need in a $transaction so we can batch update.
+      await prisma.$transaction(
+        findDiscordPlayersById.map(player => prisma.players.upsert({
+          where: {
+            room_params_id_player: {
+              room_params_id: localRoomData.params.id,
+              player: player.id
+            }
+          },
+          update: {},
+          create: {
+            room_params_id: localRoomData.params.id,
+            player: player.id,
+            slug: roomSlug,
+          }
+        }))
+      )
     }
-    updatedRoomData.roomData.players = initialPlayers;
+
+    const foundPlayers = findDiscordPlayersById.map(p => p.discord_id);
+    // filter out players we did find from remaining array here
+    const notFoundDiscordPlayers = discordPlayers.filter(player => !foundPlayers.includes(player.id))
+
+    // Get game data from db, including all players
+    const { data: roomData, error } = await getGameDataFromDb(roomSlug);
+    if (!roomData || roomData.params.game_completed || roomData.params.game_started) {
+      throw ('There was no room data, or the game has already started and been completed.')
+    }
+    // Get all activities for the game.
+    const { data: activities } = await getAllActivities();
+
+    // Combine players from db + leftover discord players
+    const combinedPlayers = [
+      ...roomData.players,
+      ...notFoundDiscordPlayers
+    ]
+
+    // We want to overwrite players so we can get any we might be missing
+    const updatedRoomData = { ...availableRoomsData.getRoom(roomSlug) }
+    // overwrite players / discordPlayers
+    updatedRoomData.roomData.players = combinedPlayers;
+    updatedRoomData.discordPlayers = notFoundDiscordPlayers;
+    // Update the room
     availableRoomsData.updateRoom(roomSlug, updatedRoomData)
 
     const params: SetupType['params'] = {
@@ -69,21 +87,33 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
       chanceOfRevive: roomData.params.revive_chance,
     }
 
-    // TODO: Store this giant blob somewhere so we can go over the files later.
+    // format combined players to fit expected object. Add Discord Identifier to name
+    const initialPlayers = combinedPlayers.map(p => {
+      if ((p as DiscordPlayer).id_origin === 'DISCORD') {
+        return {
+          id: p.id,
+          name: (p as DiscordPlayer).username,
+          discord_id: p.id,
+        }
+      }
+      return ({
+        id: p.id,
+        name: (p as PickFromPlayers).name,
+        discord_id: (p as PickFromPlayers).discord_id,
+      })
+    });
     // Autoplay the game
+    // TODO: Store this giant blob somewhere so we can go over the files later.
     const finalGameData = await createGame({ activities, params, initialPlayers: initialPlayers });
 
     // Parse the package's activity log to a more usable format to send to client
-    const parsedActivityLog = parseActivityLogForClient(finalGameData.gameActivityLogs, roomData.players);
+    const parsedActivityLog = parseActivityLogForClient(finalGameData.gameActivityLogs, initialPlayers);
 
     // Parse the activity log to store it to the db better
     const activitiesInGame = parseActivityLogForDbPut(parsedActivityLog, roomData);
     const activityLogSubmit = await prisma.gameRoundLogs.createMany({
       data: activitiesInGame
     })
-    // if (activityLogSubmit.error) {
-    //   console.error(activityLogSubmit.error);
-    // }
 
     // Calculate payout info
     const payoutInfo = selectPayoutFromGameData(roomData, finalGameData);
@@ -91,9 +121,6 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
     const payoutSubmit = await prisma.payouts.createMany({
       data: payoutInfo
     })
-    // if (payoutSubmit.error) {
-    //   console.error(payoutSubmit.error);
-    // }
 
     // Update the rooms
     const updateRoomSubmit = await prisma.rooms.update({

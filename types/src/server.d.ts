@@ -2,7 +2,7 @@ import { Prisma } from '.prisma/client'
 
 // All players, and the necessary room info
 export type PlayerAndRoomInfoType = {
-  allPlayers: PickFromPlayers[];
+  allPlayers: (PickFromPlayers | DiscordPlayer)[];
   // Creator, tokenContract, tokenNetwork
   roomInfo: {
     contract: Pick<Prisma.ContractsGroupByOutputType, 'contract_address' | 'network_name' | 'symbol' | 'chain_id'>;
@@ -13,16 +13,16 @@ export type PlayerAndRoomInfoType = {
 // Used to hold all the available rooms inside the server
 export type AllAvailableRoomsType = {
   // players who joined via emoji click (may be duplicates)
-  freePlayers?: FreePlayer[];
+  discordPlayers?: DiscordPlayer[];
   roomData: RoomDataType;
   gameState: GameState;
 }
 
-export type FreePlayer = {
+export type DiscordPlayer = {
   /**
-   * Display name of the given free player.
+   * Username of the given free player.
    */
-  display_name: string;
+  username: string;
   /**
    * Id of the given free player.
    */
@@ -30,9 +30,10 @@ export type FreePlayer = {
   /**
    * Where the free player joined from, example being discord or website.
    * 
-   * Options: 'DISCORD'
+   * Options: 'DISCORD', 'WEB'
+   * Note: 'WEB' not currently used.
    */
-  id_origin: 'DISCORD';
+  id_origin: 'DISCORD' | 'WEB';
 }
 
 // /**
@@ -99,7 +100,7 @@ export type PickFromPlayers = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' 
 export interface RoomDataType {
   room: Pick<Prisma.RoomsGroupByOutputType, 'id' | 'slug' | 'params_id'>
   params: Pick<Prisma.RoomParamsGroupByOutputType, 'game_completed' | 'game_started' | 'id' | 'pve_chance' | 'revive_chance' | 'winners' | 'created_by'>
-  players: PickFromPlayers[]
+  players: (PickFromPlayers | DiscordPlayer)[];
   gameLogs: (
     Pick<Prisma.GameRoundLogsGroupByOutputType, 'activity_id' | 'round_counter' | 'activity_order' | 'participants' | 'players_remaining'>
     & {
@@ -124,7 +125,7 @@ export type GameRoundLogsOmitId = Omit<Prisma.GameRoundLogsGroupByOutputType, 'i
 // The entire games log.
 export type EntireGameLog = {
   rounds: RoundActivityLog[];
-  winners: PickFromPlayers[];
+  winners: (PickFromPlayers | DiscordPlayer)[];
 }
 
 // The collection of activities that happens in a given game.
@@ -165,7 +166,7 @@ export type SingleActivity = {
   /**
    * Participants of the activity
    */
-  participants: PickFromPlayers[];
+  participants: (PickFromPlayers | DiscordPlayer)[];
 }
 
 export interface CreateRoom {
@@ -178,3 +179,34 @@ export interface CreateRoom {
 export type IronSessionUserData = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'discord_id'> & { signature: string; };
 
 export type UserDataFetchByDiscordId = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'discord_id'>
+
+/**
+ * When starting the game via discord.
+ */
+export type StartRoomDiscordFetchBody = {
+  /**
+   * Id of user starting a game.
+   */
+  discord_id: string;
+  /**
+   * Room slug
+   */
+  roomSlug: string;
+  /**
+   * Discord secret message for auth reasons.
+   */
+  discord_secret: string;
+  /**
+   * All players joined via emoji click
+   */
+  players: {
+    /**
+     * Discord id of player
+     */
+    id: string;
+    /**
+     * Discord username of player
+     */
+    username: string;
+  }[]
+}

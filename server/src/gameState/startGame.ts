@@ -5,14 +5,15 @@ import availableRoomsData from "./roomRumbleData";
 import { startRumble } from "../helpers/startRumble";
 
 import { io } from '../sockets';
+import { AllAvailableRoomsType } from "@rumble-raffle-dao/types";
 
 /**
  * On Start of game:
  * - Assure only the game master can start the game
  * - Send activity log data
  */
- export const startGame = async (id: string, is_admin: boolean, roomSlug: string) => {
-  const { roomData, gameState } = availableRoomsData.getRoom(roomSlug);
+ export const startGame = async (is_admin: boolean, roomSlug: string) => {
+  const { roomData, gameState, discordPlayers } = availableRoomsData.getRoom(roomSlug);
 
   // If they aren't an admin, we do nothing.
   if (!is_admin) {
@@ -20,15 +21,23 @@ import { io } from '../sockets';
   }
 
   // Only let the room owner start the game.
-  if (id !== roomData?.params?.created_by) {
-    console.warn(`${id} tried to start a game they are not the owner of.`);
-    throw (`${id} tried to start a game they are not the owner of.`)
-  }
+  // if (id !== roomData?.params?.created_by) {
+  //   console.warn(`${id} tried to start a game they are not the owner of.`);
+  //   throw (`${id} tried to start a game they are not the owner of.`)
+  // }
 
   const gameData = await startRumble(roomSlug);
-  roomData.gameData = gameData;
+
+  const updatedRoomData: AllAvailableRoomsType = {
+    ...availableRoomsData.getRoom(roomSlug),
+  }
   // Set the local game start state to true.
-  roomData.params.game_started = true;
+  updatedRoomData.roomData.gameData = gameData;
+  // Set the local game start state to true.
+  updatedRoomData.roomData.params.game_started = true;
+  // update the available room data
+  availableRoomsData.updateRoom(roomSlug, updatedRoomData)
+
   // Start emitting the game events to the players on a delay.
   dripGameDataOnDelay(roomSlug);
   io.in(roomSlug).emit(GAME_START_COUNTDOWN, gameState.waitTime);
