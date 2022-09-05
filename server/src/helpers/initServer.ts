@@ -1,4 +1,4 @@
-import { addNewRoomToMemory } from "./roomRumbleData";
+import availableRoomsData from "../gameState/roomRumbleData";
 import { RoomDataType } from '@rumble-raffle-dao/types';
 import prisma from "../client";
 
@@ -37,7 +37,7 @@ const InitializeServer = async () => {
         gameData: null,
         gameLogs: []
       }
-      addNewRoomToMemory(roomToAdd);
+      availableRoomsData.addRoom(roomToAdd)
     })
   } catch (error) {
     console.error('Server: InitializeServer', error);

@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { getGameDataFromDb } from '../../helpers/getGameDataFromDb';
 import prisma from '../../client';
-import { addNewRoomToMemory } from '../../helpers/roomRumbleData';
+import availableRoomsData from '../../gameState/roomRumbleData';
 import { CreateRoom, IronSessionUserData, RoomDataType } from '@rumble-raffle-dao/types';
 import verifySignature from '../../utils/verifySignature';
 import { LOGIN_MESSAGE, NEW_GAME_CREATED, UPDATE_PLAYER_LIST } from '@rumble-raffle-dao/types/constants';
@@ -221,7 +221,7 @@ router.post('/create', jsonParser, async (req: CreateRoomRequestBody, res: expre
     // Emit new game created event to sockets
     io.to(slug).emit(NEW_GAME_CREATED, mapRoomData)
     // Add new room to memory
-    addNewRoomToMemory(mapRoomData);
+    availableRoomsData.addRoom(mapRoomData)
     res.json({ data: roomData });
   } catch (error) {
     console.error('Server: /rooms/create', error);

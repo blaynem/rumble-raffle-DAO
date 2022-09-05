@@ -1,6 +1,6 @@
 import { Prisma } from ".prisma/client";
 import prisma from "../client";
-import availableRoomsData from "./roomRumbleData";
+import availableRoomsData from "../gameState/roomRumbleData";
 
 /**
  * Add player should:
@@ -20,7 +20,7 @@ export const addPlayer = async (
   data?: Pick<Prisma.PlayersGroupByOutputType, 'room_params_id' | 'slug' | 'player' | 'time_joined'>;
   error?: string;
 }> => {
-  const { roomData } = availableRoomsData[roomSlug];
+  const { roomData } = availableRoomsData.getRoom(roomSlug);
   if (!roomData) {
     return { error: "Room doesn't exist." };
   }

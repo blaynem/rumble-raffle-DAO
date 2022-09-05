@@ -12,10 +12,27 @@ export type PlayerAndRoomInfoType = {
 
 // Used to hold all the available rooms inside the server
 export type AllAvailableRoomsType = {
-  [slug: string]: {
-    roomData: RoomDataType;
-    gameState: GameState;
-  };
+  // players who joined via emoji click (may be duplicates)
+  freePlayers?: FreePlayer[];
+  roomData: RoomDataType;
+  gameState: GameState;
+}
+
+export type FreePlayer = {
+  /**
+   * Display name of the given free player.
+   */
+  display_name: string;
+  /**
+   * Id of the given free player.
+   */
+  id: string;
+  /**
+   * Where the free player joined from, example being discord or website.
+   * 
+   * Options: 'DISCORD'
+   */
+  id_origin: 'DISCORD';
 }
 
 // /**

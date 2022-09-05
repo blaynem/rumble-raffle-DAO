@@ -1,7 +1,7 @@
 import { GAME_START_COUNTDOWN, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER } from "@rumble-raffle-dao/types/constants";
 import prisma from "../client";
 import { getVisibleGameStateForClient } from "../helpers/getVisibleGameStateForClient";
-import availableRoomsData from "../helpers/roomRumbleData";
+import availableRoomsData from "./roomRumbleData";
 import { startRumble } from "../helpers/startRumble";
 
 import { io } from '../sockets';
@@ -12,7 +12,7 @@ import { io } from '../sockets';
  * - Send activity log data
  */
  export const startGame = async (id: string, is_admin: boolean, roomSlug: string) => {
-  const { roomData, gameState } = availableRoomsData[roomSlug];
+  const { roomData, gameState } = availableRoomsData.getRoom(roomSlug);
 
   // If they aren't an admin, we do nothing.
   if (!is_admin) {
@@ -39,7 +39,7 @@ import { io } from '../sockets';
  */
 export const dripGameDataOnDelay = (roomSlug: string) => {
   try {
-    const { roomData, gameState } = availableRoomsData[roomSlug];
+    const { roomData, gameState } = availableRoomsData.getRoom(roomSlug);
     const interval = setInterval(async () => {
       // If there is no game data, we don't want to do anything else.
       // This can happen if the admin clears the game state.

@@ -1,10 +1,9 @@
 import { Server, Socket } from "socket.io";
-import availableRoomsData from '../helpers/roomRumbleData';
-import { JOIN_GAME_ERROR, JOIN_ROOM, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
-import { addPlayer } from "../helpers/addPlayer";
+import availableRoomsData from '../gameState/roomRumbleData';
+import { JOIN_ROOM, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
 import { getPlayersAndRoomInfo } from "../helpers/getPlayersAndRoomInfo";
 import { getVisibleGameStateForClient } from "../helpers/getVisibleGameStateForClient";
-import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData, IronSessionUserData } from "@rumble-raffle-dao/types";
+import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from "@rumble-raffle-dao/types";
 
 export let io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
 export let roomSocket: Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
@@ -26,10 +25,10 @@ export const initRoom = (sio: Server<ClientToServerEvents, ServerToClientEvents,
 function joinRoom(roomSlug: string) {
   try {
     this.join(roomSlug);
-    if (!availableRoomsData[roomSlug]) {
+    if (!availableRoomsData.getRoom(roomSlug)) {
       return
     }
-    const { roomData, gameState } = availableRoomsData[roomSlug];
+    const { roomData, gameState } = availableRoomsData.getRoom(roomSlug);
     if (!roomData) {
       return;
     }
@@ -48,10 +47,10 @@ function joinRoom(roomSlug: string) {
 }
 
 async function syncPlayerRoomData(roomSlug: string) {
-  if (!availableRoomsData[roomSlug]) {
+  if (!availableRoomsData.getRoom(roomSlug)) {
     io.in(roomSlug).emit(SYNC_PLAYERS_RESPONSE, { error: `Room "${roomSlug}" hasn't been created yet.`, data: null, paramsId: null })
     return
   }
-  const { roomData } = availableRoomsData[roomSlug];
+  const { roomData } = availableRoomsData.getRoom(roomSlug);
   io.in(roomSlug).emit(SYNC_PLAYERS_RESPONSE, { data: roomData?.players, paramsId: roomData?.params.id })
 }

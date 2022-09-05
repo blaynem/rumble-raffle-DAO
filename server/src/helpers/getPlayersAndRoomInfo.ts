@@ -1,8 +1,8 @@
 import { PlayerAndRoomInfoType } from "@rumble-raffle-dao/types";
-import availableRoomsData from "./roomRumbleData";
+import availableRoomsData from "../gameState/roomRumbleData";
 
 export const getPlayersAndRoomInfo = (roomSlug: string): PlayerAndRoomInfoType => {
-  const {roomData} = availableRoomsData[roomSlug];
+  const {roomData} = availableRoomsData.getRoom(roomSlug);
   if (!roomData) {
     console.log('---getPlayersAndRoomInfo--ERROR', roomSlug);
     return;

@@ -6,7 +6,7 @@ import { createGame } from "./createRumble";
 import { getGameDataFromDb } from "./getGameDataFromDb";
 import { parseActivityLogForClient, parseActivityLogForDbPut } from "./parseActivityLogs";
 import { selectPayoutFromGameData } from "./payoutHelpers";
-import availableRoomsData from "./roomRumbleData";
+import availableRoomsData from "../gameState/roomRumbleData";
 
 /**
  * Starting a rumble will:
@@ -56,8 +56,13 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
       discord_id: User.discord_id,
     }))
     
-    // Overwrite players so we can get any missing pieces.
-    availableRoomsData[roomSlug].roomData.players = initialPlayers;
+    // We want to overwrite players so we can get any we might be missing
+    // todo: Add the free discord players in here?
+    const updatedRoomData = {
+      ...availableRoomsData.getRoom(roomSlug)
+    }
+    updatedRoomData.roomData.players = initialPlayers;
+    availableRoomsData.updateRoom(roomSlug, updatedRoomData)
 
     const params: SetupType['params'] = {
       chanceOfPve: roomData.params.pve_chance,
@@ -66,7 +71,7 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
 
     // TODO: Store this giant blob somewhere so we can go over the files later.
     // Autoplay the game
-    const finalGameData = await createGame({ activities, params, initialPlayers: initialPlayers as any });
+    const finalGameData = await createGame({ activities, params, initialPlayers: initialPlayers });
 
     // Parse the package's activity log to a more usable format to send to client
     const parsedActivityLog = parseActivityLogForClient(finalGameData.gameActivityLogs, roomData.players);
