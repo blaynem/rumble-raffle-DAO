@@ -1,2 +1,2 @@
-export { onJoinGamePressed } from './joinGame'
+export * from './joinGame'
 export { onUnlinkDiscord } from './unlinkDiscord';

@@ -2,14 +2,14 @@ require('dotenv').config()
 import http from "http";
 import fetch from 'node-fetch';
 import { SERVER_BASE_PATH, SERVER_ROOMS } from '@rumble-raffle-dao/types/constants';
-import { currentMessage, fetchPlayerRoomData, initSockets, JOIN_GAME_BUTTON_ID, UNLINK_DISCORD_BUTTON_ID } from "./sockets";
+import { currentMessage, fetchPlayerRoomData, initSockets, VERIFY_ACCOUNT, UNLINK_DISCORD_BUTTON_ID } from "./sockets";
 import client from './client';
 import { BASE_API_URL } from './constants';
 import { interactionCommands } from './deploy-commands';
 import { MessageActionRow, MessageButton } from 'discord.js';
 import { CreateRoom, StartRoomDiscordFetchBody } from '@rumble-raffle-dao/types';
 import { CONFIG } from './config';
-import { onJoinGamePressed, onUnlinkDiscord } from "./api";
+import { onVerifyAccountPressed, onUnlinkDiscord } from "./api";
 
 const token = process.env.DISCORD_TOKEN
 
@@ -129,9 +129,9 @@ client.on('messageCreate', async message => {
 client.on('interactionCreate', async interaction => {
   if (!interaction.isButton()) return;
 
-  // On 'Join Game' button pressed
-  if (interaction.customId === JOIN_GAME_BUTTON_ID) {
-    onJoinGamePressed(interaction)
+  // On 'Verify' button pressed
+  if (interaction.customId === VERIFY_ACCOUNT) {
+    onVerifyAccountPressed(interaction)
   }
   // On 'Unlink Discord' button pressed
   if (interaction.customId === UNLINK_DISCORD_BUTTON_ID) {

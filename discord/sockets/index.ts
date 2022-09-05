@@ -10,8 +10,8 @@ import { CONFIG } from "../config";
 
 const botId = process.env.APP_ID;
 
-const CURRENT_ENTRANTS = 'NEXT RUMBLE BEGINS SHORTLY';
-export const JOIN_GAME_BUTTON_ID = 'joinGameId';
+const NEXT_RUMBLE_BEGINS = "LET'S GET READY TO RUMBLE!";
+export const VERIFY_ACCOUNT = 'verifyAccountId';
 export const UNLINK_DISCORD_BUTTON_ID = 'unlinkDiscordId';
 export const JOIN_GAME_EMOJI = '⚔';
 
@@ -40,7 +40,7 @@ export const initSockets = () => {
 
   socket.on(NEW_GAME_CREATED, (roomData: RoomDataType) => {
     const channel: AnyChannel = client.channels.cache.get(CONFIG.channelId) as TextChannel;
-    createAndSendCurrentPlayerEmbed(channel, mapAllPlayersToDiscordId(roomData.players), roomData.params.id);
+    createAndSendCurrentPlayerEmbed(channel, roomData.params.id);
     currentRound = null;
     gameStarted = false;
   });
@@ -171,7 +171,7 @@ const syncPlayerRoomData = ({ data, paramsId, error }: SyncPlayersResponseType) 
   }
 
   // Create and send the current player embed message.
-  createAndSendCurrentPlayerEmbed(channel, mapAllPlayersToDiscordId(allPlayerData), paramsId);
+  createAndSendCurrentPlayerEmbed(channel, paramsId);
 }
 
 /**
@@ -213,7 +213,7 @@ const updatePlayerRoomData = async (data: PlayerAndRoomInfoType) => {
       // If the author is the bot
       if (message.author.id === botId) {
         // And if the message has an embed + title is of the entrants.
-        if (message.embeds.length > 0 && message.embeds[0].title === CURRENT_ENTRANTS) {
+        if (message.embeds.length > 0 && message.embeds[0].title === NEXT_RUMBLE_BEGINS) {
           // And finally the embeds footer is the same as the paramsId
           if (message.embeds[0]?.footer?.text === paramsId) {
             // If all conditions are met, we don't want to create a new embed.
@@ -229,7 +229,7 @@ const updatePlayerRoomData = async (data: PlayerAndRoomInfoType) => {
 
     // If we don't want to create a new embed, then we probably need to update it. 
     if (createNewEmbed) {
-      createAndSendCurrentPlayerEmbed(channel, allPlayers, paramsId);
+      createAndSendCurrentPlayerEmbed(channel, paramsId);
       return;
     }
   }
@@ -237,38 +237,36 @@ const updatePlayerRoomData = async (data: PlayerAndRoomInfoType) => {
   const receivedEmbed = currentMessage.embeds[0];
   // If we have it, edit it.
   const editEmbed = new MessageEmbed(receivedEmbed)
-    .setDescription(currentEntrantsDescription(allPlayers))
+    .setDescription(nextRumbleDescription())
 
   currentMessage.edit({ embeds: [editEmbed] })
 }
 
-const currentEntrantsDescription = (allPlayers: string[]) => `
-**Entrants**: ${allPlayers.join(', ')}
+const nextRumbleDescription = () => `
+Click the ${JOIN_GAME_EMOJI} icon below to join.
 
-**Total Entrants:** ${allPlayers.length.toString()}
+**Want to earn?**
+If you'd like to earn tokens and and save your progress, click the 'Verify' button below.
 
-**Want to join the fight?** Click the 'Join Game' button below.
-
-**Why are some users tagged?** Players who chose to link their Rumble Raffle account to their discord id are tagged.
+Presented by [www.RumbleRaffle.com](www.RumbleRaffle.com)
 `
 
 /**
  * Creates and sends the Current Player Embed message.
  * @param channel - The channel to send the embed to
- * @param allPlayers - The players to add to the embed
  */
-const createAndSendCurrentPlayerEmbed = async (channel: TextChannel, allPlayers: string[], paramsId: string) => {
+const createAndSendCurrentPlayerEmbed = async (channel: TextChannel, paramsId: string) => {
   const embed = new MessageEmbed()
     .setColor('#9912B8')
-    .setTitle(CURRENT_ENTRANTS)
+    .setTitle(NEXT_RUMBLE_BEGINS)
     .setURL(CONFIG.gameUrl)
-    .setDescription(currentEntrantsDescription(allPlayers))
+    .setDescription(nextRumbleDescription())
     .setFooter({ text: paramsId })
 
   const button = new MessageButton()
-    .setCustomId(JOIN_GAME_BUTTON_ID)
-    .setLabel('Join Game')
-    .setStyle('PRIMARY');
+    .setCustomId(VERIFY_ACCOUNT)
+    .setLabel('Verify')
+    .setStyle('SECONDARY');
 
   const row = new MessageActionRow()
     .addComponents(button);

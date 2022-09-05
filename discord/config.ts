@@ -16,6 +16,10 @@ interface Config {
    */
   gameUrl: string;
   /**
+   * The URL for the home site.
+   */
+  siteUrl: string;
+  /**
    * The discord guild id we want to act on
    */
   guildId: string;
@@ -39,6 +43,7 @@ export const CONFIG: Config = {
   channelId,
   roomSlug: DEFAULT_GAME_ROOM,
   gameUrl: `${BASE_WEB_URL}/play`,
+  siteUrl: BASE_WEB_URL,
   guildId: process.env.GUILD_ID,
   adminRoleId,
   discord_secret: process.env.DISCORD_SECRET_PASS

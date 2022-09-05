@@ -1,9 +1,10 @@
 import fetch from 'node-fetch';
 import { AuthDiscordInitBody, AuthDiscordInitPostResponse, UserDataFetchByDiscordId } from "@rumble-raffle-dao/types";
-import { SERVER_BASE_PATH, SERVER_USERS, PATH_VERIFY_INIT, SERVER_AUTH_DISCORD } from "@rumble-raffle-dao/types/constants";
+import { SERVER_BASE_PATH, SERVER_USERS, PATH_VERIFY_INIT, SERVER_AUTH_DISCORD, LOGIN_MESSAGE } from "@rumble-raffle-dao/types/constants";
 import { ButtonInteraction, CacheType, MessageEmbed, MessageButton, MessageActionRow } from "discord.js";
 import { CONFIG } from "../config";
 import { BASE_API_URL } from "../constants";
+import { JOIN_GAME_EMOJI } from '../sockets';
 
 /**
  * Does the Discord Auth verification fetch
@@ -19,11 +20,11 @@ const fetchVerifyInit = async (fetchBody: AuthDiscordInitBody) => {
 }
 
 /**
- * When the user presses the "Join Game" button, this function will fire.
+ * When the user presses the "Verify" button, this function will fire.
  * 
  * @param interaction - Discords ButtonInteraction type
  */
-export const onJoinGamePressed = async (interaction: ButtonInteraction<CacheType>) => {
+export const onVerifyAccountPressed = async (interaction: ButtonInteraction<CacheType>) => {
   const fetchBody: AuthDiscordInitBody = {
     discord_id: interaction.user.id,
     discord_tag: `${interaction.user.username}#${interaction.user.discriminator}`
@@ -35,31 +36,10 @@ export const onJoinGamePressed = async (interaction: ButtonInteraction<CacheType
 
   // If the user fetch comes back with a discord_id
   if (user?.discord_id) {
-    const body = {
-      roomSlug: CONFIG.roomSlug,
-      user
-    }
-    // attempt to join the game
-    const { data, error } = await fetch(`${BASE_API_URL}/api/rooms/join`, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      method: 'POST',
-      body: JSON.stringify(body)
-    }).then(res => res.json())
-
-    if (error) {
-      // Return a reply that we joined the game.
-      await interaction.reply({
-        ephemeral: true,
-        content: error,
-      });
-      return;
-    }
     // Return a reply that we joined the game.
     await interaction.reply({
       ephemeral: true,
-      content: data
+      content: `Looks like you're already verified! Click the ${JOIN_GAME_EMOJI} to join the game.`
     });
     return;
   }
@@ -69,7 +49,7 @@ export const onJoinGamePressed = async (interaction: ButtonInteraction<CacheType
 
   if (error) {
     await interaction.reply({
-      content: 'There was an error when attempting to join the game, please let the devs know.',
+      content: 'There was an error when creating a verification code, please let the devs know.',
       ephemeral: true,
     });
   }
@@ -78,11 +58,20 @@ export const onJoinGamePressed = async (interaction: ButtonInteraction<CacheType
     .setColor('#4CE3B6')
     .setTitle('Visit Rumble Raffle site to verify!')
     .setDescription(`
-The easiest way to play Rumble Raffle through Discord is by clicking the button below and linking your account. This allows a single button press to join game in the future!
+In order to save your progress and earn tokens, you'll need to verify your crypto wallet on the Rumble Raffle site.
 
-If you would prefer to not link your account, you can join via the site instead [RumbleRaffle.com](${CONFIG.gameUrl}).
+**Verification Steps**
 
-***Important: Do not share this link.*** *It is unique to your discord_id*
+1. Click "Link Discord" button below. This will bring you to the Rumble Raffle verify page. ***Important: Do not share this link.*** *It is unique to your discord_id*
+2. Connect Metamask wallet and sign the message "${LOGIN_MESSAGE}"
+3. Confirm you see the correct discord id on the page, then click "Verify Me" and you'll be prompted to sign another message.
+4. Once again confirm you see the correct details and sign the message.
+5. All set!
+
+If you would prefer to not link your account, simply dismiss this message and join by clicking the ${JOIN_GAME_EMOJI} emote.
+
+Want to know more?
+[RumbleRaffle.com](${CONFIG.siteUrl})
 `)
 
   // Now we set the link
