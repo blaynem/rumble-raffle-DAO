@@ -101,3 +101,17 @@ Custom Phrase support (per player)
     - `options`
       - `winningAction` - action that will be performed upon becoming the rumble winner.
       - `pvpActions` - actions against other players. note: can have multiple entrants per game.
+
+
+## TODO before go live
+
+- Can work in multiple servers
+  - admin role setup?
+- Can check how many tokens they have
+  - discord: button click? command?
+  - web: simple page
+- add earnings up in db
+- Stretch Goals:
+  - Contract
+    - Implement Rumble Pass contract
+      - purchaseable only via RMBLB tokens
