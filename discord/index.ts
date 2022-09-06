@@ -2,14 +2,14 @@ require('dotenv').config()
 import http from "http";
 import fetch from 'node-fetch';
 import { SERVER_BASE_PATH, SERVER_ROOMS } from '@rumble-raffle-dao/types/constants';
-import { fetchPlayerRoomData, initSockets, JOIN_GAME_BUTTON_ID, UNLINK_DISCORD_BUTTON_ID } from "./sockets";
+import { currentMessage, fetchPlayerRoomData, initSockets, VERIFY_ACCOUNT, UNLINK_DISCORD_BUTTON_ID } from "./sockets";
 import client from './client';
 import { BASE_API_URL } from './constants';
 import { interactionCommands } from './deploy-commands';
-import { GuildMember, GuildMemberRoleManager, MessageActionRow, MessageButton } from 'discord.js';
-import { CreateRoom } from '@rumble-raffle-dao/types';
+import { MessageActionRow, MessageButton } from 'discord.js';
+import { CreateRoom, StartRoomDiscordFetchBody } from '@rumble-raffle-dao/types';
 import { CONFIG } from './config';
-import { onJoinGamePressed, onUnlinkDiscord } from "./api";
+import { onVerifyAccountPressed, onUnlinkDiscord } from "./api";
 
 const token = process.env.DISCORD_TOKEN
 
@@ -73,7 +73,12 @@ client.on('messageCreate', async message => {
 
     // START GAME
     if (message.content === `${commandInitializer}${commands.START_GAME.commandName}`) {
-      const fetchBody = { discord_id: message.author.id, roomSlug: CONFIG.roomSlug, discord_secret: CONFIG.discord_secret }
+      // Get all users who reacted
+      const reaction = currentMessage.reactions.cache.get('⚔');
+      const usersReacted = await reaction.users.fetch()
+      const players = usersReacted.filter((({bot}) => !bot)).map(({ id, username }) => ({ id, username }));
+      
+      const fetchBody: StartRoomDiscordFetchBody = { discord_id: message.author.id, roomSlug: CONFIG.roomSlug, discord_secret: CONFIG.discord_secret, players }
       const { data, error }: { data: string; error?: string; } = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_ROOMS}/discord_start`, {
         method: 'POST',
         headers: {
@@ -124,10 +129,11 @@ client.on('messageCreate', async message => {
 client.on('interactionCreate', async interaction => {
   if (!interaction.isButton()) return;
 
-  // On 'Join Game' button pressed
-  if (interaction.customId === JOIN_GAME_BUTTON_ID) {
-    onJoinGamePressed(interaction)
+  // On 'Verify' button pressed
+  if (interaction.customId === VERIFY_ACCOUNT) {
+    onVerifyAccountPressed(interaction)
   }
+  // On 'Unlink Discord' button pressed
   if (interaction.customId === UNLINK_DISCORD_BUTTON_ID) {
     onUnlinkDiscord(interaction)
   }

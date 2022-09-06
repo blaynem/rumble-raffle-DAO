@@ -1,18 +1,19 @@
 require('dotenv').config()
-import { ServerToClientEvents, ClientToServerEvents, PlayerAndRoomInfoType, SyncPlayersResponseType, RoundActivityLog, SingleActivity, PickFromPlayers, RoomDataType } from "@rumble-raffle-dao/types";
-import { GAME_START_COUNTDOWN, JOIN_ROOM, NEW_GAME_CREATED, NEXT_ROUND_START_COUNTDOWN, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER, UPDATE_PLAYER_LIST } from "@rumble-raffle-dao/types/constants";
+import { ServerToClientEvents, ClientToServerEvents, SyncPlayersResponseType, RoundActivityLog, SingleActivity, PickFromPlayers, RoomDataType, DiscordPlayer } from "@rumble-raffle-dao/types";
+import { GAME_START_COUNTDOWN, JOIN_ROOM, NEW_GAME_CREATED, NEXT_ROUND_START_COUNTDOWN, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER } from "@rumble-raffle-dao/types/constants";
 import { Socket, io } from "socket.io-client";
 import { BASE_API_URL } from "../constants";
 import client from "../client";
 import { AnyChannel, Message, MessageActionRow, MessageButton, MessageEmbed, TextChannel } from "discord.js";
-import { mapAllPlayersToDiscordId, tagUser } from "../utils";
+import { tagUser } from "../utils";
 import { CONFIG } from "../config";
 
 const botId = process.env.APP_ID;
 
-const CURRENT_ENTRANTS = 'NEXT RUMBLE BEGINS SHORTLY';
-export const JOIN_GAME_BUTTON_ID = 'joinGameId';
+const NEXT_RUMBLE_BEGINS = "LET'S GET READY TO RUMBLE!";
+export const VERIFY_ACCOUNT = 'verifyAccountId';
 export const UNLINK_DISCORD_BUTTON_ID = 'unlinkDiscordId';
+export const JOIN_GAME_EMOJI = '⚔';
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
 
@@ -32,14 +33,13 @@ export const initSockets = () => {
   socket.emit(JOIN_ROOM, CONFIG.roomSlug);
 
   socket.on(SYNC_PLAYERS_RESPONSE, syncPlayerRoomData)
-  socket.on(UPDATE_PLAYER_LIST, updatePlayerRoomData);
 
   socket.on(UPDATE_ACTIVITY_LOG_WINNER, logWinner);
   socket.on(UPDATE_ACTIVITY_LOG_ROUND, logRound);
 
   socket.on(NEW_GAME_CREATED, (roomData: RoomDataType) => {
     const channel: AnyChannel = client.channels.cache.get(CONFIG.channelId) as TextChannel;
-    createAndSendCurrentPlayerEmbed(channel, mapAllPlayersToDiscordId(roomData.players), roomData.params.id);
+    createAndSendCurrentPlayerEmbed(channel, roomData.params.id);
     currentRound = null;
     gameStarted = false;
   });
@@ -79,8 +79,8 @@ const replaceActivityDescPlaceholders = (activity: SingleActivity): string => {
     if (part.match(matchPlayerNumber)) {
       const index = Number(part.replace('PLAYER_', ''))
       // Gets the name of the player.
-      const player: PickFromPlayers = activity.participants[index]
-      return `**${player.name}**`
+      const player = activity.participants[index]
+      return `**${(player as PickFromPlayers)?.name || (player as DiscordPlayer)?.username}**`
     }
     return part;
   })
@@ -170,108 +170,44 @@ const syncPlayerRoomData = ({ data, paramsId, error }: SyncPlayersResponseType) 
   }
 
   // Create and send the current player embed message.
-  createAndSendCurrentPlayerEmbed(channel, mapAllPlayersToDiscordId(allPlayerData), paramsId);
+  createAndSendCurrentPlayerEmbed(channel, paramsId);
 }
 
-/**
- * Creates or updates the latest "CURRENT ENTRANTS" message from the bot.
- * @param data - Player and Room info
- * @returns 
- */
-const updatePlayerRoomData = async (data: PlayerAndRoomInfoType) => {
-  const allPlayerData = data?.allPlayers?.map(player => ({
-    ...player,
-    discord_id: player.discord_id
-  }));
+const nextRumbleDescription = () => `
+Click the ${JOIN_GAME_EMOJI} icon below to join.
 
-  const allPlayers = mapAllPlayersToDiscordId(allPlayerData)
+**Want to earn?**
+If you'd like to earn tokens and and save your progress, click the 'Verify' button below.
 
-  const paramsId = data.roomInfo.params.id
-  // We check to see if we want to create a new message or can find and older one to edit.
-  if (currentMessage === null) {
-    // We default want to create a new embed.
-    let createNewEmbed = true;
-    // Get the channel so we can get the last messages.
-    const channel: AnyChannel = client.channels.cache.get(CONFIG.channelId) as TextChannel;
-    // We check the last 5 messages to see if it was from the same room paramsId.
-    const tempMessages = await channel.messages.fetch({ limit: 5 });
-    const messages = Array.from(tempMessages).map(i => i[1])
-
-    /**
-     * We only want to set `createNewEmbed` to false if the last messages:
-     * - were from the bot
-     * - and the message had an embed with a title of 'CURRENT ENTRANTS'
-     * - and the footer.text has the same text as the `paramsId`
-     */
-    for (const message of messages) {
-      // If the author is the bot
-      if (message.author.id === botId) {
-        // And if the message has an embed + title is of the entrants.
-        if (message.embeds.length > 0 && message.embeds[0].title === CURRENT_ENTRANTS) {
-          // And finally the embeds footer is the same as the paramsId
-          if (message.embeds[0]?.footer?.text === paramsId) {
-            // If all conditions are met, we don't want to create a new embed.
-            createNewEmbed = false;
-            // We also want to set the currentMessage and currentParamsId as well
-            currentMessage = message;
-            currentParamsId = paramsId;
-            break;
-          }
-        }
-      }
-    }
-
-    // If we don't want to create a new embed, then we probably need to update it. 
-    if (createNewEmbed) {
-      createAndSendCurrentPlayerEmbed(channel, allPlayers, paramsId);
-      return;
-    }
-  }
-
-  const receivedEmbed = currentMessage.embeds[0];
-  // If we have it, edit it.
-  const editEmbed = new MessageEmbed(receivedEmbed)
-    .setDescription(currentEntrantsDescription(allPlayers))
-
-  currentMessage.edit({ embeds: [editEmbed] })
-}
-
-const currentEntrantsDescription = (allPlayers: string[]) => `
-**Entrants**: ${allPlayers.join(', ')}
-
-**Total Entrants:** ${allPlayers.length.toString()}
-
-**Want to join the fight?** Click the 'Join Game' button below.
-
-**Why are some users tagged?** Players who chose to link their Rumble Raffle account to their discord id are tagged.
+Presented by [www.RumbleRaffle.com](www.RumbleRaffle.com)
 `
 
 /**
  * Creates and sends the Current Player Embed message.
  * @param channel - The channel to send the embed to
- * @param allPlayers - The players to add to the embed
  */
-const createAndSendCurrentPlayerEmbed = (channel: TextChannel, allPlayers: string[], paramsId: string) => {
+const createAndSendCurrentPlayerEmbed = async (channel: TextChannel, paramsId: string) => {
   const embed = new MessageEmbed()
     .setColor('#9912B8')
-    .setTitle(CURRENT_ENTRANTS)
+    .setTitle(NEXT_RUMBLE_BEGINS)
     .setURL(CONFIG.gameUrl)
-    .setDescription(currentEntrantsDescription(allPlayers))
+    .setDescription(nextRumbleDescription())
     .setFooter({ text: paramsId })
 
   const button = new MessageButton()
-    .setCustomId(JOIN_GAME_BUTTON_ID)
-    .setLabel('Join Game')
-    .setStyle('PRIMARY');
+    .setCustomId(VERIFY_ACCOUNT)
+    .setLabel('Verify')
+    .setStyle('SECONDARY');
 
   const row = new MessageActionRow()
     .addComponents(button);
 
   // Set the currentMessage to this message.
-  channel.send({ embeds: [embed], content: '@here', components: [row] }).then(msg => {
-    currentMessage = msg;
-    currentParamsId = paramsId
-  })
+  const message = await channel.send({ embeds: [embed], content: '@here', components: [row] })
+  currentMessage = message;
+  currentParamsId = paramsId
+
+  currentMessage.react(JOIN_GAME_EMOJI);
 }
 
 
@@ -295,3 +231,72 @@ export const simpleMessageEmbed = (channel: TextChannel, message: string, title?
   // Set the currentMessage to this message.
   channel.send({ embeds: [embed] })
 }
+
+// Most likely do not need this anymore.
+// /**
+//  * Creates or updates the latest "CURRENT ENTRANTS" message from the bot.
+//  * @param data - Player and Room info
+//  * @returns 
+//  */
+//  const updatePlayerRoomData = async (data: PlayerAndRoomInfoType) => {
+//   const allPlayerData = data?.allPlayers?.map(player => {
+//     if ((player as DiscordPlayer)?.id_origin === 'DISCORD') {
+//       return {
+//         ...player,
+//         discord_id: player.id
+//       }
+//     }
+//     return player;
+//   });
+
+//   const allPlayers = mapAllPlayersToDiscordId(allPlayerData)
+
+//   const paramsId = data.roomInfo.params.id
+//   // We check to see if we want to create a new message or can find and older one to edit.
+//   if (currentMessage === null) {
+//     // We default want to create a new embed.
+//     let createNewEmbed = true;
+//     // Get the channel so we can get the last messages.
+//     const channel: AnyChannel = client.channels.cache.get(CONFIG.channelId) as TextChannel;
+//     // We check the last 5 messages to see if it was from the same room paramsId.
+//     const tempMessages = await channel.messages.fetch({ limit: 5 });
+//     const messages = Array.from(tempMessages).map(i => i[1])
+
+//     /**
+//      * We only want to set `createNewEmbed` to false if the last messages:
+//      * - were from the bot
+//      * - and the message had an embed with a title of 'CURRENT ENTRANTS'
+//      * - and the footer.text has the same text as the `paramsId`
+//      */
+//     for (const message of messages) {
+//       // If the author is the bot
+//       if (message.author.id === botId) {
+//         // And if the message has an embed + title is of the entrants.
+//         if (message.embeds.length > 0 && message.embeds[0].title === NEXT_RUMBLE_BEGINS) {
+//           // And finally the embeds footer is the same as the paramsId
+//           if (message.embeds[0]?.footer?.text === paramsId) {
+//             // If all conditions are met, we don't want to create a new embed.
+//             createNewEmbed = false;
+//             // We also want to set the currentMessage and currentParamsId as well
+//             currentMessage = message;
+//             currentParamsId = paramsId;
+//             break;
+//           }
+//         }
+//       }
+//     }
+
+//     // If we don't want to create a new embed, then we probably need to update it. 
+//     if (createNewEmbed) {
+//       createAndSendCurrentPlayerEmbed(channel, paramsId);
+//       return;
+//     }
+//   }
+
+//   const receivedEmbed = currentMessage.embeds[0];
+//   // If we have it, edit it.
+//   const editEmbed = new MessageEmbed(receivedEmbed)
+//     .setDescription(nextRumbleDescription())
+
+//   currentMessage.edit({ embeds: [editEmbed] })
+// }

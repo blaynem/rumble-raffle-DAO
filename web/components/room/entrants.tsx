@@ -1,15 +1,22 @@
 import React from 'react';
-import { PickFromPlayers } from "@rumble-raffle-dao/types";
+import { DiscordPlayer, PickFromPlayers } from "@rumble-raffle-dao/types";
 import { ClickToCopyPopper } from '../Popper';
 import { Prisma } from '.prisma/client';
 
-const DisplayEntrant = ({ entrant: { id, name }, user }: { entrant: PickFromPlayers; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => (
-  <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${id === user?.id ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`} key={id}>
-    <ClickToCopyPopper text={id === user?.id ? user.name : name} popperText={id} />
-  </li>
-)
+const DisplayEntrant = ({ entrant, user }: { entrant: (PickFromPlayers | DiscordPlayer); user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => {
+  /**
+   * If entrant.id = user.id is true, we use the user.name field to get most up to date value. (Necessary if they change name locally but doesn't get propagated somehow)
+   * If false, we pick the name/username from the correct entrant type.
+   */
+  const text = entrant.id === user?.id ? user.name : (entrant as PickFromPlayers)?.name || (entrant as DiscordPlayer)?.username
+  return (
+    <li className={`mr-6 mb-2 last:mb-0 dark:text-rumbleNone text-rumbleOutline text-base font-normal ${entrant.id === user?.id ? 'dark:bg-rumbleNone/20 bg-rumbleTertiary/40' : ''}`} key={entrant.id}>
+      <ClickToCopyPopper text={text} popperText={entrant.id} />
+    </li>
+  )
+}
 
-const Entrants = ({ loading, entrants, user }: { loading?: boolean; entrants: PickFromPlayers[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => {
+const Entrants = ({ loading, entrants, user }: { loading?: boolean; entrants: (PickFromPlayers | DiscordPlayer)[]; user: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin'> }) => {
   return (
     <div className="mb-8 w-80 py-6 pl-6 border-2 dark:border-rumbleNone border-rumbleOutline">
       <div className="dark:text-rumbleSecondary text-rumblePrimary uppercase text-lg font-medium leading-7 mb-2">Entrants</div>

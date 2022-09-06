@@ -79,8 +79,8 @@ export const selectPayoutFromGameData = (
     payouts.push(killPayout);
   })
 
-  // Filter so we only add payouts when there is one.
-  return payouts.filter(payout => payout.payment_amount.toNumber() > 0);
+  // Filter so we only add payouts when there is one. Also filter any that don't start with 0x, as that won't be a public address.
+  return payouts.filter(payout => payout.payment_amount.toNumber() > 0).filter(p => p.public_address.startsWith('0x'));
 }
 
 /**
