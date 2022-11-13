@@ -1,3 +1,4 @@
+import { GuildMemberRoleManager } from "discord.js";
 
 export type Config = {
   /**
@@ -11,12 +12,12 @@ export type Config = {
    /**
     * Slug for the Guilds rumble raffle games.
     */
-   rumbleRaffleSlug: string;
+   slug: string;
 }
 
 export interface GuildContextInterface {
   /**
    * Returns if the user is an admin or not.
    */
-  isAdmin: (userId: string) => boolean;
+  isAdmin: (roles: string[]) => boolean;
 }

@@ -4,7 +4,7 @@ import { SERVER_BASE_PATH, SERVER_USERS, PATH_VERIFY_INIT, SERVER_AUTH_DISCORD, 
 import { ButtonInteraction, CacheType, MessageEmbed, MessageButton, MessageActionRow } from "discord.js";
 import { CONFIG } from "../../config";
 import { BASE_API_URL } from "../../constants";
-import { JOIN_GAME_EMOJI } from '../../sockets';
+import { JOIN_GAME_EMOJI } from '../sockets';
 
 /**
  * Does the Discord Auth verification fetch
@@ -25,39 +25,40 @@ const fetchVerifyInit = async (fetchBody: AuthDiscordInitBody) => {
  * @param interaction - Discords ButtonInteraction type
  */
 export const verifyAccount = async (interaction: ButtonInteraction<CacheType>) => {
-  const fetchBody: AuthDiscordInitBody = {
-    discord_id: interaction.user.id,
-    discord_tag: `${interaction.user.username}#${interaction.user.discriminator}`
-  };
+  try {
+    const fetchBody: AuthDiscordInitBody = {
+      discord_id: interaction.user.id,
+      discord_tag: `${interaction.user.username}#${interaction.user.discriminator}`
+    };
 
-  // Check if the users discord_id is attached to a users public_address.
-  const user: UserDataFetchByDiscordId = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_USERS}?discord_id=${fetchBody.discord_id}`)
-    .then(res => res.json());
+    // Check if the users discord_id is attached to a users public_address.
+    const user: UserDataFetchByDiscordId = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_USERS}?discord_id=${fetchBody.discord_id}`)
+      .then(res => res.json());
 
-  // If the user fetch comes back with a discord_id
-  if (user?.discord_id) {
-    // Return a reply that we joined the game.
-    await interaction.reply({
-      ephemeral: true,
-      content: `Looks like you're already verified! Click the ${JOIN_GAME_EMOJI} to join the game.`
-    });
-    return;
-  }
+    // If the user fetch comes back with a discord_id
+    if (user?.discord_id) {
+      // Return a reply that we joined the game.
+      await interaction.reply({
+        ephemeral: true,
+        content: `Looks like you're already verified! Click the ${JOIN_GAME_EMOJI} to join the game.`
+      });
+      return;
+    }
 
-  // Otherwise we start the verification init
-  const { data: verifyInitData, error } = await fetchVerifyInit(fetchBody);
+    // Otherwise we start the verification init
+    const { data: verifyInitData, error } = await fetchVerifyInit(fetchBody);
 
-  if (error) {
-    await interaction.reply({
-      content: 'There was an error when creating a verification code, please let the devs know.',
-      ephemeral: true,
-    });
-  }
+    if (error) {
+      await interaction.reply({
+        content: 'There was an error when creating a verification code, please let the devs know.',
+        ephemeral: true,
+      });
+    }
 
-  const embed = new MessageEmbed()
-    .setColor('#4CE3B6')
-    .setTitle('Visit Rumble Raffle site to verify!')
-    .setDescription(`
+    const embed = new MessageEmbed()
+      .setColor('#4CE3B6')
+      .setTitle('Visit Rumble Raffle site to verify!')
+      .setDescription(`
 In order to save your progress and earn tokens, you'll need to verify your crypto wallet on the Rumble Raffle site.
 
 **Verification Steps**
@@ -74,18 +75,22 @@ Want to know more?
 [RumbleRaffle.com](${CONFIG.siteUrl})
 `)
 
-  // Now we set the link
-  const linkButton = new MessageButton()
-    .setLabel('Link Discord')
-    .setURL(verifyInitData.verify_link)
-    .setStyle('LINK');
+    // Now we set the link
+    const linkButton = new MessageButton()
+      .setLabel('Link Discord')
+      .setURL(verifyInitData.verify_link)
+      .setStyle('LINK');
 
-  const row = new MessageActionRow()
-    .addComponents(linkButton);
+    const row = new MessageActionRow()
+      .addComponents(linkButton);
 
-  await interaction.reply({
-    embeds: [embed],
-    ephemeral: true,
-    components: [row]
-  });
+    await interaction.reply({
+      embeds: [embed],
+      ephemeral: true,
+      components: [row]
+    });
+  } catch (err) {
+    console.error(err);
+    interaction.reply({ ephemeral: true, content: "Ope. An error occured." })
+  }
 }

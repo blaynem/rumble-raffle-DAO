@@ -2,17 +2,17 @@ require('dotenv').config()
 import { ServerToClientEvents, ClientToServerEvents, SyncPlayersResponseType, RoundActivityLog, SingleActivity, PickFromPlayers, RoomDataType, DiscordPlayer } from "@rumble-raffle-dao/types";
 import { GAME_START_COUNTDOWN, JOIN_ROOM, NEW_GAME_CREATED, NEXT_ROUND_START_COUNTDOWN, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER } from "@rumble-raffle-dao/types/constants";
 import { Socket, io } from "socket.io-client";
-import { BASE_API_URL } from "../constants";
-import client from "../client";
+import { BASE_API_URL } from "../../constants";
+import client from "../../client";
 import { AnyChannel, Message, MessageActionRow, MessageButton, MessageEmbed, TextChannel } from "discord.js";
-import { tagUser } from "../utils";
-import { CONFIG } from "../config";
+import { tagUser } from "../../utils";
+import { CONFIG } from "../../config";
+import { verifyAccountButton } from "../buttons";
+import { GuildContext } from "../guildContext";
 
 const botId = process.env.APP_ID;
 
 const NEXT_RUMBLE_BEGINS = "LET'S GET READY TO RUMBLE!";
-export const VERIFY_ACCOUNT = 'verifyAccountId';
-export const UNLINK_DISCORD_BUTTON_ID = 'unlinkDiscordId';
 export const JOIN_GAME_EMOJI = '⚔';
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
@@ -29,8 +29,9 @@ let currentRound = null;
 let gameStarted = false;
 let currentParamsId = null;
 
-export const initSockets = () => {
-  socket.emit(JOIN_ROOM, CONFIG.roomSlug);
+export const initSockets = (guildContext: GuildContext) => {
+  // Join the socket with the given guild slug
+  socket.emit(JOIN_ROOM, guildContext.slug);
 
   socket.on(SYNC_PLAYERS_RESPONSE, syncPlayerRoomData)
 
@@ -61,7 +62,7 @@ export const initSockets = () => {
   socket.on('disconnect', () => {
     console.log('--DISCORD BOT DISCONNECTED--');
     // Rejoin room on disconnect
-    socket.emit(JOIN_ROOM, CONFIG.roomSlug);
+    socket.emit(JOIN_ROOM, guildContext.slug);
   });
 }
 
@@ -195,7 +196,7 @@ const createAndSendCurrentPlayerEmbed = async (channel: TextChannel, paramsId: s
     .setFooter({ text: paramsId })
 
   const button = new MessageButton()
-    .setCustomId(VERIFY_ACCOUNT)
+    .setCustomId(verifyAccountButton.customId)
     .setLabel('Verify')
     .setStyle('SECONDARY');
 

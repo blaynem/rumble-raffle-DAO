@@ -1,9 +1,9 @@
 import { CacheType, CommandInteraction, MessageActionRow, MessageButton } from 'discord.js';
-import { UNLINK_DISCORD_BUTTON_ID } from '../../sockets';
+import { unlinkDiscordButton } from '../buttons';
 
 export const unlinkAccount = async (interaction: CommandInteraction<CacheType>) => {
   const button = new MessageButton()
-    .setCustomId(UNLINK_DISCORD_BUTTON_ID)
+    .setCustomId(unlinkDiscordButton.customId)
     .setLabel('Unlink Discord')
     .setStyle('DANGER');
 

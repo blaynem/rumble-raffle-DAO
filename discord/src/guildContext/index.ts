@@ -1,30 +1,59 @@
-// I'm not entirely sure what this will be quite yet.
-
 import { Config, GuildContextInterface } from './types';
 
-
+/**
+ * A guilds context to keep track of useful details.
+ */
 class GuildContext implements GuildContextInterface {
   /**
    * Array of admin role ids to be used.
    */
-   adminRoleIds: string[]
-   /**
-    * The given guilds id.
-    */
-   guildId: string;
-   /**
-    * Slug for the Guilds rumble raffle games.
-    */
-   rumbleRaffleSlug: string;
+  adminRoleIds: string[]
+  /**
+   * The given guilds id.
+   */
+  guildId: string;
+  /**
+   * Slug for the Guilds rumble raffle games.
+   */
+  slug: string;
+
   constructor(config: Config) {
     this.adminRoleIds = config.adminRoleIds
     this.guildId = config.guildId
-    this.rumbleRaffleSlug = config.rumbleRaffleSlug
+    this.slug = config.slug
   }
 
-  isAdmin(userId: string) {
-    return this.adminRoleIds.indexOf(userId) > -1
+  isAdmin(roles: string[]) {
+    return this.adminRoleIds.some(id => roles.includes(id));
   };
 }
 
-export default GuildContext;
+class AllGuildContexts {
+  /**
+   * Map of all guilds
+   */
+  private guilds = new Map<any, GuildContext>()
+
+  /**
+   * Add guild to all guild contexts
+   */
+  addGuild(config: Config) {
+    this.guilds.set(config.guildId, new GuildContext(config));
+  }
+  
+  /**
+   * Get guild from guild contexts
+   */
+  getGuild(id: string) {
+    return this.guilds.get(id);
+  }
+  
+  /**
+   * Remove guild from all guild contexts
+   */
+  removeGuild(id: string) {
+    this.guilds.delete(id);
+  }
+}
+
+export { AllGuildContexts, GuildContext };

@@ -2,17 +2,21 @@ import { ButtonInteraction, CacheType } from "discord.js";
 import { verifyAccount } from "./verifyAccount";
 import { unlinkDiscord } from "./unlinkDiscord";
 
-export const interactionButtons = [
-  {
-    callback: (interaction: ButtonInteraction<CacheType>) => unlinkDiscord(interaction),
-    customId: 'unlinkDiscordId',
-    name: 'Unlink Discord',
-  },
-  {
-    callback: (interaction: ButtonInteraction<CacheType>) => verifyAccount(interaction),
-    customId: 'verifyAccountId',
-    name: 'Verify Account',
-  },
+export const unlinkDiscordButton = {
+  callback: (interaction: ButtonInteraction<CacheType>) => unlinkDiscord(interaction),
+  customId: 'unlinkDiscordId',
+  name: 'Unlink Discord',
+}
+
+export const verifyAccountButton = {
+  callback: (interaction: ButtonInteraction<CacheType>) => verifyAccount(interaction),
+  customId: 'verifyAccountId',
+  name: 'Verify Account',
+}
+
+const interactionButtons = [
+  unlinkDiscordButton,
+  verifyAccountButton,
 ]
 
 /**
