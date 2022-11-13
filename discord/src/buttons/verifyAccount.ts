@@ -2,9 +2,9 @@ import fetch from 'node-fetch';
 import { AuthDiscordInitBody, AuthDiscordInitPostResponse, UserDataFetchByDiscordId } from "@rumble-raffle-dao/types";
 import { SERVER_BASE_PATH, SERVER_USERS, PATH_VERIFY_INIT, SERVER_AUTH_DISCORD, LOGIN_MESSAGE } from "@rumble-raffle-dao/types/constants";
 import { ButtonInteraction, CacheType, MessageEmbed, MessageButton, MessageActionRow } from "discord.js";
-import { CONFIG } from "../config";
-import { BASE_API_URL } from "../constants";
-import { JOIN_GAME_EMOJI } from '../sockets';
+import { CONFIG } from "../../config";
+import { BASE_API_URL } from "../../constants";
+import { JOIN_GAME_EMOJI } from '../../sockets';
 
 /**
  * Does the Discord Auth verification fetch
@@ -24,7 +24,7 @@ const fetchVerifyInit = async (fetchBody: AuthDiscordInitBody) => {
  * 
  * @param interaction - Discords ButtonInteraction type
  */
-export const onVerifyAccountPressed = async (interaction: ButtonInteraction<CacheType>) => {
+export const verifyAccount = async (interaction: ButtonInteraction<CacheType>) => {
   const fetchBody: AuthDiscordInitBody = {
     discord_id: interaction.user.id,
     discord_tag: `${interaction.user.username}#${interaction.user.discriminator}`

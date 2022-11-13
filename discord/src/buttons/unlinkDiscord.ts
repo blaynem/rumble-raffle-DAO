@@ -1,10 +1,10 @@
 import { AuthDiscordVerifyPostResponse } from "@rumble-raffle-dao/types";
 import { SERVER_BASE_PATH, SERVER_AUTH_DISCORD, PATH_UNLINK_DISCORD } from "@rumble-raffle-dao/types/constants";
 import { ButtonInteraction, CacheType } from "discord.js";
-import { BASE_API_URL } from "../constants";
+import { BASE_API_URL } from "../../constants";
 import fetch from "node-fetch";
 
-export const onUnlinkDiscord = async (interaction: ButtonInteraction<CacheType>) => {
+export const unlinkDiscord = async (interaction: ButtonInteraction<CacheType>) => {
   const { data, error } = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_AUTH_DISCORD}${PATH_UNLINK_DISCORD}`, {
     method: 'POST',
     headers: {
