@@ -212,7 +212,7 @@ router.post('/create', jsonParser, async (req: CreateRoomRequestBody, res: expre
     }
 
     // Emit new game created event to sockets
-    io.to(slug).emit(NEW_GAME_CREATED, mapRoomData)
+    io.to(slug).emit(NEW_GAME_CREATED, mapRoomData, slug)
     // Add new room to memory
     availableRoomsData.addRoom(mapRoomData)
     res.json({ data: roomData });

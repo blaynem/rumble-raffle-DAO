@@ -61,4 +61,19 @@ const rumbleRaffleServer: GuildConfig = {
  */
 export const guildConfigs: GuildConfig[] = [
   rumbleRaffleServer,
+  {
+    adminRoleIds: ['983206950311452752'],
+    guildId: '975608872276492299',
+    slug: 'test2',
+  },
+  {
+    adminRoleIds: ['983206950311452752'],
+    guildId: '975608872276492299',
+    slug: 'reee',
+  },
+  {
+    adminRoleIds: ['983206950311452752'],
+    guildId: '975608872276492299',
+    slug: 'test52',
+  }
 ]

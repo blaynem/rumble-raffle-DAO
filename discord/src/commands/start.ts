@@ -4,14 +4,12 @@ import { SERVER_BASE_PATH, SERVER_ROOMS } from "@rumble-raffle-dao/types/constan
 import { CommandInteraction, CacheType, GuildMemberRoleManager } from "discord.js";
 import { CONFIG } from "../../config";
 import { BASE_API_URL } from "../../constants";
-import { GuildContextInterface } from "../guildContext/types";
-import { currentMessage } from "../sockets";
+import { GuildContext } from '../guildContext';
 
 /**
- * TODO
- * - get the correct "currentMessage" somehow
+ * 
  */
-export const startGame = async (interaction: CommandInteraction<CacheType>, guildContext: GuildContextInterface) => {
+export const startGame = async (interaction: CommandInteraction<CacheType>, guildContext: GuildContext) => {
   try {
     const roles = Array.from((interaction.member.roles as GuildMemberRoleManager).cache.keys());
     // If player isn't admin, we don't do anything
@@ -20,7 +18,7 @@ export const startGame = async (interaction: CommandInteraction<CacheType>, guil
       return;
     };
     // Get all users who reacted
-    const reaction = currentMessage.reactions.cache.get('⚔');
+    const reaction = guildContext.getCurrentMessage().reactions.cache.get('⚔');
     const usersReacted = await reaction.users.fetch()
     const players = usersReacted.filter((({ bot }) => !bot)).map(({ id, username }) => ({ id, username }));
 

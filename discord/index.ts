@@ -22,10 +22,8 @@ client.once('ready', async () => {
     allGuildContexts.addGuild(guild)
     // fetch the members info
     await client.guilds.cache.get(guild.guildId).members.fetch();
-
-    const guildContext = allGuildContexts.getGuild(guild.guildId);
-    initSockets(guildContext);
   }))
+  initSockets(allGuildContexts, guildConfigs.map(guild => guild.slug));
   console.log('Ready!');
 });
 

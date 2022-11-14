@@ -1,236 +1,60 @@
 require('dotenv').config()
-import { ServerToClientEvents, ClientToServerEvents, SyncPlayersResponseType, RoundActivityLog, SingleActivity, PickFromPlayers, RoomDataType, DiscordPlayer } from "@rumble-raffle-dao/types";
-import { GAME_START_COUNTDOWN, JOIN_ROOM, NEW_GAME_CREATED, NEXT_ROUND_START_COUNTDOWN, SYNC_PLAYERS_REQUEST, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER } from "@rumble-raffle-dao/types/constants";
+import { ServerToClientEvents, ClientToServerEvents } from "@rumble-raffle-dao/types";
+import { GAME_START_COUNTDOWN, JOIN_ROOM, NEW_GAME_CREATED, NEXT_ROUND_START_COUNTDOWN, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER } from "@rumble-raffle-dao/types/constants";
 import { Socket, io } from "socket.io-client";
 import { BASE_API_URL } from "../../constants";
-import client from "../../client";
-import { AnyChannel, Message, MessageActionRow, MessageButton, MessageEmbed, TextChannel } from "discord.js";
-import { tagUser } from "../../utils";
 import { CONFIG } from "../../config";
-import { verifyAccountButton } from "../buttons";
-import { GuildContext } from "../guildContext";
+import { AllGuildContexts } from "../guildContext";
+import { newGameCreated } from "./newGameCreated";
+import { syncPlayerRoomData } from "./syncPlayerRoomData";
+import { logWinner } from "./logWinner";
+import { logRound } from "./logRound";
+import { gameStartCountdown, nextRoundStartCountdown } from "./countdown";
 
-const botId = process.env.APP_ID;
 
-const NEXT_RUMBLE_BEGINS = "LET'S GET READY TO RUMBLE!";
 export const JOIN_GAME_EMOJI = '⚔';
 
-export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
 
-/**
- * We keep track of the message id that way we can edit the message.
- * 
- * The message should be overwritten any time these functions fire:
- * - createNewGame
- * - syncPlayerRoomData
- */
-export let currentMessage: Message<boolean> = null;
-let currentRound = null;
-let gameStarted = false;
-let currentParamsId = null;
-
-export const initSockets = (guildContext: GuildContext) => {
+export const initSockets = (allGuildContexts: AllGuildContexts, slugs: string[]) => {
   // Join the socket with the given guild slug
-  socket.emit(JOIN_ROOM, guildContext.slug);
+  socket.emit(JOIN_ROOM, slugs);
 
-  socket.on(SYNC_PLAYERS_RESPONSE, syncPlayerRoomData)
-
-  socket.on(UPDATE_ACTIVITY_LOG_WINNER, logWinner);
-  socket.on(UPDATE_ACTIVITY_LOG_ROUND, logRound);
-
-  socket.on(NEW_GAME_CREATED, (roomData: RoomDataType) => {
-    const channel: AnyChannel = client.channels.cache.get(CONFIG.channelId) as TextChannel;
-    createAndSendCurrentPlayerEmbed(channel, roomData.params.id);
-    currentRound = null;
-    gameStarted = false;
+  socket.on(NEW_GAME_CREATED, (roomData) => {
+    const guild = allGuildContexts.getGuildBySlug(roomData.room.slug);
+    newGameCreated(guild, roomData)
   });
 
-  socket.on(GAME_START_COUNTDOWN, (timeToStart) => {
-    const channel: AnyChannel = client.channels.cache.get(CONFIG.channelId) as TextChannel;
-    simpleMessageEmbed(channel, `Game starting in **${timeToStart} seconds**.`, 'Prepare for battle!');
-    // Set the currentRound to 0, and start the game
-    currentRound = 0;
-    gameStarted = true;
+  socket.on(SYNC_PLAYERS_RESPONSE, (response, slug) => {
+    const guild = allGuildContexts.getGuildBySlug(slug);
+    syncPlayerRoomData(guild, response, slug);
+  })
+
+  socket.on(UPDATE_ACTIVITY_LOG_WINNER, (winners, slug) => {
+    const guild = allGuildContexts.getGuildBySlug(slug);
+    logWinner(guild, winners)
   });
 
-  socket.on(NEXT_ROUND_START_COUNTDOWN, (timeToStart) => {
-    const channel: AnyChannel = client.channels.cache.get(CONFIG.channelId) as TextChannel;
-    simpleMessageEmbed(channel, `Next round starting in **${timeToStart} seconds**.`);
+  socket.on(UPDATE_ACTIVITY_LOG_ROUND, (rounds, slug) => {
+    const guild = allGuildContexts.getGuildBySlug(slug);
+    logRound(guild, rounds);
   });
 
+  socket.on(GAME_START_COUNTDOWN, (timeToStart, slug) => {
+    const guild = allGuildContexts.getGuildBySlug(slug);
+    gameStartCountdown(guild, timeToStart)
+  });
+
+  socket.on(NEXT_ROUND_START_COUNTDOWN, (timeToStart, slug) => {
+    const guild = allGuildContexts.getGuildBySlug(slug);
+    nextRoundStartCountdown(guild, timeToStart)
+  });
 
   socket.on('disconnect', () => {
     console.log('--DISCORD BOT DISCONNECTED--');
     // Rejoin room on disconnect
-    socket.emit(JOIN_ROOM, guildContext.slug);
+    socket.emit(JOIN_ROOM, slugs);
   });
-}
-
-export const fetchPlayerRoomData = (roomSlug: string) => {
-  // emits the SYNC_PLAYERS_REQUEST
-  // then we listen for the socket.on of SYNC_PLAYERS_RESPONSE
-  socket.emit(SYNC_PLAYERS_REQUEST, roomSlug)
-}
-
-const replaceActivityDescPlaceholders = (activity: SingleActivity): string => {
-  const matchPlayerNumber = /(PLAYER_\d+)/ // matches PLAYER_0, PLAYER_12, etc
-  const parts = activity.description.split(matchPlayerNumber);
-
-  const replaceNames = parts.map((part, i) => {
-    if (part.match(matchPlayerNumber)) {
-      const index = Number(part.replace('PLAYER_', ''))
-      // Gets the name of the player.
-      const player = activity.participants[index]
-      return `**${(player as PickFromPlayers)?.name || (player as DiscordPlayer)?.username}**`
-    }
-    return part;
-  })
-  return replaceNames.join('')
-}
-
-
-const getActivityIcon = (environment: string) => {
-  if (environment === 'REVIVE') {
-    return '🚑'
-  }
-  if (environment === 'PVE') {
-    return '🤼'
-  }
-  return '⚔';
-}
-
-const logRound = (rounds: RoundActivityLog[]) => {
-  const channel: AnyChannel = client.channels.cache.get(CONFIG.channelId) as TextChannel;
-  if (gameStarted) {
-    const round = rounds[currentRound];
-
-    const getAllActivityDesc = round.activities?.map(activity => ({
-      environment: activity.environment,
-      description: replaceActivityDescPlaceholders(activity)
-    }))
-
-    const description = getAllActivityDesc.map(d => `${getActivityIcon(d.environment)} | ${d.description}`);
-    const embed = new MessageEmbed()
-      .setColor('#9912B8')
-      .setTitle(`**Round ${round.round_counter + 1}**`)
-      .setDescription(`
-      ${description.join('\n')}
-  
-      Players left: ${round.players_remaining}`)
-
-    // Set the currentMessage to this message.
-    channel.send({ embeds: [embed] })
-    currentRound += 1;
-  }
-}
-
-
-const logWinner = async (winners: PickFromPlayers[]) => {
-  if (!gameStarted) {
-    return;
-  }
-
-  const winnerData = winners.map(winner => ({
-    ...winner,
-    discord_id: winner.discord_id
-  }))
-
-  const channel: AnyChannel = client.channels.cache.get(CONFIG.channelId) as TextChannel;
-  const embed = new MessageEmbed()
-    .setColor('#9912B8')
-    .setTitle(`**WINNER**`)
-    .setDescription(`
-Congratulations! 1st place goes to **${winnerData[0]?.discord_id ? tagUser(winnerData[0].discord_id) : winnerData[0].name}**.
-
-2nd place **${winnerData[1]?.discord_id ? tagUser(winnerData[1].discord_id) : winnerData[1].name}**.
-3rd place **${winnerData[2]?.discord_id ? tagUser(winnerData[2].discord_id) : winnerData[2].name}**.`)
-    .setFooter({ text: currentParamsId ? currentParamsId : '' })
-
-  // Set the currentMessage to this message.
-  channel.send({
-    embeds: [embed]
-  })
-  // End the games.
-  gameStarted = false;
-  currentRound = null;
-}
-
-/**
- * Useful to sync the player room data to discord if it's been awhile since the last CURRENT ENTRANTS message.
- */
-const syncPlayerRoomData = ({ data, paramsId, error }: SyncPlayersResponseType) => {
-  const channel: AnyChannel = client.channels.cache.get(CONFIG.channelId) as TextChannel;
-  const allPlayerData = data?.map(player => ({
-    ...player,
-    discord_id: player.discord_id
-  }));
-
-  if (error) {
-    channel.send(error);
-    return;
-  }
-
-  // Create and send the current player embed message.
-  createAndSendCurrentPlayerEmbed(channel, paramsId);
-}
-
-const nextRumbleDescription = () => `
-Click the ${JOIN_GAME_EMOJI} icon below to join.
-
-**Want to earn?**
-If you'd like to earn tokens and and save your progress, click the 'Verify' button below.
-
-Presented by [www.RumbleRaffle.com](www.RumbleRaffle.com)
-`
-
-/**
- * Creates and sends the Current Player Embed message.
- * @param channel - The channel to send the embed to
- */
-const createAndSendCurrentPlayerEmbed = async (channel: TextChannel, paramsId: string) => {
-  const embed = new MessageEmbed()
-    .setColor('#9912B8')
-    .setTitle(NEXT_RUMBLE_BEGINS)
-    .setURL(CONFIG.gameUrl)
-    .setDescription(nextRumbleDescription())
-    .setFooter({ text: paramsId })
-
-  const button = new MessageButton()
-    .setCustomId(verifyAccountButton.customId)
-    .setLabel('Verify')
-    .setStyle('SECONDARY');
-
-  const row = new MessageActionRow()
-    .addComponents(button);
-
-  // Set the currentMessage to this message.
-  const message = await channel.send({ embeds: [embed], content: '@here', components: [row] })
-  currentMessage = message;
-  currentParamsId = paramsId
-
-  currentMessage.react(JOIN_GAME_EMOJI);
-}
-
-
-/**
- * 
- * @param channel 
- * @param message 
- * @param title 
- */
-export const simpleMessageEmbed = (channel: TextChannel, message: string, title?: string) => {
-  const embed = new MessageEmbed()
-    .setColor('#9912B8')
-    .setDescription(message)
-
-  if (title) {
-    embed
-      .setTitle(title)
-      .setURL(CONFIG.gameUrl)
-  }
-
-  // Set the currentMessage to this message.
-  channel.send({ embeds: [embed] })
 }
 
 // Most likely do not need this anymore.
@@ -271,7 +95,7 @@ export const simpleMessageEmbed = (channel: TextChannel, message: string, title?
 //      */
 //     for (const message of messages) {
 //       // If the author is the bot
-//       if (message.author.id === botId) {
+//       if (message.author.id === process.env.APP_ID) {
 //         // And if the message has an embed + title is of the entrants.
 //         if (message.embeds.length > 0 && message.embeds[0].title === NEXT_RUMBLE_BEGINS) {
 //           // And finally the embeds footer is the same as the paramsId
