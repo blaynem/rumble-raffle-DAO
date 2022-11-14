@@ -40,6 +40,10 @@ class GuildContext implements GuildContextInterface {
    */
   private currentRound: number;
   /**
+   * Whether the game has completed yet or not.
+   */
+  private gameCompleted: boolean;
+  /**
    * Whether the game has started yet or not.
    */
   private gameStarted: boolean;
@@ -98,8 +102,28 @@ class GuildContext implements GuildContextInterface {
     return this.gameStarted;
   }
 
-  setGameStarted(started: boolean) {
-    this.gameStarted = started;
+  getGameCompleted() {
+    return this.gameCompleted;
+  }
+
+  setGameCompleted(completed: boolean) {
+    this.gameCompleted = completed;
+  }
+
+  /**
+   * Resets game started and current round
+   */
+  resetGame() {
+    this.setCurrentRound(null)
+    this.gameStarted = false;
+  }
+
+  /**
+   * Set current round to 0 and set game started to true.
+   */
+  gameStart() {
+    this.setCurrentRound(0);
+    this.gameStarted = true;
   }
 }
 

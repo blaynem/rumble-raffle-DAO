@@ -36,6 +36,5 @@ ${thirdPlace}`)
     embeds: [embed]
   })
   // End the games.
-  guild.setGameStarted(false);
-  guild.setCurrentRound(null)
+  guild.resetGame();
 }

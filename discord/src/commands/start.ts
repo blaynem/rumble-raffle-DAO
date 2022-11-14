@@ -12,6 +12,10 @@ import { GuildContext } from '../guildContext';
 export const startGame = async (interaction: CommandInteraction<CacheType>, guildContext: GuildContext) => {
   try {
     const roles = Array.from((interaction.member.roles as GuildMemberRoleManager).cache.keys());
+    // if (guildContext.getGameStarted()) {
+    //   interaction.reply({ ephemeral: true, content: 'Current game in progress, please wait to start again.' })
+    //   return;
+    // }
     // If player isn't admin, we don't do anything
     if (!guildContext.isAdmin(roles)) {
       interaction.reply({ ephemeral: true, content: 'Only admins can start a game at this time.' })
@@ -22,7 +26,7 @@ export const startGame = async (interaction: CommandInteraction<CacheType>, guil
     const usersReacted = await reaction.users.fetch()
     const players = usersReacted.filter((({ bot }) => !bot)).map(({ id, username }) => ({ id, username }));
     if (players.length > 1) {
-      interaction.reply({ephemeral: true, content: "More than 1 player required to start."})
+      interaction.reply({ ephemeral: true, content: "More than 1 player required to start." })
       return;
     }
 
@@ -43,9 +47,9 @@ export const startGame = async (interaction: CommandInteraction<CacheType>, guil
     // If it succeeds, it will already send a message.
     if (error) {
       interaction.reply(error)
+      return;
     }
     interaction.reply('Game started!');
-    return;
   } catch (err) {
     console.error(err);
     interaction.reply({ ephemeral: true, content: 'Ope. Something went wrong.' })

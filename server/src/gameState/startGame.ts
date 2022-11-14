@@ -14,7 +14,6 @@ import { AllAvailableRoomsType } from "@rumble-raffle-dao/types";
  */
 export const startGame = async (is_admin: boolean, roomSlug: string) => {
   try {
-
     const { roomData, gameState, discordPlayers } = availableRoomsData.getRoom(roomSlug);
 
     // If they aren't an admin, we do nothing.
@@ -29,6 +28,10 @@ export const startGame = async (is_admin: boolean, roomSlug: string) => {
     // }
 
     const gameData = await startRumble(roomSlug);
+    if ('error' in gameData) {
+      throw (gameData.error);
+    }
+    console.log('--gamedata', gameData)
 
     const updatedRoomData: AllAvailableRoomsType = {
       ...availableRoomsData.getRoom(roomSlug),
@@ -45,6 +48,7 @@ export const startGame = async (is_admin: boolean, roomSlug: string) => {
     io.in(roomSlug).emit(GAME_START_COUNTDOWN, gameState.waitTime, roomSlug);
   } catch (err) {
     console.error(err)
+    return { error: err };
   }
 }
 

@@ -78,7 +78,11 @@ router.post('/discord_start', jsonParser, async (req: express.Request<StartRoomD
     }
     availableRoomsData.updateRoom(roomSlug, updatedRoomData)
 
-    await startGame(true, roomSlug);
+    const response = await startGame(true, roomSlug);
+    if (response?.error) {
+      throw (response.error)
+    }
+
     res.status(200).json({ data: 'Game started successfully.' })
   } catch (err) {
     console.error('api/rooms/start', err)

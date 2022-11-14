@@ -211,7 +211,7 @@ const RumbleRaffle: RumbleRaffleInterface = class Rumble implements RumbleInterf
     // Do nothing if game has started or there are not enough players.
     if (this.gameStarted || this.allPlayerIds.length < 2) {
       console.log('----start game stopped----', { gameStarted: this.gameStarted, playerIds: this.allPlayerIds })
-      return;
+      throw ('Game must have more than 2 players to start.')
     }
     // Reset game state.
     this.restartGame();
