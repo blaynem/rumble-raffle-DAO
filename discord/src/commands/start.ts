@@ -21,6 +21,10 @@ export const startGame = async (interaction: CommandInteraction<CacheType>, guil
     const reaction = guildContext.getCurrentMessage().reactions.cache.get('⚔');
     const usersReacted = await reaction.users.fetch()
     const players = usersReacted.filter((({ bot }) => !bot)).map(({ id, username }) => ({ id, username }));
+    if (players.length > 1) {
+      interaction.reply({ephemeral: true, content: "More than 1 player required to start."})
+      return;
+    }
 
     const fetchBody: StartRoomDiscordFetchBody = {
       discord_id: interaction.member.user.id,
@@ -28,20 +32,20 @@ export const startGame = async (interaction: CommandInteraction<CacheType>, guil
       discord_secret: CONFIG.discord_secret,
       players
     }
-    console.log(fetchBody)
-    // const { data, error }: { data: string; error?: string; } = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_ROOMS}/discord_start`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify(fetchBody)
-    // }).then(res => res.json());
-    // // We only need to send a message if it fails.
-    // // If it succeeds, it will already send a message.
-    // if (error) {
-    //   interaction.reply(error)
-    // }
-    // return;
+    const { data, error }: { data: string; error?: string; } = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_ROOMS}/discord_start`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(fetchBody)
+    }).then(res => res.json());
+    // We only need to send a message if it fails.
+    // If it succeeds, it will already send a message.
+    if (error) {
+      interaction.reply(error)
+    }
+    interaction.reply('Game started!');
+    return;
   } catch (err) {
     console.error(err);
     interaction.reply({ ephemeral: true, content: 'Ope. Something went wrong.' })

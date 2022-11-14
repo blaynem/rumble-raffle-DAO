@@ -16,15 +16,19 @@ export const logWinner = async (guild: GuildContext, winners: EntireGameLog['win
     discord_id: ('discord_id' in winner) ? winner.discord_id : null
   }))
 
+  const winnerMessage = `Congratulations! 1st place goes to **${winnerData[0]?.discord_id ? tagUser(winnerData[0].discord_id) : winnerData[0].name}**.`;
+  const secondPlace = `2nd place **${winnerData[1]?.discord_id ? tagUser(winnerData[1].discord_id) : winnerData[1].name}**.`
+  const thirdPlace = winnerData[2] ? `3rd place **${winnerData[2]?.discord_id ? tagUser(winnerData[2].discord_id) : winnerData[2].name}**.` : ''
+
   const channel: AnyChannel = client.channels.cache.get(guild.channelId) as TextChannel;
   const embed = new MessageEmbed()
     .setColor('#9912B8')
     .setTitle(`**WINNER**`)
     .setDescription(`
-Congratulations! 1st place goes to **${winnerData[0]?.discord_id ? tagUser(winnerData[0].discord_id) : winnerData[0].name}**.
+${winnerMessage}
 
-2nd place **${winnerData[1]?.discord_id ? tagUser(winnerData[1].discord_id) : winnerData[1].name}**.
-3rd place **${winnerData[2]?.discord_id ? tagUser(winnerData[2].discord_id) : winnerData[2].name}**.`)
+${secondPlace}
+${thirdPlace}`)
     .setFooter({ text: guild.currentParamsId ? guild.currentParamsId : '' })
 
   // Set the currentMessage to this message.

@@ -12,35 +12,40 @@ import { AllAvailableRoomsType } from "@rumble-raffle-dao/types";
  * - Assure only the game master can start the game
  * - Send activity log data
  */
- export const startGame = async (is_admin: boolean, roomSlug: string) => {
-  const { roomData, gameState, discordPlayers } = availableRoomsData.getRoom(roomSlug);
+export const startGame = async (is_admin: boolean, roomSlug: string) => {
+  try {
 
-  // If they aren't an admin, we do nothing.
-  if (!is_admin) {
-    throw ('Only admins can start games.')
+    const { roomData, gameState, discordPlayers } = availableRoomsData.getRoom(roomSlug);
+
+    // If they aren't an admin, we do nothing.
+    if (!is_admin) {
+      throw ('Only admins can start games.')
+    }
+
+    // Only let the room owner start the game.
+    // if (id !== roomData?.params?.created_by) {
+    //   console.warn(`${id} tried to start a game they are not the owner of.`);
+    //   throw (`${id} tried to start a game they are not the owner of.`)
+    // }
+
+    const gameData = await startRumble(roomSlug);
+
+    const updatedRoomData: AllAvailableRoomsType = {
+      ...availableRoomsData.getRoom(roomSlug),
+    }
+    // Set the local game start state to true.
+    updatedRoomData.roomData.gameData = gameData;
+    // Set the local game start state to true.
+    updatedRoomData.roomData.params.game_started = true;
+    // update the available room data
+    availableRoomsData.updateRoom(roomSlug, updatedRoomData)
+
+    // Start emitting the game events to the players on a delay.
+    dripGameDataOnDelay(roomSlug);
+    io.in(roomSlug).emit(GAME_START_COUNTDOWN, gameState.waitTime, roomSlug);
+  } catch (err) {
+    console.error(err)
   }
-
-  // Only let the room owner start the game.
-  // if (id !== roomData?.params?.created_by) {
-  //   console.warn(`${id} tried to start a game they are not the owner of.`);
-  //   throw (`${id} tried to start a game they are not the owner of.`)
-  // }
-
-  const gameData = await startRumble(roomSlug);
-
-  const updatedRoomData: AllAvailableRoomsType = {
-    ...availableRoomsData.getRoom(roomSlug),
-  }
-  // Set the local game start state to true.
-  updatedRoomData.roomData.gameData = gameData;
-  // Set the local game start state to true.
-  updatedRoomData.roomData.params.game_started = true;
-  // update the available room data
-  availableRoomsData.updateRoom(roomSlug, updatedRoomData)
-
-  // Start emitting the game events to the players on a delay.
-  dripGameDataOnDelay(roomSlug);
-  io.in(roomSlug).emit(GAME_START_COUNTDOWN, gameState.waitTime);
 }
 
 /**
@@ -83,15 +88,15 @@ export const dripGameDataOnDelay = (roomSlug: string) => {
       // If the game is completed and it's time to show the winners:
       // We do one last emit and then clear the interval.
       if (gameState.gameCompleted && gameState.showWinners) {
-        io.in(roomSlug).emit(UPDATE_ACTIVITY_LOG_ROUND, visibleRounds)
-        io.in(roomSlug).emit(UPDATE_ACTIVITY_LOG_WINNER, winners)
+        io.in(roomSlug).emit(UPDATE_ACTIVITY_LOG_ROUND, visibleRounds, roomSlug)
+        io.in(roomSlug).emit(UPDATE_ACTIVITY_LOG_WINNER, winners, roomSlug)
         clearInterval(interval);
         return;
       }
 
       // We only emit the rounds log, and update the games round timer until game ends.
-      io.in(roomSlug).emit(UPDATE_ACTIVITY_LOG_ROUND, visibleRounds)
-      io.in(roomSlug).emit(NEXT_ROUND_START_COUNTDOWN, gameState.waitTime);
+      io.in(roomSlug).emit(UPDATE_ACTIVITY_LOG_ROUND, visibleRounds, roomSlug)
+      io.in(roomSlug).emit(NEXT_ROUND_START_COUNTDOWN, gameState.waitTime, roomSlug);
     }, (gameState.waitTime * 1000))
   } catch (error) {
     console.error('Server: dripGameDataOnDelay', error);

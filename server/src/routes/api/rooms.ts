@@ -79,7 +79,7 @@ router.post('/discord_start', jsonParser, async (req: express.Request<StartRoomD
     availableRoomsData.updateRoom(roomSlug, updatedRoomData)
 
     await startGame(true, roomSlug);
-    res.status(400).json({ data: 'Game started successfully.' })
+    res.status(200).json({ data: 'Game started successfully.' })
   } catch (err) {
     console.error('api/rooms/start', err)
     res.status(400).json({ data: null, error: 'There was an error when starting the game.' })
