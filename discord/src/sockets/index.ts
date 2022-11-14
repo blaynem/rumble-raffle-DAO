@@ -3,7 +3,6 @@ import { ServerToClientEvents, ClientToServerEvents } from "@rumble-raffle-dao/t
 import { GAME_START_COUNTDOWN, JOIN_ROOM, NEW_GAME_CREATED, NEXT_ROUND_START_COUNTDOWN, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER } from "@rumble-raffle-dao/types/constants";
 import { Socket, io } from "socket.io-client";
 import { BASE_API_URL } from "../../constants";
-import { CONFIG } from "../../config";
 import { AllGuildContexts } from "../guildContext";
 import { newGameCreated } from "./newGameCreated";
 import { syncPlayerRoomData } from "./syncPlayerRoomData";

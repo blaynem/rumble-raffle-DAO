@@ -1,7 +1,6 @@
-import { EntireGameLog, PickFromPlayers } from "@rumble-raffle-dao/types";
+import { EntireGameLog } from "@rumble-raffle-dao/types";
 import { AnyChannel, TextChannel, MessageEmbed } from "discord.js";
 import client from "../../client";
-import { CONFIG } from "../../config";
 import { tagUser } from "../../utils";
 import { GuildContext } from "../guildContext";
 
@@ -17,7 +16,7 @@ export const logWinner = async (guild: GuildContext, winners: EntireGameLog['win
     discord_id: ('discord_id' in winner) ? winner.discord_id : null
   }))
 
-  const channel: AnyChannel = client.channels.cache.get(CONFIG.channelId) as TextChannel;
+  const channel: AnyChannel = client.channels.cache.get(guild.channelId) as TextChannel;
   const embed = new MessageEmbed()
     .setColor('#9912B8')
     .setTitle(`**WINNER**`)

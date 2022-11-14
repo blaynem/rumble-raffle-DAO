@@ -22,7 +22,12 @@ export const startGame = async (interaction: CommandInteraction<CacheType>, guil
     const usersReacted = await reaction.users.fetch()
     const players = usersReacted.filter((({ bot }) => !bot)).map(({ id, username }) => ({ id, username }));
 
-    const fetchBody: StartRoomDiscordFetchBody = { discord_id: interaction.member.user.id, roomSlug: CONFIG.roomSlug, discord_secret: CONFIG.discord_secret, players }
+    const fetchBody: StartRoomDiscordFetchBody = {
+      discord_id: interaction.member.user.id,
+      roomSlug: guildContext.slug,
+      discord_secret: CONFIG.discord_secret,
+      players
+    }
     console.log(fetchBody)
     // const { data, error }: { data: string; error?: string; } = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_ROOMS}/discord_start`, {
     //   method: 'POST',
