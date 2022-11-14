@@ -1,5 +1,4 @@
 import { ButtonInteraction, CacheType } from "discord.js";
-import { verifyAccount } from "./verifyAccount";
 import { unlinkDiscord } from "./unlinkDiscord";
 
 export const unlinkDiscordButton = {
@@ -8,15 +7,8 @@ export const unlinkDiscordButton = {
   name: 'Unlink Discord',
 }
 
-export const verifyAccountButton = {
-  callback: (interaction: ButtonInteraction<CacheType>) => verifyAccount(interaction),
-  customId: 'verifyAccountId',
-  name: 'Verify Account',
-}
-
 const interactionButtons = [
   unlinkDiscordButton,
-  verifyAccountButton,
 ]
 
 /**

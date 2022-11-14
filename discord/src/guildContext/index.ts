@@ -54,7 +54,7 @@ class GuildContext implements GuildContextInterface {
     return this.adminRoleIds.some(id => roles.includes(id));
   };
 
-  setChannel(channelId: string) {
+  setChannelId(channelId: string) {
     this.channelId = channelId;
   }
 

@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { CreateRoom } from "@rumble-raffle-dao/types";
+import { CreateRoom, RoomDataType } from "@rumble-raffle-dao/types";
 import { SERVER_BASE_PATH, SERVER_ROOMS } from "@rumble-raffle-dao/types/constants";
 import { CacheType, CommandInteraction, GuildMemberRoleManager } from "discord.js";
 import { CONFIG } from "../../config";
@@ -17,6 +17,11 @@ export const createGame = async (interaction: CommandInteraction<CacheType>, gui
       return;
     };
 
+    // TODO: If a game is in progress, don't let them start one.
+
+    // Set the channel we are going to be responding to now.
+    guildContext.setChannelId(interaction.channelId)
+
     const fetchBody: Omit<CreateRoom, 'createdBy'> & { discord_id: string; discord_secret: string; } = {
       discord_secret: CONFIG.discord_secret,
       discord_id: interaction.member.user.id,
@@ -27,7 +32,8 @@ export const createGame = async (interaction: CommandInteraction<CacheType>, gui
         revive_chance: 7
       }
     }
-    const { data, error }: { data: string; error?: string; } = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_ROOMS}/create`, {
+
+    const { error }: { data: RoomDataType; error?: string; } = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_ROOMS}/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -37,10 +43,11 @@ export const createGame = async (interaction: CommandInteraction<CacheType>, gui
     // We only need to send a message if it fails.
     // If it succeeds, it will already send a message.
     if (error) {
-      interaction.reply({ephemeral: true, content: error})
+      interaction.reply({ ephemeral: true, content: error })
     }
+    interaction.reply({ ephemeral: true, content: 'New game created.' })
   } catch (err) {
     console.error(err)
-    interaction.reply({ephemeral: true, content: "Ope. Something went wrong."})
+    interaction.reply({ ephemeral: true, content: "Ope. Something went wrong." })
   }
 }

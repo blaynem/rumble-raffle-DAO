@@ -4,6 +4,7 @@ import { GuildContext } from '../guildContext';
 import { createGame } from './createGame';
 import { startGame } from './start';
 import { unlinkAccount } from './unlink';
+import { verifyAccount } from './verifyAccount';
 
 type Command = {
   /**
@@ -24,6 +25,12 @@ type Command = {
   description: string;
 }
 
+export const verifyAccountCommand: Command = {
+  callback: (interaction) => verifyAccount(interaction),
+  commandName: 'link',
+  description: 'Link your discord_id to the Rumble Raffle database.',
+}
+
 export const interactionCommands: Command[] = [
   {
     callback: (interaction) => unlinkAccount(interaction),
@@ -40,6 +47,7 @@ export const interactionCommands: Command[] = [
     commandName: 'start',
     description: 'Starts the Rumble Raffle game.',
   },
+  verifyAccountCommand
 ]
 
 /**

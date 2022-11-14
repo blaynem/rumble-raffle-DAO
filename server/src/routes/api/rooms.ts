@@ -49,7 +49,7 @@ router.post('/join', jsonParser, async (req: JoinGameRequest, res: express.Respo
       return;
     }
     const playersAndRoomInfo = getPlayersAndRoomInfo(roomSlug);
-    io.in(roomSlug).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
+    io.in(roomSlug).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo, roomSlug);
     res.status(200).json({ data: 'You have joined the game.' })
   } catch (error) {
     // P2002 = unique constraint, i.e. they already joined
@@ -136,7 +136,7 @@ router.post('/create', jsonParser, async (req: CreateRoomRequestBody, res: expre
       const userData = await prisma.users.findFirst({ where: { discord_id } })
       // If they aren't an admin, we say no.
       if (!userData?.is_admin) {
-        throw ('Only admin may create rooms at this time.');
+        throw ('Please reach out to the Rumble Raffle admins in order to create a game.');
       }
 
       // We overwrite createdBy to be the found user from the db.
@@ -173,7 +173,7 @@ router.post('/create', jsonParser, async (req: CreateRoomRequestBody, res: expre
           },
           Contract: {
             connect: {
-              contract_address
+              contract_address: contract_address.toLowerCase()
             }
           }
         }
@@ -212,10 +212,10 @@ router.post('/create', jsonParser, async (req: CreateRoomRequestBody, res: expre
     }
 
     // Emit new game created event to sockets
-    io.to(slug).emit(NEW_GAME_CREATED, mapRoomData, slug)
+    io.to(slug).emit(NEW_GAME_CREATED, mapRoomData)
     // Add new room to memory
     availableRoomsData.addRoom(mapRoomData)
-    res.json({ data: roomData });
+    res.json({ data: mapRoomData });
   } catch (error) {
     console.error('Server: /rooms/create', error);
     if (typeof error === 'string') {
