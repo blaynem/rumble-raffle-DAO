@@ -16,6 +16,9 @@ export const createGame = async (interaction: CommandInteraction<CacheType>, gui
       interaction.reply({ ephemeral: true, content: 'Only admins can start a game at this time.' })
       return;
     };
+    if (guildContext) {
+
+    }
 
     // TODO: If a game is in progress, don't let them start one.
 
@@ -25,7 +28,7 @@ export const createGame = async (interaction: CommandInteraction<CacheType>, gui
     const fetchBody: Omit<CreateRoom, 'createdBy'> & { discord_id: string; discord_secret: string; } = {
       discord_secret: CONFIG.discord_secret,
       discord_id: interaction.member.user.id,
-      slug: guildContext.slug,
+      slug: guildContext.getSlug(),
       contract_address: '0xE7F934c08F64413b98cAb9a5bAFEb1b21FCf2049', // this is Rumble Raffle contract
       params: {
         pve_chance: 30,
@@ -40,11 +43,10 @@ export const createGame = async (interaction: CommandInteraction<CacheType>, gui
       },
       body: JSON.stringify(fetchBody)
     }).then(res => res.json());
-    // We only need to send a message if it fails.
-    // If it succeeds, it will already send a message.
     if (error) {
       interaction.reply({ ephemeral: true, content: error })
     }
+    // If it succeeds, it will send a "New Game Created" message via sockets
     interaction.reply({ ephemeral: true, content: 'New game created.' })
   } catch (err) {
     console.error(err)

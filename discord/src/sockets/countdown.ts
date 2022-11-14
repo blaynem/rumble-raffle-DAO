@@ -18,7 +18,7 @@ export const simpleMessageEmbed = (guild: GuildContext, channel: TextChannel, me
 }
 
 export const gameStartCountdown = (guild: GuildContext, timeToStart: number) => {
-  const channel: AnyChannel = client.channels.cache.get(guild.channelId) as TextChannel;
+  const channel: AnyChannel = client.channels.cache.get(guild.getChannelId()) as TextChannel;
   simpleMessageEmbed(guild, channel, `Game starting in **${timeToStart} seconds**.`, 'Prepare for battle!');
   // Set the currentRound to 0, and start the game
   guild.setCurrentRound(0);
@@ -26,6 +26,6 @@ export const gameStartCountdown = (guild: GuildContext, timeToStart: number) => 
 }
 
 export const nextRoundStartCountdown = (guild: GuildContext, timeToStart: number) => {
-  const channel: AnyChannel = client.channels.cache.get(guild.channelId) as TextChannel;
+  const channel: AnyChannel = client.channels.cache.get(guild.getChannelId()) as TextChannel;
   simpleMessageEmbed(guild, channel, `Next round starting in **${timeToStart} seconds**.`);
 }

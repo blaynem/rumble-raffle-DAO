@@ -9,20 +9,20 @@ class GuildContext implements GuildContextInterface {
   /**
    * Array of admin role ids to be used.
    */
-  adminRoleIds: string[]
+  private adminRoleIds: string[]
   /**
    * The given guilds id.
    */
-  guildId: string;
+  private guildId: string;
   /**
    * Slug for the Guilds rumble raffle games.
    */
-  slug: string;
+  private slug: string;
 
   /**
    * Guilds channel id that bot should reply in.
    */
-  channelId: string;
+  private channelId: string;
   /**
    * We keep track of the message id that way we can edit the message.
    * 
@@ -30,19 +30,19 @@ class GuildContext implements GuildContextInterface {
    * - createNewGame
    * - syncPlayerRoomData
    */
-  currentMessage: Message<boolean>;
+  private currentMessage: Message<boolean>;
   /**
    * The current room params Id in the database
    */
-  currentParamsId: string;
+  private currentParamsId: string;
   /**
    * Keep track of the current round we're in.
    */
-  currentRound: number;
+  private currentRound: number;
   /**
    * Whether the game has started yet or not.
    */
-  gameStarted: boolean;
+  private gameStarted: boolean;
 
   constructor(config: Config) {
     this.adminRoleIds = config.adminRoleIds
@@ -50,12 +50,24 @@ class GuildContext implements GuildContextInterface {
     this.slug = config.slug
   }
 
+  getSlug() {
+    return this.slug;
+  }
+
   isAdmin(roles: string[]) {
     return this.adminRoleIds.some(id => roles.includes(id));
   };
 
+  getChannelId() {
+    return this.channelId;
+  }
+
   setChannelId(channelId: string) {
     this.channelId = channelId;
+  }
+
+  getCurrentParamsId() {
+    return this.currentParamsId;
   }
 
   setCurrentParamsId(id: string) {
@@ -119,7 +131,7 @@ class AllGuildContexts {
   }
 
   getGuildBySlug(slug: string): GuildContext {
-    return Array.from(this.guilds.values()).find(guild => guild.slug === slug)
+    return Array.from(this.guilds.values()).find(guild => guild.getSlug() === slug)
   }
 }
 

@@ -28,7 +28,7 @@ export const startGame = async (interaction: CommandInteraction<CacheType>, guil
 
     const fetchBody: StartRoomDiscordFetchBody = {
       discord_id: interaction.member.user.id,
-      roomSlug: guildContext.slug,
+      roomSlug: guildContext.getSlug(),
       discord_secret: CONFIG.discord_secret,
       players
     }

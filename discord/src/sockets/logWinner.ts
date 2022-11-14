@@ -5,7 +5,7 @@ import { tagUser } from "../../utils";
 import { GuildContext } from "../guildContext";
 
 export const logWinner = async (guild: GuildContext, winners: EntireGameLog['winners']) => {
-  if (!guild.gameStarted) {
+  if (!guild.getGameStarted()) {
     return;
   }
 
@@ -20,7 +20,7 @@ export const logWinner = async (guild: GuildContext, winners: EntireGameLog['win
   const secondPlace = `2nd place **${winnerData[1]?.discord_id ? tagUser(winnerData[1].discord_id) : winnerData[1].name}**.`
   const thirdPlace = winnerData[2] ? `3rd place **${winnerData[2]?.discord_id ? tagUser(winnerData[2].discord_id) : winnerData[2].name}**.` : ''
 
-  const channel: AnyChannel = client.channels.cache.get(guild.channelId) as TextChannel;
+  const channel: AnyChannel = client.channels.cache.get(guild.getChannelId()) as TextChannel;
   const embed = new MessageEmbed()
     .setColor('#9912B8')
     .setTitle(`**WINNER**`)
@@ -29,7 +29,7 @@ ${winnerMessage}
 
 ${secondPlace}
 ${thirdPlace}`)
-    .setFooter({ text: guild.currentParamsId ? guild.currentParamsId : '' })
+    .setFooter({ text: guild.getCurrentParamsId() || '' })
 
   // Set the currentMessage to this message.
   channel.send({

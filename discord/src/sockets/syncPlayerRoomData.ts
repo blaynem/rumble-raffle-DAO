@@ -8,7 +8,7 @@ import { createAndSendCurrentPlayerEmbed } from "./newGameCreated";
  * Useful to sync the player room data to discord if it's been awhile since the last CURRENT ENTRANTS message.
  */
 export const syncPlayerRoomData = (guild: GuildContext, { data, paramsId, error }: SyncPlayersResponseType, slug: string) => {
-  const channel = client.channels.cache.get(guild.channelId) as TextChannel;
+  const channel = client.channels.cache.get(guild.getChannelId()) as TextChannel;
 
   if (error) {
     channel.send(error);

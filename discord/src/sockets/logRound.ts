@@ -30,9 +30,9 @@ const replaceActivityDescPlaceholders = (activity: SingleActivity): string => {
 }
 
 export const logRound = (guild: GuildContext, rounds: RoundActivityLog[]) => {
-  const channel: AnyChannel = client.channels.cache.get(guild.channelId) as TextChannel;
-  if (guild.gameStarted) {
-    const round = rounds[guild.currentRound];
+  const channel: AnyChannel = client.channels.cache.get(guild.getChannelId()) as TextChannel;
+  if (guild.getGameStarted()) {
+    const round = rounds[guild.getCurrentRound()];
 
     const getAllActivityDesc = round.activities?.map(activity => ({
       environment: activity.environment,
@@ -50,6 +50,6 @@ export const logRound = (guild: GuildContext, rounds: RoundActivityLog[]) => {
 
     // Set the currentMessage to this message.
     channel.send({ embeds: [embed] })
-    guild.setCurrentRound(guild.currentRound + 1)
+    guild.setCurrentRound(guild.getCurrentRound() + 1)
   }
 }

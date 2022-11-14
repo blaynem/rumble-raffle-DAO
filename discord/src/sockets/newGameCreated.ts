@@ -37,7 +37,7 @@ export const createAndSendCurrentPlayerEmbed = async (guild: GuildContext, chann
 }
 
 export const newGameCreated = (guild: GuildContext, roomData: RoomDataType) => {
-  const channel = client.channels.cache.get(guild.channelId) as TextChannel;
+  const channel = client.channels.cache.get(guild.getChannelId()) as TextChannel;
 
   createAndSendCurrentPlayerEmbed(guild, channel, roomData.params.id);
   guild.setCurrentRound(null);
