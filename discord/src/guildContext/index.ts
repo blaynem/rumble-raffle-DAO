@@ -1,15 +1,11 @@
-import { Message, TextChannel } from 'discord.js';
+import { Message } from 'discord.js';
 import { BASE_WEB_URL } from '../../constants';
-import { Config, GuildContextInterface } from './types';
+import { GuildConfig, GuildContextInterface } from './types';
 
 /**
  * A guilds context to keep track of useful details.
  */
 class GuildContext implements GuildContextInterface {
-  /**
-   * Array of admin role ids to be used.
-   */
-  private adminRoleIds: string[]
   /**
    * The given guilds id.
    */
@@ -48,19 +44,19 @@ class GuildContext implements GuildContextInterface {
    */
   private gameStarted: boolean;
 
-  constructor(config: Config) {
-    this.adminRoleIds = config.adminRoleIds
+  constructor(config: GuildConfig) {
     this.guildId = config.guildId
-    this.slug = config.slug
+    // Setting slug to guild id because it's easier that way.
+    this.slug = config.guildId
+  }
+
+  getGuildI() {
+    return this.guildId;
   }
 
   getSlug() {
     return this.slug;
   }
-
-  isAdmin(roles: string[]) {
-    return this.adminRoleIds.some(id => roles.includes(id));
-  };
 
   getChannelId() {
     return this.channelId;
@@ -114,6 +110,7 @@ class GuildContext implements GuildContextInterface {
    * Resets game started and current round
    */
   resetGame() {
+    this.setCurrentMessage(null);
     this.setCurrentRound(null)
     this.gameStarted = false;
   }
@@ -134,10 +131,12 @@ class AllGuildContexts {
   private guilds = new Map<string, GuildContext>()
 
   /**
-   * Add guild to all guild contexts
+   * Add guild to all guild contexts, and subscribe to it's events.
    */
-  addGuild(config: Config) {
+  addGuild(config: GuildConfig) {
     this.guilds.set(config.guildId, new GuildContext(config));
+
+    return this.guilds.get(config.guildId);
   }
 
   /**

@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { StartRoomDiscordFetchBody } from "@rumble-raffle-dao/types";
 import { SERVER_BASE_PATH, SERVER_ROOMS } from "@rumble-raffle-dao/types/constants";
-import { CommandInteraction, CacheType, GuildMemberRoleManager } from "discord.js";
+import { CommandInteraction, CacheType } from "discord.js";
 import { CONFIG } from "../../config";
 import { BASE_API_URL } from "../../constants";
 import { GuildContext } from '../guildContext';
@@ -11,22 +11,21 @@ import { GuildContext } from '../guildContext';
  */
 export const startGame = async (interaction: CommandInteraction<CacheType>, guildContext: GuildContext) => {
   try {
-    const roles = Array.from((interaction.member.roles as GuildMemberRoleManager).cache.keys());
-    // if (guildContext.getGameStarted()) {
-    //   interaction.reply({ ephemeral: true, content: 'Current game in progress, please wait to start again.' })
-    //   return;
-    // }
-    // If player isn't admin, we don't do anything
-    if (!guildContext.isAdmin(roles)) {
-      interaction.reply({ ephemeral: true, content: 'Only admins can start a game at this time.' })
+    // If game is started, don't staat another one.
+    if (!guildContext.getCurrentMessage()) {
+      interaction.reply({ ephemeral: true, content: `Please create a game before starting.` })
       return;
-    };
+    }
+    if (guildContext.getGameStarted()) {
+      interaction.reply({ ephemeral: true, content: `Game already in progress <${guildContext.getCurrentMessage().url}>.` })
+      return;
+    }
     // Get all users who reacted
     const reaction = guildContext.getCurrentMessage().reactions.cache.get('⚔');
     const usersReacted = await reaction.users.fetch()
     const players = usersReacted.filter((({ bot }) => !bot)).map(({ id, username }) => ({ id, username }));
-    if (players.length > 1) {
-      interaction.reply({ ephemeral: true, content: "More than 1 player required to start." })
+    if (players.length <= 2) {
+      interaction.reply({ ephemeral: true, content: "At least 2 players required to start." })
       return;
     }
 
@@ -46,7 +45,7 @@ export const startGame = async (interaction: CommandInteraction<CacheType>, guil
     // We only need to send a message if it fails.
     // If it succeeds, it will already send a message.
     if (error) {
-      interaction.reply(error)
+      interaction.reply({ ephemeral: true, content: error })
       return;
     }
     interaction.reply('Game started!');

@@ -22,18 +22,10 @@ export const initRoom = (sio: Server<ClientToServerEvents, ServerToClientEvents,
  * A user joins a room when they visit the url.
  * Note: This is not joining a game, this is simply viewing it.
  */
-function joinRoom(roomSlug: string | string[]) {
-  console.log('--roomslug', roomSlug);
+function joinRoom(roomSlug: string) {
   try {
     this.join(roomSlug);
     // todo: This needs to be done for the discord channel things.
-    if (Array.isArray(roomSlug)) {
-      console.log('--do something else');
-      roomSlug.forEach(slug => {
-        io.to(slug).emit('TEST' as any, slug, 'poop', { yeet: 'delete' });
-      });
-      return
-    }
     if (!availableRoomsData.getRoom(roomSlug)) {
       return
     }

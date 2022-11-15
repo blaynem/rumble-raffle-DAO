@@ -19,7 +19,7 @@ export type SyncPlayersResponseType = {
 
 export interface ClientToServerEvents {
   [SYNC_PLAYERS_REQUEST]: (roomSlug: string) => void;
-  [JOIN_ROOM]: (roomSlug: string | string[]) => void;
+  [JOIN_ROOM]: (roomSlug: string) => void;
 }
 
 export interface InterServerEvents {

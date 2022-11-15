@@ -10,10 +10,9 @@ export const simpleMessageEmbed = (guild: GuildContext, channel: TextChannel, me
   if (title) {
     embed
       .setTitle(title)
-      .setURL(guild.getGameUrl())
+    // .setURL(guild.getGameUrl()) // not sure we want to link anywhere rn
   }
 
-  // Set the currentMessage to this message.
   channel.send({ embeds: [embed] })
 }
 

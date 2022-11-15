@@ -12,14 +12,9 @@ import { AllAvailableRoomsType } from "@rumble-raffle-dao/types";
  * - Assure only the game master can start the game
  * - Send activity log data
  */
-export const startGame = async (is_admin: boolean, roomSlug: string) => {
+export const startGame = async (roomSlug: string) => {
   try {
     const { roomData, gameState, discordPlayers } = availableRoomsData.getRoom(roomSlug);
-
-    // If they aren't an admin, we do nothing.
-    if (!is_admin) {
-      throw ('Only admins can start games.')
-    }
 
     // Only let the room owner start the game.
     // if (id !== roomData?.params?.created_by) {
@@ -31,7 +26,6 @@ export const startGame = async (is_admin: boolean, roomSlug: string) => {
     if ('error' in gameData) {
       throw (gameData.error);
     }
-    console.log('--gamedata', gameData)
 
     const updatedRoomData: AllAvailableRoomsType = {
       ...availableRoomsData.getRoom(roomSlug),

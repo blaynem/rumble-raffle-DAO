@@ -13,12 +13,13 @@ import { gameStartCountdown, nextRoundStartCountdown } from "./countdown";
 
 export const JOIN_GAME_EMOJI = '⚔';
 
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
+export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
 
-export const initSockets = (allGuildContexts: AllGuildContexts, slugs: string[]) => {
-  // Join the socket with the given guild slug
-  socket.emit(JOIN_ROOM, slugs);
+export const emitJoinRoom = (slug: string) => {
+  socket.emit(JOIN_ROOM, slug);
+}
 
+export const initSockets = (allGuildContexts: AllGuildContexts) => {
   socket.on(NEW_GAME_CREATED, (roomData) => {
     const guild = allGuildContexts.getGuildBySlug(roomData.room.slug);
     newGameCreated(guild, roomData)
@@ -52,6 +53,6 @@ export const initSockets = (allGuildContexts: AllGuildContexts, slugs: string[])
   socket.on('disconnect', () => {
     console.log('--DISCORD BOT DISCONNECTED--');
     // Rejoin room on disconnect
-    socket.emit(JOIN_ROOM, slugs);
+    // socket.emit(JOIN_ROOM, slugs);
   });
 }

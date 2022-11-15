@@ -1,7 +1,6 @@
 require('dotenv').config()
-import { DEFAULT_GAME_ROOM } from "@rumble-raffle-dao/types/constants";
 import { BASE_WEB_URL } from "./constants";
-import { Config as GuildConfig } from "./src/guildContext/types";
+import { GuildConfig } from "./src/guildContext/types";
 
 interface Config {
   /**
@@ -24,9 +23,7 @@ export const CONFIG: Config = {
  * The rumble raffle discord server defaults.
  */
 const rumbleRaffleServer: GuildConfig = {
-  adminRoleIds: ['983206950311452752'],
   guildId: '975608872276492299',
-  slug: DEFAULT_GAME_ROOM,
 }
 
 /**

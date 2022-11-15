@@ -5,10 +5,6 @@ import { tagUser } from "../../utils";
 import { GuildContext } from "../guildContext";
 
 export const logWinner = async (guild: GuildContext, winners: EntireGameLog['winners']) => {
-  if (!guild.getGameStarted()) {
-    return;
-  }
-
   // If they signed up on the website, then they might not have 
   const winnerData = winners.map(winner => ({
     ...winner,

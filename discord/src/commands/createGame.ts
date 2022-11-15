@@ -10,17 +10,12 @@ import { GuildContext } from "../guildContext";
 // - Allow params for pve chance, revive chance? (meh)
 export const createGame = async (interaction: CommandInteraction<CacheType>, guildContext: GuildContext) => {
   try {
-    const roles = Array.from((interaction.member.roles as GuildMemberRoleManager).cache.keys());
-    // If player isn't admin, we don't do anything
-    if (!guildContext.isAdmin(roles)) {
-      interaction.reply({ ephemeral: true, content: 'Only admins can start a game at this time.' })
-      return;
-    };
-    if (guildContext) {
 
+    // If there is a currentMessage, then we assume there is a game started / in progress.
+    if (guildContext.getCurrentMessage()) {
+      interaction.reply({ ephemeral: true, content: `Game already in progress <${guildContext.getCurrentMessage().url}>.` })
+      return
     }
-
-    // TODO: If a game is in progress, don't let them start one.
 
     // Set the channel we are going to be responding to now.
     guildContext.setChannelId(interaction.channelId)
@@ -45,6 +40,7 @@ export const createGame = async (interaction: CommandInteraction<CacheType>, gui
     }).then(res => res.json());
     if (error) {
       interaction.reply({ ephemeral: true, content: error })
+      return;
     }
     // If it succeeds, it will send a "New Game Created" message via sockets
     interaction.reply({ ephemeral: true, content: 'New game created.' })
