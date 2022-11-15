@@ -21,7 +21,7 @@ import availableRoomsData from "../gameState/roomRumbleData";
  * - - update `rooms` in db with `total_prize_purse`, `game_completed`
  * - - dumps activity logs to supabase bucket
  */
-export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
+export const startRumble = async (roomSlug: string): Promise<EntireGameLog | { error: any }> => {
   try {
     const { discordPlayers, roomData: localRoomData } = availableRoomsData.getRoom(roomSlug);
     // Find all players who joined via discord emoji, who have their discord ID linked to their public address (id)
@@ -144,6 +144,6 @@ export const startRumble = async (roomSlug: string): Promise<EntireGameLog> => {
 
     return parsedActivityLog;
   } catch (error) {
-    console.error('Server: startRumble', error);
+    return { error: error }
   }
 }

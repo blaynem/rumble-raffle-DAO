@@ -113,11 +113,11 @@ model RoomParams {
   game_completed Boolean? @default(false)
   winners        String[]
   // Has Relations
-  created_by     String   @db.VarChar(45) // evm compatible address
+  created_by     String?  @db.VarChar(45) // evm compatible address
   contract_id    String   @db.VarChar(45)
 
   // Define Relations
-  Creator  Users     @relation(fields: [created_by], references: [id])
+  Creator  Users?    @relation(fields: [created_by], references: [id])
   Contract Contracts @relation(fields: [contract_id], references: [contract_address])
 
   // Opposite Relation

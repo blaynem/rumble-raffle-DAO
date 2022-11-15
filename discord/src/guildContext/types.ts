@@ -1,22 +1,10 @@
 
-export type Config = {
+export type GuildConfig = {
   /**
-   * Array of admin role ids to be used.
+   * The given guilds id
    */
-   adminRoleIds: string[];
-   /**
-    * The given guilds id.
-    */
-   guildId: string;
-   /**
-    * Slug for the Guilds rumble raffle games.
-    */
-   rumbleRaffleSlug: string;
+  guildId: string;
 }
 
 export interface GuildContextInterface {
-  /**
-   * Returns if the user is an admin or not.
-   */
-  isAdmin: (userId: string) => boolean;
 }

@@ -170,10 +170,13 @@ export type SingleActivity = {
 }
 
 export interface CreateRoom {
-  slug: Prisma.RoomsCreateInput['slug']
-  params: Omit<Prisma.RoomParamsCreateInput, 'Creator' | 'Contract'>
-  contract_address: Prisma.ContractsCreateInput['contract_address']
-  createdBy: Prisma.UsersCreateInput['id']
+  slug: string;
+  params: {
+    pve_chance: number;
+    revive_chance: number;
+  }
+  contract_address: string;
+  createdBy: string;
 }
 
 export type IronSessionUserData = Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'is_admin' | 'discord_id'> & { signature: string; };

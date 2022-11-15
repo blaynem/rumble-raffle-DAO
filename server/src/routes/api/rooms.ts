@@ -10,6 +10,7 @@ import { io } from '../../sockets';
 import { startGame } from '../../gameState/startGame';
 import { getPlayersAndRoomInfo } from '../../helpers/getPlayersAndRoomInfo';
 import { addPlayer } from '../../helpers/addPlayer';
+import { Contracts, Prisma, RoomParams, Rooms } from '@prisma/client';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
@@ -49,7 +50,7 @@ router.post('/join', jsonParser, async (req: JoinGameRequest, res: express.Respo
       return;
     }
     const playersAndRoomInfo = getPlayersAndRoomInfo(roomSlug);
-    io.in(roomSlug).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
+    io.in(roomSlug).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo, roomSlug);
     res.status(200).json({ data: 'You have joined the game.' })
   } catch (error) {
     // P2002 = unique constraint, i.e. they already joined
@@ -78,8 +79,12 @@ router.post('/discord_start', jsonParser, async (req: express.Request<StartRoomD
     }
     availableRoomsData.updateRoom(roomSlug, updatedRoomData)
 
-    await startGame(true, roomSlug);
-    res.status(400).json({ data: 'Game started successfully.' })
+    const response = await startGame(roomSlug);
+    if (response?.error) {
+      throw (response.error)
+    }
+
+    res.status(200).json({ data: 'Game started successfully.' })
   } catch (err) {
     console.error('api/rooms/start', err)
     res.status(400).json({ data: null, error: 'There was an error when starting the game.' })
@@ -102,13 +107,7 @@ router.post('/start', jsonParser, async (req: StartRoomWebRequest, res: express.
       throw new Error('Verified signature failed');
     }
 
-    // Check if they're an admin.
-    const userData = await prisma.users.findUnique({
-      where: { id: user.id },
-      select: { is_admin: true }
-    })
-
-    await startGame(userData.is_admin, roomSlug);
+    await startGame(roomSlug);
     res.status(400).json({ data: 'Game started successfully.' })
   } catch (err) {
     console.error('api/rooms/start', err)
@@ -134,11 +133,6 @@ router.post('/create', jsonParser, async (req: CreateRoomRequestBody, res: expre
         throw new Error('Discord password not provided.')
       }
       const userData = await prisma.users.findFirst({ where: { discord_id } })
-      // If they aren't an admin, we say no.
-      if (!userData?.is_admin) {
-        throw ('Only admin may create rooms at this time.');
-      }
-
       // We overwrite createdBy to be the found user from the db.
       createdBy = userData?.id;
     } else {
@@ -153,43 +147,52 @@ router.post('/create', jsonParser, async (req: CreateRoomRequestBody, res: expre
       if (!createdBy) {
         throw ('You must be logged in to create a room.');
       }
-
-      const userData = await prisma.users.findUnique({ where: { id: createdBy } })
-      // If they aren't an admin, we say no.
-      if (!userData?.is_admin) {
-        throw ('Only admin may create rooms at this time.');
-      }
     }
 
-
-    const dataToChange = {
-      Params: {
-        create: {
-          ...params,
-          Creator: {
-            connect: {
-              id: createdBy
-            }
-          },
-          Contract: {
-            connect: {
-              contract_address
-            }
-          }
-        }
-      }
-    }
-    // Difference between the `update` and `create` here is only the `slug`.
-    const roomData = await prisma.rooms.upsert({
+    // If they have not linked discord to the db, then we won't have an id. So this is optional
+    const roomsUpsert: Prisma.RoomsUpsertArgs = {
       where: {
         slug,
       },
       update: {
-        ...dataToChange
+        Params: {
+          create: {
+            pve_chance: params.pve_chance,
+            revive_chance: params.revive_chance,
+            ...(createdBy && {
+              Creator: {
+                connect: {
+                  id: createdBy
+                }
+              }
+            }),
+            Contract: {
+              connect: {
+                contract_address: contract_address.toLowerCase()
+              }
+            },
+          },
+        },
       },
       create: {
         slug,
-        ...dataToChange
+        Params: {
+          create: {
+            ...params,
+            ...(createdBy && {
+              Creator: {
+                connect: {
+                  id: createdBy
+                }
+              }
+            }),
+            Contract: {
+              connect: {
+                contract_address: contract_address.toLowerCase()
+              }
+            },
+          },
+        }
       },
       include: {
         Params: {
@@ -198,8 +201,14 @@ router.post('/create', jsonParser, async (req: CreateRoomRequestBody, res: expre
           }
         }
       }
-    })
-
+    }
+    // Difference between the `update` and `create` here is only the `slug`.
+    type RoomsUpsert = Rooms & {
+      Params: RoomParams & {
+        Contract: Contracts
+      }
+    }
+    const roomData = await prisma.rooms.upsert(roomsUpsert) as RoomsUpsert;
 
     const { Params: { Contract, ...restParams }, ...restRoomData } = roomData
     const mapRoomData: RoomDataType = {
@@ -215,7 +224,7 @@ router.post('/create', jsonParser, async (req: CreateRoomRequestBody, res: expre
     io.to(slug).emit(NEW_GAME_CREATED, mapRoomData)
     // Add new room to memory
     availableRoomsData.addRoom(mapRoomData)
-    res.json({ data: roomData });
+    res.json({ data: mapRoomData });
   } catch (error) {
     console.error('Server: /rooms/create', error);
     if (typeof error === 'string') {

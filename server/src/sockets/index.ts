@@ -25,6 +25,7 @@ export const initRoom = (sio: Server<ClientToServerEvents, ServerToClientEvents,
 function joinRoom(roomSlug: string) {
   try {
     this.join(roomSlug);
+    // todo: This needs to be done for the discord channel things.
     if (!availableRoomsData.getRoom(roomSlug)) {
       return
     }
@@ -33,13 +34,13 @@ function joinRoom(roomSlug: string) {
       return;
     }
     const playersAndRoomInfo = getPlayersAndRoomInfo(roomSlug);
-    io.to(this.id).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo);
+    io.to(this.id).emit(UPDATE_PLAYER_LIST, playersAndRoomInfo, roomSlug);
     // If a player joins the room and a game is already started, we should show them the current game state.
     if (roomData.params.game_started) {
       const { visibleRounds, winners } = getVisibleGameStateForClient(roomData, gameState);
       // Limit this to whatever current logs are being shown.
-      io.to(this.id).emit(UPDATE_ACTIVITY_LOG_ROUND, visibleRounds);
-      io.to(this.id).emit(UPDATE_ACTIVITY_LOG_WINNER, winners);
+      io.to(this.id).emit(UPDATE_ACTIVITY_LOG_ROUND, visibleRounds, roomSlug);
+      io.to(this.id).emit(UPDATE_ACTIVITY_LOG_WINNER, winners, roomSlug);
     }
   } catch (error) {
     console.error('Server: joinRoom', error)
@@ -48,9 +49,9 @@ function joinRoom(roomSlug: string) {
 
 async function syncPlayerRoomData(roomSlug: string) {
   if (!availableRoomsData.getRoom(roomSlug)) {
-    io.in(roomSlug).emit(SYNC_PLAYERS_RESPONSE, { error: `Room "${roomSlug}" hasn't been created yet.`, data: null, paramsId: null })
+    io.in(roomSlug).emit(SYNC_PLAYERS_RESPONSE, { error: `Room "${roomSlug}" hasn't been created yet.`, data: null, paramsId: null }, roomSlug)
     return
   }
   const { roomData } = availableRoomsData.getRoom(roomSlug);
-  io.in(roomSlug).emit(SYNC_PLAYERS_RESPONSE, { data: roomData?.players, paramsId: roomData?.params.id })
+  io.in(roomSlug).emit(SYNC_PLAYERS_RESPONSE, { data: roomData?.players, paramsId: roomData?.params.id }, roomSlug)
 }
