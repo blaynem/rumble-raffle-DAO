@@ -4,8 +4,8 @@ import { initSockets, emitJoinRoom } from "./src/sockets";
 import client from './client';
 import { getButtonInteraction, getCommandInteraction } from './src';
 import { AllGuildContexts } from "./src/guildContext";
+import { DISCORD_TOKEN } from "./constants";
 
-const token = process.env.DISCORD_TOKEN
 const port = process.env.PORT || 0;
 
 const allGuildContexts = new AllGuildContexts();
@@ -46,4 +46,4 @@ client.on('interactionCreate', interaction => {
 });
 
 // Login to Discord with your client's token
-client.login(token);
+client.login(DISCORD_TOKEN);

@@ -5,9 +5,10 @@
   "description": "Discord bot for Rumble Raffle",
   "main": "index.ts",
   "scripts": {
-    "server": "NODE_ENV=development ts-node-dev --respawn --transpile-only --exit-child --watch src index.ts",
+    "dev": "NODE_ENV=development ts-node-dev --respawn --transpile-only --exit-child --watch src index.ts",
     "start": "NODE_ENV=production ts-node-dev index.ts",
-    "deploy-commands": "ts-node-dev deploy-commands.js"
+    "deploy-commands:prod": "NODE_ENV=production ts-node-dev deploy-commands.ts",
+    "deploy-commands:test": "NODE_ENV=development ts-node-dev deploy-commands.ts"
   },
   "dependencies": {
     "@discordjs/builders": "^0.13.0",
