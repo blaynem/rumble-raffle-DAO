@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { CreateRoom, RoomDataType } from "@rumble-raffle-dao/types";
+import { CreateRoom, CreateRoomRequestBody, RoomDataType } from "@rumble-raffle-dao/types";
 import { SERVER_BASE_PATH, SERVER_ROOMS } from "@rumble-raffle-dao/types/constants";
 import { CacheType, CommandInteraction, GuildMemberRoleManager } from "discord.js";
 import { CONFIG } from "../../config";
@@ -20,14 +20,14 @@ export const createGame = async (interaction: CommandInteraction<CacheType>, gui
     // Set the channel we are going to be responding to now.
     guildContext.setChannelId(interaction.channelId)
 
-    const fetchBody: Omit<CreateRoom, 'createdBy'> & { discord_id: string; discord_secret: string; } = {
+    const fetchBody: CreateRoomRequestBody = {
       discord_secret: CONFIG.discord_secret,
       discord_id: interaction.member.user.id,
       slug: guildContext.getSlug(),
       contract_address: '0xE7F934c08F64413b98cAb9a5bAFEb1b21FCf2049', // this is Rumble Raffle contract
       params: {
-        pve_chance: 30,
-        revive_chance: 7
+        pve_chance: interaction.options.get('pve_chance')?.value as number || 30,
+        revive_chance: interaction.options.get('revive_chance')?.value as number || 7
       }
     }
 

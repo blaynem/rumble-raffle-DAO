@@ -1,22 +1,21 @@
 import { GAME_START_COUNTDOWN, NEXT_ROUND_START_COUNTDOWN, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER } from "@rumble-raffle-dao/types/constants";
-import prisma from "../client";
-import { getVisibleGameStateForClient } from "../helpers/getVisibleGameStateForClient";
-import availableRoomsData from "./roomRumbleData";
-import { startRumble } from "../helpers/startRumble";
+import { getVisibleGameStateForClient } from "../../helpers/getVisibleGameStateForClient";
+import availableRoomsData from "../../gameState/roomRumbleData";
 
-import { io } from '../sockets';
+import { io } from '../../sockets';
 import { AllAvailableRoomsType } from "@rumble-raffle-dao/types";
+import { startRumbleFree } from "./startRumbleFree";
 
 /**
  * On Start of game:
  * - Assure only the game master can start the game
  * - Send activity log data
  */
-export const startGame = async (roomSlug: string) => {
+export const startGameFree = async (roomSlug: string) => {
   try {
-    const { roomData, gameState, discordPlayers } = availableRoomsData.getRoom(roomSlug);
+    const { gameState } = availableRoomsData.getRoom(roomSlug);
 
-    const gameData = await startRumble(roomSlug);
+    const gameData = await startRumbleFree(roomSlug);
     if ('error' in gameData) {
       throw (gameData.error);
     }
@@ -32,7 +31,7 @@ export const startGame = async (roomSlug: string) => {
     availableRoomsData.updateRoom(roomSlug, updatedRoomData)
 
     // Start emitting the game events to the players on a delay.
-    dripGameDataOnDelay(roomSlug);
+    dripGameDataOnDelayFree(roomSlug);
     io.in(roomSlug).emit(GAME_START_COUNTDOWN, gameState.waitTime, roomSlug);
   } catch (err) {
     console.error(err)
@@ -43,7 +42,7 @@ export const startGame = async (roomSlug: string) => {
 /**
  * Drips out the game data on the selected delay.
  */
-export const dripGameDataOnDelay = (roomSlug: string) => {
+export const dripGameDataOnDelayFree = (roomSlug: string) => {
   try {
     const { roomData, gameState } = availableRoomsData.getRoom(roomSlug);
     const interval = setInterval(async () => {
@@ -62,16 +61,6 @@ export const dripGameDataOnDelay = (roomSlug: string) => {
         gameState.gameCompleted = true;
         gameState.showWinners = true;
         // Update the rooms completed state to true.
-        const updateRoomSubmit = await prisma.rooms.update({
-          where: { id: roomData.room.id },
-          data: { Params: { update: { game_completed: true } } }
-        })
-        // Log any errors from changing game to completed
-        // if (updateRoomSubmit.error) {
-        //   console.error('drip game data: game_completed = true', updateRoomSubmit.error);
-        // }
-        // delete the game state from the server
-        // delete availableRoomsData[roomSlug];
       }
 
       // We get the visible game state to spit out to the client.

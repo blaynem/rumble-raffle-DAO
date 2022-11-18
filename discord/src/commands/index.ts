@@ -23,6 +23,10 @@ type Command = {
    * Note: Maps directly to SlashCommandBuilder.setDescription
    */
   description: string;
+  /**
+   * Additional options that are to be added to the slash command.
+   */
+  options?: (cmd: SlashCommandBuilder) => Partial<SlashCommandBuilder>;
 }
 
 export const verifyAccountCommand: Command = {
@@ -41,6 +45,18 @@ export const interactionCommands: Command[] = [
     callback: (interaction, guildContext) => createGame(interaction, guildContext),
     commandName: 'create',
     description: 'Create a new Rumble Raffle game with default parameters. (PVE: 30%, Revive: 7%)',
+    options: cmd => {
+      return cmd.addIntegerOption(option =>
+        option.setName('pve_chance')
+          .setMinValue(0)
+          .setMaxValue(50)
+          .setDescription('Percent chance of a PVE random. Default: 30.'))
+        .addIntegerOption(option =>
+          option.setName('revive_chance')
+            .setMinValue(0)
+            .setMaxValue(10)
+            .setDescription('Percent chance of someone to revive. Default: 7'))
+    }
   },
   {
     callback: (interaction, guildContext) => startGame(interaction, guildContext),
@@ -62,11 +78,20 @@ export const getCommandInteraction = (interaction: CommandInteraction<CacheType>
   }
 }
 
-const mapCommandToBuilder = (cmd) => new SlashCommandBuilder().setName(cmd.commandName).setDescription(cmd.description)
 
 /**
  * These are all of the available slash commands.
  */
 export const availableSlashCommands = interactionCommands
-  .map(mapCommandToBuilder)
-  .map(command => command.toJSON());
+  .map((cmd) => {
+    const commandBuilder = new SlashCommandBuilder()
+      .setName(cmd.commandName)
+      .setDescription(cmd.description)
+    // If we don't have options we can return it now.
+    if (!cmd.options) {
+      return commandBuilder;
+    }
+    // Apply the options if we have m.
+    return cmd.options(commandBuilder)
+  })
+  .map(cmd => cmd.toJSON());
