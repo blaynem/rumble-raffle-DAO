@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "discord": "yarn workspace @rumble-raffle-dao/discord server",
+    "discord": "yarn workspace @rumble-raffle-dao/discord dev",
     "server": "yarn workspace @rumble-raffle-dao/server server",
     "dev": "yarn workspace @rumble-raffle-dao/web dev",
     "build": "",

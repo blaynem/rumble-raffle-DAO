@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import { getGameDataFromDb } from '../../helpers/getGameDataFromDb';
 import prisma from '../../client';
 import availableRoomsData from '../../gameState/roomRumbleData';
-import { AllAvailableRoomsType, CreateRoom, IronSessionUserData, RoomDataType, StartRoomDiscordFetchBody } from '@rumble-raffle-dao/types';
+import { AllAvailableRoomsType, CreateRoom, CreateRoomRequestBody, IronSessionUserData, RoomDataType, StartRoomDiscordFetchBody } from '@rumble-raffle-dao/types';
 import verifySignature from '../../utils/verifySignature';
 import { LOGIN_MESSAGE, NEW_GAME_CREATED, UPDATE_PLAYER_LIST } from '@rumble-raffle-dao/types/constants';
 import { io } from '../../sockets';
@@ -11,6 +11,8 @@ import { startGame } from '../../gameState/startGame';
 import { getPlayersAndRoomInfo } from '../../helpers/getPlayersAndRoomInfo';
 import { addPlayer } from '../../helpers/addPlayer';
 import { Contracts, Prisma, RoomParams, Rooms } from '@prisma/client';
+import { startGameFree } from '../../helpers/free/startGameFree';
+import { getMockRoomData } from '../../helpers/free/getMockRoomData';
 
 const router = express.Router();
 const jsonParser = bodyParser.json()
@@ -24,10 +26,6 @@ const jsonParser = bodyParser.json()
 // 	"slug": "TestRoom",
 // 	"contract_address": "0xe7f934c08f64413b98cab9a5bafeb1b21fcf2049"
 // }
-
-interface CreateRoomRequestBody extends express.Request {
-  body: CreateRoom & { discord_id?: string; discord_secret?: string }
-}
 
 interface JoinGameRequest extends express.Request {
   body: {
@@ -66,11 +64,29 @@ router.post('/join', jsonParser, async (req: JoinGameRequest, res: express.Respo
 
 router.post('/discord_start', jsonParser, async (req: express.Request<StartRoomDiscordFetchBody>, res: express.Response) => {
   try {
-    const { discord_id, roomSlug, discord_secret, players } = req.body as StartRoomDiscordFetchBody;
+    const { roomSlug, discord_secret, players, save_to_db } = req.body as StartRoomDiscordFetchBody;
 
     if (discord_secret !== process.env.DISCORD_SECRET_PASS) {
       throw new Error('Discord password not provided.')
     }
+
+    // If we are NOT saving to the db, go here. This will not fire any API calls (except the response)
+    if (!save_to_db) {
+      // Put the discord players into the room
+      const updatedRoomData: AllAvailableRoomsType = {
+        ...availableRoomsData.getRoom(roomSlug),
+        discordPlayers: players.map(p => ({ ...p, id_origin: 'DISCORD' })),
+      }
+      availableRoomsData.updateRoom(roomSlug, updatedRoomData)
+
+      // Start the free game
+      startGameFree(roomSlug);
+
+      // Everything else goes through the sockets, so just say game started
+      res.status(200).json({ data: 'Game started successfully.' })
+      return;
+    }
+
 
     // // Add the discord players to the discordPlayers array.
     const updatedRoomData: AllAvailableRoomsType = {
@@ -120,9 +136,26 @@ router.post('/start', jsonParser, async (req: StartRoomWebRequest, res: express.
  * - Create `room_params` entry
  * - Create `room` entry
  */
-router.post('/create', jsonParser, async (req: CreateRoomRequestBody, res: express.Response) => {
+router.post('/create', jsonParser, async (req: express.Request<CreateRoomRequestBody>, res: express.Response) => {
   try {
-    const { slug, params, contract_address, discord_id, discord_secret } = req.body;
+    const { slug, params, contract_address, discord_id, discord_secret, save_to_db } = req.body;
+
+    // If we don't want to save it to the db we can mock a lot!
+    if (!save_to_db) {
+      // We check the discord secret pass before going further.
+      if (discord_secret !== process.env.DISCORD_SECRET_PASS) {
+        throw new Error('Discord password not provided.')
+      }
+
+      const roomData = getMockRoomData(slug, params.pve_chance, params.revive_chance);
+      // Emit new game created event to sockets
+      io.to(slug).emit(NEW_GAME_CREATED, roomData)
+      // Add new room to memory
+      availableRoomsData.addRoom(roomData)
+      res.json({ data: roomData });
+      return;
+    }
+
     // Overwriting this if creator is from discord
     let { createdBy } = req.body;
 

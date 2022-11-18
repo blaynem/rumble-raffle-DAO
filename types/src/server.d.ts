@@ -188,6 +188,11 @@ export type UserDataFetchByDiscordId = Pick<Prisma.UsersGroupByOutputType, 'id' 
  */
 export type StartRoomDiscordFetchBody = {
   /**
+   * If true, we should save this to our database.
+   * Note: Doing this as a temporary solution. (Please don't make this non-temporary)
+   */
+  save_to_db?: boolean;
+  /**
    * Id of user starting a game.
    */
   discord_id: string;
@@ -212,4 +217,20 @@ export type StartRoomDiscordFetchBody = {
      */
     username: string;
   }[]
+}
+
+export type CreateRoomRequestBody = Omit<CreateRoom, 'createdBy'> & {
+  /**
+   * Id of user starting a game.
+   */
+  discord_id?: string;
+  /**
+   * Discord secret message for auth reasons.
+   */
+  discord_secret?: string;
+  /**
+   * If true, we should save this to our database.
+   * Note: Doing this as a temporary solution. (Please don't make this non-temporary)
+   */
+  save_to_db?: boolean
 }

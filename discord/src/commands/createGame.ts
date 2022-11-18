@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { CreateRoom, RoomDataType } from "@rumble-raffle-dao/types";
+import { CreateRoom, CreateRoomRequestBody, RoomDataType } from "@rumble-raffle-dao/types";
 import { SERVER_BASE_PATH, SERVER_ROOMS } from "@rumble-raffle-dao/types/constants";
 import { CacheType, CommandInteraction, GuildMemberRoleManager } from "discord.js";
 import { CONFIG } from "../../config";
@@ -20,7 +20,7 @@ export const createGame = async (interaction: CommandInteraction<CacheType>, gui
     // Set the channel we are going to be responding to now.
     guildContext.setChannelId(interaction.channelId)
 
-    const fetchBody: Omit<CreateRoom, 'createdBy'> & { discord_id: string; discord_secret: string; } = {
+    const fetchBody: CreateRoomRequestBody = {
       discord_secret: CONFIG.discord_secret,
       discord_id: interaction.member.user.id,
       slug: guildContext.getSlug(),
