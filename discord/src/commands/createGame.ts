@@ -26,8 +26,8 @@ export const createGame = async (interaction: CommandInteraction<CacheType>, gui
       slug: guildContext.getSlug(),
       contract_address: '0xE7F934c08F64413b98cAb9a5bAFEb1b21FCf2049', // this is Rumble Raffle contract
       params: {
-        pve_chance: interaction.options.get('pve_chance').value as number || 30,
-        revive_chance: interaction.options.get('revive_chance').value as number || 7
+        pve_chance: interaction.options.get('pve_chance')?.value as number || 30,
+        revive_chance: interaction.options.get('revive_chance')?.value as number || 7
       }
     }
 
