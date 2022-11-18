@@ -16,6 +16,12 @@ export const logWinner = async (guild: GuildContext, winners: EntireGameLog['win
   const secondPlace = `2nd place **${winnerData[1]?.discord_id ? tagUser(winnerData[1].discord_id) : winnerData[1].name}**.`
   const thirdPlace = winnerData[2] ? `3rd place **${winnerData[2]?.discord_id ? tagUser(winnerData[2].discord_id) : winnerData[2].name}**.` : ''
 
+  let paramsId = guild.getCurrentParamsId() || ''
+  // This is just to overwrite the free params id 
+  if (paramsId === 'FREE_PARAMS_ID') {
+    paramsId = '';
+  }
+
   const channel: AnyChannel = client.channels.cache.get(guild.getChannelId()) as TextChannel;
   const embed = new MessageEmbed()
     .setColor('#9912B8')
@@ -25,7 +31,7 @@ ${winnerMessage}
 
 ${secondPlace}
 ${thirdPlace}`)
-    .setFooter({ text: guild.getCurrentParamsId() || '' })
+    .setFooter({ text: paramsId })
 
   // Set the currentMessage to this message.
   channel.send({

@@ -24,7 +24,7 @@ export const startGame = async (interaction: CommandInteraction<CacheType>, guil
     const reaction = guildContext.getCurrentMessage().reactions.cache.get('⚔');
     const usersReacted = await reaction.users.fetch()
     const players = usersReacted.filter((({ bot }) => !bot)).map(({ id, username }) => ({ id, username }));
-    if (players.length <= 2) {
+    if (players.length < 2) {
       interaction.reply({ ephemeral: true, content: "At least 2 players required to start." })
       return;
     }

@@ -27,12 +27,17 @@ Presented by www.RumbleRaffle.com
  * @param channel - The channel to send the embed to
  */
 export const createAndSendCurrentPlayerEmbed = async (guild: GuildContext, channel: TextChannel, paramsId: string) => {
+  let footerText = guild.getCurrentParamsId() || ''
+  // This is just to overwrite the free params id 
+  if (footerText === 'FREE_PARAMS_ID') {
+    footerText = '';
+  }
   const embed = new MessageEmbed()
     .setColor('#9912B8')
     .setTitle(NEXT_RUMBLE_BEGINS)
     // .setURL(guild.getGameUrl()) // not sure we want to set the url right now
     .setDescription(nextRumbleDescription())
-    .setFooter({ text: paramsId })
+    .setFooter({ text: footerText })
 
   // Set the currentMessage to this message.
   const message = await channel.send({ embeds: [embed], content: 'New game created' })
