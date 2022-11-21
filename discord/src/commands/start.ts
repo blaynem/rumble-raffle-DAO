@@ -5,6 +5,7 @@ import { CommandInteraction, CacheType } from "discord.js";
 import { CONFIG } from "../../config";
 import { BASE_API_URL } from "../../constants";
 import { GuildContext } from '../guildContext';
+import { logger } from '../logger';
 
 /**
  * 
@@ -45,12 +46,15 @@ export const startGame = async (interaction: CommandInteraction<CacheType>, guil
     // We only need to send a message if it fails.
     // If it succeeds, it will already send a message.
     if (error) {
+      logger.error('Game Start', interaction.guildId);
       interaction.reply({ ephemeral: true, content: error })
       return;
     }
+    logger.success('Game Started', interaction.guildId, `**Player Amount:** ${players.length}`)
     interaction.reply('Game started!');
   } catch (err) {
     console.error(err);
+    logger.error('Game Start', interaction.guildId);
     interaction.reply({ ephemeral: true, content: 'Ope. Something went wrong.' })
   }
 }

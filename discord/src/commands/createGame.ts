@@ -1,10 +1,11 @@
 import fetch from 'node-fetch';
-import { CreateRoom, CreateRoomRequestBody, RoomDataType } from "@rumble-raffle-dao/types";
+import { CreateRoomRequestBody, RoomDataType } from "@rumble-raffle-dao/types";
 import { SERVER_BASE_PATH, SERVER_ROOMS } from "@rumble-raffle-dao/types/constants";
-import { CacheType, CommandInteraction, GuildMemberRoleManager } from "discord.js";
+import { CacheType, CommandInteraction } from "discord.js";
 import { CONFIG } from "../../config";
 import { BASE_API_URL } from "../../constants";
 import { GuildContext } from "../guildContext";
+import { logger } from '../logger';
 
 // todo:
 // - Allow params for pve chance, revive chance? (meh)
@@ -39,13 +40,16 @@ export const createGame = async (interaction: CommandInteraction<CacheType>, gui
       body: JSON.stringify(fetchBody)
     }).then(res => res.json());
     if (error) {
+      logger.error('On Create', interaction.guildId);
       interaction.reply({ ephemeral: true, content: error })
       return;
     }
     // If it succeeds, it will send a "New Game Created" message via sockets
+    logger.success('Game Created', interaction.guildId);
     interaction.reply({ ephemeral: true, content: 'New game created.' })
   } catch (err) {
     console.error(err)
+    logger.error('On Create', interaction.guildId);
     interaction.reply({ ephemeral: true, content: "Ope. Something went wrong." })
   }
 }
