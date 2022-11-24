@@ -25,7 +25,7 @@ const InputField = ({ id, label, placeholder, inputType = "text", onChange, valu
       id={id}
       placeholder={placeholder}
     />
-    {showHintText && <p className='font-normal text-sm mt-2 pl-2'>Ex: {placeholder}</p>}
+    {showHintText && <p className='font-normal  dark:text-rumbleNone text-rumbleOutline text-sm mt-2 pl-2'>Ex: {placeholder}</p>}
   </div>
 )
 
