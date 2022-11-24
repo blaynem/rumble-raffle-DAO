@@ -5,6 +5,7 @@ import { CommandInteraction, CacheType } from "discord.js";
 import { CONFIG } from "../../config";
 import { BASE_API_URL } from "../../constants";
 import { GuildContext } from '../guildContext';
+import { rumbleLogger } from '../logger';
 
 /**
  * 
@@ -45,12 +46,15 @@ export const startGame = async (interaction: CommandInteraction<CacheType>, guil
     // We only need to send a message if it fails.
     // If it succeeds, it will already send a message.
     if (error) {
+      rumbleLogger.error('Game Start', guildContext.getGuildId());
       interaction.reply({ ephemeral: true, content: error })
       return;
     }
+    rumbleLogger.success('Game Started', guildContext.getGuildId(), `**Player Amount:** ${players.length}`)
     interaction.reply('Game started!');
   } catch (err) {
     console.error(err);
+    rumbleLogger.error('Game Start', guildContext.getGuildId());
     interaction.reply({ ephemeral: true, content: 'Ope. Something went wrong.' })
   }
 }

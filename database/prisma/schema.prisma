@@ -24,15 +24,47 @@ model Earnings {
   User Users @relation(fields: [player], references: [id])
 }
 
+/// Suggested Activities that may be added to the database after approval.
+model SuggestedActivities {
+  id                String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  description       String
+  amountOfPlayers   Int
+  activityLoser     Int[]
+  killCounts        Decimal[]
+  created_at        DateTime    @default(dbgenerated("now()"))
+  environment       Environment
+  activityWinner    Int[]
+  /// Must be true if it is either a custom activity, or is linked to a guild_id
+  is_custom         Boolean     @default(false)
+  /// The custom activity creators Discord Id, or public address.
+  custom_created_by String?
+  /// The guilds id that this activity belongs to
+  guild_id          String?
+  /// If approved, this entry should be migrated to the Activites model.
+  approved          Boolean     @default(false)
+  /// If true, only suitable for 'mature' users. 
+  /// This is generally only going to be used for 'graphic' material.
+  /// Default: true
+  mature_users_only Boolean     @default(true)
+}
+
 model Activities {
-  id              String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  description     String
-  amountOfPlayers Int
-  activityLoser   Int[]
-  killCounts      Decimal[]
-  created_at      DateTime    @default(dbgenerated("now()"))
-  environment     Environment
-  activityWinner  Int[]
+  id                String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  description       String
+  amountOfPlayers   Int
+  activityLoser     Int[]
+  killCounts        Decimal[]
+  created_at        DateTime    @default(dbgenerated("now()"))
+  environment       Environment
+  activityWinner    Int[]
+  /// Must be true if it is either a custom activity, or is linked to a guild_id
+  is_custom         Boolean     @default(false)
+  /// The custom activity creators Discord Id, or public address.
+  custom_created_by String?
+  /// The guilds id that this activity belongs to
+  guild_id          String?
+  /// If true, only suitable for 'mature' users. Default: false.
+  mature_users_only Boolean     @default(false)
 
   // Opposite Relations
   GameLogs GameRoundLogs[]

@@ -2,7 +2,8 @@ import { EntireGameLog } from "@rumble-raffle-dao/types";
 import { createGame } from "../createRumble";
 import { parseActivityLogForClient } from "../parseActivityLogs";
 import availableRoomsData from "../../gameState/roomRumbleData";
-import { freeActivities } from './freeActivities'
+import { getAllActivities } from "../../routes/api/activities";
+// import { freeActivities } from './freeActivities'
 
 /**
  * This is for the free Start of rumble so it doesn't hit the server.
@@ -10,6 +11,8 @@ import { freeActivities } from './freeActivities'
 export const startRumbleFree = async (roomSlug: string): Promise<EntireGameLog | { error: any }> => {
   try {
     const { discordPlayers, roomData } = availableRoomsData.getRoom(roomSlug);
+    // Fetch all non-custom activities + all specific guilds activities
+    const { data: activities } = await getAllActivities(roomSlug);
 
     // format combined players to fit expected object. Add Discord Identifier to name
     const initialPlayers = discordPlayers.map(p => ({
@@ -19,7 +22,7 @@ export const startRumbleFree = async (roomSlug: string): Promise<EntireGameLog |
     }));
     // Autoplay the game
     const finalGameData = await createGame({
-      activities: freeActivities,
+      activities,
       initialPlayers,
       params: {
         chanceOfPve: roomData.params.pve_chance,

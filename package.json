@@ -8,7 +8,6 @@
     "dev": "yarn workspace @rumble-raffle-dao/web dev",
     "build": "",
     "start": "",
-    "prisma-push": "yarn workspace @rumble-raffle-dao/database push",
     "prisma-generate": "yarn workspace @rumble-raffle-dao/database generate"
   },
   "eslintConfig": {

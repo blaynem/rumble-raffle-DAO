@@ -3,8 +3,8 @@
 It spits info out!
 
 Bot OAuth2 links:
-prod: https://discord.com/api/oauth2/authorize?client_id=982116967278334022&permissions=2147740736&scope=bot
-test: https://discord.com/api/oauth2/authorize?client_id=1042665082871623711&permissions=2147740736&scope=bot
+prod: https://discord.com/api/oauth2/authorize?client_id=982116967278334022&permissions=534723882048&scope=bot
+test: https://discord.com/api/oauth2/authorize?client_id=1042665082871623711&permissions=534723882048&scope=bot
 
 todo:
 - Test bot vs Prod bot

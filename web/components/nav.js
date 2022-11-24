@@ -14,10 +14,10 @@ function classNames(...classes) {
 
 const Nav = () => {
   const router = useRouter();
-  const { logout } = useUser()
+  // const { logout } = useUser()
   const { preferences, setDarkmode } = usePreferences();
   const [darkMode, setDarkMode] = useState(false);
-  const { disconnect } = useDisconnect()
+  // const { disconnect } = useDisconnect()
 
   useEffect(() => {
     setDarkMode(preferences?.darkMode);
@@ -25,17 +25,17 @@ const Nav = () => {
 
   const navigation = [
     { name: 'Home', href: '/' },
-    { name: 'Play', href: DEFAULT_ROOM_URL },
+    // { name: 'Play', href: DEFAULT_ROOM_URL },
   ]
 
   const dropdownNavigation = [
-    { name: 'Settings', onClick: () => router.push('/settings') },
-    {
-      name: 'Sign out', onClick: () => {
-        disconnect();
-        logout()
-      }
-    }
+    // { name: 'Settings', onClick: () => router.push('/settings') },
+    // {
+    //   name: 'Sign out', onClick: () => {
+    //     disconnect();
+    //     logout()
+    //   }
+    // }
   ]
 
   return (
@@ -75,10 +75,10 @@ const Nav = () => {
                   <button onClick={setDarkmode} className='mr-6'>
                     <EmojiEventsOutlinedIcon className='dark:fill-rumbleBgLight fill-rumbleBgDark' />
                   </button>
-                  <Menu.Button className="dark:bg-rumbleSecondary bg-rumblePrimary text-rumbleNone border-l-2 dark:border-rumbleNone border-rumbleOutline px-6 py-4 focus:outline-none focus:ring-2 focus:ring-rumbleSecondary">
+                  {/* <Menu.Button className="dark:bg-rumbleSecondary bg-rumblePrimary text-rumbleNone border-l-2 dark:border-rumbleNone border-rumbleOutline px-6 py-4 focus:outline-none focus:ring-2 focus:ring-rumbleSecondary">
                     <span className="sr-only">Open user menu</span>
                     <WalletConnector />
-                  </Menu.Button>
+                  </Menu.Button> */}
                 </div>
                 <Transition
                   as={Fragment}

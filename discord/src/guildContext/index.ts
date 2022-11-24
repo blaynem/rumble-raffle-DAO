@@ -50,7 +50,7 @@ class GuildContext implements GuildContextInterface {
     this.slug = config.guildId
   }
 
-  getGuildI() {
+  getGuildId() {
     return this.guildId;
   }
 

@@ -3,8 +3,14 @@ import { CacheType, CommandInteraction } from 'discord.js';
 import { GuildContext } from '../guildContext';
 import { createGame } from './createGame';
 import { startGame } from './start';
+import { suggestedActivity } from './suggest';
 import { unlinkAccount } from './unlink';
 import { verifyAccount } from './verifyAccount';
+
+export enum EnvFlags {
+  PRODUCTION = 'PRODUCTION',
+  TEST = 'TEST'
+}
 
 type Command = {
   /**
@@ -27,24 +33,35 @@ type Command = {
    * Additional options that are to be added to the slash command.
    */
   options?: (cmd: SlashCommandBuilder) => Partial<SlashCommandBuilder>;
+  /**
+   * Environment flags to determine where the command should deployed.
+   */
+  environmentFlag: EnvFlags[]
 }
 
 export const verifyAccountCommand: Command = {
   callback: (interaction) => verifyAccount(interaction),
   commandName: 'link',
   description: 'Link your discord_id to the Rumble Raffle database.',
+  environmentFlag: [EnvFlags.TEST]
 }
 
+/**
+ * Array of commands that are built and sent on Deploy-Commands call.
+ */
 export const interactionCommands: Command[] = [
   {
     callback: (interaction) => unlinkAccount(interaction),
     commandName: 'unlink',
     description: 'Unlinks your discord_id from Rumble Raffle database.',
+    environmentFlag: [EnvFlags.TEST]
   },
+  verifyAccountCommand,
   {
     callback: (interaction, guildContext) => createGame(interaction, guildContext),
     commandName: 'create',
     description: 'Create a new Rumble Raffle game with default parameters. (PVE: 30%, Revive: 7%)',
+    environmentFlag: [EnvFlags.PRODUCTION, EnvFlags.TEST],
     options: cmd => {
       return cmd.addIntegerOption(option =>
         option.setName('pve_chance')
@@ -62,8 +79,14 @@ export const interactionCommands: Command[] = [
     callback: (interaction, guildContext) => startGame(interaction, guildContext),
     commandName: 'start',
     description: 'Starts the Rumble Raffle game.',
+    environmentFlag: [EnvFlags.PRODUCTION, EnvFlags.TEST]
   },
-  verifyAccountCommand
+  {
+    callback: (interaction, guildContext) => suggestedActivity(interaction, guildContext),
+    commandName: 'suggest',
+    description: 'Suggest an activity to be added to Rumble Raffle!',
+    environmentFlag: [EnvFlags.PRODUCTION, EnvFlags.TEST]
+  }
 ]
 
 /**
@@ -82,7 +105,8 @@ export const getCommandInteraction = (interaction: CommandInteraction<CacheType>
 /**
  * These are all of the available slash commands.
  */
-export const availableSlashCommands = interactionCommands
+export const getAvailableSlashCommands = (environment: EnvFlags) => interactionCommands
+  .filter((cmd) => cmd.environmentFlag.includes(environment))
   .map((cmd) => {
     const commandBuilder = new SlashCommandBuilder()
       .setName(cmd.commandName)

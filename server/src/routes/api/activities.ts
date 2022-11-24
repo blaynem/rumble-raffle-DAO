@@ -34,12 +34,46 @@ router.post('/create', jsonParser, async (req: express.Request, res: express.Res
 // Need to conver the decimal of the killCount in the database to a number for the rumble package.
 const convertKillCountToNum = (data: Activities): ActivityTypes => ({ ...data, killCounts: data.killCounts.map(k => k.toNumber()) });
 
-export const getAllActivities = async () => {
+/**
+ * If guild_id is excluded, fetches all non-custom activities only.
+ * @param guild_id 
+ * @returns 
+ */
+export const getAllActivities = async (guild_id?: string) => {
   let error: string;
   try {
-    const pveData = await prisma.activities.findMany({ where: { environment: 'PVE' } })
-    const pvpData = await prisma.activities.findMany({ where: { environment: 'PVP' } })
-    const reviveData = await prisma.activities.findMany({ where: { environment: 'REVIVE' } })
+    let pveData: Activities[], pvpData: Activities[], reviveData: Activities[];
+    // If theres a guild Id then we can grab all the custom events.
+    if (guild_id) {
+      pveData = await prisma.activities.findMany({
+        where: {
+          OR: [
+            { environment: 'PVE', is_custom: false },
+            { environment: 'PVE', is_custom: true, guild_id }
+          ]
+        }
+      })
+      pvpData = await prisma.activities.findMany({
+        where: {
+          OR: [
+            { environment: 'PVP', is_custom: false },
+            { environment: 'PVP', is_custom: true, guild_id }
+          ]
+        }
+      })
+      reviveData = await prisma.activities.findMany({
+        where: {
+          OR: [
+            { environment: 'REVIVE', is_custom: false },
+            { environment: 'REVIVE', is_custom: true, guild_id }
+          ]
+        }
+      })
+    } else {
+      pveData = await prisma.activities.findMany({ where: { environment: 'PVE', is_custom: false } })
+      pvpData = await prisma.activities.findMany({ where: { environment: 'PVP', is_custom: false } })
+      reviveData = await prisma.activities.findMany({ where: { environment: 'REVIVE', is_custom: false } })
+    }
     // if (pveError || pvpError || reviveError) {
     //   error = 'Error when fetching activities tables.'
     // }
