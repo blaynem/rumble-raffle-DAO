@@ -3,6 +3,7 @@ import { CacheType, CommandInteraction } from 'discord.js';
 import { GuildContext } from '../guildContext';
 import { createGame } from './createGame';
 import { startGame } from './start';
+import { suggestedActivity } from './suggestActivity';
 import { unlinkAccount } from './unlink';
 import { verifyAccount } from './verifyAccount';
 
@@ -63,7 +64,12 @@ export const interactionCommands: Command[] = [
     commandName: 'start',
     description: 'Starts the Rumble Raffle game.',
   },
-  verifyAccountCommand
+  verifyAccountCommand,
+  {
+    callback: (interaction, guildContext) => suggestedActivity(interaction, guildContext),
+    commandName: 'suggest',
+    description: 'Suggest an activity to be added to Rumble Raffle!'
+  }
 ]
 
 /**
