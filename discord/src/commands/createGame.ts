@@ -40,16 +40,16 @@ export const createGame = async (interaction: CommandInteraction<CacheType>, gui
       body: JSON.stringify(fetchBody)
     }).then(res => res.json());
     if (error) {
-      rumbleLogger.error('On Create');
+      rumbleLogger.error('On Create', guildContext.getGuildId());
       interaction.reply({ ephemeral: true, content: error })
       return;
     }
     // If it succeeds, it will send a "New Game Created" message via sockets
-    rumbleLogger.success('Game Created');
+    rumbleLogger.success('Game Created', guildContext.getGuildId());
     interaction.reply({ ephemeral: true, content: 'New game created.' })
   } catch (err) {
     console.error(err)
-    rumbleLogger.error('On Create');
+    rumbleLogger.error('On Create', guildContext.getGuildId());
     interaction.reply({ ephemeral: true, content: "Ope. Something went wrong." })
   }
 }

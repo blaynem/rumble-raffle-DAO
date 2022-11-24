@@ -40,5 +40,5 @@ ${thirdPlace}`)
   })
   // End the games.
   guild.resetGame();
-  rumbleLogger.success('Game Complete', `**Params Id:** ${paramsId}`);
+  rumbleLogger.success('Game Complete', guild.getGuildId(), `**Params Id:** ${paramsId}`);
 }

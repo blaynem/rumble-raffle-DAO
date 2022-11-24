@@ -45,12 +45,13 @@ class Logger {
   /**
    * Send a success message to the loggers selected Guild channel.
    * @param title - Title to be added for the message. 'Success: ' is prepended to the title.
+   * @param _guildId - Used to get the Guild information to be displayed. Note: NOT the Initial guild Id we set for the logger.
    * @param messageContent - Extra message content that will be appended to the message.
    */
-  success(title: string, messageContent?: string): void {
+  success(title: string, _guildId: string, messageContent?: string): void {
     this.sendMessage({
       color: 'GREEN',
-      description: makeDescription(this.guildId, messageContent),
+      description: makeDescription(_guildId, messageContent),
       title: `Sucess: ${title}`,
     });
   }
@@ -58,12 +59,13 @@ class Logger {
   /**
    * Send an error message to the loggers selected Guild channel.
    * @param title - Title to be added for the message. 'Error: ' is prepended to the title.
+   * @param _guildId - Used to get the Guild information to be displayed. Note: NOT the Initial guild Id we set for the logger.
    * @param messageContent - Extra message content that will be appended to the message.
    */
-  error(title: string, messageContent?: string): void {
+  error(title: string, _guildId: string, messageContent?: string): void {
     this.sendMessage({
       color: 'RED',
-      description: makeDescription(this.guildId, messageContent),
+      description: makeDescription(_guildId, messageContent),
       title: `Error: ${title}`
     });
   }
