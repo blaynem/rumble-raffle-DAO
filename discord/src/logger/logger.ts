@@ -11,9 +11,14 @@ const makeDescription = (_guildId: string, content?: string) => {
 ${content || ''}
 `}
 
+/**
+ * The logger creates an easy way to send a message to the specified Guild / Channel Id combo.
+ * 
+ * All messages will include the Guild Name, Guild Id, Timestamp, and optional Message Content
+ */
 class Logger {
   /**
-   * Channel IDthat we want to log to.
+   * Channel ID that we want to log to.
    * Note: Only used for Rumble Raffle logs at this time.
    */
   private channelId: string;
@@ -28,7 +33,7 @@ class Logger {
     this.guildId = guildId
   }
 
-  sendMessage(options: MessageEmbedOptions) {
+  private sendMessage(options: MessageEmbedOptions) {
     try {
       const message = new MessageEmbed(options);
       (client.channels.cache.get(this.channelId) as TextChannel).send({ embeds: [message] });
@@ -37,18 +42,28 @@ class Logger {
     }
   }
 
-  success(title: string, _guildId: string, messageContent?: string): void {
+  /**
+   * Send a success message to the loggers selected Guild channel.
+   * @param title - Title to be added for the message. 'Success: ' is prepended to the title.
+   * @param messageContent - Extra message content that will be appended to the message.
+   */
+  success(title: string, messageContent?: string): void {
     this.sendMessage({
       color: 'GREEN',
-      description: makeDescription(_guildId, messageContent),
+      description: makeDescription(this.guildId, messageContent),
       title: `Sucess: ${title}`,
     });
   }
 
-  error(title: string, _guildId: string, messageContent?: string): void {
+  /**
+   * Send an error message to the loggers selected Guild channel.
+   * @param title - Title to be added for the message. 'Error: ' is prepended to the title.
+   * @param messageContent - Extra message content that will be appended to the message.
+   */
+  error(title: string, messageContent?: string): void {
     this.sendMessage({
       color: 'RED',
-      description: makeDescription(_guildId, messageContent),
+      description: makeDescription(this.guildId, messageContent),
       title: `Error: ${title}`
     });
   }

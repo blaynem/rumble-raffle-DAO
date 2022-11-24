@@ -63,7 +63,7 @@ model Activities {
   custom_created_by String?
   /// The guilds id that this activity belongs to
   guild_id          String?
-  /// If true, only suitable for 'mature' users. Default: true
+  /// If true, only suitable for 'mature' users. Default: false.
   mature_users_only Boolean     @default(false)
 
   // Opposite Relations

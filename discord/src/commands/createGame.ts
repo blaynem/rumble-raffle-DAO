@@ -5,7 +5,7 @@ import { CacheType, CommandInteraction } from "discord.js";
 import { CONFIG } from "../../config";
 import { BASE_API_URL } from "../../constants";
 import { GuildContext } from "../guildContext";
-import { logger } from '../logger';
+import { rumbleLogger } from '../logger';
 
 // todo:
 // - Allow params for pve chance, revive chance? (meh)
@@ -40,16 +40,16 @@ export const createGame = async (interaction: CommandInteraction<CacheType>, gui
       body: JSON.stringify(fetchBody)
     }).then(res => res.json());
     if (error) {
-      logger.error('On Create', interaction.guildId);
+      rumbleLogger.error('On Create');
       interaction.reply({ ephemeral: true, content: error })
       return;
     }
     // If it succeeds, it will send a "New Game Created" message via sockets
-    logger.success('Game Created', interaction.guildId);
+    rumbleLogger.success('Game Created');
     interaction.reply({ ephemeral: true, content: 'New game created.' })
   } catch (err) {
     console.error(err)
-    logger.error('On Create', interaction.guildId);
+    rumbleLogger.error('On Create');
     interaction.reply({ ephemeral: true, content: "Ope. Something went wrong." })
   }
 }

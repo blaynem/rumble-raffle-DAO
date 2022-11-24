@@ -3,7 +3,7 @@ import { AnyChannel, TextChannel, MessageEmbed } from "discord.js";
 import client from "../../client";
 import { tagUser } from "../../utils";
 import { GuildContext } from "../guildContext";
-import { logger } from "../logger";
+import { rumbleLogger } from "../logger";
 
 export const logWinner = async (guild: GuildContext, winners: EntireGameLog['winners']) => {
   // If they signed up on the website, then they might not have 
@@ -40,5 +40,5 @@ ${thirdPlace}`)
   })
   // End the games.
   guild.resetGame();
-  logger.success('Game Complete', guild.getGuildId(), `**Params Id:** ${paramsId}`);
+  rumbleLogger.success('Game Complete', `**Params Id:** ${paramsId}`);
 }
