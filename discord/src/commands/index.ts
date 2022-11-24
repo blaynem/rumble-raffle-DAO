@@ -3,7 +3,7 @@ import { CacheType, CommandInteraction } from 'discord.js';
 import { GuildContext } from '../guildContext';
 import { createGame } from './createGame';
 import { startGame } from './start';
-import { suggestedActivity } from './suggestActivity';
+import { suggestedActivity } from './suggest';
 import { unlinkAccount } from './unlink';
 import { verifyAccount } from './verifyAccount';
 
