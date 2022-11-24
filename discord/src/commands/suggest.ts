@@ -27,9 +27,14 @@ export const suggestedActivity = (interaction: CommandInteraction<CacheType>, gu
     content: `
 Click the '${buttonLabel}' button below to add an activity suggestion to the Rumble Raffle ecosystem!
 
+**3 Easy Steps**
+1. Approve the Authorize request.
+2. On approval, you'll be redirected to the Rumble Raffle site.
+3. Fill out the form and click "submit". Done!
+
 Activities will start to show up once they have been approved for use.
 
-*Why do we need to authorize? What data will be used?*
+*What data is used and why?*
 - \`user_id\`: To link the suggested activity to your account.
 - \`guild_id\`: To link the suggested activity to the specific guild.
 `,
