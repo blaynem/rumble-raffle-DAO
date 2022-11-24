@@ -36,12 +36,16 @@ export const verifyAccountCommand: Command = {
   description: 'Link your discord_id to the Rumble Raffle database.',
 }
 
+/**
+ * Array of commands that are built and sent on Deploy-Commands call.
+ */
 export const interactionCommands: Command[] = [
   {
     callback: (interaction) => unlinkAccount(interaction),
     commandName: 'unlink',
     description: 'Unlinks your discord_id from Rumble Raffle database.',
   },
+  verifyAccountCommand,
   {
     callback: (interaction, guildContext) => createGame(interaction, guildContext),
     commandName: 'create',
@@ -64,7 +68,6 @@ export const interactionCommands: Command[] = [
     commandName: 'start',
     description: 'Starts the Rumble Raffle game.',
   },
-  verifyAccountCommand,
   {
     callback: (interaction, guildContext) => suggestedActivity(interaction, guildContext),
     commandName: 'suggest',
