@@ -19,7 +19,7 @@ async function usersHandler(req: ExtendedNextAPIRequest, res: NextApiResponse) {
     if (req.method === 'POST') {
       const { guildId, userId, data } = JSON.parse(req.body as any) as Body;
       if (!guildId || !userId) {
-        throw ('Missing required fields.')
+        throw Error('Missing required fields.')
       }
 
       await prisma.suggestedActivities.create({
@@ -32,7 +32,7 @@ async function usersHandler(req: ExtendedNextAPIRequest, res: NextApiResponse) {
         }
       }).catch((err) => {
         console.error(err)
-        throw ('There was an error in the request. Please contact admins for help.')
+        throw Error('There was an error in the request. Please contact admins for help.')
       })
 
       res.status(200).json({ data: 'Success' })

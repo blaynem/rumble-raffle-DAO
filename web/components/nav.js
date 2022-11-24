@@ -1,12 +1,12 @@
 import { React, Fragment, useState, useEffect } from 'react'
 import { Menu, Popover, Transition } from '@headlessui/react'
-import WalletConnector from './wallet-connector'
-import { useUser } from '../containers/userHook'
+// import WalletConnector from './wallet-connector'
+// import { useUser } from '../containers/userHook'
 import { usePreferences } from '../containers/preferences'
 import EmojiEventsOutlinedIcon from '@mui/icons-material/ContrastOutlined';
 import { DEFAULT_ROOM_URL, WHITE_PAPER_GIST } from '@rumble-raffle-dao/types/constants'
 import { useRouter } from 'next/router'
-import { useDisconnect } from 'wagmi'
+// import { useDisconnect } from 'wagmi'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')

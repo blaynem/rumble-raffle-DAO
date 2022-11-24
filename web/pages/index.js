@@ -1,8 +1,9 @@
 import Head from 'next/head'
 import { usePreferences } from '../containers/preferences';
 import { useEffect, useState } from 'react';
-import { DEFAULT_ROOM_URL, DISCORD_LINK, TWITTER_HANDLE, TWITTER_LINK, WHITE_PAPER_GIST } from '@rumble-raffle-dao/types/constants';
-import { useRouter } from 'next/router';
+import { DISCORD_LINK, TWITTER_HANDLE, TWITTER_LINK } from '@rumble-raffle-dao/types/constants';
+// import { DEFAULT_ROOM_URL, DISCORD_LINK, TWITTER_HANDLE, TWITTER_LINK, WHITE_PAPER_GIST } from '@rumble-raffle-dao/types/constants';
+// import { useRouter } from 'next/router';
 
 /**
  * TODO:
@@ -12,7 +13,7 @@ import { useRouter } from 'next/router';
 const pageTitle = `Rumble Raffle`
 export default function PageIndex() {
   const { preferences } = usePreferences();
-  const router = useRouter();
+  // const router = useRouter();
 
   const [darkMode, setDarkMode] = useState(false);
 
@@ -37,7 +38,7 @@ export default function PageIndex() {
 
           <h2 className='uppercase mb-2 text-xl dark:text-rumbleSecondary text-rumblePrimary'>What the heck are those?</h2>
           <p className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
-            RMBLB Tokens will be exchanged for a more customized experience! While we iron out all the details, we'll let you accumulate them in the background.
+            {"RMBLB Tokens will be exchanged for a more customized experience! While we iron out all the details, we'll let you accumulate them in the background."}
           </p>
           {/* <p className='mb-8 dark:text-rumbleNone text-rumbleOutline'>
             RMBLB Tokens are a cryptocurrency that are used to purchase and upgrade Rumble NFTs.

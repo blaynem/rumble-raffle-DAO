@@ -29,7 +29,7 @@ const InputField = ({ id, label, placeholder, inputType = "text", onChange, valu
   </div>
 )
 
-type DropDownField = {
+type DropDownFieldType = {
   id: string,
   options: string[] | { value: string; text: string }[],
   label: string;
@@ -37,7 +37,7 @@ type DropDownField = {
   onChange: any;
 }
 
-const DropDownField = ({ id, label, options, onChange, value }: DropDownField) => (
+const DropDownField = ({ id, label, options, onChange, value }: DropDownFieldType) => (
   <div className={fieldContainerClass}>
     <label className={labelClass} htmlFor={id}>{label}</label>
     <select

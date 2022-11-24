@@ -11,28 +11,22 @@ const fetcher = url => fetch(url).then(r => r.json())
 
 function MyApp({ Component, pageProps }) {
   return (
-    <ContainerRoot>
-      <Nav />
-      <Component {...pageProps} />
-    </ContainerRoot>
+    <SWRConfig
+      value={{
+        fetcher,
+        onError: (err) => {
+          console.error('---RumbleRaffleErr: SWRConfig', err)
+        },
+      }}
+    >
+      <WagmiConfig client={wagmiClient}>
+        <ContainerRoot>
+          <Nav />
+          <Component {...pageProps} />
+        </ContainerRoot>
+      </WagmiConfig>
+    </SWRConfig>
   )
-  // return (
-  //   <SWRConfig
-  //     value={{
-  //       fetcher,
-  //       onError: (err) => {
-  //         console.error('---RumbleRaffleErr: SWRConfig', err)
-  //       },
-  //     }}
-  //   >
-  //     <WagmiConfig client={wagmiClient}>
-  //       <ContainerRoot>
-  //         <Nav />
-  //         <Component {...pageProps} />
-  //       </ContainerRoot>
-  //     </WagmiConfig>
-  //   </SWRConfig>
-  // )
 }
 
 export default MyApp
