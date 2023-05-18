@@ -1,4 +1,3 @@
-
 /** STORE TYPINGS */
 
 export interface StoreState {
@@ -6,34 +5,34 @@ export interface StoreState {
 }
 
 export type AuthStoreValue = {
-  verification_id: string;
-  discord_id: string;
-  discord_tag: string;
-  expireTime: number;
+  verification_id: string
+  discord_id: string
+  discord_tag: string
+  expireTime: number
 }
 
 export interface AuthStore {
-  add: (value: AuthDiscordInitBody, msToExpire: number) => AuthStoreValue;
-  get: (key: string) => AuthStoreValue | null;
-  remove: (key: string) => void;
+  add: (value: AuthDiscordInitBody, msToExpire: number) => AuthStoreValue
+  get: (key: string) => AuthStoreValue | null
+  remove: (key: string) => void
 }
 
 export type AuthDiscordInitBody = {
-  discord_id: string;
-  discord_tag: string;
+  discord_id: string
+  discord_tag: string
 }
 
 /** VERIFY GET TYPES */
 
 export interface AuthDiscordVerifyGetBody extends express.Request {
   params: {
-    verification_id: string;
+    verification_id: string
   }
 }
 
 export interface AuthDiscordVerifyGetResponse {
-  data: AuthStoreValue;
-  error?: string;
+  data: AuthStoreValue | null
+  error?: string
 }
 
 /** INIT POST TYPES */
@@ -43,16 +42,16 @@ export interface AuthDiscordInitPostBody extends express.Request {
 }
 
 export interface AuthDiscordInitPostResponse {
-  data: { verify_link: string } & AuthStoreValue;
-  error?: string;
+  data: ({ verify_link: string } & AuthStoreValue) | null
+  error?: string
 }
 
 /** VERIFY POST TYPES */
 
 export interface VerifyDiscordId {
-  signature: string;
-  public_address: string;
-  verification_id: string;
+  signature: string
+  public_address: string
+  verification_id: string
 }
 
 export interface AuthDiscordVerifyPostBody extends express.Request {
@@ -60,6 +59,6 @@ export interface AuthDiscordVerifyPostBody extends express.Request {
 }
 
 export interface AuthDiscordVerifyPostResponse {
-  data: string;
-  error?: string;
+  data: string | null
+  error?: string
 }

@@ -1,37 +1,52 @@
-import { usePopperTooltip } from 'react-popper-tooltip';
+import * as React from 'react'
+import { usePopperTooltip } from 'react-popper-tooltip'
 
-export const ClickToCopyPopper = ({ text, boldText, popperText, truncate }: { text: string; boldText?: boolean; popperText: string; truncate?: boolean; }) => {
-  const {
-    getArrowProps,
-    getTooltipProps,
-    setTooltipRef,
-    setTriggerRef,
-    visible,
-  } = usePopperTooltip({
-    trigger: 'click',
-    interactive: true,
-    closeOnTriggerHidden: true,
-  });
+export const ClickToCopyPopper = ({
+  text,
+  boldText,
+  popperText,
+  truncate
+}: {
+  text: string
+  boldText?: boolean
+  popperText: string
+  truncate?: boolean
+}) => {
+  const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } =
+    usePopperTooltip({
+      trigger: 'click',
+      interactive: true,
+      closeOnTriggerHidden: true
+    })
 
   const handleClick = () => {
-    navigator.clipboard.writeText(popperText);
+    navigator.clipboard.writeText(popperText)
   }
 
   return (
     <>
-      <div className={`inline-block cursor-pointer ${boldText && 'font-medium'} ${truncate && 'truncate'}`} ref={setTriggerRef}>
+      <div
+        className={`inline-block cursor-pointer ${boldText && 'font-medium'} ${
+          truncate && 'truncate'
+        }`}
+        ref={setTriggerRef}
+      >
         {text}
       </div>
       {visible && (
         <div
           ref={setTooltipRef}
-          {...getTooltipProps({ className: 'tooltip-container p-2 shadow-md bg-rumbleBgLight border-2 border-black' })}
+          {...getTooltipProps({
+            className: 'tooltip-container p-2 shadow-md bg-rumbleBgLight border-2 border-black'
+          })}
         >
-          <div className='cursor-default font-light text-xs'>--Click to copy--</div>
-          <div onClick={handleClick} className='cursor-pointer font-light'>{popperText}</div>
+          <div className="cursor-default font-light text-xs">--Click to copy--</div>
+          <div onClick={handleClick} className="cursor-pointer font-light">
+            {popperText}
+          </div>
           <div {...getArrowProps({ className: 'tooltip-arrow' })} />
         </div>
       )}
     </>
-  );
+  )
 }
