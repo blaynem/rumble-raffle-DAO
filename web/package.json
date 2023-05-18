@@ -30,6 +30,7 @@
     "swr": "^2.1.5",
     "tabler-icons-react": "^1.48.0",
     "unstated-next": "^1.1.0",
+    "viem": "^0.3.29",
     "wagmi": "^1.0.5",
     "web-vitals": "^3.3.1",
     "yup": "^1.1.1"

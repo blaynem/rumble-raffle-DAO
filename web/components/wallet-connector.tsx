@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useAccount, useConnect, useSignMessage } from 'wagmi'
+import { InjectedConnector } from 'wagmi/connectors/injected'
 import { verifyMessage } from 'ethers'
 import { useUser } from '../containers/userHook'
 import WalletAddress from './wallet-address'
@@ -9,34 +10,36 @@ const WalletConnector = () => {
   const [loading, setLoading] = useState(false)
   const { doAuth, user } = useUser()
 
-  const { signMessage } = useSignMessage({
-    message: LOGIN_MESSAGE,
-    onSuccess: async (signature, variables) => {
-      setLoading(true)
-      // Verify signature when sign message succeeds
-      const public_address = verifyMessage(variables.message, signature)
-      await doAuth({ public_address, signature })
-      setLoading(loading)
-    }
-  })
+  // const { signMessage } = useSignMessage({
+  //   message: LOGIN_MESSAGE,
+  //   onSuccess: async (signature, variables) => {
+  //     setLoading(true)
+  //     // Verify signature when sign message succeeds
+  //     const public_address = verifyMessage(variables.message, signature)
+  //     await doAuth({ public_address, signature })
+  //     setLoading(loading)
+  //   }
+  // })
   const { isConnected } = useAccount()
-  const { connectAsync, connectors } = useConnect()
+  const { connect } = useConnect({
+    connector: new InjectedConnector()
+  })
 
   const handleConnect = async () => {
     // connects with the first connector, which is metamask
-    await connectAsync({ connector: connectors[0] })
-    signMessage()
+    connect()
+    // signMessage()
   }
 
   // If user is already logged in (via cookie) we make sure to do the auth and connect to metamask.
-  useEffect(() => {
-    if (user?.id && user?.signature) {
-      setLoading(true)
-      !isConnected && connectAsync({ connector: connectors[0] })
-      doAuth({ public_address: user.id, signature: user.signature })
-      setLoading(loading)
-    }
-  }, [user?.id])
+  // useEffect(() => {
+  //   if (user?.id && user?.signature) {
+  //     setLoading(true)
+  //     !isConnected && connect()
+  //     doAuth({ public_address: user.id, signature: user.signature })
+  //     setLoading(loading)
+  //   }
+  // }, [user?.id])
 
   return (
     <div>
@@ -46,7 +49,9 @@ const WalletConnector = () => {
         (user?.id ? (
           <WalletAddress address={user.id} />
         ) : (
-          <span onClick={() => signMessage()}>{loading ? 'Loading...' : 'Sign Message'}</span>
+          <span onClick={() => console.log('signMessage()')}>
+            {loading ? 'Loading...' : 'Sign Message'}
+          </span>
         ))}
     </div>
   )
