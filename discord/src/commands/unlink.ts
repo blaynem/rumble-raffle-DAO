@@ -1,14 +1,19 @@
-import { CacheType, CommandInteraction, MessageActionRow, MessageButton } from 'discord.js';
-import { unlinkDiscordButton } from '../buttons';
+import {
+  CacheType,
+  CommandInteraction,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle
+} from 'discord.js'
+import { unlinkDiscordButton } from '../buttons'
 
 export const unlinkAccount = async (interaction: CommandInteraction<CacheType>) => {
-  const button = new MessageButton()
+  const button = new ButtonBuilder()
     .setCustomId(unlinkDiscordButton.customId)
     .setLabel('Unlink Discord')
-    .setStyle('DANGER');
+    .setStyle(ButtonStyle.Danger)
 
-  const row = new MessageActionRow()
-    .addComponents(button);
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button)
 
   interaction.reply({
     ephemeral: true,

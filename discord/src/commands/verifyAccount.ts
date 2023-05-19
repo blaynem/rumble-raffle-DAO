@@ -1,27 +1,47 @@
-import fetch from 'node-fetch';
-import { AuthDiscordInitBody, AuthDiscordInitPostResponse, UserDataFetchByDiscordId } from "@rumble-raffle-dao/types";
-import { SERVER_BASE_PATH, SERVER_USERS, PATH_VERIFY_INIT, SERVER_AUTH_DISCORD, LOGIN_MESSAGE } from "@rumble-raffle-dao/types/constants";
-import { CacheType, MessageEmbed, MessageButton, MessageActionRow, CommandInteraction } from "discord.js";
-import { CONFIG } from "../../config";
-import { BASE_API_URL } from "../../constants";
-import { JOIN_GAME_EMOJI } from '../sockets';
+import fetch from 'node-fetch'
+import {
+  AuthDiscordInitBody,
+  AuthDiscordInitPostResponse,
+  UserDataFetchByDiscordId
+} from '@rumble-raffle-dao/types'
+import {
+  SERVER_BASE_PATH,
+  SERVER_USERS,
+  PATH_VERIFY_INIT,
+  SERVER_AUTH_DISCORD,
+  LOGIN_MESSAGE
+} from '@rumble-raffle-dao/types/constants'
+import {
+  CacheType,
+  EmbedBuilder,
+  ButtonBuilder,
+  ActionRowBuilder,
+  CommandInteraction,
+  ButtonStyle
+} from 'discord.js'
+import { CONFIG } from '../../config'
+import { BASE_API_URL } from '../../constants'
+import { JOIN_GAME_EMOJI } from '../sockets'
 
 /**
  * Does the Discord Auth verification fetch
  */
 const fetchVerifyInit = async (fetchBody: AuthDiscordInitBody) => {
-  return await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_AUTH_DISCORD}${PATH_VERIFY_INIT}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(fetchBody)
-  }).then(res => res.json()) as AuthDiscordInitPostResponse
+  return (await fetch(
+    `${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_AUTH_DISCORD}${PATH_VERIFY_INIT}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(fetchBody)
+    }
+  ).then(res => res.json())) as AuthDiscordInitPostResponse
 }
 
 /**
  * When the user presses the "Verify" button, this function will fire.
- * 
+ *
  * @param interaction - Discords ButtonInteraction type
  */
 export const verifyAccount = async (interaction: CommandInteraction<CacheType>) => {
@@ -29,11 +49,12 @@ export const verifyAccount = async (interaction: CommandInteraction<CacheType>) 
     const fetchBody: AuthDiscordInitBody = {
       discord_id: interaction.user.id,
       discord_tag: `${interaction.user.username}#${interaction.user.discriminator}`
-    };
+    }
 
     // Check if the users discord_id is attached to a users public_address.
-    const user: UserDataFetchByDiscordId = await fetch(`${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_USERS}?discord_id=${fetchBody.discord_id}`)
-      .then(res => res.json());
+    const user: UserDataFetchByDiscordId = await fetch(
+      `${BASE_API_URL}${SERVER_BASE_PATH}${SERVER_USERS}?discord_id=${fetchBody.discord_id}`
+    ).then(res => res.json())
 
     // If the user fetch comes back with a discord_id
     if (user?.discord_id) {
@@ -41,24 +62,23 @@ export const verifyAccount = async (interaction: CommandInteraction<CacheType>) 
       await interaction.reply({
         ephemeral: true,
         content: `Looks like you're already verified!`
-      });
-      return;
+      })
+      return
     }
 
     // Otherwise we start the verification init
-    const { data: verifyInitData, error } = await fetchVerifyInit(fetchBody);
+    const { data: verifyInitData, error } = await fetchVerifyInit(fetchBody)
 
-    if (error) {
+    if (error || verifyInitData === null) {
       await interaction.reply({
         content: 'There was an error when creating a verification code, please let the devs know.',
-        ephemeral: true,
-      });
+        ephemeral: true
+      })
     }
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setColor('#4CE3B6')
-      .setTitle('Visit Rumble Raffle site to verify!')
-      .setDescription(`
+      .setTitle('Visit Rumble Raffle site to verify!').setDescription(`
 In order to save your progress and earn tokens, you'll need to verify your crypto wallet on the Rumble Raffle site.
 
 **Verification Steps**
@@ -76,21 +96,20 @@ Want to know more?
 `)
 
     // Now we set the link
-    const linkButton = new MessageButton()
+    const linkButton = new ButtonBuilder()
       .setLabel('Link Discord')
-      .setURL(verifyInitData.verify_link)
-      .setStyle('LINK');
+      .setURL(verifyInitData!.verify_link)
+      .setStyle(ButtonStyle.Link)
 
-    const row = new MessageActionRow()
-      .addComponents(linkButton);
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(linkButton)
 
     await interaction.reply({
       embeds: [embed],
       ephemeral: true,
       components: [row]
-    });
+    })
   } catch (err) {
-    console.error(err);
-    interaction.reply({ ephemeral: true, content: "Ope. An error occured." })
+    console.error(err)
+    interaction.reply({ ephemeral: true, content: 'Ope. An error occured.' })
   }
 }

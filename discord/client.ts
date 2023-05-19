@@ -1,16 +1,14 @@
 // Require the necessary discord.js classes
-import { Client, Intents } from 'discord.js';
+import { Client, GatewayIntentBits, Partials } from 'discord.js'
 // Create a new client instance
 const client = new Client({
   intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_MEMBERS,
-    Intents.FLAGS.GUILD_MESSAGES,
-    Intents.FLAGS.GUILD_MESSAGE_REACTIONS
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMessageReactions
   ],
-  partials: [
-    'MESSAGE', 'CHANNEL', 'REACTION'
-  ]
-});
+  partials: [Partials.Message, Partials.Channel, Partials.Reaction]
+})
 
-export default client;
+export default client

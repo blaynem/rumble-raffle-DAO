@@ -1,58 +1,82 @@
-require('dotenv').config()
-import { ServerToClientEvents, ClientToServerEvents } from "@rumble-raffle-dao/types";
-import { GAME_START_COUNTDOWN, JOIN_ROOM, NEW_GAME_CREATED, NEXT_ROUND_START_COUNTDOWN, SYNC_PLAYERS_RESPONSE, UPDATE_ACTIVITY_LOG_ROUND, UPDATE_ACTIVITY_LOG_WINNER } from "@rumble-raffle-dao/types/constants";
-import { Socket, io } from "socket.io-client";
-import { BASE_API_URL } from "../../constants";
-import { AllGuildContexts } from "../guildContext";
-import { newGameCreated } from "./newGameCreated";
-import { syncPlayerRoomData } from "./syncPlayerRoomData";
-import { logWinner } from "./logWinner";
-import { logRound } from "./logRound";
-import { gameStartCountdown, nextRoundStartCountdown } from "./countdown";
+import { ServerToClientEvents, ClientToServerEvents } from '@rumble-raffle-dao/types'
+import {
+  GAME_START_COUNTDOWN,
+  JOIN_ROOM,
+  NEW_GAME_CREATED,
+  NEXT_ROUND_START_COUNTDOWN,
+  SYNC_PLAYERS_RESPONSE,
+  UPDATE_ACTIVITY_LOG_ROUND,
+  UPDATE_ACTIVITY_LOG_WINNER
+} from '@rumble-raffle-dao/types/constants'
+import { Socket, io } from 'socket.io-client'
+import { BASE_API_URL } from '../../constants'
+import { AllGuildContexts } from '../guildContext'
+import { newGameCreated } from './newGameCreated'
+import { syncPlayerRoomData } from './syncPlayerRoomData'
+import { logWinner } from './logWinner'
+import { logRound } from './logRound'
+import { gameStartCountdown, nextRoundStartCountdown } from './countdown'
 
+export const JOIN_GAME_EMOJI = '⚔'
 
-export const JOIN_GAME_EMOJI = '⚔';
-
-export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL);
+export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(BASE_API_URL)
 
 export const emitJoinRoom = (slug: string) => {
-  socket.emit(JOIN_ROOM, slug);
+  socket.emit(JOIN_ROOM, slug)
 }
 
 export const initSockets = (allGuildContexts: AllGuildContexts) => {
-  socket.on(NEW_GAME_CREATED, (roomData) => {
-    const guild = allGuildContexts.getGuildBySlug(roomData.room.slug);
+  socket.on(NEW_GAME_CREATED, roomData => {
+    const guild = allGuildContexts.getGuildBySlug(roomData.room.slug)
+    if (!guild) {
+      return
+    }
     newGameCreated(guild, roomData)
-  });
+  })
 
   socket.on(SYNC_PLAYERS_RESPONSE, (response, slug) => {
-    const guild = allGuildContexts.getGuildBySlug(slug);
-    syncPlayerRoomData(guild, response, slug);
+    const guild = allGuildContexts.getGuildBySlug(slug)
+    if (!guild) {
+      return console.error(`Guild not found for slug: ${slug}`)
+    }
+    syncPlayerRoomData(guild, response, slug)
   })
 
   socket.on(UPDATE_ACTIVITY_LOG_WINNER, (winners, slug) => {
-    const guild = allGuildContexts.getGuildBySlug(slug);
+    const guild = allGuildContexts.getGuildBySlug(slug)
+    if (!guild) {
+      return console.error(`Guild not found for slug: ${slug}`)
+    }
     logWinner(guild, winners)
-  });
+  })
 
   socket.on(UPDATE_ACTIVITY_LOG_ROUND, (rounds, slug) => {
-    const guild = allGuildContexts.getGuildBySlug(slug);
-    logRound(guild, rounds);
-  });
+    const guild = allGuildContexts.getGuildBySlug(slug)
+    if (!guild) {
+      return console.error(`Guild not found for slug: ${slug}`)
+    }
+    logRound(guild, rounds)
+  })
 
   socket.on(GAME_START_COUNTDOWN, (timeToStart, slug) => {
-    const guild = allGuildContexts.getGuildBySlug(slug);
+    const guild = allGuildContexts.getGuildBySlug(slug)
+    if (!guild) {
+      return console.error(`Guild not found for slug: ${slug}`)
+    }
     gameStartCountdown(guild, timeToStart)
-  });
+  })
 
   socket.on(NEXT_ROUND_START_COUNTDOWN, (timeToStart, slug) => {
-    const guild = allGuildContexts.getGuildBySlug(slug);
+    const guild = allGuildContexts.getGuildBySlug(slug)
+    if (!guild) {
+      return console.error(`Guild not found for slug: ${slug}`)
+    }
     nextRoundStartCountdown(guild, timeToStart)
-  });
+  })
 
   socket.on('disconnect', () => {
-    console.log('--DISCORD BOT DISCONNECTED--');
+    console.log('--DISCORD BOT DISCONNECTED--')
     // Rejoin room on disconnect
     // socket.emit(JOIN_ROOM, slugs);
-  });
+  })
 }

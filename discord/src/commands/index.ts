@@ -1,11 +1,11 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CacheType, CommandInteraction } from 'discord.js';
-import { GuildContext } from '../guildContext';
-import { createGame } from './createGame';
-import { startGame } from './start';
-import { suggestedActivity } from './suggest';
-import { unlinkAccount } from './unlink';
-import { verifyAccount } from './verifyAccount';
+import { SlashCommandBuilder } from '@discordjs/builders'
+import { CacheType, CommandInteraction } from 'discord.js'
+import { GuildContext } from '../guildContext'
+import { createGame } from './createGame'
+import { startGame } from './start'
+import { suggestedActivity } from './suggest'
+import { unlinkAccount } from './unlink'
+import { verifyAccount } from './verifyAccount'
 
 export enum EnvFlags {
   PRODUCTION = 'PRODUCTION',
@@ -14,25 +14,25 @@ export enum EnvFlags {
 
 type Command = {
   /**
-   * Callback to be fired 
+   * Callback to be fired
    */
-  callback: (interaction: CommandInteraction<CacheType>, guildContext: GuildContext) => void;
+  callback: (interaction: CommandInteraction<CacheType>, guildContext: GuildContext) => void
   /**
    * Name of the command
-   * 
+   *
    * Note: Maps directly to SlashCommandBuilder.setName
    */
-  commandName: string;
+  commandName: string
   /**
    * Description of command.
-   * 
+   *
    * Note: Maps directly to SlashCommandBuilder.setDescription
    */
-  description: string;
+  description: string
   /**
    * Additional options that are to be added to the slash command.
    */
-  options?: (cmd: SlashCommandBuilder) => Partial<SlashCommandBuilder>;
+  options?: (cmd: SlashCommandBuilder) => SlashCommandBuilder
   /**
    * Environment flags to determine where the command should deployed.
    */
@@ -40,7 +40,7 @@ type Command = {
 }
 
 export const verifyAccountCommand: Command = {
-  callback: (interaction) => verifyAccount(interaction),
+  callback: interaction => verifyAccount(interaction),
   commandName: 'link',
   description: 'Link your discord_id to the Rumble Raffle database.',
   environmentFlag: [EnvFlags.TEST]
@@ -51,7 +51,7 @@ export const verifyAccountCommand: Command = {
  */
 export const interactionCommands: Command[] = [
   {
-    callback: (interaction) => unlinkAccount(interaction),
+    callback: interaction => unlinkAccount(interaction),
     commandName: 'unlink',
     description: 'Unlinks your discord_id from Rumble Raffle database.',
     environmentFlag: [EnvFlags.TEST]
@@ -62,18 +62,22 @@ export const interactionCommands: Command[] = [
     commandName: 'create',
     description: 'Create a new Rumble Raffle game with default parameters. (PVE: 30%, Revive: 7%)',
     environmentFlag: [EnvFlags.PRODUCTION, EnvFlags.TEST],
-    options: cmd => {
-      return cmd.addIntegerOption(option =>
-        option.setName('pve_chance')
-          .setMinValue(0)
-          .setMaxValue(50)
-          .setDescription('Percent chance of a PVE random. Default: 30.'))
+    options: cmd =>
+      cmd
         .addIntegerOption(option =>
-          option.setName('revive_chance')
+          option
+            .setName('pve_chance')
+            .setMinValue(0)
+            .setMaxValue(50)
+            .setDescription('Percent chance of a PVE random. Default: 30.')
+        )
+        .addIntegerOption(option =>
+          option
+            .setName('revive_chance')
             .setMinValue(0)
             .setMaxValue(10)
-            .setDescription('Percent chance of someone to revive. Default: 7'))
-    }
+            .setDescription('Percent chance of someone to revive. Default: 7')
+        ) as SlashCommandBuilder
   },
   {
     callback: (interaction, guildContext) => startGame(interaction, guildContext),
@@ -91,31 +95,34 @@ export const interactionCommands: Command[] = [
 
 /**
  * Finds the command that was called, and fires it.
- * 
+ *
  * @param interaction - the Command Interaction from the client
  */
-export const getCommandInteraction = (interaction: CommandInteraction<CacheType>, guildContext: GuildContext) => {
-  const command = interactionCommands.find(cmd => cmd.commandName === interaction.commandName);
+export const getCommandInteraction = (
+  interaction: CommandInteraction<CacheType>,
+  guildContext: GuildContext
+) => {
+  const command = interactionCommands.find(cmd => cmd.commandName === interaction.commandName)
   if (command) {
-    command.callback(interaction, guildContext);
+    command.callback(interaction, guildContext)
   }
 }
-
 
 /**
  * These are all of the available slash commands.
  */
-export const getAvailableSlashCommands = (environment: EnvFlags) => interactionCommands
-  .filter((cmd) => cmd.environmentFlag.includes(environment))
-  .map((cmd) => {
-    const commandBuilder = new SlashCommandBuilder()
-      .setName(cmd.commandName)
-      .setDescription(cmd.description)
-    // If we don't have options we can return it now.
-    if (!cmd.options) {
-      return commandBuilder;
-    }
-    // Apply the options if we have m.
-    return cmd.options(commandBuilder)
-  })
-  .map(cmd => cmd.toJSON());
+export const getAvailableSlashCommands = (environment: EnvFlags) =>
+  interactionCommands
+    .filter(cmd => cmd.environmentFlag.includes(environment))
+    .map(cmd => {
+      const commandBuilder = new SlashCommandBuilder()
+        .setName(cmd.commandName)
+        .setDescription(cmd.description)
+      // If we don't have options we can return it now.
+      if (!cmd.options) {
+        return commandBuilder
+      }
+      // Apply the options if we have m.
+      return cmd.options(commandBuilder)
+    })
+    .map(cmd => cmd.toJSON())
