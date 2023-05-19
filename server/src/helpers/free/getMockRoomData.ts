@@ -1,10 +1,14 @@
-import { RoomDataType } from "@rumble-raffle-dao/types";
-import { selectRoomInfo } from "../selectRoomInfo";
+import { RoomDataType } from '@rumble-raffle-dao/types'
+import { selectRoomInfo } from '../selectRoomInfo'
 
 /**
  * Basically a replica of of the non-free version except we don't make any API calls.
  */
-export const getMockRoomData = (slug: string, pve_chance: number, revive_chance: number): RoomDataType => {
+export const getMockRoomData = (
+  slug: string,
+  pve_chance: number,
+  revive_chance: number
+): RoomDataType => {
   const data = {
     slug,
     id: 'FREE_ID',
@@ -22,8 +26,8 @@ export const getMockRoomData = (slug: string, pve_chance: number, revive_chance:
       Contract: {
         contract_address: 'FREE_CONTRACT_ADDR',
         chain_id: 137,
-        created_at: "2022-05-11T22:59:15.000Z",
-        updated_at: "2022-05-11T22:59:15.000Z",
+        created_at: '2022-05-11T22:59:15.000Z',
+        updated_at: '2022-05-11T22:59:15.000Z',
         name: 'FREE RR GAME',
         symbol: 'FREE',
         decimals: '18',
@@ -32,11 +36,14 @@ export const getMockRoomData = (slug: string, pve_chance: number, revive_chance:
     }
   }
 
-  const { Params: { Players, GameLogs, Contract, ...restParams }, ...restRoomData } = data
+  const {
+    Params: { Players, GameLogs, Contract, ...restParams },
+    ...restRoomData
+  } = data
   const roomInfo: RoomDataType = {
     room: restRoomData,
     params: restParams,
-    players: Players.map(player => player.User),
+    players: Players,
     gameLogs: GameLogs,
     gameData: null,
     contract: Contract

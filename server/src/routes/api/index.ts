@@ -1,25 +1,31 @@
-import { SERVER_ACTIVITIES, SERVER_AUTH_DISCORD, SERVER_ROOMS, SERVER_USERS } from '@rumble-raffle-dao/types/constants';
-import express from 'express';
+import {
+  SERVER_ACTIVITIES,
+  SERVER_AUTH_DISCORD,
+  SERVER_ROOMS,
+  SERVER_USERS
+} from '@rumble-raffle-dao/types/constants'
+import express, { ErrorRequestHandler } from 'express'
 
-const router = express.Router();
+const router = express.Router()
 
-router.use(SERVER_ROOMS, require('./rooms'));
-router.use(SERVER_USERS, require('./users'));
-router.use(SERVER_AUTH_DISCORD, require('./auth_discord'));
-router.use(SERVER_ACTIVITIES, require('./activities').router);
+router.use(SERVER_ROOMS, require('./rooms'))
+router.use(SERVER_USERS, require('./users'))
+router.use(SERVER_AUTH_DISCORD, require('./auth_discord'))
+router.use(SERVER_ACTIVITIES, require('./activities').router)
 
-router.use(function (err, req, res, next) {
+const errorHandle: ErrorRequestHandler = (err: any, req, res, next) => {
   if (err.name === 'ValidationError') {
-    return res.status(422).json({
-      errors: Object.keys(err.errors).reduce(function (errors, key) {
-        errors[key] = err.errors[key].message;
+    const errors: Record<string, string> = {}
 
-        return errors;
-      }, {})
-    });
+    Object.keys(err.errors).forEach(key => {
+      errors[key] = err.errors[key].message
+    })
+
+    return res.status(422).json({ errors })
   }
 
-  return next(err);
-});
+  return next(err)
+}
+router.use(errorHandle)
 
-module.exports = router;
+module.exports = router

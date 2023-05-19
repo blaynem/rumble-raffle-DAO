@@ -4,18 +4,32 @@ import { IronSessionUserData } from '@rumble-raffle-dao/types'
 import useSWR from 'swr'
 
 const useContainer = () => {
-  const { data: user, mutate: mutateUser } = useSWR<IronSessionUserData>('/api/auth/user')
+  const defaultUser: IronSessionUserData = {
+    id: '',
+    name: '',
+    is_admin: false,
+    discord_id: '',
+    signature: ''
+  }
+  const { data: user = defaultUser, mutate: mutateUser } =
+    useSWR<IronSessionUserData>('/api/auth/user')
 
   const updateName = (name: string) => {
-    mutateUser();
+    mutateUser()
   }
 
   const logout = async () => {
-    await fetch(`/api/auth/logout`);
-    mutateUser();
+    await fetch(`/api/auth/logout`)
+    mutateUser()
   }
 
-  const doAuth = async ({ signature, public_address }: { signature: string; public_address: string; }) => {
+  const doAuth = async ({
+    signature,
+    public_address
+  }: {
+    signature: string
+    public_address: string
+  }) => {
     try {
       // call the nextjs login api
       fetch(`/api/auth/login`, {
@@ -24,20 +38,22 @@ const useContainer = () => {
           'Content-Type': 'application/json'
         },
         method: 'POST'
-      }).then((userCookie: any) => {
-        // If there's an error, let's display it.
-        if (userCookie?.error) {
-          window.alert(userCookie?.error);
-          return;
-        }
-        mutateUser();
-      }).catch(err => {
-        window.alert(err)
       })
+        .then((userCookie: any) => {
+          // If there's an error, let's display it.
+          if (userCookie?.error) {
+            window.alert(userCookie?.error)
+            return
+          }
+          mutateUser()
+        })
+        .catch(err => {
+          window.alert(err)
+        })
       // Call mutateUser which updates the ironSession data
       // mutateUser();
     } catch (err) {
-      console.error("authenticate error", err)
+      console.error('authenticate error', err)
     }
     return { loading: false }
   }

@@ -1,21 +1,26 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { withSessionRoute } from '../../../lib/with-session'
-import prisma from '../../../client';
-import faker from '@faker-js/faker'
+import prisma from '../../../client'
+import { faker } from '@faker-js/faker'
 import { verifySignature } from '../../../lib/authentication'
-import { LOGIN_MESSAGE } from '@rumble-raffle-dao/types/constants';
+import { LOGIN_MESSAGE } from '@rumble-raffle-dao/types/constants'
 
 // idk fun to have a fake name instead of not.
-const fancyName = () => `${faker.name.jobType().toUpperCase()}-${faker.animal.type().toUpperCase()}-${faker.datatype.number(100)}`
+const fancyName = () =>
+  `${faker.person.jobType().toUpperCase()}-${faker.animal.type().toUpperCase()}-${faker.number.int(
+    100
+  )}`
 
 async function auth(req: NextApiRequest, res: NextApiResponse) {
   try {
     const { signature, id } = req.body
     if (!signature || !id) {
-      return res.status(400).json({ error: 'Request should have signature and id (public_address)' })
+      return res
+        .status(400)
+        .json({ error: 'Request should have signature and id (public_address)' })
     }
 
-    const signatureVerified = verifySignature(id, signature as string, LOGIN_MESSAGE);
+    const signatureVerified = verifySignature(id, signature as string, LOGIN_MESSAGE)
 
     // If signature was verified
     if (signatureVerified) {
@@ -25,19 +30,24 @@ async function auth(req: NextApiRequest, res: NextApiResponse) {
           id
         },
         update: {
-          id,
+          id
         },
         create: {
-          id, name: fancyName()
+          id,
+          name: fancyName()
         },
         select: {
-          id: true, is_admin: true, name: true, discord_id: true
+          id: true,
+          is_admin: true,
+          name: true,
+          discord_id: true
         }
       })
 
       if (!user.is_admin) {
         // We don't want to show this in cookies if user isn't an admin.
-        delete user.is_admin;
+        // @ts-ignore
+        delete user.is_admin
       }
 
       if (!user) {

@@ -1,8 +1,17 @@
-import { CommandInteraction, CacheType, MessageButton, MessageActionRow } from "discord.js";
-import { APP_ID, BASE_WEB_URL } from "../../constants";
-import { GuildContext } from "../guildContext";
+import {
+  CommandInteraction,
+  CacheType,
+  ButtonBuilder,
+  ActionRowBuilder,
+  ButtonStyle
+} from 'discord.js'
+import { APP_ID, BASE_WEB_URL } from '../../constants'
+import { GuildContext } from '../guildContext'
 
-export const suggestedActivity = (interaction: CommandInteraction<CacheType>, guildContext: GuildContext) => {
+export const suggestedActivity = (
+  interaction: CommandInteraction<CacheType>,
+  guildContext: GuildContext
+) => {
   const urlState = {
     guild_id: guildContext.getGuildId()
   }
@@ -10,18 +19,15 @@ export const suggestedActivity = (interaction: CommandInteraction<CacheType>, gu
     client_id: APP_ID,
     redirect_uri: `${BASE_WEB_URL}/suggest`,
     state: JSON.stringify(urlState),
-    response_type: "code",
-    scope: "identify"
-  }).toString();
+    response_type: 'code',
+    scope: 'identify'
+  }).toString()
   const url = `https://discord.com/api/oauth2/authorize?${urlEncoded}`
 
   const buttonLabel = 'Submit Suggestion'
-  const button = new MessageButton()
-    .setLabel(buttonLabel)
-    .setStyle('LINK')
-    .setURL(url)
+  const button = new ButtonBuilder().setLabel(buttonLabel).setStyle(ButtonStyle.Link).setURL(url)
 
-  const row = new MessageActionRow().addComponents(button)
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button)
   interaction.reply({
     ephemeral: true,
     content: `

@@ -1,6 +1,6 @@
-import { Prisma } from ".prisma/client";
-import prisma from "../client";
-import availableRoomsData from "../gameState/roomRumbleData";
+import { Prisma } from '.prisma/client'
+import prisma from '../client'
+import availableRoomsData from '../gameState/roomRumbleData'
 
 /**
  * Add player should:
@@ -8,22 +8,23 @@ import availableRoomsData from "../gameState/roomRumbleData";
  * - If not present in db, we make need to start a crypto tx to charge them to join game.
  * - After success, we insert playerId + roomId to `players` db
  * - Then we return success / fail?
- * 
+ *
  * @param roomSlug
- * @param playerData 
- * @returns 
+ * @param playerData
+ * @returns
  */
 export const addPlayer = async (
   roomSlug: string,
   playerData: Pick<Prisma.UsersGroupByOutputType, 'id' | 'name' | 'discord_id'>
 ): Promise<{
-  data?: Pick<Prisma.PlayersGroupByOutputType, 'room_params_id' | 'slug' | 'player' | 'time_joined'>;
-  error?: string;
+  data?: Pick<Prisma.PlayersGroupByOutputType, 'room_params_id' | 'slug' | 'player' | 'time_joined'>
+  error?: string
 }> => {
-  const { roomData } = availableRoomsData.getRoom(roomSlug);
-  if (!roomData) {
-    return { error: "Room doesn't exist." };
+  const room = availableRoomsData.getRoom(roomSlug)
+  if (!room) {
+    return { error: "Room doesn't exist." }
   }
+  const { roomData } = room
   if (roomData.players.length > 900) {
     return { error: 'reached max players' }
   }
@@ -36,6 +37,6 @@ export const addPlayer = async (
   //   return { error };
   // }
   // Otherwise add the player to the rumble locally.
-  roomData.players.push(playerData);
+  roomData.players.push(playerData)
   return { data }
 }

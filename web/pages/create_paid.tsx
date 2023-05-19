@@ -1,24 +1,25 @@
 /* eslint-disable */
+// @ts-nocheck
 
 /**
  * This file was created before we switched up the model in how we play. Keeping it here for now because it might come in handy in the future.
  */
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { Formik, Field, Form, FormikHelpers, ErrorMessage, FormikTouched } from 'formik';
-import { useUser } from '../containers/userHook';
-import createRoomSchema from '../lib/schemaValidations/createRoom';
-import ToastMessage from '../components/toast';
-import { GetPolyContractReturnType, CreateRoomValues, ToastTypes } from '@rumble-raffle-dao/types';
-import { BASE_API_URL, BASE_WEB_URL } from '../lib/constants';
-import { usePreferences } from '../containers/preferences';
+import React, { useState } from 'react'
+import Link from 'next/link'
+import { Formik, Field, Form, FormikHelpers, ErrorMessage, FormikTouched } from 'formik'
+import { useUser } from '../containers/userHook'
+import createRoomSchema from '../lib/schemaValidations/createRoom'
+import ToastMessage from '../components/toast'
+import { GetPolyContractReturnType, CreateRoomValues, ToastTypes } from '@rumble-raffle-dao/types'
+import { BASE_API_URL, BASE_WEB_URL } from '../lib/constants'
+import { usePreferences } from '../containers/preferences'
 
 const coinNetworks = [
   {
-    rpc: "https://polygon-rpc.com/",
+    rpc: 'https://polygon-rpc.com/',
     name: 'Polygon'
-  },
+  }
   // {
   //   rpc: 'https://mainnet.infura.io/v3/',
   //   name: 'Ethereum'
@@ -27,19 +28,19 @@ const coinNetworks = [
 
 // Possible coin contracts
 const coinContracts = {
-  'sFNC': {
+  sFNC: {
     name: 'sFNC',
-    contract: "0x8f06208951E202d30769f50FAec22AEeC7621BE2"
+    contract: '0x8f06208951E202d30769f50FAec22AEeC7621BE2'
   },
-  'RMBLB': {
+  RMBLB: {
     name: 'sFNC',
-    contract: "0xe7f934c08f64413b98cab9a5bafeb1b21fcf2049"
-  },
+    contract: '0xe7f934c08f64413b98cab9a5bafeb1b21fcf2049'
+  }
 }
 
 const AlternativeMessage = ({ message }: { message: string }) => {
   return (
-    <div className='p-8 text-center'>
+    <div className="p-8 text-center">
       <h2 className="text-lg leading-6 font-medium text-gray-900">{message}</h2>
     </div>
   )
@@ -47,44 +48,48 @@ const AlternativeMessage = ({ message }: { message: string }) => {
 
 async function checkSlugAvailable(slug: string) {
   const { data } = await fetch(`${BASE_API_URL}/api/rooms/${slug}`).then(res => res.json())
-  return data;
+  return data
 }
 
 const customPrizeSplitMessage = (errorMsg: string, touched: FormikTouched<CreateRoomValues>) => {
-  let message = null;
-  const {
-    prize_alt_split,
-    prize_first,
-    prize_second,
-    prize_third,
-    prize_kills,
-  } = touched.prize_split;
+  let message = null
+  const { prize_alt_split, prize_first, prize_second, prize_third, prize_kills } =
+    touched.prize_split
   // if all prize fields have been touched && if the error errorMsg is a string then we show the message.
-  if (prize_alt_split && prize_first && prize_second && prize_third && prize_kills && typeof errorMsg === "string") {
-    message = errorMsg;
+  if (
+    prize_alt_split &&
+    prize_first &&
+    prize_second &&
+    prize_third &&
+    prize_kills &&
+    typeof errorMsg === 'string'
+  ) {
+    message = errorMsg
   }
-  return message ? <div className='text-base h-10 py-2 text-red-600'>{message}</div> : null;
+  return message ? <div className="text-base h-10 py-2 text-red-600">{message}</div> : null
 }
 
-const customErrorColors = (msg: string) => <div className='text-base h-10 text-red-600 py-2'>{msg}</div>
+const customErrorColors = (msg: string) => (
+  <div className="text-base h-10 text-red-600 py-2">{msg}</div>
+)
 
 /**
  * TODO:
  * - LIMIT THIS TO ONLY ADMINS OR PEOPLE WE GIVE POWER TO FOR NOW REEEE
- * - Any time a contract is changed, we should require them to fetch again. 
+ * - Any time a contract is changed, we should require them to fetch again.
  * - Should auto-fetch contracts on blur instead of requiring them to press a button.
  */
 const CreatePage = () => {
   const { user } = useUser()
-  const { preferences } = usePreferences();
+  const { preferences } = usePreferences()
   // State
-  const [toastOpen, setToastOpen] = useState(false);
-  const [toast, setToast] = useState(null as ToastTypes);
-  const [savedSlugMessage, setSavedSlugMessage] = useState("");
+  const [toastOpen, setToastOpen] = useState(false)
+  const [toast, setToast] = useState(null as ToastTypes)
+  const [savedSlugMessage, setSavedSlugMessage] = useState('')
   // Probably dont need both these details in state and the ones in values.contract
-  const [contractDetailsLoading, setContractDetailsLoading] = useState(false);
-  const [selectedContract, setSelectedContract] = useState(null as GetPolyContractReturnType);
-  
+  const [contractDetailsLoading, setContractDetailsLoading] = useState(false)
+  const [selectedContract, setSelectedContract] = useState(null as GetPolyContractReturnType)
+
   return <AlternativeMessage message="Nope." />
 
   if (!user || !user.id) {
@@ -92,26 +97,28 @@ const CreatePage = () => {
   }
 
   if (!user.is_admin) {
-    return <AlternativeMessage message="Only admins can create a room at this time. Sorry about that." />
+    return (
+      <AlternativeMessage message="Only admins can create a room at this time. Sorry about that." />
+    )
   }
-
 
   const fetchContractData = async (
     setValues: (values: React.SetStateAction<CreateRoomValues>) => void,
-    values: CreateRoomValues,
+    values: CreateRoomValues
   ) => {
     setContractDetailsLoading(true)
-    const { data } = await fetch(`/api/contracts?contract_address=${values.contract.contract_address}&network_name=${values.contract.network_name}`)
-      .then(res => res.json())
+    const { data } = await fetch(
+      `/api/contracts?contract_address=${values.contract.contract_address}&network_name=${values.contract.network_name}`
+    ).then(res => res.json())
     setValues({
       ...values,
       contract: {
         ...values.contract,
-        ...data,
+        ...data
       }
-    });
-    setSelectedContract(data);
-    setContractDetailsLoading(false);
+    })
+    setSelectedContract(data)
+    setContractDetailsLoading(false)
   }
 
   const handleSubmit = async (values: CreateRoomValues) => {
@@ -127,23 +134,31 @@ const CreatePage = () => {
   const handleSetToast = (options: ToastTypes | null) => {
     if (!options) {
       setToastOpen(false)
-      return;
+      return
     }
-    const { message, type } = options;
+    const { message, type } = options
     setToast({ message, type })
     setToastOpen(true)
   }
 
-  const onSuccessSlugUrlMessage = (slug: string) => <Link href={`/room/${slug}`}><a className="inline-flex items-center dark:text-rumbleNone text-rumbleOutline">{`${BASE_WEB_URL}/room/${slug}`}</a></Link>
+  const onSuccessSlugUrlMessage = (slug: string) => (
+    <Link href={`/room/${slug}`}>
+      <a className="inline-flex items-center dark:text-rumbleNone text-rumbleOutline">{`${BASE_WEB_URL}/room/${slug}`}</a>
+    </Link>
+  )
   const showAltSplitAddress = (values: CreateRoomValues) => {
-    const { prize_alt_split } = values.prize_split;
-    return prize_alt_split !== '' && parseInt(prize_alt_split) > 0;
+    const { prize_alt_split } = values.prize_split
+    return prize_alt_split !== '' && parseInt(prize_alt_split) > 0
   }
 
-  const headerClass = "mb-2 uppercase leading-7 text-lg font-medium dark:text-rumbleSecondary text-rumblePrimary";
-  const fieldClass = 'h-14 dark:focus:ring-rumbleNone focus:ring-rumbleOutline dark:focus:border-rumbleNone focus:border-rumbleOutline dark:bg-rumbleBgDark bg-rumbleNone dark:text-rumbleNone text-rumbleOutline flex-1 block w-full border-none';
-  const labelClass = "mb-1 uppercase block text-base font-medium leading-6 dark:text-rumbleNone text-rumbleOutline";
-  const spanClass = "inline-flex items-center px-3 dark:bg-rumbleBgDark bg-rumbleNone dark:text-rumbleNone/40 text-rumbleOutline/40 text-base";
+  const headerClass =
+    'mb-2 uppercase leading-7 text-lg font-medium dark:text-rumbleSecondary text-rumblePrimary'
+  const fieldClass =
+    'h-14 dark:focus:ring-rumbleNone focus:ring-rumbleOutline dark:focus:border-rumbleNone focus:border-rumbleOutline dark:bg-rumbleBgDark bg-rumbleNone dark:text-rumbleNone text-rumbleOutline flex-1 block w-full border-none'
+  const labelClass =
+    'mb-1 uppercase block text-base font-medium leading-6 dark:text-rumbleNone text-rumbleOutline'
+  const spanClass =
+    'inline-flex items-center px-3 dark:bg-rumbleBgDark bg-rumbleNone dark:text-rumbleNone/40 text-rumbleOutline/40 text-base'
 
   return (
     <Formik
@@ -156,7 +171,7 @@ const CreatePage = () => {
           name: '',
           symbol: '',
           contract_address: coinContracts.sFNC.contract,
-          network_name: coinNetworks[0].name,
+          network_name: coinNetworks[0].name
         },
         pve_chance: '',
         revive_chance: '',
@@ -167,45 +182,56 @@ const CreatePage = () => {
           prize_first: '',
           prize_second: '',
           prize_third: '',
-          prize_creator: '1',
+          prize_creator: '1'
         },
         slug: '',
-        user,
+        user
       }}
       onSubmit={(
         values: CreateRoomValues,
         { setSubmitting, setFieldError, resetForm }: FormikHelpers<CreateRoomValues>
       ) => {
-        setSubmitting(true);
-        setSavedSlugMessage(undefined);
-        checkSlugAvailable(values.slug).then((data) => {
+        setSubmitting(true)
+        setSavedSlugMessage(undefined)
+        checkSlugAvailable(values.slug).then(data => {
           if (data.length > 0) {
-            setFieldError('slug', 'Slug already taken.');
+            setFieldError('slug', 'Slug already taken.')
             setSubmitting(false)
-            return;
+            return
           }
           // only submit if the slug is available to use
-          handleSubmit(values).then((res) => {
+          handleSubmit(values).then(res => {
             if (res.error) {
-              setSubmitting(false);
-              handleSetToast({ type: 'ERROR', message: 'There was an error creating the room.' });
-              return;
+              setSubmitting(false)
+              handleSetToast({ type: 'ERROR', message: 'There was an error creating the room.' })
+              return
             }
-            setSubmitting(false);
-            handleSetToast({ type: 'SUCCESS', message: `Created room ${values.slug}` });
-            setSavedSlugMessage(values.slug);
-            resetForm();
+            setSubmitting(false)
+            handleSetToast({ type: 'SUCCESS', message: `Created room ${values.slug}` })
+            setSavedSlugMessage(values.slug)
+            resetForm()
           })
-        });
+        })
       }}
     >
       {({ isSubmitting, touched, values, setValues }) => (
         <Form className={`${preferences?.darkMode ? 'dark' : 'light'}`}>
-          <div className='dark:bg-black bg-rumbleBgLight w-full mx-auto py-8 px-6 lg:px-[15%] md:px-[10%] sm:px-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark"' style={{ height: 'calc(100vh - 58px)' }}>
-            <div className='absolute top-2 right-2 z-20'>
-              {toastOpen && <ToastMessage message={toast.message} type={toast.type} onClick={() => handleSetToast(null)} />}
+          <div
+            className='dark:bg-black bg-rumbleBgLight w-full mx-auto py-8 px-6 lg:px-[15%] md:px-[10%] sm:px-10 overflow-auto scrollbar-thin dark:scrollbar-thumb-rumbleSecondary scrollbar-thumb-rumblePrimary scrollbar-track-rumbleBgDark"'
+            style={{ height: 'calc(100vh - 58px)' }}
+          >
+            <div className="absolute top-2 right-2 z-20">
+              {toastOpen && (
+                <ToastMessage
+                  message={toast.message}
+                  type={toast.type}
+                  onClick={() => handleSetToast(null)}
+                />
+              )}
             </div>
-            <h3 className="uppercase text-2xl font-medium leading-9 dark:text-rumbleNone text-rumbleOutline">Create A Room</h3>
+            <h3 className="uppercase text-2xl font-medium leading-9 dark:text-rumbleNone text-rumbleOutline">
+              Create A Room
+            </h3>
             <p className="mb-20 text-base leading-6 dark:text-rumbleNone text-rumbleOutline opacity-60">
               This information will be used to create a rumble room.
             </p>
@@ -220,9 +246,7 @@ const CreatePage = () => {
                         Slug
                       </label>
                       <div className="flex">
-                        <span className={spanClass}>
-                          /
-                        </span>
+                        <span className={spanClass}>/</span>
                         <Field
                           type="text"
                           name="slug"
@@ -231,9 +255,7 @@ const CreatePage = () => {
                           placeholder="rumble-room-2"
                         />
                       </div>
-                      <ErrorMessage name="slug" >
-                        {msg => customErrorColors(msg)}
-                      </ErrorMessage>
+                      <ErrorMessage name="slug">{msg => customErrorColors(msg)}</ErrorMessage>
                     </div>
                     {/* PVE CHANCE */}
                     <div className="col-span-7 sm:col-span-2">
@@ -252,9 +274,7 @@ const CreatePage = () => {
                           %
                         </span>
                       </div>
-                      <ErrorMessage name="pve_chance" >
-                        {msg => customErrorColors(msg)}
-                      </ErrorMessage>
+                      <ErrorMessage name="pve_chance">{msg => customErrorColors(msg)}</ErrorMessage>
                     </div>
                     {/* REVIVE CHANCE */}
                     <div className="col-span-7 sm:col-span-2">
@@ -269,11 +289,9 @@ const CreatePage = () => {
                           className={fieldClass}
                           placeholder="5"
                         />
-                        <span className={spanClass}>
-                          %
-                        </span>
+                        <span className={spanClass}>%</span>
                       </div>
-                      <ErrorMessage name="revive_chance" >
+                      <ErrorMessage name="revive_chance">
                         {msg => customErrorColors(msg)}
                       </ErrorMessage>
                     </div>
@@ -295,11 +313,9 @@ const CreatePage = () => {
                           className={fieldClass}
                           placeholder="5"
                         />
-                        <span className={spanClass}>
-                          %
-                        </span>
+                        <span className={spanClass}>%</span>
                       </div>
-                      <ErrorMessage name="prize_split.prize_kills" >
+                      <ErrorMessage name="prize_split.prize_kills">
                         {msg => customErrorColors(msg)}
                       </ErrorMessage>
                     </div>
@@ -318,11 +334,9 @@ const CreatePage = () => {
                           className={fieldClass}
                           placeholder="5"
                         />
-                        <span className={spanClass} >
-                          %
-                        </span>
+                        <span className={spanClass}>%</span>
                       </div>
-                      <ErrorMessage name="prize_split.prize_first" >
+                      <ErrorMessage name="prize_split.prize_first">
                         {msg => customErrorColors(msg)}
                       </ErrorMessage>
                     </div>
@@ -339,11 +353,9 @@ const CreatePage = () => {
                           className={fieldClass}
                           placeholder="5"
                         />
-                        <span className={spanClass}>
-                          %
-                        </span>
+                        <span className={spanClass}>%</span>
                       </div>
-                      <ErrorMessage name="prize_split.prize_second" >
+                      <ErrorMessage name="prize_split.prize_second">
                         {msg => customErrorColors(msg)}
                       </ErrorMessage>
                     </div>
@@ -360,11 +372,9 @@ const CreatePage = () => {
                           className={fieldClass}
                           placeholder="5"
                         />
-                        <span className={spanClass}>
-                          %
-                        </span>
+                        <span className={spanClass}>%</span>
                       </div>
-                      <ErrorMessage name="prize_split.prize_third" >
+                      <ErrorMessage name="prize_split.prize_third">
                         {msg => customErrorColors(msg)}
                       </ErrorMessage>
                     </div>
@@ -381,11 +391,9 @@ const CreatePage = () => {
                           className={fieldClass}
                           placeholder="5"
                         />
-                        <span className={spanClass}>
-                          %
-                        </span>
+                        <span className={spanClass}>%</span>
                       </div>
-                      <ErrorMessage name="prize_split.prize_alt_split" >
+                      <ErrorMessage name="prize_split.prize_alt_split">
                         {msg => customErrorColors(msg)}
                       </ErrorMessage>
                     </div>
@@ -403,13 +411,14 @@ const CreatePage = () => {
                           className={fieldClass}
                           placeholder="1"
                         />
-                        <span className={spanClass}>
-                          %
-                        </span>
+                        <span className={spanClass}>%</span>
                       </div>
                     </div>
                   </div>
-                  <ErrorMessage render={msg => customPrizeSplitMessage(msg, touched)} name="prize_split" >
+                  <ErrorMessage
+                    render={msg => customPrizeSplitMessage(msg, touched)}
+                    name="prize_split"
+                  >
                     {msg => customErrorColors(msg)}
                   </ErrorMessage>
                   {showAltSplitAddress(values) && (
@@ -424,7 +433,7 @@ const CreatePage = () => {
                         placeholder="Wallet Address"
                         className={fieldClass}
                       />
-                      <ErrorMessage name="alt_split_address" >
+                      <ErrorMessage name="alt_split_address">
                         {msg => customErrorColors(msg)}
                       </ErrorMessage>
                     </div>
@@ -452,7 +461,7 @@ const CreatePage = () => {
                             placeholder="10"
                           />
                         </div>
-                        <ErrorMessage name="entry_fee" >
+                        <ErrorMessage name="entry_fee">
                           {msg => customErrorColors(msg)}
                         </ErrorMessage>
                       </div>
@@ -469,9 +478,13 @@ const CreatePage = () => {
                         name="contract.network_name"
                         className={fieldClass}
                       >
-                        {coinNetworks.map(net => <option key={net.rpc} value={net.rpc}>{net.name}</option>)}
+                        {coinNetworks.map(net => (
+                          <option key={net.rpc} value={net.rpc}>
+                            {net.name}
+                          </option>
+                        ))}
                       </Field>
-                      <ErrorMessage name="contract.network_name" >
+                      <ErrorMessage name="contract.network_name">
                         {msg => customErrorColors(msg)}
                       </ErrorMessage>
                     </div>
@@ -486,7 +499,7 @@ const CreatePage = () => {
                         id="contract-address"
                         className={fieldClass}
                       />
-                      <ErrorMessage name="contract.contract_address" >
+                      <ErrorMessage name="contract.contract_address">
                         {msg => customErrorColors(msg)}
                       </ErrorMessage>
                     </div>
@@ -496,23 +509,35 @@ const CreatePage = () => {
                         onClick={() => fetchContractData(setValues, values)}
                         className="truncate uppercase place-self-end h-14 py-4 px-6 border-2 dark:border-rumbleBgLight border-rumbleBgDark dark:bg-rumbleBgDark bg-rumbleBgLight dark:text-rumbleNone dark:hover:bg-rumbleSecondary dark:hover:border-rumbleSecondary hover:bg-rumblePrimary hover:border-rumblePrimary hover:text-rumbleNone text-rumbleOutline font-medium"
                       >
-                        {contractDetailsLoading ? "Loading..." : "Fetch Contract Data"}
+                        {contractDetailsLoading ? 'Loading...' : 'Fetch Contract Data'}
                       </button>
                     </div>
                     {/* TOKEN INFORMATION */}
-                    {!selectedContract ?
-                      <div className='col-span-7'>Please fetch contract data before continuing.</div>
-                      :
-                      // <div className="col-span-7 grid grid-cols-6 gap-6">
-                      <div className="col-span-6 md:col-span-2 sm:col-span-3">
-                        <p className={labelClass}>
-                          Token Information
-                        </p>
-                        <p className={labelClass}>Name: <span className='font-normal'>{selectedContract.name}</span></p>
-                        <p className={labelClass}>Symbol: <span className='font-normal'>{selectedContract.symbol}</span></p>
-                        <p className={labelClass}>Decimal: <span className='font-normal'>{selectedContract.decimals}</span></p>
-                        <p className={labelClass}>Chain Id: <span className='font-normal'>{selectedContract.chain_id}</span></p>
-                      </div>
+                    {
+                      !selectedContract ? (
+                        <div className="col-span-7">
+                          Please fetch contract data before continuing.
+                        </div>
+                      ) : (
+                        // <div className="col-span-7 grid grid-cols-6 gap-6">
+                        <div className="col-span-6 md:col-span-2 sm:col-span-3">
+                          <p className={labelClass}>Token Information</p>
+                          <p className={labelClass}>
+                            Name: <span className="font-normal">{selectedContract.name}</span>
+                          </p>
+                          <p className={labelClass}>
+                            Symbol: <span className="font-normal">{selectedContract.symbol}</span>
+                          </p>
+                          <p className={labelClass}>
+                            Decimal:{' '}
+                            <span className="font-normal">{selectedContract.decimals}</span>
+                          </p>
+                          <p className={labelClass}>
+                            Chain Id:{' '}
+                            <span className="font-normal">{selectedContract.chain_id}</span>
+                          </p>
+                        </div>
+                      )
                       // </div>
                     }
                   </div>
@@ -532,8 +557,8 @@ const CreatePage = () => {
           </div>
         </Form>
       )}
-    </Formik >
+    </Formik>
   )
 }
 
-export default CreatePage;
+export default CreatePage
